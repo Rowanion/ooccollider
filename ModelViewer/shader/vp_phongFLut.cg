@@ -1,0 +1,85 @@
+// geometric input (sent by application)
+
+
+struct appin
+{
+  float4 position     : POSITION;
+  float3 normal       : NORMAL;
+  float3 color         : COLOR0;
+};
+
+// vertex program output
+
+struct V2FI
+{
+  float4 oPosition 		: POSITION;
+  float3 objectPos 		: TEXCOORD0;
+  float3 oNormal   		: TEXCOORD1;
+  float3 oColor			: COLOR0;
+  float texCoord;
+};
+
+V2FI main(appin IN,
+	  uniform float4x4 modelViewProj)
+{
+  V2FI OUT;
+
+  // extract TextureCoordinate from 4th component and access the texture with it
+  OUT.texCoord = IN.position.w;
+//  OUT.oColor = tex1D(colorLut, 0.20002).rgb;
+
+  // restore harmonic component
+  float4 tempPos = IN.position;
+  tempPos.w = 1.0;
+
+  // project point onto screen
+  OUT.oPosition = mul(modelViewProj, tempPos);
+
+  // copy position
+  OUT.objectPos = IN.position.xyz;
+
+  // copy Normal
+  OUT.oNormal = IN.normal;
+
+  float3 red = float3(1.0, 0.0, 0.0);
+  float3 green = float3(0.0, 1.0, 0.0);
+  float3 blue = float3(0.0, 0.0, 1.0);
+  float3 yellow = float3(1.0, 1.0, 0.0);
+  float3 magenta = float3(1.0, 0.0, 1.0);
+/*
+  // --------------------------------------
+  int test = (int) colorIdx;
+  // --------------------------------------
+  if (test == 2)
+  	OUT.oColor = red;
+  else if (test > 10)
+  	OUT.oColor = green;
+  else if (test == 1)
+  	OUT.oColor = blue;
+  else
+  	OUT.oColor = yellow;
+*/
+
+//  OUT.oColor = IN.color;
+
+  return OUT;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
