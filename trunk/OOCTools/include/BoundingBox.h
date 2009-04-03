@@ -1,9 +1,11 @@
-/*
- * BoundingBox.h
+/**
+ * @file	BoundingBox.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 22.02.2009
  *
- *  Created on: 22.02.2009
- *      Author: ava
  */
+
 
 #ifndef BOUNDINGBOX_H_
 #define BOUNDINGBOX_H_
@@ -14,6 +16,15 @@
 
 namespace ooctools {
 
+/**
+ * @class BoundingBox
+ *
+ * @brief As the name suggests, this represents a bounding-box of an object.
+ *
+ * This boundingbox is represented by the minimum and maximum V3f vertices. Class contains
+ * elemental functionality to draw it via opengl; either as GL_LINES or GL_QUAD.
+ * Some intersection tests are included as well.
+ */
 class BoundingBox
 {
 public:

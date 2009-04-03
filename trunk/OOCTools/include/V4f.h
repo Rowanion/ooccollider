@@ -1,8 +1,9 @@
-/*
- * V4f.h
+/**
+ * @file	V4f.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 19.02.2009
  *
- *  Created on: 19.02.2009
- *      Author: ava
  */
 
 #ifndef V4F_H_
@@ -14,6 +15,11 @@
 
 namespace ooctools {
 
+/**
+ * @class C
+ * @brief B
+ * L
+ */
 class V4f
 {
 public:

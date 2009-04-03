@@ -1,8 +1,9 @@
-/*
- * OOCTools.h
+/**
+ * @file	OOCTools.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 02.03.2009
  *
- *  Created on: 02.03.2009
- *      Author: ava
  */
 
 #ifndef OOCTOOLS_H_

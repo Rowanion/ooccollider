@@ -1,8 +1,9 @@
-/*
- * Model.h
+/**
+ * @file	Model.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 30.01.2009
  *
- *  Created on: 30.01.2009
- *      Author: ava
  */
 
 #ifndef MODEL_H_
@@ -23,6 +24,11 @@
 
 namespace ooctools {
 
+/**
+ * @class C
+ * @brief B
+ * L
+ */
 class Model
 {
 public:

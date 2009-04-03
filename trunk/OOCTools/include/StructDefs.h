@@ -1,8 +1,9 @@
-/*
- * StructDefs.h
+/**
+ * @file	StructDefs.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 02.02.2009
  *
- *  Created on: 02.02.2009
- *      Author: ava
  */
 
 #ifndef STRUCTDEFS_H_
@@ -30,6 +31,11 @@ namespace ooctools {
 //	std::string map_Ka; // texture map; ASCII dump of rgb-vals *puke*
 //};
 
+/**
+ * @struct C
+ * @brief B
+ * L
+ */
 struct Material
 {
 	float kdR; // diffuse color r
@@ -37,6 +43,11 @@ struct Material
 	float kdB; // diffuse color b
 };
 
+/**
+ * @struct C
+ * @brief B
+ * L
+ */
 struct MtlMap
 {
 	std::string name;
