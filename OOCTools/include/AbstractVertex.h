@@ -1,8 +1,9 @@
-/*
- * AbstractVertex.h
+/**
+ * @file	AbstractVertex.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 02.02.2009
  *
- *  Created on: 02.02.2009
- *      Author: ava
  */
 
 #ifndef ABSTRACTVERTEX_H_
@@ -10,6 +11,16 @@
 
 namespace ooctools {
 
+/**
+ * @class AbstractVertex
+ *
+ * @brief Generic vertex class.
+ * @deprecated This is just experimental and is unused.
+ *
+ *
+ * This class should represent a generic template for vertices. It dosen't work, so
+ * it's discontinued.
+ */
 template <typename T>
 class AbstractVertex {
 public:

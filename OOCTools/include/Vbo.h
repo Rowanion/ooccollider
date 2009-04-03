@@ -1,9 +1,11 @@
-/*
- * VBOToolkit.h
+/**
+ * @file	Vbo.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 08.02.2009
  *
- *  Created on: 08.02.2009
- *      Author: ava
  */
+
 
 #ifndef VBO_H_
 #define VBO_H_
@@ -21,6 +23,11 @@
 
 namespace ooctools {
 
+/**
+ * @class C
+ * @brief B
+ * L
+ */
 class Vbo
 {
 

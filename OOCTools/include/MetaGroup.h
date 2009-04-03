@@ -1,8 +1,9 @@
-/*
- * MetaGroup.h
+/**
+ * @file	MetaGroup.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 23.03.2009
  *
- *  Created on: 23.03.2009
- *      Author: ava
  */
 
 #ifndef METAGROUP_H_
@@ -16,6 +17,11 @@
 
 namespace ooctools {
 
+/**
+ * @class C
+ * @brief B
+ * L
+ */
 class MetaGroup
 {
 	public:

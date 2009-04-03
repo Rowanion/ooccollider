@@ -1,8 +1,9 @@
-/*
- * VertexArray.h
+/**
+ * @file	VertexArray.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 12.02.2009
  *
- *  Created on: 12.02.2009
- *      Author: ava
  */
 
 #ifndef VERTEXARRAY_H_
@@ -14,6 +15,12 @@
 #include "declarations.h"
 
 namespace ooctools {
+
+/**
+ * @class C
+ * @brief B
+ * L
+ */
 template <typename T>
 class VertexArray
 {

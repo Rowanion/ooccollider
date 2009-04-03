@@ -1,8 +1,9 @@
-/*
- * CgToolkit.h
+/**
+ * @file	CgToolkit.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 03.02.2009
  *
- *  Created on: 03.02.2009
- *      Author: ava
  */
 
 #ifndef CGTOOLKIT_H_
@@ -18,6 +19,14 @@
 
 namespace ooctools {
 
+/**
+ * @class CgToolkit
+ *
+ * @brief Management class for using nVidias Cg.
+ *
+ * Includes setting shader params, initialization, creating shader programs, etc.
+ * Is a Singleton.
+ */
 class CgToolkit
 {
 public:

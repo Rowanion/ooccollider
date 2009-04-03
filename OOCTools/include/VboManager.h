@@ -1,8 +1,9 @@
-/*
- * VBOCollection.h
+/**
+ * @file	VboManager.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.02.2009
  *
- *  Created on: 28.02.2009
- *      Author: ava
  */
 
 #ifndef VBOMANAGER_H_
@@ -18,7 +19,10 @@
 
 namespace ooctools {
 
-/*
+/**
+ * @class C
+ * @brief B
+ *
  * will be a friend of VBO
  * according to its name serves as a container for multiple VBOs
  * thus enabling it to draw individual VBOs without having a gl-statechange between vbo-calls

@@ -1,8 +1,9 @@
-/*
- * V3ub.h
+/**
+ * @file	V3ub.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 19.02.2009
  *
- *  Created on: 19.02.2009
- *      Author: ava
  */
 
 #ifndef V3UB_H_
@@ -14,6 +15,11 @@
 
 namespace ooctools {
 
+/**
+ * @class C
+ * @brief B
+ * L
+ */
 class V3ub
 {
 public:
