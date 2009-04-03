@@ -326,6 +326,9 @@ RawModelWriter::writeModel(Model* _model, fs::path _p)
 	map<string, MetaGroup*>::iterator it;
 
 	testAndSetDir(_p);
+	ColorTable ct = _model->getColorTable();
+	//TODO funzt so so nicht - schreibt nur ein int-0 in das file. Aber die Position ist schomma richtig!
+	ct.writeToFile(_p / "colortable.bin");
 
 	for (it = _model->getGrpStart(); it != _model->getGrpEnd(); ++it) {
 		// notice: in phase1 we have seperate files for each group and each vertex array and normal array within each group
@@ -427,6 +430,8 @@ RawModelWriter::readModel(fs::path _p)
 		cerr << "The path " << _p << " does not exist!" << endl;
 		return 0;
 	}
+	ColorTable ct(_p / "colortable.bin");
+	vboMan->setColorTable(ct);
 	fs::directory_iterator dir_iter(_p), dir_end;
 	for (; dir_iter != dir_end; ++dir_iter) {
 		// iter contains an entry in the starting path _p - hopefully a directory
@@ -447,7 +452,7 @@ RawModelWriter::readModel(fs::path _p)
 				VertexArray<float>* va = new VertexArray<float>(3, fh.nVertices, fa);
 				va->setBB(fh.bb);
 				vbo->setVData(va);
-				vbo->setColor(fh.color);
+//				vbo->setColor(fh.color);
 				fb.close();
 			}
 
