@@ -21,7 +21,7 @@
 <targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug.1593846547" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
 <builder arguments="-j3" buildPath="${workspace_loc:/ModelConverter/Debug}" command="make" id="cdt.managedbuild.target.gnu.builder.exe.debug.968237372" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1025865202" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
-<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1134276154" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
+<tool command="mpic++" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1134276154" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
 <option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1660947272" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.exe.debug.option.debugging.level.401533301" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.1326497893" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
@@ -31,7 +31,7 @@
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.685100066" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
-<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.908615641" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
+<tool command="mpicc" id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.908615641" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
 <option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.485698820" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.exe.debug.option.debugging.level.155575374" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.c.compiler.option.include.paths.1578330894" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
@@ -42,7 +42,7 @@
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.246253887" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1372343081" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
-<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.93179343" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+<tool command="mpic++" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.93179343" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 <option id="gnu.cpp.link.option.libs.2116374561" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="OOCFormats"/>
 <listOptionValue builtIn="false" value="OOCTools"/>
