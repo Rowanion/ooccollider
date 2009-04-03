@@ -55,6 +55,7 @@ public:
 	void makeVbos(Model *_model);
 	void printInfo();
 	ColorTable& getColorTable();
+	void setColorTable(const ColorTable& _ct);
 
 	static VboManager *getInstancePtr();
 
