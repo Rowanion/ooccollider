@@ -1,10 +1,13 @@
-//============================================================================
-// Name        : GLExtensionPrint.cpp
-// Author      :
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
+/**
+ * @file	GLExtensionPrint.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ *
+ * @section DESCRIPTION
+ *
+ * The time class represents a moment of time.
+ */
+
 
 #include <iostream>
 #include <string>
@@ -18,15 +21,21 @@
 
 using namespace std;
 
-bool space(char c){
+bool
+space(char c)
+{
 	return isspace(c);
 }
 
-bool no_space(char c){
+bool
+no_space(char c)
+{
 	return !isspace(c);
 }
 
-vector<string> split(const string& str){
+vector<string>
+split(const string& str)
+{
 	typedef string::const_iterator iter;
 	vector<string> result;
 	iter i = str.begin();
@@ -39,7 +48,10 @@ vector<string> split(const string& str){
 	}
 	return result;
 }
-void printVertexArrayLimits(){
+
+void
+printVertexArrayLimits()
+{
 	int maxVertices, maxIndices;
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &maxVertices);
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &maxIndices);
@@ -50,7 +62,14 @@ void printVertexArrayLimits(){
 
 }
 
-void printFBOLimits(){
+/**
+* @brief Fetches the OpenGL-Side capabilities related to VBOs
+*
+* Fetches VBO-Limits dictated by OpnGL and prints them to StdOut.
+*/
+void
+printFBOLimits()
+{
 	//TODO
 	int maxTexSize, maxColAttach, maxRBSize, fbb, rbb;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexSize);
@@ -68,10 +87,12 @@ void printFBOLimits(){
 	cout << "Renderbuffer binding: " << rbb << endl;
 }
 
-void printGeneralSystemInfo(){
-	char *vendor = (char*)glGetString(GL_VENDOR);
-	char *renderer = (char*)glGetString(GL_RENDERER);
-	char *version = (char*)glGetString(GL_VERSION);
+void
+printGeneralSystemInfo()
+{
+	char* vendor = (char*)glGetString(GL_VENDOR);
+	char* renderer = (char*)glGetString(GL_RENDERER);
+	char* version = (char*)glGetString(GL_VERSION);
 
 	cout << endl << endl << "General System Info:" << endl;
 	cout << "=============================================" << endl;
@@ -80,13 +101,17 @@ void printGeneralSystemInfo(){
 	cout << "GL_VERSION (supported): " << version << endl;
 }
 
-bool isSupported(string extension, string extensions){
+bool
+isSupported(string extension, string extensions)
+{
 	GLboolean check = gluCheckExtension((const GLubyte*)extension.c_str(), (const GLubyte*)extensions.c_str());
 	if (check==GL_TRUE) return true;
 	else return false;
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
 	glutInit(&argc, argv);
 	//glewInit();
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
