@@ -268,6 +268,12 @@ VboManager::getColorTable()
 	return mPriCt;
 }
 
+void
+VboManager::setColorTable(const ColorTable& _ct)
+{
+	mPriCt = _ct;
+}
+
 } // end of namespace OOCTools
 
 
