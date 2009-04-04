@@ -35,6 +35,7 @@ Model::Model() : mPriGrpCount(0), mPriMaterialCount(0), mPriFaceCount(0), mPriVe
 
 Model::~Model()
 {
+
 //	exit(0);
 //	if (mPriBB!=0){
 //		delete mPriBB;
@@ -84,7 +85,7 @@ Model::~Model()
 	mPriGrpPtrMap.clear();
 
 	mPriCurrentGrpPtr = 0;
-//	cout << "Model..." << endl;
+//	cout << "Model deleted..." << endl;
 }
 
 
@@ -341,6 +342,12 @@ Model::calculateNormals()
 //		currentN->setY((char)127.0f*temp.getY());
 //		currentN->setZ((char)127.0f*temp.getZ());
 //	}
+}
+
+const ColorTable&
+Model::getColorTable() const
+{
+	return mPriCTable;
 }
 
 } // namespace OOCTools {

@@ -228,7 +228,7 @@ BoundingBox::toString()
 {
 	std::string s;
 	std::stringstream ss;
-	ss << mPrivMin.toString() << " - " << mPrivMax.toString() << std::endl;
+	ss << mPrivMin.toString() << " - " << mPrivMax.toString();
 	return ss.str();
 }
 

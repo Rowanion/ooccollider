@@ -61,12 +61,20 @@ class ColorTable
 		 * colortable.bin file.
 		 */
 		ColorTable(fs::path _filePath);
+
 		/**
 		 * Same as above but constructs the path from a std::string.
 		 * @param _filePath
 		 * @see ColorTable(const char* data)
 		 */
 		ColorTable(std::string _filePath);
+
+		/**
+		 * Copy-Constructor.
+		 * @param _ct the colortable whose values are copied into THIS
+		 */
+		ColorTable(const ColorTable& _ct);
+
 		virtual ~ColorTable();
 //		const float* getTextureData();
 

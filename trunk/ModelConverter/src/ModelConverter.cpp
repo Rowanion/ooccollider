@@ -256,7 +256,7 @@ int main(int argc, char *argv[]) {
 		RawModelLoader* rawLoader = 0;
 		RawModelWriter* rawWriter = 0;
 		OctreeModelWriter* octWriter = 0;
-		ColorTable* ct = 0;
+//		ColorTable ct();
 
 		if (ctState != IS_OTHER_FILE){
 			cerr << "There seems to be a problem with the colortable you specified!" << endl;
@@ -300,16 +300,16 @@ int main(int argc, char *argv[]) {
 			}
 			else if (srcState == IS_OBJ_FILE) {
 				cout << "src is file" << endl;
-				ct = new ColorTable(cTable);
+				ColorTable ct(cTable);
 				objLoader = new ObjModelLoader(ct);
 				model = objLoader->parseMultipass(src.string(), true);
-				model->setColorTable(*ct);
+
+//				model->setColorTable(ct);
 				rawWriter = new RawModelWriter();
 				string objName(src.filename().substr(0, src.filename().size()-4));
 				if (!fs::exists(fs::path(dst / objName)))
 					fs::create_directory(fs::path(dst / objName));
 				rawWriter->writeModel(model, fs::path(dst / objName));
-				// TODO fix nested model destructor
 				delete model;
 				model = 0;
 				delete rawWriter;

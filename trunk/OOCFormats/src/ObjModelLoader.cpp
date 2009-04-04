@@ -39,11 +39,11 @@ namespace oocformats {
 
 // TODO Taking care of groups, materials and the thus encapsulated hierarchy
 ObjModelLoader::ObjModelLoader() :
-	mPriModelPtr(0), mPriFName(""), mCTable(0)
+	mPriModelPtr(0), mPriFName("")
 {
 }
 
-ObjModelLoader::ObjModelLoader(ColorTable* ct = 0) :
+ObjModelLoader::ObjModelLoader(const ColorTable& ct) :
 	mPriModelPtr(0), mPriFName(""), mCTable(ct)
 {
 }
@@ -143,11 +143,6 @@ ObjModelLoader::extractFaceComponents(const string& s)
 Model*
 ObjModelLoader::parseMultipass(string _fname, bool verbose)
 {
-	if (mCTable == 0) {
-		mCTable = new ColorTable();
-		mCTable->addColori(ooctools::defaultColorB);
-	}
-
 	mPriFName.assign(_fname);
 
 	mPriModelPtr = new Model();
@@ -175,7 +170,7 @@ ObjModelLoader::parseMultipass(string _fname, bool verbose)
 	}
 
 	Model *tempModel = mPriModelPtr;
-	tempModel->setColorTable(*mCTable);
+	tempModel->setColorTable(mCTable);
 	// do the cleanup - to get the model again one has to reload the file from disk
 	cleanup();
 	return tempModel;
@@ -387,10 +382,8 @@ ObjModelLoader::parseMtl(fs::path file)
 }
 
 void
-ObjModelLoader::setColorTable(ColorTable* _ct)
+ObjModelLoader::setColorTable(const ColorTable& _ct)
 {
-	delete mCTable;
-	mCTable = 0;
 	mCTable = _ct;
 }
 
@@ -402,7 +395,6 @@ ObjModelLoader::cleanup()
 //	}
 	mPriModelPtr = 0;
 	mPriFName.clear();
-	delete mCTable;
 }
 
 } // oocformats

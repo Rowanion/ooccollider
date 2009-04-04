@@ -68,7 +68,7 @@ Fbo *fbo;
 ColorTable* ct;
 GLuint tex;
 
-RawModelWriter *moWri = new RawModelWriter();
+RawModelWriter* moWri;
 
 // frame - the number of frames since we last computed the frame rate
 // time - the current number of milliseconds
@@ -517,9 +517,9 @@ static void glInit(int argc, char *argv[]){
 	setupTexture();
 	GET_GLERROR(0);
 
-	vboMan->makeVbos(model);
+//	vboMan->makeVbos(model);
 
-//	moWri->readModel(fs::path("/home/ava/leeresDir/C141T4001S01-BD-1V4")); //912k / 304k
+	moWri->readModel(fs::path("raw_objs/MyDoor/C141T4001S01-BD-1V4/")); //912k / 304k
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
 //	moWri->readModel(fs::path("raw_objs/armadillo")); // 1,03 Mil. / 345k
@@ -580,20 +580,21 @@ static void glInit(int argc, char *argv[]){
 int main(int argc, char *argv[]) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
-	moLoader.setColorTable(new ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
+	moLoader.setColorTable(ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
+	 moWri = new RawModelWriter();
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
 //	model = moLoader.parseMultipass("meshes/robot.obj", true);
-	model = moLoader.parseMultipass("meshes/bunny.obj", true);
+//	model = moLoader.parseMultipass("meshes/bunny.obj", true);
 //	model = moLoader.parseMultipass("meshes/happy_buddha.obj", true);
 //	model = moLoader.parseMultipass("meshes/Dragon.obj", true);
 //	model = moLoader.parseMultipass("meshes/mini_obj2.obj", true);
 //	model = moLoader.parseMultipass("meshes/ShadowBattleCrab.obj", true);
 //	model = moLoader.parseMultipass("meshes/Armadillo.obj", true);
 //	model = moLoader.parseMultipass("meshes/beethoven_tri3.obj", true);
-	ColorTable ct = model->getColorTable();
+//	ColorTable ct = model->getColorTable();
 //	ct.inflateToPowerOfTwo();
-	ct.debug();
+//	ct.debug();
 //	ct.removePowerOfTwoOverhead();
 //	ct.debug();
 //	exit(0);
