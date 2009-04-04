@@ -42,7 +42,8 @@ public:
 	int getHeaderSize(){return 35;};
 
 	/*
-	 * Header-Format: 3xfloat32[minBB], 3xfloat32[maxBB], int32[vertCount], int32[normCount], 3xuchar[color]
+	 * Header-Format: 3xfloat32[minBB], 3xfloat32[maxBB], int32[vertCount],
+	 * int32[normCount], 3xuchar[color]
 	 * Headersize: 35 byte
 	 */
 	void writeHeader(ooctools::MetaGroup *_grp, fs::ofstream &_of);
@@ -70,6 +71,8 @@ public:
 private:
 	void testAndSetDir(fs::path _p);
 	std::string unscrewOsgGroupName(const std::string& _gName);
+
+	bool constructorCalled;
 
 };
 

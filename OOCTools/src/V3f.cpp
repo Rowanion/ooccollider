@@ -25,6 +25,7 @@ V3f::V3f() :
 	mPriData[0] = 1.0f;
 	mPriData[1] = 0.0f;
 	mPriData[2] = 0.0f;
+	mPriCount = 3;
 }
 
 V3f::V3f(float _x, float _y, float _z) :

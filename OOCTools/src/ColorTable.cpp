@@ -71,6 +71,16 @@ ColorTable::ColorTable(string _filePath) :
 	addColori(new V3ub(*defaultColorB));
 	addFile(fs::path(_filePath));
 }
+
+ColorTable::ColorTable(const ColorTable& _ct)
+{
+	const vector<V3ub*> tempList (_ct.getColorVector());
+	vector<V3ub*>::const_iterator it;
+	for (it=tempList.begin(); it!=tempList.end(); ++it){
+		addColori(new V3ub(*(*it)));
+	}
+}
+
 ColorTable::~ColorTable()
 {
 	clear();
@@ -242,6 +252,10 @@ ColorTable::toByteStream(unsigned char* _ref)
 void
 ColorTable::addFile(fs::path _filePath)
 {
+	if (!fs::exists(_filePath)){
+		cerr << "Error: ColorTable '" << _filePath << "' does not exist! - quitting" << endl;
+		exit(0);
+	}
 	char* memblock;
 	fs::ifstream inFile;
 	inFile.open( _filePath,ios::binary|ios::in);
@@ -252,7 +266,7 @@ ColorTable::addFile(fs::path _filePath)
 	// read in one int
 	inFile.read((char*)memblock, sizeof(unsigned int));
 	unsigned int localNColors = *(unsigned int*)memblock;
-	// free up reseverd space
+	// free up reserved space
 	delete memblock;
 	// jump ahead one int - to skip future reading of the # colors
 	inFile.seekg(sizeof(unsigned int), ios::beg);
@@ -296,6 +310,10 @@ ColorTable::operator==(const ColorTable& _ct)
 void ColorTable::clear()
 {
 	nColorsi = 0;
+	nColorsf = 0.0f;
+	quotient = 0.0f;
+	halfQuotient = 0.0f;
+	// TODO delete texture from openGL
 	texId = 0;
 	if (!colors.empty()){
 		vector<V3ub*>::iterator it;

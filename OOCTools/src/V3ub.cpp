@@ -16,13 +16,13 @@ namespace ooctools {
 
 V3ub::V3ub() : x(mPriData), y(mPriData+1), z(mPriData+2)
 {
-	mPriData = new unsigned char[3];
+//	mPriData = new unsigned char[3];
 	mPriCount = 0;
 
 }
 V3ub::V3ub(unsigned char _x, unsigned char _y, unsigned char _z) : x(mPriData), y(mPriData+1), z(mPriData+2)
 {
-	mPriData = new unsigned char[3];
+//	mPriData = new unsigned char[3];
 	mPriData[0] = _x;
 	mPriData[1] = _y;
 	mPriData[2] = _z;
@@ -31,7 +31,7 @@ V3ub::V3ub(unsigned char _x, unsigned char _y, unsigned char _z) : x(mPriData), 
 
 V3ub::V3ub(float _x, float _y, float _z) : x(mPriData), y(mPriData+1), z(mPriData+2)
 {
-	mPriData = new unsigned char[3];
+//	mPriData = new unsigned char[3];
 	mPriData[0] = static_cast<unsigned char>(255.0*_x);
 	mPriData[1] = static_cast<unsigned char>(255.0*_y);
 	mPriData[2] = static_cast<unsigned char>(255.0*_z);
@@ -40,7 +40,7 @@ V3ub::V3ub(float _x, float _y, float _z) : x(mPriData), y(mPriData+1), z(mPriDat
 
 V3ub::V3ub(unsigned char _x) : x(mPriData), y(mPriData+1), z(mPriData+2)
 {
-	mPriData = new unsigned char[3];
+//	mPriData = new unsigned char[3];
 	mPriData[0] = _x;
 	mPriData[1] = _x;
 	mPriData[2] = _x;
@@ -49,7 +49,7 @@ V3ub::V3ub(unsigned char _x) : x(mPriData), y(mPriData+1), z(mPriData+2)
 
 V3ub::V3ub(const unsigned char* _data) : x(mPriData), y(mPriData+1), z(mPriData+2)
 {
-	mPriData = new unsigned char[3];
+//	mPriData = new unsigned char[3];
 	mPriData[0] = _data[0];
 	mPriData[1] = _data[1];
 	mPriData[2] = _data[2];
@@ -58,7 +58,7 @@ V3ub::V3ub(const unsigned char* _data) : x(mPriData), y(mPriData+1), z(mPriData+
 
 V3ub::V3ub(const V3f& _v) : x(mPriData), y(mPriData+1), z(mPriData+2)
 {
-	mPriData = new unsigned char[3];
+//	mPriData = new unsigned char[3];
 	mPriData[0] = static_cast<unsigned char>(255.0*_v.getX());
 	mPriData[1] = static_cast<unsigned char>(255.0*_v.getY());
 	mPriData[2] = static_cast<unsigned char>(255.0*_v.getZ());
@@ -69,7 +69,7 @@ V3ub::V3ub(const V3f& _v) : x(mPriData), y(mPriData+1), z(mPriData+2)
 V3ub::V3ub(const V3ub& _v) :
 	x(mPriData), y(mPriData + 1), z(mPriData + 2)
 {
-	mPriData = new unsigned char[3];
+//	mPriData = new unsigned char[3];
 	mPriData[0] = _v.getX();
 	mPriData[1] = _v.getY();
 	mPriData[2] = _v.getZ();
@@ -78,8 +78,6 @@ V3ub::V3ub(const V3ub& _v) :
 
 V3ub::~V3ub()
 {
-	delete[] mPriData;
-	mPriData = 0;
 	x = 0;
 	y = 0;
 	z = 0;

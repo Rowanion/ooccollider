@@ -18,6 +18,7 @@
 
 #include "../../OOCTools/include/declarations.h"
 #include "declarations.h"
+#include "ColorTable.h"
 
 namespace fs = boost::filesystem;
 namespace oocformats {
@@ -25,19 +26,19 @@ namespace oocformats {
 class ObjModelLoader {
 public:
 	ObjModelLoader();
-	ObjModelLoader(ooctools::ColorTable* ct);
+	ObjModelLoader(const ooctools::ColorTable& ct);
 	virtual ~ObjModelLoader();
 
 	// this is THE method to call......
-	ooctools::Model *parseMultipass(std::string _fname, bool verbose= false);
-	void setColorTable(ooctools::ColorTable* _ct);
+	ooctools::Model* parseMultipass(std::string _fname, bool verbose= false);
+	void setColorTable(const ooctools::ColorTable& _ct);
 
 private:
 	// this is just a temporary store. after parsing this reference will be nullified
 	// thus the receiver of praseMultipass() is responsible for destruction.
-	ooctools::Model *mPriModelPtr;
+	ooctools::Model* mPriModelPtr;
 	std::string mPriFName;
-	ooctools::ColorTable* mCTable;
+	ooctools::ColorTable mCTable;
 
 	std::map<std::string, ooctools::Material*> mPriMatMap;
 

@@ -27,8 +27,9 @@ namespace fs = boost::filesystem;
 
 namespace oocformats {
 
-RawModelWriter::RawModelWriter()
+RawModelWriter::RawModelWriter() : constructorCalled(false)
 {
+	constructorCalled = true;
 	// TODO Auto-generated constructor stub
 
 }
@@ -196,6 +197,7 @@ V3ub*
 RawModelWriter::readV3ub(fs::ifstream& _if)
 {
 	V3ub* v = new V3ub();
+	*(v->x) = 125;
 	_if.read((char*) v->x, sizeof(unsigned char));
 	_if.read((char*) v->y, sizeof(unsigned char));
 	_if.read((char*) v->z, sizeof(unsigned char));
@@ -327,7 +329,6 @@ RawModelWriter::writeModel(Model* _model, fs::path _p)
 
 	testAndSetDir(_p);
 	ColorTable ct = _model->getColorTable();
-	//TODO funzt so so nicht - schreibt nur ein int-0 in das file. Aber die Position ist schomma richtig!
 	ct.writeToFile(_p / "colortable.bin");
 
 	for (it = _model->getGrpStart(); it != _model->getGrpEnd(); ++it) {
@@ -448,8 +449,8 @@ RawModelWriter::readModel(fs::path _p)
 				fb.seekg(0, ios::beg);
 				FileHeader fh = readHeader(fb);
 				fb.seekg(getHeaderSize(), ios::beg);
-				float* fa = readFloatArray(fb, 3 * fh.nVertices);
-				VertexArray<float>* va = new VertexArray<float>(3, fh.nVertices, fa);
+				float* fa = readFloatArray(fb, 4 * fh.nVertices);
+				VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
 				va->setBB(fh.bb);
 				vbo->setVData(va);
 //				vbo->setColor(fh.color);

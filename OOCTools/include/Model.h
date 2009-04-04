@@ -78,7 +78,8 @@ public:
 	void resetGrpPtr(){mPriCurrentGrpPtr = mPriGrpPtrMap.begin()->second;};
 	void calculateNormals();
 	void setColorTable(ColorTable& _ct);
-	const ColorTable& getColorTable() const {return mPriCTable;};
+	const ColorTable& getColorTable() const;
+
 
 
 private:

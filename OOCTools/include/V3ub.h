@@ -47,7 +47,7 @@ public:
 	V3ub& operator=(const V3ub& a);
 
 private:
-	unsigned char *mPriData;
+	unsigned char mPriData[3];
 	int mPriCount;
 };
 
