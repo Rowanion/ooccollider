@@ -19,6 +19,7 @@
 #include <boost/system/config.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "BoundingBox.h"
 #include "Face.h"
@@ -194,7 +195,14 @@ ObjModelLoader::firstPass()
 			lastType = "o";
 		}
 		else if (tokens[0] == ("g")) {
-			mPriModelPtr->addGrpPtr(new MetaGroup(tokens[1]));
+//			removeSpecialCharsFromName(tokens[1]);
+			string longname("");
+			for (unsigned int i = 1; i < tokens.size(); ++i) {
+				longname.append(tokens[i]);
+				longname.append("_");
+			}
+			longname.erase(longname.end() - 1);
+			mPriModelPtr->addGrpPtr(new MetaGroup(longname));
 			lastType = "g";
 		}
 		else if (tokens[0] == ("mtllib")) {
@@ -253,9 +261,17 @@ ObjModelLoader::secondPass()
 	while (objFile.getline(line, 200)) {
 		tokens = splitSpace(string(line));
 		if (tokens[0] == ("g")) {
+//			removeSpecialCharsFromName(tokens[1]);
 			++grpId;
 			lastType = "g";
-			mPriModelPtr->setCurrentGrp(tokens[1]);
+			string longname("");
+			for (unsigned int i = 1; i < tokens.size(); ++i) {
+				longname.append(tokens[i]);
+				longname.append("_");
+			}
+			longname.erase(longname.end() - 1);
+
+			mPriModelPtr->setCurrentGrp(longname);
 			//cout << _model.getCurrentGrpPtr()->name << endl;
 		}
 		else if (tokens[0] == ("v")) {
@@ -272,7 +288,7 @@ ObjModelLoader::secondPass()
 			}
 			longName.erase(longName.end() - 1);
 			if (mPriMatMap.find(longName) != mPriMatMap.end())
-				mPriModelPtr->getCurrentGrpPtr()->setMat(mPriMatMap.at(longName));
+				mPriModelPtr->getCurrentGrpPtr()->setMat(*mPriMatMap.at(longName));
 			lastType = "usemtl";
 		}
 		else if (tokens[0] == ("f")) {
@@ -366,9 +382,9 @@ ObjModelLoader::parseMtl(fs::path file)
 			}
 			longName.erase(longName.end() - 1);
 			matPtr = new Material();
-			matPtr->kdR = ooctools::defaultColorF->getX();
-			matPtr->kdG = ooctools::defaultColorF->getY();
-			matPtr->kdB = ooctools::defaultColorF->getZ();
+			matPtr->kdR = ooctools::defaultColorF.getX();
+			matPtr->kdG = ooctools::defaultColorF.getY();
+			matPtr->kdB = ooctools::defaultColorF.getZ();
 			mPriMatMap.insert(make_pair(longName, matPtr));
 			//			cout << "found MaterialDefinition '" << tokens[1] << "'!" << endl;
 		}
@@ -390,11 +406,23 @@ ObjModelLoader::setColorTable(const ColorTable& _ct)
 void
 ObjModelLoader::cleanup()
 {
-//	if (!mPriMatMap.empty()) {
-//		mPriMatMap.clear();
-//	}
+	if (!mPriMatMap.empty()) {
+		map<string, Material*>::iterator it = mPriMatMap.begin();
+		for(; it!=mPriMatMap.end(); ++it){
+			delete (it->second);
+		}
+		mPriMatMap.clear();
+	}
 	mPriModelPtr = 0;
 	mPriFName.clear();
+}
+
+void
+ObjModelLoader::debug()
+{
+	string s("287W4153-25>15/16\" GROUND>BACS12GU5K14>BACS12GU5K14_Geometry_0");
+//	removeSpecialCharsFromName(s);
+//	cout << "string became: " << s << endl;
 }
 
 } // oocformats

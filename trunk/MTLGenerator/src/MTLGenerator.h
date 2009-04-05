@@ -1,8 +1,9 @@
-/*
- * MTLGenerator.h
+/**
+ * @file	MTLGenerator.h
+ * @author	TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date 	Created on: 10.03.2009
  *
- *  Created on: 10.03.2009
- *      Author: ava
  */
 
 #ifndef MTLGENERATOR_H_

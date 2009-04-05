@@ -96,13 +96,13 @@ class ColorTable
 		void setCgParams(const CGprogram shader);
 
 		/**
-		 * Adds a color to the internal list from wich the texture will be created and
+		 * Adds a copy of a color to the internal list from wich the texture will be created and
 		 * returns the index of it. If the color is already in the list nothing will be
 		 * added and the index pointing to that color is returned instead.
 		 * @param _color - the color
 		 * @return index of the color - used for calculation of TextureCoordinate.
 		 */
-		unsigned int addColori(ooctools::V3ub* _color);
+		unsigned int addColori(const ooctools::V3ub& _color);
 
 		/**
 		 * @param _mat a material reference
@@ -117,7 +117,7 @@ class ColorTable
 		 * @return index of given color as a float
 		 * @see addColori(ooctools::V3ub* _color)
 		 */
-		float addColorf(ooctools::V3ub* _color);
+		float addColorf(const ooctools::V3ub& _color);
 
 		/**
 		 * binds the texture to opengl-contex for usage.

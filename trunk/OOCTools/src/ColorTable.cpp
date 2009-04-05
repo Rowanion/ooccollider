@@ -1,8 +1,9 @@
-/*
- * ColorTable.cpp
+/**
+ * @file	ColorTable.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 23.03.2009
  *
- *  Created on: 23.03.2009
- *      Author: ava
  */
 
 #include "ColorTable.h"
@@ -37,13 +38,13 @@ ColorTable::ColorTable() :
 	nColorsi(0), nColorsf(0.0f), quotient(0.0f), halfQuotient(0.0f), texId(0),
 			cgTex(0), dummySpace(colors.begin())
 {
-	addColori(new V3ub(*defaultColorB));
+	addColori(defaultColorB);
 }
 
 ColorTable::ColorTable(const char* data) :
 	nColorsi(0), texId(0), cgTex(0), dummySpace(colors.begin()), dummyIndex(0)
 {
-	addColori(new V3ub(*defaultColorB));
+	addColori(defaultColorB);
 
 	// what we expect: data's 1st 4 bytes are an uint specifying the number of 3-tupel
 	// ubytes we'll find in data. schakkalakka
@@ -61,14 +62,14 @@ ColorTable::ColorTable(const char* data) :
 ColorTable::ColorTable(fs::path _filePath) :
 	nColorsi(0), texId(0), cgTex(0), dummySpace(colors.begin()), dummyIndex(0)
 {
-	addColori(new V3ub(*defaultColorB));
+	addColori(defaultColorB);
 	addFile(_filePath);
 }
 
 ColorTable::ColorTable(string _filePath) :
 	nColorsi(0), texId(0), cgTex(0), dummySpace(colors.begin()), dummyIndex(0)
 {
-	addColori(new V3ub(*defaultColorB));
+	addColori(defaultColorB);
 	addFile(fs::path(_filePath));
 }
 
@@ -77,7 +78,7 @@ ColorTable::ColorTable(const ColorTable& _ct)
 	const vector<V3ub*> tempList (_ct.getColorVector());
 	vector<V3ub*>::const_iterator it;
 	for (it=tempList.begin(); it!=tempList.end(); ++it){
-		addColori(new V3ub(*(*it)));
+		addColori(*(*it));
 	}
 }
 
@@ -140,12 +141,12 @@ ColorTable::setupTexture()
 }
 
 unsigned int
-ColorTable::addColori(ooctools::V3ub* _color){
+ColorTable::addColori(const ooctools::V3ub& _color){
 	unsigned int thisIdx = nColorsi;
-	map<string, unsigned int>::const_iterator it = dictionary.find(_color->toString());
+	map<string, unsigned int>::const_iterator it = dictionary.find(_color.toString());
 	if (it==dictionary.end()){
-		dictionary.insert(make_pair(_color->toString(), thisIdx));
-		colors.push_back(_color);
+		dictionary.insert(make_pair(_color.toString(), thisIdx));
+		colors.push_back(new V3ub(_color));
 		nColorsi = colors.size();
 		nColorsf = static_cast<float>(nColorsi);
 		quotient = 1.0f/nColorsf;
@@ -159,11 +160,12 @@ ColorTable::addColori(ooctools::V3ub* _color){
 unsigned int
 ColorTable::addColori(const Material& _mat)
 {
-	return addColori(new V3ub(_mat.kdR, _mat.kdG, _mat.kdB));
+	V3ub temp(_mat.kdR, _mat.kdG, _mat.kdB);
+	return addColori(temp);
 }
 
 float
-ColorTable::addColorf(ooctools::V3ub* _color){
+ColorTable::addColorf(const ooctools::V3ub& _color){
 	return static_cast<float>(addColori(_color));
 }
 
@@ -222,6 +224,7 @@ ColorTable::writeToFile(fs::path _filePath)
 	// write all colors
 	outFile.write((char*)memblock, 3*nColorsi*sizeof(unsigned char));
 	outFile.close();
+	delete[] memblock;
 }
 
 void
@@ -230,13 +233,17 @@ ColorTable::addByteStream(const unsigned char* _dataStream, unsigned int _nColor
 	const unsigned char* localData = _dataStream;
 
 	for(unsigned int i = 0; i<_nColors*3; i+=3){
-		int idx = addColori(new V3ub(localData));
+		int idx = addColori(V3ub(localData));
 		localData+=3;
 		cout << "color: " << colors.at(idx)->toString() << endl;
 	}
 	cout << "quotient: " << getQuotient() << endl;
 }
 
+/**
+ * fills a given uchar pointer with all colors.
+ * @param _ref the already allocated pointer to be filled with the colors.
+ */
 void
 ColorTable::toByteStream(unsigned char* _ref)
 {
@@ -247,6 +254,7 @@ ColorTable::toByteStream(unsigned char* _ref)
 		_ref[i+1] = tempCol->getY();
 		_ref[i+2] = tempCol->getZ();
 	}
+
 }
 
 void
@@ -267,7 +275,7 @@ ColorTable::addFile(fs::path _filePath)
 	inFile.read((char*)memblock, sizeof(unsigned int));
 	unsigned int localNColors = *(unsigned int*)memblock;
 	// free up reserved space
-	delete memblock;
+	delete[] memblock;
 	// jump ahead one int - to skip future reading of the # colors
 	inFile.seekg(sizeof(unsigned int), ios::beg);
 	// read in all colors
@@ -275,6 +283,7 @@ ColorTable::addFile(fs::path _filePath)
 	inFile.read((char*)memblock, 3*localNColors*sizeof(unsigned char));
 	inFile.close();
 	addByteStream((unsigned char*)memblock, localNColors);
+	delete[] memblock;
 //	inflateToPowerOfTwo();
 }
 
@@ -288,7 +297,7 @@ ColorTable::operator=(const ColorTable& _ct)
 		const vector<V3ub*> tempList (_ct.getColorVector());
 		vector<V3ub*>::const_iterator it;
 		for (it=tempList.begin(); it!=tempList.end(); ++it){
-			addColori(new V3ub(*(*it)));
+			addColori(*(*it));
 		}
 
 	}

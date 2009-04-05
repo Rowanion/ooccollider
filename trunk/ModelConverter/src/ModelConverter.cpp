@@ -1,11 +1,10 @@
-//============================================================================
-// Name        : ModelConverter.cpp
-// Author      :
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
+/**
+ * @file	ModelConverter.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 23.03.2009
+ *
+ */
 
 #include <iostream>
 #include <stdio.h>
@@ -17,7 +16,6 @@
 #include <cstring>
 #include <cstdio>
 #include <algorithm>
-#include "OOCTools.h"
 #include <cmath>
 #include <sstream>
 #include <map>
@@ -25,8 +23,7 @@
 #include "boost/filesystem.hpp"
 #include <boost/filesystem/fstream.hpp>
 
-#include "GlToolkit.h"
-
+#include "OOCTools.h"
 #include "ObjModelLoader.h"
 #include "ModelWriter.h"
 #include "RawModelWriter.h"
@@ -38,165 +35,6 @@
 using namespace std;
 using namespace ooctools;
 using namespace oocformats;
-
-Model *model;
-Model *model2;
-V3f tri1;
-V3f tri2;
-V3f tri3;
-
-bool vboSwitch= true;
-bool showFPS = true;
-bool showBBox = false;
-bool showLightSource = true;
-float zoom = 1.0f;
-int mouseLastX, mouseLastY;
-float mouseRotX = 0.0f;
-float mouseRotY = 0.0f;
-int vertexCount = 0;
-float transX = 0.0;
-float transY = 0.0;
-float transZ = 0.0;
-float modelScale = 1.0f;
-
-VboManager *vboMan;
-Fbo *fbo;
-
-RawModelWriter *moWri;
-
-// frame - the number of frames since we last computed the frame rate
-// time - the current number of milliseconds
-// timebase - the number of milliseconds since we last computed the frame rate
-int frame=0,time_passed,timebase=0;
-double fps = 0.0;
-int w=512, h=512;
-
-ObjModelLoader moLoader;
-
-static void display() {
-	glClearColor(0.0f,0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
-
-
-	glPushMatrix();
-		glTranslatef(transX, 0.0, transZ);
-		glPushMatrix();
-
-			glScalef(zoom, zoom, zoom);
-			glScalef(modelScale,modelScale,modelScale);
-			glRotatef(mouseRotX, 1.0f, 0.0, 0.0);
-			glRotatef(mouseRotY, 0.0f, 1.0, 0.0);
-			glPushMatrix();
-				if (showBBox) {
-					vboMan->getBb()->draw(0,255,0);
-					vboMan->drawBbs(255,0,0);
-				}
-//				vboMan->drawNormals();
-
-				// enable profiles
-
-				//glColor4ub(222,143,28,1);
-
-
-				//drawTriangle();
-				//drawObj();
-				//drawObj2();
-				//renderBuffers2();
-				//renderBuffers2();
-				//drawOldSchool(model);
-
-
-//				for(map<string, VBO*>::iterator it = vboList->begin(); it!= vboList->end(); ++it){
-//					it->second->draw(10);
-//				}
-				glColor3f(0.0f, 1.0f, 0.0f);
-				glBegin(GL_TRIANGLES);
-					glVertex3fv(tri1.getData());
-					glVertex3fv(tri2.getData());
-					glVertex3fv(tri3.getData());
-					glVertex3fv(tri3.getData());
-					glVertex3fv(tri2.getData());
-					glVertex3fv(tri1.getData());
-				glEnd();
-
-//				fbo->bind();
-//				fbo->clear();
-				vboMan->drawVbos();
-//				vboMan->drawVbo("robot");
-//				vboMan->drawVbo("bunny");
-//				glGetFloatv (GL_MODELVIEW_MATRIX, mvMatrix);
-//				OOCTools::readColorFB(pixels, 0,0, w,h);
-//				fbo->unbind();
-
-
-				//vboMan->drawVBO("defaultGrp");
-
-				//vbo.draw(60);
-				//vbo2.draw(60);
-			glPopMatrix();
-		glPopMatrix();
-	glPopMatrix();
-
-	//glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
-//	glWindowPos2i(0,0);
-//	glPushAttrib(GL_ALL_ATTRIB_BITS);
-//	//glDisable(GL_DEPTH_TEST);
-//	glDepthFunc(GL_ALWAYS);
-//	glDisable(GL_CULL_FACE);
-//	glDrawPixels(w,h,GL_DEPTH_COMPONENT, GL_FLOAT, depth);
-//	glDrawPixels(w,h,GL_BGRA, GL_UNSIGNED_BYTE, pixels);
-//	glPopAttrib();
-	/*
-	glClear(GL_COLOR_BUFFER_BIT);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, fbo->getColorTexId());
-	glBegin(GL_QUADS);
-		glNormal3f( 0.0f, 0.0f, 1.0f);
-		glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex2f( 1.0f, -1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex2f( 1.0f,  1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f,  1.0f);
-	glEnd();
-
-	glDisable(GL_TEXTURE_2D);
-*/
-	//glutPostRedisplay();
-//	exit(0);
-	glutSwapBuffers();
-	//glFlush();
-}
-
-
-
-
-static void glInit(int argc, char *argv[]){
-	//readObj("meshes/cow.obj");
-	getGlError(0);
-	glutInit(&argc, argv);
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-	glutInitWindowSize(w,h);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutCreateWindow("ModelConverter");
-	glewInit();
-	glutDisplayFunc(display);
-
-	getGlError(0);
-
-	vboMan->makeVbos(model);
-
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/dragon")); //2,6 Mil. / 871k
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/armadillo")); // 1,03 Mil. / 345k
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/mini")); //912k / 304k
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/bunny")); //48k / 16k
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/shadow")); //30k / 10k
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/door")); //25k / 8k
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/beethoven")); //15k / 5k
-//	moWri->readModel(fs::path("../ModelViewer/raw_objs/robot")); //3,6k / 1,2k
-	vboMan->printInfo();
-
-	getGlError(0);
-}
 
 enum PathState
 {
@@ -236,6 +74,14 @@ printProgramInfo(){
 	cout << "mode:\t\tobj2raw - converts obj file to binary format." << endl;
 	cout << "\t\traw2oct - converts binary object to octree-format." << endl;
 	cout << "colortable:\ta binary file that contains a colorLUT compliant with ooctools::ColorTable.h." << endl << endl;
+}
+
+void
+testAndSetDir(fs::path _p)
+{
+	if (!exists(_p)) {
+		fs::create_directory(_p);
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -298,6 +144,51 @@ int main(int argc, char *argv[]) {
 				printProgramInfo();
 				return 0;
 			}
+			// converting multiple objs to multiple raws
+			if (srcState == IS_NONEMPTY_DIR) {
+//				testAndSetDir(dst / "411W2468-1>411W2468-1_Geometry_0");
+				ColorTable ct(cTable);
+				ct.writeToFile(dst / "colortable.bin");
+				objLoader = new ObjModelLoader(ct);
+				rawWriter = new RawModelWriter();
+				// TODO read whole bunch of object-files
+				// modify writeModel that the colortable is not saved and
+				// and the group-dirs are written directly into the given dir
+				fs::directory_iterator dir_iter(src), dir_end;
+				for (; dir_iter != dir_end; ++dir_iter) {
+					if (fs::is_directory(dir_iter->status())){
+						testAndSetDir(dst / dir_iter->path().filename());
+						// dive one level deeper - a.k.a. 'Part1'
+						fs::directory_iterator deeper_iter(dir_iter->path());
+						for (; deeper_iter != dir_end; ++deeper_iter) {
+							if (fs::is_regular_file(deeper_iter->status())
+									&& deeper_iter->path().extension()==".obj"){
+								model = objLoader->parseMultipass(deeper_iter->path().string(), false);
+								rawWriter->writeModel(model, dst / dir_iter->path().filename() / deeper_iter->path().stem());
+								delete model;
+								model = 0;
+							}
+						}
+					}
+					else if (dir_iter->path().extension()==".obj"){
+
+					}
+				}
+//				parse directory
+//				if found another dir
+//					create same dir in dst
+//					recurse!
+//					keep track of the directory depth!
+//				if found obj-file
+//					create a dir with filename-obj in dst
+//					call WriteModel with this new dir as dst
+				delete rawWriter;
+				rawWriter = 0;
+				delete objLoader;
+				objLoader = 0;
+				return 1;
+			}
+			// converting a single obj to raw-format
 			else if (srcState == IS_OBJ_FILE) {
 				cout << "src is file" << endl;
 				ColorTable ct(cTable);
@@ -359,7 +250,7 @@ int main(int argc, char *argv[]) {
 //	moWri = new Phase1ModelWriter();
 //	moWri->writeModel(model, fs::path("raw_objs/budda"));
 //	exit(0);
-	vboMan = VboManager::getInstancePtr();
+//	vboMan = VboManager::getInstancePtr();
 
 
 //	modelScale = 1.0f/((fabs(model->getMaxBB()->getX()) +	fabs(model->getMinBB()->getX()))/2.0);
@@ -369,10 +260,6 @@ int main(int argc, char *argv[]) {
 		//fabs(model->getFirstObj()->maxV.x) + fabs(model.getLastObj()->minV.x);
 
 //	exit(0);
-
-
-
-	glInit(argc, argv);
 
 	return 0;
 }

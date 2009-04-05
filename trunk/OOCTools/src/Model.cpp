@@ -42,7 +42,6 @@ Model::~Model()
 //		mPriBB = 0;
 //	}
 
-	vector<V4f*>::iterator v4It;
 	vector<V3f*>::iterator v3It;
 	for(v3It=mPriVertexPtrList.begin(); v3It!=mPriVertexPtrList.end(); ++v3It){
 		delete (*v3It);
@@ -62,24 +61,6 @@ Model::~Model()
 
 	map<string, MetaGroup*>::iterator gIt;
 	for(gIt=mPriGrpPtrMap.begin(); gIt!=mPriGrpPtrMap.end(); ++gIt){
-		// TODO dive into the group-hierarchy
-//		if (gIt->second->bb!=0)
-//			delete gIt->second->bb;
-//		if (gIt->second->matPtr!=0)
-//			delete gIt->second->matPtr;
-//		if (!gIt->second->fPtrList.empty()){
-//			vector<Face*>::iterator fIt;
-//			for(fIt=gIt->second->fPtrList.begin(); fIt!=gIt->second->fPtrList.end(); ++fIt){
-//				// take care of face hierarchy
-//				(*fIt)->vertexPtrList.clear();
-//				(*fIt)->texturePtrList.clear();
-//				(*fIt)->normalPtrList.clear();
-//				if ((*fIt)->fNormal!=0) delete (*fIt)->fNormal;
-//
-//				delete (*fIt);
-//			}
-//			gIt->second->fPtrList.clear();
-//		}
 		delete (gIt->second);
 	}
 	mPriGrpPtrMap.clear();
@@ -193,7 +174,7 @@ Model::getVArrayPtr(MetaGroup* _grp)
 			va->mData[posCount++] = mPriCTable.calculateTexCoord(mPriCTable.addColori(_grp->getMat()));
 		}
 	}
-	va->setBB(_grp->bb);
+	va->setBB(*_grp->bb);
 	return va;
 }
 

@@ -14,6 +14,7 @@
 #include "CgToolkit.h"
 
 #include "ColorTable.h"
+#include "BoundingBox.h"
 #include "declarations.h"
 #include "../../OOCTools/include/declarations.h"
 
@@ -48,7 +49,7 @@ public:
 	Vbo *getVbo(mIterator it);
 	void delVbo(std::string id);
 	void delVbo(mIterator it);
-	BoundingBox *getBb(){return mPriBb;};
+	BoundingBox& getBb(){return mPriBb;};
 	void setCgDiffParam(CGparameter _cgp){mPriCgDiffuseParam = _cgp;};
 	void setUseGlColor(bool _usage){usingGlColor = _usage;};
 	bool getUseGlColor(){return usingGlColor;};
@@ -69,12 +70,13 @@ private:
 	size_t mPriNVertices;
 	size_t mPriNFaces;
 	std::map<std::string, Vbo*> *mPriVboMap;
-	BoundingBox *mPriBb;
+	BoundingBox mPriBb;
 	bool usingIdxPtr;
 	bool usingVertexPtr;
 	bool usingNormalPtr;
 	bool usingGlColor;
 	CGparameter mPriCgDiffuseParam;
+	size_t mPriMemoryUsage;
 	ColorTable mPriCt;
 
 	static VboManager *mPriInstancePtr;

@@ -18,18 +18,18 @@ MetaGroup::MetaGroup() :
 	name("defaultGrp"), nFaces(0), nVertices(0), nTextureCoords(0),
 			nNormals(0), bb(new BoundingBox())
 {
-	matPtr.kdR = defaultColorF->getR();
-	matPtr.kdG = defaultColorF->getG();
-	matPtr.kdB = defaultColorF->getB();
+	mat.kdR = defaultColorF.getR();
+	mat.kdG = defaultColorF.getG();
+	mat.kdB = defaultColorF.getB();
 }
 
 MetaGroup::MetaGroup(std::string _name) :
 	name(_name), nFaces(0), nVertices(0), nTextureCoords(0),
 			nNormals(0), bb(new BoundingBox())
 {
-	matPtr.kdR = defaultColorF->getR();
-	matPtr.kdG = defaultColorF->getG();
-	matPtr.kdB = defaultColorF->getB();
+	mat.kdR = defaultColorF.getR();
+	mat.kdG = defaultColorF.getG();
+	mat.kdB = defaultColorF.getB();
 }
 
 MetaGroup::~MetaGroup()
@@ -47,8 +47,9 @@ MetaGroup::~MetaGroup()
 	}
 }
 
-void MetaGroup::setMat(Material* mat){
-	matPtr = *mat;
+void
+MetaGroup::setMat(const Material& _mat){
+	mat = _mat;
 }
 
 } // ooctools

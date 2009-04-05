@@ -48,11 +48,11 @@ struct Material
  * @brief B
  * L
  */
-struct MtlMap
-{
-	std::string name;
-	std::map<std::string, Material*> matMap;
-};
+//struct MtlMap
+//{
+//	std::string name;
+//	std::map<std::string, Material*> matMap;
+//};
 
 } // end of namespace OOCTools
 #endif /* STRUCTDEFS_H_ */
