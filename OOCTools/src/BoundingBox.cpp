@@ -93,6 +93,14 @@ BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 		mPrivMax = vA;
 	}
 }
+/**
+ * Copy Constructor
+ */
+BoundingBox::BoundingBox(const BoundingBox& _bb)
+{
+	mPrivMax = _bb.getMax();
+	mPrivMin = _bb.getMin();
+}
 
 BoundingBox::~BoundingBox()
 {
@@ -100,26 +108,26 @@ BoundingBox::~BoundingBox()
 }
 
 void
-BoundingBox::draw()
+BoundingBox::draw() const
 {
 	glColor3ub(255,0,0);
 	drawLineStrip();
 }
 void
-BoundingBox::draw(float _r, float _g, float _b)
+BoundingBox::draw(float _r, float _g, float _b) const
 {
 	glColor3f(_r,_g,_b);
 	drawLineStrip();
 }
 void
-BoundingBox::draw(int _r, int _g, int _b)
+BoundingBox::draw(int _r, int _g, int _b) const
 {
 	glColor3ub(_r,_g,_b);
 	drawLineStrip();
 }
 
 void
-BoundingBox::drawImmediate()
+BoundingBox::drawImmediate() const
 {
 	glBegin(GL_LINES);
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
@@ -154,7 +162,7 @@ BoundingBox::drawImmediate()
 }
 
 void
-BoundingBox::drawLineStrip()
+BoundingBox::drawLineStrip() const
 {
 	glBegin(GL_LINE_LOOP);
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
@@ -233,7 +241,7 @@ BoundingBox::toString()
 }
 
 void
-BoundingBox::drawSolid()
+BoundingBox::drawSolid() const
 {
 	glBegin(GL_QUADS);
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
@@ -469,6 +477,36 @@ float
 BoundingBox::computeDiameter() const
 {
 	return (mPrivMax-mPrivMin).getAbs().calculateLength();
+}
+
+/**
+ * Assignment Operator
+ */
+BoundingBox&
+BoundingBox::operator=(const BoundingBox& _bb)
+{
+	if (*this != _bb){
+		mPrivMax = _bb.getMax();
+		mPrivMin = _bb.getMin();
+	}
+	return *this;
+}
+
+/**
+ * equality comparison operator
+ */
+bool
+BoundingBox::operator==(const BoundingBox& _bb)
+{
+	if (mPrivMax==_bb.getMax() && mPrivMin==_bb.getMin())
+		return true;
+	else return false;
+}
+
+bool
+BoundingBox::operator!=(const BoundingBox& _bb)
+{
+	return !(*this == _bb);
 }
 
 } // end of Namespace OOCTools

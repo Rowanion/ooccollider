@@ -14,6 +14,7 @@
 #include <boost/system/config.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "FileHeader.h"
 #include "MetaGroup.h"
@@ -53,6 +54,7 @@ RawModelWriter::testWrite(MetaGroup* _grp)
 	writeHeader(_grp, fb);
 	//fb.write((char*)_data, size),
 	fb.close();
+	delete[] memblock;
 }
 
 void
@@ -70,6 +72,7 @@ RawModelWriter::testRead()
 	//float ftest = readFloat(fb);
 	//cout << "Size: " << size<< ((float*)memblock)[0]<< ", " << ((float*)memblock)[1] << ", " << ((float*)memblock)[2] << ", " << ((float*)memblock)[3] << ", " << ftest << endl;
 	fb.close();
+	delete[] (char*)memblock;
 }
 
 void
@@ -92,6 +95,7 @@ RawModelWriter::testWriteArrayf(float* farray, int entries)
 	}
 	cout << "---------------------------------------" << endl;
 	fb.close();
+	delete[] (char*)memblock;
 }
 
 void
@@ -113,6 +117,7 @@ RawModelWriter::testReadArrayf(int entries)
 	}
 	cout << "---------------------------------------" << endl;
 	fb.close();
+	delete[] (char*)memblock;
 }
 char*
 RawModelWriter::readFileBytes(const char* name)
@@ -238,6 +243,12 @@ RawModelWriter::writeInt(int _i, fs::ofstream& _of)
 }
 
 void
+RawModelWriter::writeUInt(unsigned int _i, fs::ofstream& _of)
+{
+	_of.write((char*) &_i, sizeof(unsigned int));
+}
+
+void
 RawModelWriter::writeFloat(float _f, fs::ofstream& _of)
 {
 	_of.write((char*) &_f, sizeof(float));
@@ -267,6 +278,14 @@ RawModelWriter::readInt(fs::ifstream& _if)
 	return i;
 }
 
+unsigned int
+RawModelWriter::readUInt(fs::ifstream& _if)
+{
+	unsigned int i;
+	_if.read((char*) &i, sizeof(unsigned int));
+	return i;
+}
+
 float
 RawModelWriter::readFloat(fs::ifstream& _if)
 {
@@ -292,6 +311,9 @@ RawModelWriter::writeHeader(MetaGroup* _grp, fs::ofstream& _of)
 {
 	// writing BoundingBox
 	writeBB(_grp->bb, _of);
+
+	writeUInt(_grp->nFaces, _of);
+
 	// writing number of vertices to be extracted from this model group
 	writeInt(_grp->nVertices, _of);
 	// writing number of normals to
@@ -308,6 +330,7 @@ RawModelWriter::readHeader(fs::ifstream& _if)
 {
 	FileHeader fh;
 	fh.bb = readBB(_if);
+	fh.nFaces = readUInt(_if);
 	fh.nVertices = readInt(_if);
 	fh.nNormals = readInt(_if);
 	fh.color = readV3ub(_if);
@@ -328,8 +351,6 @@ RawModelWriter::writeModel(Model* _model, fs::path _p)
 	map<string, MetaGroup*>::iterator it;
 
 	testAndSetDir(_p);
-	ColorTable ct = _model->getColorTable();
-	ct.writeToFile(_p / "colortable.bin");
 
 	for (it = _model->getGrpStart(); it != _model->getGrpEnd(); ++it) {
 		// notice: in phase1 we have seperate files for each group and each vertex array and normal array within each group
@@ -345,19 +366,26 @@ RawModelWriter::writeModel(Model* _model, fs::path _p)
 		testAndSetDir(fs::path(_p / groupName));
 //		cout << "this was passed in..... " << _p << endl;
 //		cout << "this should be created..... " << fs::path(_p / groupName) << endl;
-//		cout << "this is the oprig. group name..... " << fs::path(it->first) << endl;
+//		cout << "this is the orig. group name..... " << fs::path(it->first) << endl;
 		fs::path localPath(_p / groupName / "vArray.bin");
 		of.open(localPath, ios::binary | ios::out);
 		of.seekp(0, ios::beg);
 		writeHeader(it->second, of);
-		writeVArrayf(_model->getVArrayPtr(it), of);
+//		cout << "number of faces in group " << it->first << ": " << it->second->nFaces << endl;
+		VertexArray<float>* floatVA = _model->getVArrayPtr(it);
+		writeVArrayf(floatVA, of);
 		of.close();
+		delete floatVA;
+		floatVA = 0;
 
 		localPath = (_p / groupName / "nArray.bin");
 		of.open(localPath, ios::binary | ios::out);
 		of.seekp(0, ios::beg);
 		writeHeader(it->second, of);
-		writeVArrayb(_model->getNArrayPtr(it), of);
+		VertexArray<char>* charVA = _model->getNArrayPtr(it);
+		writeVArrayb(charVA, of);
+		delete charVA;
+		charVA = 0;
 		of.close();
 	}
 }
@@ -424,15 +452,14 @@ RawModelWriter::testAndSetDir(fs::path _p)
 //}
 
 VboManager*
-RawModelWriter::readModel(fs::path _p)
+RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 {
 	VboManager* vboMan = VboManager::getInstancePtr();
 	if (!fs::exists(_p)) {
 		cerr << "The path " << _p << " does not exist!" << endl;
 		return 0;
 	}
-	ColorTable ct(_p / "colortable.bin");
-	vboMan->setColorTable(ct);
+	vboMan->setColorTable(_ct);
 	fs::directory_iterator dir_iter(_p), dir_end;
 	for (; dir_iter != dir_end; ++dir_iter) {
 		// iter contains an entry in the starting path _p - hopefully a directory
@@ -451,7 +478,7 @@ RawModelWriter::readModel(fs::path _p)
 				fb.seekg(getHeaderSize(), ios::beg);
 				float* fa = readFloatArray(fb, 4 * fh.nVertices);
 				VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
-				va->setBB(fh.bb);
+				va->setBB(*fh.bb);
 				vbo->setVData(va);
 //				vbo->setColor(fh.color);
 				fb.close();
@@ -484,6 +511,13 @@ RawModelWriter::readModel(fs::path _p)
 	return vboMan;
 }
 
+VboManager*
+RawModelWriter::readModel(fs::path _p)
+{
+	ColorTable ct(_p / "colortable.bin");
+	return readModel(_p, ct);
+}
+
 float*
 RawModelWriter::readFloatArray(fs::ifstream& _if, int count)
 {
@@ -509,10 +543,30 @@ RawModelWriter::unscrewOsgGroupName(const string& _gName)
 		if (loc != string::npos){
 			string temp(_gName.substr(loc+5));
 //			cout << "das haben wir: " << temp << endl;
+			removeSpecialCharsFromName(temp);
 			return temp;
 		}
 	}
-	return _gName;
+	string temp(_gName);
+	removeSpecialCharsFromName(temp);
+	return temp;
+}
+
+void
+RawModelWriter::removeSpecialCharsFromName(std::string& _origin)
+{
+	unsigned int nChanges = 0;
+	std::string sChars("!*~$|?%§;{}#<>:\" /\\");
+	std::string::size_type found = _origin.find_first_of(sChars);
+	while(found != std::string::npos){
+		_origin[found] = '_';
+		++nChanges;
+		found = _origin.find_first_of(sChars, found+1);
+	}
+	if (nChanges>0) {
+		_origin.append("_");
+		_origin.append(boost::lexical_cast<std::string>(nChanges));
+	}
 }
 
 } // oocformats

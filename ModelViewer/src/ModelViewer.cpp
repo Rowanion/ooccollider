@@ -1,10 +1,10 @@
-//============================================================================
-// Name        : ModelViewer.cpp
-// Author      :
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
+/**
+ * @file	ModelViewer.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 01.03.2009
+ *
+ */
 
 #include <iostream>
 #include <string>
@@ -273,7 +273,7 @@ static void display() {
 					glDisable(GL_POINT_SPRITE);
 				}
 				if (showBBox) {
-					vboMan->getBb()->draw(0,255,0);
+					vboMan->getBb().draw(0,255,0);
 					vboMan->drawBbs(255,0,0);
 				}
 //				vboMan->drawNormals();
@@ -316,9 +316,9 @@ static void display() {
 //					glVertex3f(tri3.getX(), tri3.getY(), tri3.getZ());
 //					glVertex3f(tri2.getX(), tri2.getY(), tri2.getZ());
 //					glVertex3f(tri1.getX(), tri1.getY(), tri1.getZ());
-					glVertex4f(tri1.getX(), tri1.getY(), tri1.getZ(), vboMan->getColorTable().calculateTexCoord(9));
-					glVertex4f(tri2.getX(), tri2.getY(), tri2.getZ(), vboMan->getColorTable().calculateTexCoord(11));
-					glVertex4f(tri3.getX(), tri3.getY(), tri3.getZ(), vboMan->getColorTable().calculateTexCoord(10));
+					glVertex4f(tri1.getX(), tri1.getY(), tri1.getZ(), vboMan->getColorTable().calculateTexCoord(0));
+					glVertex4f(tri2.getX(), tri2.getY(), tri2.getZ(), vboMan->getColorTable().calculateTexCoord(15));
+					glVertex4f(tri3.getX(), tri3.getY(), tri3.getZ(), vboMan->getColorTable().calculateTexCoord(31));
 					glVertex4f(tri3.getX(), tri3.getY(), tri3.getZ(), vboMan->getColorTable().calculateTexCoord(8));
 					glVertex4f(tri2.getX(), tri2.getY(), tri2.getZ(), vboMan->getColorTable().calculateTexCoord(8));
 					glVertex4f(tri1.getX(), tri1.getY(), tri1.getZ(), vboMan->getColorTable().calculateTexCoord(8));
@@ -517,9 +517,11 @@ static void glInit(int argc, char *argv[]){
 	setupTexture();
 	GET_GLERROR(0);
 
-//	vboMan->makeVbos(model);
+	vboMan->makeVbos(model);
 
-	moWri->readModel(fs::path("raw_objs/MyDoor/C141T4001S01-BD-1V4/")); //912k / 304k
+	moWri->readModel(fs::path("/home/ava/workspace2/ModelViewer/raw_objs/boing/part1/C141T4835S00--G-19.2V5"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/home/ava/workspace2/ModelViewer/raw_objs/boing/part1/C141T4001S01-BD-1V4"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/home/ava/workspace2/ModelViewer/raw_objs/boing/part1/C141T4001S01-BD-2V4"), *ct); //912k / 304k
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
 //	moWri->readModel(fs::path("raw_objs/armadillo")); // 1,03 Mil. / 345k
@@ -580,11 +582,12 @@ static void glInit(int argc, char *argv[]){
 int main(int argc, char *argv[]) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
+	ct = new ColorTable(string("/media/External/B3x7/Farben/colortable.bin"));
 	moLoader.setColorTable(ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
 	 moWri = new RawModelWriter();
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
-//	model = moLoader.parseMultipass("meshes/robot.obj", true);
+	model = moLoader.parseMultipass("meshes/robot.obj", true);
 //	model = moLoader.parseMultipass("meshes/bunny.obj", true);
 //	model = moLoader.parseMultipass("meshes/happy_buddha.obj", true);
 //	model = moLoader.parseMultipass("meshes/Dragon.obj", true);

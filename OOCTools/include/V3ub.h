@@ -38,7 +38,7 @@ public:
 	const unsigned char getY()const {return mPriData[1];};
 	const unsigned char getZ()const {return mPriData[2];};
 	const unsigned char* getData();
-	std::string toString();
+	std::string toString() const;
 
 	bool operator==(V3ub& a);
 	bool operator==(V3ub* a);

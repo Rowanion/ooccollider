@@ -33,11 +33,12 @@ public:
 	BoundingBox(float _valA, float _valB);
 	BoundingBox(const V3f& _vA, const V3f& _vB);
 	BoundingBox(const V4f& _vA, const V4f& _vB);
+	BoundingBox(const BoundingBox& _bb);
 	virtual ~BoundingBox();
-	void draw();
-	void draw(float _r, float _g, float _b);
-	void draw(int _r, int _g, int _b);
-	void draw(float* _rgb);
+	void draw() const;
+	void draw(float _r, float _g, float _b) const;
+	void draw(int _r, int _g, int _b) const;
+	void draw(float* _rgb) const;
 	void expand(const V3f& _v);
 	void expand(const V4f& _v);
 	void expand(const float* _v);
@@ -47,7 +48,7 @@ public:
 	const V3f& getMax() const {return mPrivMax;};
 	std::string toString();
 	bool hasSharedComponent(const BoundingBox& _bb) const;
-	void drawSolid();
+	void drawSolid() const;
 	void computeCenter(V3f& _center) const;
 	bool intersects(const BoundingBox& _b) const;
 	bool intersects(const V3f& _a, const V3f& _b, const V3f& _c) const;
@@ -65,6 +66,9 @@ public:
 	bool isOutside(const V4f& _v) const;
 	void computeEdgeSizes(V3f& _sizes) const;
 	float computeDiameter() const;
+	BoundingBox& operator=(const BoundingBox& _bb);
+	bool operator==(const BoundingBox& _bb);
+	bool operator!=(const BoundingBox& _bb);
 
 	static bool hasSharedComponent(const BoundingBox& _bb1, const BoundingBox& _bb2);
 
@@ -73,8 +77,8 @@ private:
 	V3f mPrivMax;
 	V3f mPrivEdgeSizes;
 	V3f mPrivCenter;
-	void drawImmediate();
-	void drawLineStrip();
+	void drawImmediate() const;
+	void drawLineStrip() const;
 
 };
 

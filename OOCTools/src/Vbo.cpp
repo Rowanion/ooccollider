@@ -30,13 +30,13 @@ Vbo::Vbo() : mPriVId(0), mPriNId(0), mPriIdxId(0),
 	_upperVertexBound = 500;
 	mPriUseGlColor = false;
 	mPriCurrentColorB = new unsigned char[3];
-	mPriCurrentColorB[0] = defaultColorB->getX();
-	mPriCurrentColorB[1] = defaultColorB->getY();
-	mPriCurrentColorB[2] = defaultColorB->getZ();
+	mPriCurrentColorB[0] = defaultColorB.getX();
+	mPriCurrentColorB[1] = defaultColorB.getY();
+	mPriCurrentColorB[2] = defaultColorB.getZ();
 	mPriCurrentColorF = new float[3];
-	mPriCurrentColorF[0] = defaultColorF->getX();
-	mPriCurrentColorF[1] = defaultColorF->getY();
-	mPriCurrentColorF[2] = defaultColorF->getZ();
+	mPriCurrentColorF[0] = defaultColorF.getX();
+	mPriCurrentColorF[1] = defaultColorF.getY();
+	mPriCurrentColorF[2] = defaultColorF.getZ();
 }
 
 Vbo::~Vbo()
@@ -91,13 +91,13 @@ Vbo::draw(int vertexCount)
 			if (mPriCurrentColorB!=0)
 				glColor3ubv(mPriCurrentColorB);
 			else
-				glColor3ubv(defaultColorB->getData());
+				glColor3ubv(defaultColorB.getData());
 		}
 		else {
 			if (mPriCurrentColorF!=0)
 				cgSetParameter3fv(mPriDiffuseParameter, mPriCurrentColorF);
 			else
-				cgSetParameter3fv(mPriDiffuseParameter, defaultColorF->getData());
+				cgSetParameter3fv(mPriDiffuseParameter, defaultColorF.getData());
 		}
 		drawSingle(vertexCount);
 	}
@@ -286,7 +286,7 @@ Vbo::setColor(V3ub* _color)
 void
 Vbo::setGlColor()
 {
-	glColor3ubv(defaultColorB->getData());
+	glColor3ubv(defaultColorB.getData());
 }
 
 /**

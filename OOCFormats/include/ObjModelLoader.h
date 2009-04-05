@@ -32,6 +32,7 @@ public:
 	// this is THE method to call......
 	ooctools::Model* parseMultipass(std::string _fname, bool verbose= false);
 	void setColorTable(const ooctools::ColorTable& _ct);
+	void debug();
 
 private:
 	// this is just a temporary store. after parsing this reference will be nullified

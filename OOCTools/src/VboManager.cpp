@@ -33,9 +33,9 @@ VboManager* VboManager::getInstancePtr()
 	return mPriInstancePtr;
 }
 
-VboManager::VboManager() : mPriNVertices(0), mPriNFaces(0), mPriVboMap(0), mPriBb(0),
+VboManager::VboManager() : mPriNVertices(0), mPriNFaces(0), mPriVboMap(0),
 				usingIdxPtr(false), usingVertexPtr(false), usingNormalPtr(false),usingGlColor(false),
-				mPriCgDiffuseParam(0)
+				mPriCgDiffuseParam(0), mPriMemoryUsage(0)
 {
 	// TODO Auto-generated constructor stub
 
@@ -43,7 +43,6 @@ VboManager::VboManager() : mPriNVertices(0), mPriNFaces(0), mPriVboMap(0), mPriB
 
 VboManager::~VboManager()
 {
-	if (mPriBb!=0) delete mPriBb;
 	if (!mPriVboMap->empty()){
 		for (mIterator it=mPriVboMap->begin(); it!=mPriVboMap->end(); ++it){
 			delete it->second;
@@ -55,11 +54,9 @@ VboManager::~VboManager()
 void
 VboManager::calcBB()
 {
-	if(mPriBb!=0) delete mPriBb;
-
-	mPriBb = new BoundingBox();
+	// TODO reset BB prior to calculation
 	for(mIterator it=mPriVboMap->begin(); it!=mPriVboMap->end(); ++it){
-		mPriBb->expand(*it->second->getBbPtr());
+		mPriBb.expand(it->second->getBb());
 	}
 }
 
@@ -68,10 +65,11 @@ VboManager::addVbo(std::string id, Vbo* _vbo)
 {
 	if (mPriVboMap==0) mPriVboMap = new map<string, Vbo*>;
 	mPriVboMap->insert(make_pair(id, _vbo));
-	if (mPriBb==0) mPriBb = new BoundingBox();
-	mPriBb->expand(*_vbo->getBbPtr());
-	mPriNVertices+=_vbo->mPriVertices->size;
-	mPriNFaces+=_vbo->mPriVertices->nFaces;
+	mPriBb.expand(_vbo->getBb());
+	mPriNVertices += _vbo->mPriVertices->size;
+	mPriNFaces += _vbo->mPriVertices->nFaces;
+	mPriMemoryUsage += (_vbo->mPriVertices->size * _vbo->mPriVertices->nComponents * sizeof(float))
+			+ (_vbo->mPriVertices->size * _vbo->mPriVertices->nComponents * sizeof(char));
 }
 
 Vbo*
@@ -93,7 +91,7 @@ VboManager::delVbo(std::string id)
 	mPriNVertices-=vbo->mPriVertices->size;
 	mPriNFaces-=vbo->mPriVertices->nFaces;
 	mPriVboMap->erase(id);
-	if (vbo->getBbPtr()->hasSharedComponent(*mPriBb)) calcBB();
+	if (vbo->getBb().hasSharedComponent(mPriBb)) calcBB();
 	delete vbo;
 }
 
@@ -104,7 +102,7 @@ VboManager::delVbo(mIterator it)
 	mPriNVertices-=vbo->mPriVertices->size;
 	mPriNFaces-=vbo->mPriVertices->nFaces;
 	mPriVboMap->erase(it);
-	if (vbo->getBbPtr()->hasSharedComponent(*mPriBb)) calcBB();
+	if (vbo->getBb().hasSharedComponent(mPriBb)) calcBB();
 	delete vbo;
 }
 
@@ -177,7 +175,7 @@ void
 VboManager::drawBbs(float r, float g, float b)
 {
 	for (mIterator it=mPriVboMap->begin(); it!=mPriVboMap->end(); ++it){
-		it->second->getBbPtr()->draw(r,g,b);
+		it->second->getBb().draw(r,g,b);
 	}
 }
 
@@ -185,20 +183,20 @@ void
 VboManager::drawBbs(int r, int g, int b)
 {
 	for (mIterator it=mPriVboMap->begin(); it!=mPriVboMap->end(); ++it){
-		it->second->getBbPtr()->draw(r,g,b);
+		it->second->getBb().draw(r,g,b);
 	}
 }
 
 void
 VboManager::drawBb(std::string id, float r, float g, float b)
 {
-	mPriVboMap->at(id)->getBbPtr()->draw(r, g, b);
+	mPriVboMap->at(id)->getBb().draw(r, g, b);
 }
 
 void
 VboManager::drawBb(std::string id, int r, int g, int b)
 {
-	mPriVboMap->at(id)->getBbPtr()->draw(r, g, b);
+	mPriVboMap->at(id)->getBb().draw(r, g, b);
 }
 
 void
@@ -222,7 +220,7 @@ VboManager::makeVbos(Model* _model)
 	}
 	for (mIterator mit = mPriVboMap->begin(); mit != mPriVboMap->end(); ++mit) {
 		cout << "BoundingBox for Group " << mit->first << ": "
-				<< mit->second->mPriVertices->mPriBb->toString() << endl;
+				<< mit->second->mPriVertices->mPriBb.toString() << endl;
 	}
 }
 
@@ -230,21 +228,21 @@ void
 VboManager::printInfo()
 {
 	cout << "--------------------------------------------------------" << endl;
-	cout << "Loaded No. of Vertices: " << mPriNVertices << endl;
+	cout << "Loaded No. of Vertices: " << mPriNVertices << "(x2 for the normals)"<< endl;
 	cout << "Loaded No. of Triangles: " << mPriNFaces << endl;
-	size_t memory = sizeof(float) * mPriNVertices * 3 + sizeof(char)
-			* mPriNVertices * 3;
-	if (memory > 1073741824)
-		cout << "Memory usage: " << (float) (memory / 1073741824.0f)
+	size_t memory = sizeof(float) * mPriNVertices * 4 + sizeof(char)
+			* mPriNVertices * 4;
+	if (mPriMemoryUsage > 1073741824)
+		cout << "Memory usage: " << (float) (mPriMemoryUsage / 1073741824.0f)
 				<< " Gigabytes." << endl;
-	else if (memory > 1048576)
-		cout << "Memory usage: " << (float) (memory / 1048576.0f)
+	else if (mPriMemoryUsage > 1048576)
+		cout << "Memory usage: " << (float) (mPriMemoryUsage / 1048576.0f)
 				<< " Megabytes." << endl;
-	else if (memory > 1024)
-		cout << "Memory usage: " << (float) (memory / 1024.0f) << " Kilobytes."
+	else if (mPriMemoryUsage > 1024)
+		cout << "Memory usage: " << (float) (mPriMemoryUsage / 1024.0f) << " Kilobytes."
 				<< endl;
-	else if (memory <= 1024)
-		cout << "Memory usage: " << memory << " bytes." << endl;
+	else if (mPriMemoryUsage <= 1024)
+		cout << "Memory usage: " << mPriMemoryUsage << " bytes." << endl;
 	cout << "--------------------------------------------------------" << endl;
 }
 

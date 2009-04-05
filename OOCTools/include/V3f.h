@@ -65,8 +65,8 @@ public:
 //	bool operator<(const V3f *a);
 	bool operator<=(V3f &a);
 	bool operator<=(V3f *a);
-	bool operator==(V3f &a);
-	bool operator==(V3f *a);
+	bool operator==(const V3f &a);
+//	bool operator==(V3f *a);
 	bool operator!=(V3f &a);
 	V3f &operator=(const V3f &a);
 	V3f &operator=(const V4f &a);

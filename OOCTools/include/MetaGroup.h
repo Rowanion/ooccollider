@@ -29,19 +29,19 @@ class MetaGroup
 		MetaGroup(std::string _name);
 		virtual ~MetaGroup();
 
-		void setMat(Material* mat);
-		const Material& getMat() const {return matPtr;};
+		void setMat(const Material& mat);
+		const Material& getMat() const {return mat;};
 
 		std::string name;
-		int nFaces;
-		int nVertices;
-		int nTextureCoords;
-		int nNormals;
+		unsigned int nFaces;
+		unsigned int nVertices;
+		unsigned int nTextureCoords;
+		unsigned int nNormals;
 		BoundingBox *bb;
 		std::vector<Face*> fPtrList;
 		//		V3ub *color;
 	private:
-		Material matPtr;
+		Material mat;
 };
 
 } // ooctools

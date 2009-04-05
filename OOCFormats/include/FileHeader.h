@@ -19,6 +19,7 @@ class FileHeader
 		virtual ~FileHeader();
 
 		ooctools::BoundingBox* bb;
+		unsigned int nFaces;
 		int nVertices;
 		int nNormals;
 		ooctools::V3ub* color;

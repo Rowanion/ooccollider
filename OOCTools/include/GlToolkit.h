@@ -22,8 +22,8 @@
 
 namespace ooctools {
 
-static V3f *defaultColorF = new V3f((float)0.78f, (float)0.57f, (float)0.11f);
-static V3ub *defaultColorB = new V3ub((unsigned char)199, (unsigned char)145, (unsigned char)28);
+static V3f defaultColorF((float)0.78f, (float)0.57f, (float)0.11f);
+static V3ub defaultColorB((unsigned char)199, (unsigned char)145, (unsigned char)28);
 
 
 void inline getGlError(int ret)

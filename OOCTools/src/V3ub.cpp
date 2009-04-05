@@ -123,7 +123,7 @@ V3ub::operator!=(V3ub* a)
 }
 
 std::string
-V3ub::toString()
+V3ub::toString() const
 {
 	std::stringstream st;
 	st << "(" << (int)mPriData[0] << ", " << (int)mPriData[1] << ", " << (int)mPriData[2] << ")";

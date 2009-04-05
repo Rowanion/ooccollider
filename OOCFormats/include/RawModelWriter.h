@@ -36,41 +36,45 @@ public:
 	void writeVArrayf(ooctools::VertexArray<float>* _va, fs::ofstream &_of);
 	void writeVArrayb(ooctools::VertexArray<char>* _va, fs::ofstream &_of);
 	void writeInt(int _i, fs::ofstream &_of);
+	void writeUInt(unsigned int _i, fs::ofstream &_of);
 	void writeFloat(float _f, fs::ofstream &_of);
 	void writeByte(char _c, fs::ofstream &_of);
 	void writeUByte(unsigned char _ub, fs::ofstream &_of);
-	int getHeaderSize(){return 35;};
+	int getHeaderSize(){return 39;};
 
-	/*
-	 * Header-Format: 3xfloat32[minBB], 3xfloat32[maxBB], int32[vertCount],
+	/**
+	 * Header-Format: 3xfloat32[minBB], 3xfloat32[maxBB], uint32[faceCount], int32[vertCount],
 	 * int32[normCount], 3xuchar[color]
-	 * Headersize: 35 byte
+	 * Headersize: 39 byte
 	 */
-	void writeHeader(ooctools::MetaGroup *_grp, fs::ofstream &_of);
-	FileHeader readHeader(fs::ifstream &_if);
-	ooctools::BoundingBox *readBB(fs::ifstream &_if);
-	ooctools::V3f readV3f(fs::ifstream &_if);
-	ooctools::V3ub *readV3ub(fs::ifstream &_if);
-	ooctools::V4f readV4f(fs::ifstream &_if);
-	char readByte(fs::ifstream &_if);
-	int readInt(fs::ifstream &_if);
-	unsigned char readUByte(fs::ifstream &_if);
-	float readFloat(fs::ifstream &_if);
-	float *readFloatArray(fs::ifstream &_if, int count);
-	char *readByteArray(fs::ifstream &_if, int count);
+	void writeHeader(ooctools::MetaGroup* _grp, fs::ofstream& _of);
+	FileHeader readHeader(fs::ifstream& _if);
+	ooctools::BoundingBox* readBB(fs::ifstream& _if);
+	ooctools::V3f readV3f(fs::ifstream& _if);
+	ooctools::V3ub* readV3ub(fs::ifstream& _if);
+	ooctools::V4f readV4f(fs::ifstream& _if);
+	char readByte(fs::ifstream& _if);
+	int readInt(fs::ifstream& _if);
+	unsigned int readUInt(fs::ifstream& _if);
+	unsigned char readUByte(fs::ifstream& _if);
+	float readFloat(fs::ifstream& _if);
+	float* readFloatArray(fs::ifstream& _if, int count);
+	char* readByteArray(fs::ifstream& _if, int count);
 	/*
 	 * @params _model a pointer to the model, which will be saved as binary file
 	 * @params _p a path (not a file) wher to save the model-files
 	 */
-	void writeModel(ooctools::Model *_model, fs::path _p);
+	void writeModel(ooctools::Model* _model, fs::path _p);
 	//std::map<std::string, OOCTools::VBO*> *readModel(fs::path _p);
-	ooctools::VboManager *readModel(fs::path _p);
-	void testWriteArrayf(float *farray, int entries);
+	ooctools::VboManager* readModel(fs::path _p);
+	ooctools::VboManager* readModel(fs::path _p, const ooctools::ColorTable& _ct);
+	void testWriteArrayf(float* farray, int entries);
 	void testReadArrayf(int entries);
 
 private:
 	void testAndSetDir(fs::path _p);
 	std::string unscrewOsgGroupName(const std::string& _gName);
+	void removeSpecialCharsFromName(std::string& _origin);
 
 	bool constructorCalled;
 

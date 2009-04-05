@@ -55,7 +55,7 @@ public:
 	void setColor(float r, float g, float b);
 	void setColor(V3ub *_color);
 
-	BoundingBox *getBbPtr(){return mPriVertices->mPriBb;};
+	const BoundingBox& getBb() const {return mPriVertices->mPriBb;};
 	size_t getCpuMemory();
 	size_t getGpuMemory();
 	// --------------------------------
