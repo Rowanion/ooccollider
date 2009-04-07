@@ -24,7 +24,6 @@ void main(V2FI IN,
               uniform float3 Kd,
               uniform float3 Ks,
               uniform float  shininess,
-              uniform float4x4 modelViewInv,
         	  uniform sampler1D colorLut)
 {
 
@@ -33,9 +32,9 @@ void main(V2FI IN,
 	float3 N = normalize(IN.normal);
 
   // transforming eyePosition and LightPosition into object-space
-  float4 temp = mul(modelViewInv, lightPosition);
+  float4 temp = mul(glstate.matrix.inverse.modelview[0], lightPosition);
   float3 lPos = float3(temp.x, temp.y, temp.z);
-  temp = mul(modelViewInv, eyePosition);
+  temp = mul(glstate.matrix.inverse.modelview[0], eyePosition);
   float3 ePos = float3(temp.x, temp.y, temp.z);
 
   // Compute emissive term
