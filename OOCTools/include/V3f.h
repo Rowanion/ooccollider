@@ -52,10 +52,16 @@ public:
 	void setZ(float f){mPriData[2]=f;};
 	const std::string toString() const;
 	bool hasSharedComponent(const V3f &_v) const;
-	V3f &normalize();
+
+	/**
+	 * Performs normalization on this object and returns a reference to itself.
+	 * @return self
+	 */
+	V3f& normalize();
+
 	void addFaceRef(Face *face);
 	V3f getAbs() const;
-	float calculateLength();
+	float calculateMagnitude();
 
 	bool operator>(const V3f &a) const;
 //	bool operator>(V3f *a);
@@ -68,18 +74,25 @@ public:
 	bool operator==(const V3f &a);
 //	bool operator==(V3f *a);
 	bool operator!=(V3f &a);
-	V3f &operator=(const V3f &a);
-	V3f &operator=(const V4f &a);
-	V3f &operator/=(const float f);
-	V3f &operator+=(const V3f &a);
-	V3f &operator*=(float f);
-	V3f &operator-=(const V3f &a);
+	V3f& operator=(const V3f &a);
+	V3f& operator=(const V4f &a);
+	V3f& operator/=(const float f);
+	V3f& operator+=(const V3f &a);
+	V3f& operator+=(const float f);
+	V3f& operator*=(float f);
+	V3f& operator-=(const V3f &a);
 	V3f operator/(float f) const;
 	V3f operator+(const V3f &a) const;
 	V3f operator-(const V3f &a) const;
 	V3f operator*(float f) const;
 
-	static V3f cross(V3f &a, V3f &b);
+	/**
+	 * Returns the cross-product of the two input-vectors. Is a static function.
+	 * @param a reference of the first vector
+	 * @param b reference of the second vector
+	 * @return V3f object containing the cross product
+	 */
+	static V3f cross(const V3f &a, const V3f &b);
 	static void calcFNormal(Face *face);
 	static bool hasSharedComponent(const V3f& _v1, const V3f& _v2);
 

@@ -310,6 +310,16 @@ V4f::operator+=(const V4f& a)
 }
 
 V4f&
+V4f::operator+=(const float f)
+{
+	mPriData[0]+=f;
+	mPriData[1]+=f;
+	mPriData[2]+=f;
+	mPriData[3]+=f;
+	return (*this);
+}
+
+V4f&
 V4f::operator*=(float f)
 {
    	mPriData[0]*=f;

@@ -25,6 +25,7 @@
 namespace ooctools{
 //	class AbstractVertex;
 	class BoundingBox;
+	class Camera;
 	class CgToolkit;
 	class ColorTable;
 	class Face;

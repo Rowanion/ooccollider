@@ -147,7 +147,7 @@ class ColorTable
 		void writeToFile(fs::path _filePath);
 		static ColorTable* readFromFile(fs::path _filePath);
 		void addByteStream(const unsigned char* _dataStream, unsigned int _nColors);
-		void addFile(fs::path _filePath);
+		void addFile(fs::path _filePath, bool checkParent = true);
 		const std::vector<ooctools::V3ub*>& getColorVector() const {return colors;};
 
 		ColorTable& operator=(const ColorTable& _ct);
