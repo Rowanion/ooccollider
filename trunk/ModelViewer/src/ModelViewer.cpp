@@ -519,9 +519,33 @@ static void glInit(int argc, char *argv[]){
 
 	vboMan->makeVbos(model);
 
-	moWri->readModel(fs::path("/home/ava/workspace2/ModelViewer/raw_objs/boing/part1/C141T4835S00--G-19.2V5"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/home/ava/workspace2/ModelViewer/raw_objs/boing/part1/C141T4001S01-BD-1V4"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/home/ava/workspace2/ModelViewer/raw_objs/boing/part1/C141T4001S01-BD-2V4"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E313W3703S02-CD-3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W112W4201S01-AD-2.1V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E253W2300M03-AD-1.1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E162W1100S02--D-2.5"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E149W5210S01-BD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E310W3040M03-ED-13"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E149W2222S01-DD-1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E149W2222S01-DD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E315W3427S02-AD-3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E232W9401S02-AD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E356W1000S01-AD-1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E462W3000S03--D-302.1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W289W4510S00--G-1510V3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W289W4136S00--G-7027V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W65Y20027S01--G-1.1V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E311W3043S18--D-34"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E214W8003M08-BD-8"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E256W3803S01-BD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E289W4503S00--G-32"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E289W4505S00-AG-7002"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E311W3687S02-AD-3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E416W0100M29-BD-11.3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W339W3220S01--G-226V7"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W65Y14629S01--G-7V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E313W3214M01-BD-7"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E287W4157S18-AD-24"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E185W4000S02-AD-2"), *ct); //912k / 304k
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
 //	moWri->readModel(fs::path("raw_objs/armadillo")); // 1,03 Mil. / 345k
