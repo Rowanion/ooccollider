@@ -153,7 +153,12 @@ V3f::hasSharedComponent(const V3f& _v) const
 V3f&
 V3f::normalize()
 {
-   	float reciSqrt = 1.0f/calculateLength();
+
+
+
+
+
+   	float reciSqrt = 1.0f/calculateMagnitude();
 
    	// ExtremeOperatorOverloadingPower! Schakkalakka!
    	(*this) *= reciSqrt;
@@ -297,6 +302,15 @@ V3f::operator+=(const V3f& a)
 }
 
 V3f&
+V3f::operator+=(const float f)
+{
+	mPriData[0]+=f;
+	mPriData[1]+=f;
+	mPriData[2]+=f;
+	return (*this);
+}
+
+V3f&
 V3f::operator*=(float f)
 {
    	mPriData[0]*=f;
@@ -352,11 +366,11 @@ V3f::operator*(float f) const
 //}
 
 V3f
-V3f::cross(V3f& a, V3f& b)
+V3f::cross(const V3f& a, const V3f& b)
 {
-	return V3f(a.getY()*b.getZ()-a.getZ()*b.getY(),
-			-(a.getX()*b.getZ()-a.getZ()*b.getX()),
-			a.getX()*b.getY()-a.getY()*b.getX());
+	return V3f(a.getY() * b.getZ() - a.getZ() * b.getY(),
+			a.getZ() * b.getX() - a.getX() * b.getZ(),
+			a.getX() * b.getY() - a.getY() * b.getX());
 }
 
 void
@@ -388,8 +402,8 @@ V3f::getAbs() const
 }
 
 float
-V3f::calculateLength(){
-	return sqrt(pow(mPriData[0],2)+pow(mPriData[0],2)+pow(mPriData[0],2));
+V3f::calculateMagnitude(){
+	return sqrt(pow(mPriData[0],2)+pow(mPriData[1],2)+pow(mPriData[2],2));
 }
 
 const string

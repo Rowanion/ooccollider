@@ -63,14 +63,14 @@ ColorTable::ColorTable(fs::path _filePath) :
 	nColorsi(0), texId(0), cgTex(0), dummySpace(colors.begin()), dummyIndex(0)
 {
 	addColori(defaultColorB);
-	addFile(_filePath);
+	addFile(_filePath, true);
 }
 
 ColorTable::ColorTable(string _filePath) :
 	nColorsi(0), texId(0), cgTex(0), dummySpace(colors.begin()), dummyIndex(0)
 {
 	addColori(defaultColorB);
-	addFile(fs::path(_filePath));
+	addFile(fs::path(_filePath), true);
 }
 
 ColorTable::ColorTable(const ColorTable& _ct)
@@ -258,11 +258,16 @@ ColorTable::toByteStream(unsigned char* _ref)
 }
 
 void
-ColorTable::addFile(fs::path _filePath)
+ColorTable::addFile(fs::path _filePath, bool checkParent)
 {
 	if (!fs::exists(_filePath)){
-		cerr << "Error: ColorTable '" << _filePath << "' does not exist! - quitting" << endl;
-		exit(0);
+		if (checkParent){
+			addFile(_filePath.parent_path().parent_path() / _filePath.filename(), false);
+		}else {
+			cout << "parent" << _filePath.parent_path().parent_path() << endl;
+			cerr << "Error: ColorTable '" << _filePath << "' does not exist! - quitting" << endl;
+			exit(0);
+		}
 	}
 	char* memblock;
 	fs::ifstream inFile;

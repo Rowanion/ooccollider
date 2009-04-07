@@ -476,7 +476,7 @@ BoundingBox::computeEdgeSizes(V3f &_sizes) const
 float
 BoundingBox::computeDiameter() const
 {
-	return (mPrivMax-mPrivMin).getAbs().calculateLength();
+	return (mPrivMax-mPrivMin).getAbs().calculateMagnitude();
 }
 
 /**

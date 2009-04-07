@@ -75,6 +75,7 @@ public:
 	V4f& operator=(const V3f& a);
 	V4f& operator/=(const float f);
 	V4f& operator+=(const V4f &a);
+	V4f& operator+=(const float f);
 	V4f& operator*=(float f);
 	V4f& operator-=(const V4f &a);
 	V4f operator/(float f) const;

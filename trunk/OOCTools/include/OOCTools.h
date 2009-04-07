@@ -10,6 +10,7 @@
 #define OOCTOOLS_H_
 
 #include "BoundingBox.h"
+#include "Camera.h"
 #include "CgToolkit.h"
 #include "Face.h"
 #include "Fbo.h"
