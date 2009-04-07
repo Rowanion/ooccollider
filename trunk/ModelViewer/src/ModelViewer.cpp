@@ -24,6 +24,7 @@
 #include "RawModelWriter.h"
 #include "ColorTable.h"
 #include "AbstractVertex.h"
+#include "Camera.h"
 
 
 using namespace std;
@@ -47,6 +48,10 @@ V3f tri1;
 V3f tri2;
 V3f tri3;
 
+int prevMouseX = 0;
+int prevMouseY = 0;
+int oldPosX = 0;
+int oldPosY = 0;
 bool wireFrame = false;
 bool vboSwitch= true;
 bool showFPS = true;
@@ -61,7 +66,8 @@ float transX = 0.0;
 float transY = 0.0;
 float transZ = 0.0;
 float modelScale = 1.0f;
-
+Camera camObj;
+float walkingSpeed = 1.0f;
 BoundingBox *bb1;
 BoundingBox *bb2;
 VboManager *vboMan;
@@ -199,12 +205,9 @@ static void setOrthographicProjection() {
 	glMatrixMode(GL_MODELVIEW);
 }
 
-static void renderSpacedBitmapString(
-		float x,
-		float y,
-		int spacing,
-		void *font,
-		string s) {
+static void renderSpacedBitmapString(float x, float y, int spacing, void* font,
+		string s)
+{
 	string::iterator sIt;
 	int x1=x;
 	for (sIt = s.begin(); sIt!=s.end(); ++sIt) {
@@ -214,12 +217,19 @@ static void renderSpacedBitmapString(
 	}
 }
 
-static void resetPerspectiveProjection() {
+static void
+resetPerspectiveProjection()
+{
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 }
 
+void
+setupShaderPair(string vertexShader, string fragmentShader)
+{
+
+}
 
 static void doFPS(){
 	frame++;
@@ -244,24 +254,33 @@ static void doFPS(){
 }
 
 static void display() {
+
 	glClearColor(0.0f,0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
 	lpos[0] = (float)(g_dLightRadius*cos(g_iFrame*3.14f/200.0f));
 	lpos[1] = (float)(g_dLightRadius*sin(g_iFrame*3.14f/200.0f));
 	lpos[2] = g_dLightHeight;
 	lpos[3] = 1.0f;
+
 	cgGLSetParameter3fv(g_cgLightPosition,lpos);
-	cgGLSetParameter3fv(g_cgEyePosition,eyePosition);
+	cgGLSetParameter3fv(g_cgEyePosition,camObj.getEye().getData());
 
 
 	glPushMatrix();
-		glTranslatef(transX, 0.0, transZ);
+//		glTranslatef(transX, 0.0, transZ);
 		glPushMatrix();
 
-			glScalef(zoom, zoom, zoom);
-			glScalef(modelScale,modelScale,modelScale);
-			glRotatef(mouseRotX, 1.0f, 0.0, 0.0);
-			glRotatef(mouseRotY, 0.0f, 1.0, 0.0);
+//			glScalef(zoom, zoom, zoom);
+//			glScalef(modelScale,modelScale,modelScale);
+//			glRotatef(mouseRotX, 1.0f, 0.0, 0.0);
+//			glRotatef(mouseRotY, 0.0f, 1.0, 0.0);
+
+			gluLookAt(*camObj.getEye().x, *camObj.getEye().y, *camObj.getEye().z,
+					*camObj.getView().x, *camObj.getView().y, *camObj.getView().z,
+					*camObj.getUp().x, *camObj.getUp().y, *camObj.getUp().z);
+			glRotatef(180.0f, 1.0f, 0.0, 0.0);
+//			glTranslatef(*camObj.getEye().x, *camObj.getEye().y, *camObj.getEye().z);
+
 			glPushMatrix();
 				if (showLightSource){
 					glEnable(GL_POINT_SPRITE);
@@ -397,8 +416,7 @@ void changeSize(int w, int h) {
 	// Set the correct perspective.
 	//gluPerspective(45,ratio,1,1000);
 	//gluPerspective(20.0,1.0,0.5,50.0);
-	gluPerspective(45.0f, ratio, 0.01f, 200.0f);
-
+	gluPerspective(45.0f*zoom, ratio, 0.01f, 4000.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -423,15 +441,23 @@ void processNormalKeys(unsigned char key, int x, int y) {
 	else if (key == 'b') // toggle shoe BoundingBoxes
 		showBBox= !showBBox;
 	else if (key == 'w') // arrow up
-		transZ+=1.0;
+//		transZ+=1.0;
+		camObj.moveCamera(1.4f*walkingSpeed);
 	else if (key == 'a') // arrow left
-		transX-=1.0;
+//		transX-=1.0;
+		camObj.strafeCamera(-1.4f*walkingSpeed);
 	else if (key == 's') // arrow down
-		transZ-=1.0;
+//		transZ-=1.0;
+		camObj.moveCamera(-1.4f*walkingSpeed);
 	else if (key == 'd') // arrow right
-		transX+=1.0;
+//		transX+=1.0;
+		camObj.strafeCamera(1.4f*walkingSpeed);
 	else if (key == 'l') // toggle lightsource visibility
 		showLightSource = !showLightSource;
+	else if (key == '-')
+		camObj.rollRotation(1.7f);
+	else if (key == '+')
+		camObj.rollRotation(-1.7f);
 	else if (key == 'r') {
 		if (wireFrame)
 			glPolygonMode(GL_FRONT, GL_FILL);
@@ -454,26 +480,43 @@ void processNormalKeys(unsigned char key, int x, int y) {
 void
 processMouse(int button, int state, int x, int y)
 {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-		mouseLastX = x;
-		mouseLastY = y;
+	oldPosX = x;
+	oldPosY = y;
+
+	if (state == GLUT_DOWN){
+		if (button == GLUT_LEFT_BUTTON){
+//			mouseLastX = x;
+//			mouseLastY = y;
+		}
+		else if (button == GLUT_RIGHT_BUTTON){
+            oldPosX = x;
+            oldPosY = y;
+		}
 	}
 }
 
 void processMWheel(int wheel, int direction, int x, int y){
-	zoom += (0.06f * direction);
-	glutPostRedisplay();
+//	zoom += (0.06f * direction);
+//	glutPostRedisplay();
+	walkingSpeed += (0.06f * direction);
 }
 void processMouseActiveMotion(int x, int y){
-	// seeting the window coordinate-sys to
+	// setting the window coordinate-sys to
 	/*          +y
 	 *          |
 	 *     -x---+---+x
 	 *          |
 	 *          -y
 	 */
-	mouseRotY += 0.5f*(x-mouseLastX);
-	mouseRotX += 0.5f*(y-mouseLastY);
+
+    camObj.mouseRotate(static_cast<float>(oldPosX - x) / 200.0f, static_cast<float>(oldPosY - y) / 300.0f);
+    oldPosX = x;
+    oldPosY = y;
+
+
+
+	mouseRotX += 0.5f*(x-mouseLastX);
+	mouseRotY += 0.5f*(y-mouseLastY);
 	mouseLastX = x; mouseLastY = y;
 }
 void processMousePassiveMotion(int x, int y){
@@ -492,6 +535,32 @@ void animator(int time){
 	glutTimerFunc(1, animator, 0);
 }
 
+void loadDirectory(fs::path _path)
+{
+	if (!fs::exists(_path)) {
+		cerr << "The path " << _path << " does not exist!" << endl;
+		exit(0);
+	}
+	else if (!fs::is_directory(_path)) {
+		cerr << "The path " << _path << " is not a directory!" << endl;
+		exit(0);
+	}
+	else if (!fs::exists(_path / "colortable.bin")) {
+		cerr << "No colortable found in " << _path << "!" << endl;
+		exit(0);
+	}
+	VboManager* vboMan = VboManager::getInstancePtr();
+	ColorTable ct(_path / "colortable.bin");
+	vboMan->setColorTable(ct);
+
+	fs::directory_iterator dir_iter(_path), dir_end;
+	for (; dir_iter != dir_end; ++dir_iter) {
+		// iter contains an entry in the starting path _p - hopefully a directory
+		if (is_directory(dir_iter->status())) {
+			moWri->readModel(dir_iter->path(), ct);
+		}
+	}
+}
 
 static void glInit(int argc, char *argv[]){
 	//readObj("meshes/cow.obj");
@@ -526,33 +595,8 @@ static void glInit(int argc, char *argv[]){
 
 	vboMan->makeVbos(model);
 
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E313W3703S02-CD-3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W112W4201S01-AD-2.1V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E253W2300M03-AD-1.1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E162W1100S02--D-2.5"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E149W5210S01-BD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E310W3040M03-ED-13"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E149W2222S01-DD-1"), *ct); //912k / 304k
-//	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E149W2222S01-DD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E315W3427S02-AD-3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E232W9401S02-AD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E356W1000S01-AD-1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E462W3000S03--D-302.1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W289W4510S00--G-1510V3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W289W4136S00--G-7027V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W65Y20027S01--G-1.1V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E311W3043S18--D-34"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E214W8003M08-BD-8"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E256W3803S01-BD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E289W4503S00--G-32"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E289W4505S00-AG-7002"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E311W3687S02-AD-3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E416W0100M29-BD-11.3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W339W3220S01--G-226V7"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W65Y14629S01--G-7V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E313W3214M01-BD-7"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E287W4157S18-AD-24"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E185W4000S02-AD-2"), *ct); //912k / 304k
+	loadDirectory(fs::path("/media/External/B3_ausschnitt"));
+//	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
 //	moWri->readModel(fs::path("raw_objs/armadillo")); // 1,03 Mil. / 345k
@@ -567,12 +611,15 @@ static void glInit(int argc, char *argv[]){
 	GET_GLERROR(0);
 
 	// Cg ....
-
 	CgToolkit::getInstancePtr()->initCG(true);
 	getGlError(0);
-	g_cgVertexProg = CgToolkit::getInstancePtr()->loadCgShader(CgToolkit::getInstancePtr()->cgVertexProfile, "shader/vp_toonLut.cg", true);
+	g_cgVertexProg = CgToolkit::getInstancePtr()->loadCgShader(
+			CgToolkit::getInstancePtr()->cgVertexProfile,
+			"shader/vp_phongFLut.cg", true);
 
-	g_cgFragmentProg = CgToolkit::getInstancePtr()->loadCgShader(CgToolkit::getInstancePtr()->cgFragProfile, "shader/fp_toonLut.cg", true);
+	g_cgFragmentProg = CgToolkit::getInstancePtr()->loadCgShader(
+			CgToolkit::getInstancePtr()->cgFragProfile,
+			"shader/fp_phongFLut.cg", true);
 	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
 	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
 	getGlError(0);
@@ -611,12 +658,13 @@ static void glInit(int argc, char *argv[]){
 int main(int argc, char *argv[]) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
-	ct = new ColorTable(string("/media/Titanstab/Fixed Boing Try1/colortable32.bin"));
-	moLoader.setColorTable(ColorTable(string("/media/Titanstab/Fixed Boing Try1/colortable32.bin")));
+	camObj.positionCamera(0.0, 0.0, 10.0,  0.0, 0.0, -10.0,  0.0, 1.0, 0.0);
+	ct = new ColorTable(string("/media/External/B3x7/Farben/colortable.bin"));
+	moLoader.setColorTable(ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
 	 moWri = new RawModelWriter();
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
-	model = moLoader.parseMultipass("/home-e/ava/Diplom/Model/robot.obj", true);
+	model = moLoader.parseMultipass("meshes/robot.obj", true);
 //	model = moLoader.parseMultipass("meshes/bunny.obj", true);
 //	model = moLoader.parseMultipass("meshes/happy_buddha.obj", true);
 //	model = moLoader.parseMultipass("meshes/Dragon.obj", true);
