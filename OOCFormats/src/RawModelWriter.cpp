@@ -498,9 +498,12 @@ RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 				VertexArray<char>* va = new VertexArray<char>(4, fh.nNormals, ba);
 				vbo->setNData(va);
 			}
-
-			vboMan->addVbo(dir_iter->leaf(), vbo);
-			cout << "groupname: " << dir_iter->leaf() << endl;
+			string vboName(dir_iter->path().parent_path().filename());
+			vboName.append("-");
+			vboName.append(dir_iter->leaf());
+			vboMan->addVbo(vboName, vbo);
+//			cout << "parentname: " << dir_iter->path().parent_path().filename() << endl;
+//			cout << "groupname: " << dir_iter->leaf() << endl;
 		}
 
 		if (!fs::exists(dir_iter->path())) {

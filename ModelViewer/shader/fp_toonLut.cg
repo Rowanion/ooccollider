@@ -1,0 +1,95 @@
+
+
+
+
+// Define outputs from vertex shader.
+struct V2FI
+{
+	float3 Normal       : TEXCOORD0;
+	float3 LightVector  : TEXCOORD1;
+	float texCoord		: COLOR0;
+};
+
+
+
+fragout main(V2FI IN,
+		uniform sampler1D colorLut)
+{
+	float4 baseColor = tex1D(colorLut, IN.texCoord);
+	fragout OUT;
+	float intensity;
+	float4 color;
+	float3 n = normalize(IN.Normal);
+	float3 l = normalize(float3(IN.LightVector));
+	intensity = dot(l,n);
+
+	if (intensity > 0.95)
+		color = baseColor* float4(1.1,1.1,1.1,1.0);
+	else if (intensity > 0.5)
+		color = baseColor * float4(0.75,0.75,0.75,1.0);
+	else if (intensity > 0.25)
+		color = baseColor * float4(0.3,0.3,0.3,1.0);
+	else
+//		discard;
+		color = baseColor * float4(0.2,0.2,0.2,1.0);
+
+//	if (intensity > 0.95)
+//		color = float4(1.0,0.5,0.5,1.0);
+//	else if (intensity > 0.5)
+//		color = float4(0.6,0.3,0.3,1.0);
+//	else if (intensity > 0.25)
+//		color = float4(0.4,0.2,0.2,1.0);
+//	else
+//		color = float4(0.2,0.1,0.1,1.0);
+
+	OUT.col = color;
+//	OUT.col = baseColor * tex2D(alphaTexture, IN.TCoords0.xy);
+	return OUT;
+}
+
+
+
+
+
+
+
+//varying vec3 lightDir,normal;
+//void main()
+//{
+//	lightDir = normalize(vec3(gl_LightSource[0].position));
+//	normal = gl_NormalMatrix * gl_Normal;
+//	gl_Position = ftransform();
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//varying float3 lightDir,normal;
+//void main()
+//{
+//	float intensity;
+//	vec4 color;
+	// normalizing the lights position to be on the safe side
+//	vec3 l = normalize(vec3(gl_LightSource[0].position));
+//	vec3 n = normalize(normal);
+//	intensity = dot(l,n);
+//	if (intensity > 0.95)
+//		color = vec4(1.0,0.5,0.5,1.0);
+//	else if (intensity > 0.5)
+//		color = vec4(0.6,0.3,0.3,1.0);
+//	else if (intensity > 0.25)
+//		color = vec4(0.4,0.2,0.2,1.0);
+//	else
+//		color = vec4(0.2,0.1,0.1,1.0);
+//	gl_FragColor = color;
+//gl_FragColor = vec4(0.0,1.0, 0.0, 1.0f);
+//}

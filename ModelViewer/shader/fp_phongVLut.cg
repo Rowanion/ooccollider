@@ -1,4 +1,5 @@
-/*
+/**
+ * @file fp_phongVLut.cg
  * FragmentProgram to compute PhongShading with a VertexTexture as Color LUT
  * Costs 15-20 frames on a nVidia GeForce 8800 GTS compared to fragment-texture.
  * Problem with fragmentexture is, as long as objects with different colors
