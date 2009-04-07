@@ -47,6 +47,7 @@ V3f tri1;
 V3f tri2;
 V3f tri3;
 
+bool wireFrame = false;
 bool vboSwitch= true;
 bool showFPS = true;
 bool showBBox = false;
@@ -83,7 +84,6 @@ ObjModelLoader moLoader;
  * Begin Phong-Statements
  */
 CGprogram g_cgVertexProg;
-CGparameter g_cgModelViewProj;
 CGparameter g_cgGlobalAmbient;
 CGparameter g_cgLightColor;
 CGparameter g_cgEyePosition;
@@ -277,8 +277,6 @@ static void display() {
 					vboMan->drawBbs(255,0,0);
 				}
 //				vboMan->drawNormals();
-				cgGLSetStateMatrixParameter(g_cgModelViewProj,CG_GL_MODELVIEW_PROJECTION_MATRIX,CG_GL_MATRIX_IDENTITY);
-				cgGLSetStateMatrixParameter(g_cgModelViewInv,CG_GL_MODELVIEW_MATRIX,CG_GL_MATRIX_INVERSE);
 
 				// enable profiles
 				glColor3f(0.0f, 1.0f, 0.0f);
@@ -434,6 +432,13 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		transX+=1.0;
 	else if (key == 'l') // toggle lightsource visibility
 		showLightSource = !showLightSource;
+	else if (key == 'r') {
+		if (wireFrame)
+			glPolygonMode(GL_FRONT, GL_FILL);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		wireFrame = !wireFrame;
+	}
 	else if (key == 't') {
 		if (vboSwitch){
 			vboMan->switchOffVBO("defaultGrp");
@@ -446,7 +451,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 
 }
 
-void processMouse(int button, int state, int x, int y){
+void
+processMouse(int button, int state, int x, int y)
+{
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
 		mouseLastX = x;
 		mouseLastY = y;
@@ -519,33 +526,33 @@ static void glInit(int argc, char *argv[]){
 
 	vboMan->makeVbos(model);
 
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E313W3703S02-CD-3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W112W4201S01-AD-2.1V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E253W2300M03-AD-1.1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E162W1100S02--D-2.5"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E149W5210S01-BD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E310W3040M03-ED-13"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E149W2222S01-DD-1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E149W2222S01-DD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E315W3427S02-AD-3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E232W9401S02-AD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E356W1000S01-AD-1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E462W3000S03--D-302.1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W289W4510S00--G-1510V3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W289W4136S00--G-7027V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W65Y20027S01--G-1.1V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E311W3043S18--D-34"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E214W8003M08-BD-8"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E256W3803S01-BD-2"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E289W4503S00--G-32"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E289W4505S00-AG-7002"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E311W3687S02-AD-3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E416W0100M29-BD-11.3"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W339W3220S01--G-226V7"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/W65Y14629S01--G-7V1"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E313W3214M01-BD-7"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E287W4157S18-AD-24"), *ct); //912k / 304k
-	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E185W4000S02-AD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E313W3703S02-CD-3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W112W4201S01-AD-2.1V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E253W2300M03-AD-1.1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E162W1100S02--D-2.5"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E149W5210S01-BD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E310W3040M03-ED-13"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E149W2222S01-DD-1"), *ct); //912k / 304k
+//	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E149W2222S01-DD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E315W3427S02-AD-3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E232W9401S02-AD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E356W1000S01-AD-1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E462W3000S03--D-302.1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W289W4510S00--G-1510V3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W289W4136S00--G-7027V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W65Y20027S01--G-1.1V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E311W3043S18--D-34"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E214W8003M08-BD-8"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E256W3803S01-BD-2"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E289W4503S00--G-32"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E289W4505S00-AG-7002"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E311W3687S02-AD-3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E416W0100M29-BD-11.3"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W339W3220S01--G-226V7"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/W65Y14629S01--G-7V1"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E313W3214M01-BD-7"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E287W4157S18-AD-24"), *ct); //912k / 304k
+	moWri->readModel(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E185W4000S02-AD-2"), *ct); //912k / 304k
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
 //	moWri->readModel(fs::path("raw_objs/armadillo")); // 1,03 Mil. / 345k
@@ -563,10 +570,9 @@ static void glInit(int argc, char *argv[]){
 
 	CgToolkit::getInstancePtr()->initCG(true);
 	getGlError(0);
-	g_cgVertexProg = CgToolkit::getInstancePtr()->loadCgShader(CgToolkit::getInstancePtr()->cgVertexProfile, "shader/vp_phongFLut.cg", true);
-	g_cgModelViewProj = cgGetNamedParameter(g_cgVertexProg, "modelViewProj");
+	g_cgVertexProg = CgToolkit::getInstancePtr()->loadCgShader(CgToolkit::getInstancePtr()->cgVertexProfile, "shader/vp_toonLut.cg", true);
 
-	g_cgFragmentProg = CgToolkit::getInstancePtr()->loadCgShader(CgToolkit::getInstancePtr()->cgFragProfile, "shader/fp_phongFLut.cg", true);
+	g_cgFragmentProg = CgToolkit::getInstancePtr()->loadCgShader(CgToolkit::getInstancePtr()->cgFragProfile, "shader/fp_toonLut.cg", true);
 	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
 	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
 	getGlError(0);
@@ -580,7 +586,6 @@ static void glInit(int argc, char *argv[]){
 	g_cgKd = cgGetNamedParameter(g_cgFragmentProg, "Kd");
 	g_cgKs = cgGetNamedParameter(g_cgFragmentProg, "Ks");
 	g_cgShininess = cgGetNamedParameter(g_cgFragmentProg, "shininess");
-	g_cgModelViewInv = cgGetNamedParameter(g_cgFragmentProg, "modelViewInv");
 
 	vboMan->getColorTable().setupTexture();
 	vboMan->getColorTable().setCgParams(g_cgFragmentProg);
@@ -606,12 +611,12 @@ static void glInit(int argc, char *argv[]){
 int main(int argc, char *argv[]) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
-	ct = new ColorTable(string("/media/External/B3x7/Farben/colortable.bin"));
-	moLoader.setColorTable(ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
+	ct = new ColorTable(string("/media/Titanstab/Fixed Boing Try1/colortable32.bin"));
+	moLoader.setColorTable(ColorTable(string("/media/Titanstab/Fixed Boing Try1/colortable32.bin")));
 	 moWri = new RawModelWriter();
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
-	model = moLoader.parseMultipass("meshes/robot.obj", true);
+	model = moLoader.parseMultipass("/home-e/ava/Diplom/Model/robot.obj", true);
 //	model = moLoader.parseMultipass("meshes/bunny.obj", true);
 //	model = moLoader.parseMultipass("meshes/happy_buddha.obj", true);
 //	model = moLoader.parseMultipass("meshes/Dragon.obj", true);

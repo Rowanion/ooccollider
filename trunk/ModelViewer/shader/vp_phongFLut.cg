@@ -19,8 +19,7 @@ struct V2FI
   float texCoord;
 };
 
-V2FI main(appin IN,
-	  uniform float4x4 modelViewProj)
+V2FI main(appin IN)
 {
   V2FI OUT;
 
@@ -33,7 +32,7 @@ V2FI main(appin IN,
   tempPos.w = 1.0;
 
   // project point onto screen
-  OUT.oPosition = mul(modelViewProj, tempPos);
+  OUT.oPosition = mul(glstate.matrix.mvp, tempPos);
 
   // copy position
   OUT.objectPos = IN.position.xyz;
