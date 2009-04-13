@@ -40,6 +40,7 @@ void
 CgToolkit::initCG(bool verbose)
 {
 	cgContext = cgCreateContext();
+//	cgSetErrorCallback(CgToolkit::CheckCgError);
 
     CGbool arbfp1 = cgGLIsProfileSupported(CG_PROFILE_ARBFP1);
     CGbool arbvp1 = cgGLIsProfileSupported(CG_PROFILE_ARBVP1);
@@ -115,29 +116,35 @@ CgToolkit::initCG(bool verbose)
     if (verbose)
     	cout << "[CG]: Latest CG_Fragprofile for this gfxcard: " << cgFragProfile << " = " << cgGetProfileString(cgGLGetLatestProfile(CG_GL_FRAGMENT)) << endl;
 
-    /*
+
     // get best GeoProfile
-    cgGeometryProfile = cgGLGetLatestProfile(CG_GL_GEOMETRY);
-    if ( cgGeometryProfile == CG_PROFILE_UNKNOWN)
-    	cout << "Invalid Geometryprofile type" << endl;
-    cgGLSetOptimalOptions(cgGeometryProfile);
-    if (verbose)
-    	cout << "[CG]: Latest CG_Geometryprofile for this gfxcard: " << cgGeometryProfile << " = " << cgGetProfileString(cgGLGetLatestProfile(CG_GL_GEOMETRY)) << endl;
-    	*/
+    std::string vpString = cgGetProfileString(cgGLGetLatestProfile(CG_GL_VERTEX));
+    if (vpString == "gp4vp"){
+    	cgGeometryProfile = cgGLGetLatestProfile(CG_GL_GEOMETRY);
+    	if ( cgGeometryProfile == CG_PROFILE_UNKNOWN)
+    		cout << "Invalid Geometryprofile type" << endl;
+    	cgGLSetOptimalOptions(cgGeometryProfile);
+    	if (verbose) {
+    		cout << "[CG]: Latest CG_Geometryprofile for this gfxcard: " << cgGeometryProfile << " = " << cgGetProfileString(cgGLGetLatestProfile(CG_GL_GEOMETRY)) << endl;
+    		// get geometry program limits
+    		GLint max_output_vertices, max_total_output_components;
+    		glGetProgramivARB(GL_GEOMETRY_PROGRAM_NV, GL_MAX_PROGRAM_OUTPUT_VERTICES_NV, &max_output_vertices);
+    		glGetProgramivARB(GL_GEOMETRY_PROGRAM_NV, GL_MAX_PROGRAM_TOTAL_OUTPUT_COMPONENTS_NV, &max_total_output_components);
+    		printf("max output vertices = %d\n", max_output_vertices);
+    		printf("max total output components = %d\n", max_total_output_components);
+    	}
+    }
 }
 
-void
-CgToolkit::CheckCgError()
+void CgToolkit::CheckCgError()
 {
-	CGerror error;
-	const char* string = cgGetLastErrorString(&error);
-	if (error != CG_NO_ERROR) {
-		printf ("%s\n",	string);
-		//if (error == CG_COMPILER_ERROR) {
-		//	printf("%s\n", cgGetLastListing(cgContext));
-		//}
-		exit(1);
-	}
+    CGerror lastError = cgGetError();
+    if(lastError)
+    {
+        printf("%s\n", cgGetErrorString(lastError));
+//        printf("%s\n", cgGetLastListing(cgContext));
+        exit(1);
+    }
 }
 
 void

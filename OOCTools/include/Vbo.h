@@ -34,7 +34,7 @@ class Vbo
 friend class VboManager;
 
 public:
-	Vbo();
+	Vbo(VertexArray<unsigned int>* _ia = 0, VertexArray<char>* _na = 0, VertexArray<float>* _va = 0);
 	virtual ~Vbo();
 
 	void drawSingle(int vertexCount);
@@ -45,6 +45,9 @@ public:
 	void setVData(VertexArray<float>* va);
 	void setNData(VertexArray<char>* va);
 	void setIndices(VertexArray<unsigned int>* _ia);
+	const VertexArray<float>* getVData() const {return mPriVertices;};
+	const VertexArray<char>* getNData() const {return mPriNormals;};
+	const VertexArray<unsigned int>* getIndices() const {return mPriIndices;};
 	void setCgP(CGparameter cgp);
 	void setGlColor();
 	void setOffline();
@@ -62,6 +65,35 @@ public:
 	std::string toString(GLboolean b);
 	void purge();
 
+	Vbo& operator+=(const Vbo& rhs);
+	Vbo operator+(const Vbo& rhs);
+
+	/**
+	 * Equality-Operator returns true if both VBO-Objects have the same VertexArray-Memory Adresses
+	 * @param rhs - RightHandSide object
+	 * @return boolen - see above
+	 */
+	bool operator==(const Vbo& rhs) const;
+
+	/**
+	 * Performs a thorough tri-box-intersection-test on this Vbo and the given BB.
+	 * The results are stored inside the _inside and _outside references. Triangles
+	 * which lie on an edge are duplicated in both target-objects.
+	 * @param _bb the BoundingBox
+	 * @param _inside will contain all the triangles and normals that lie inside the
+	 * box and on an edge.
+	 * @param _outside will contain all the triangles and normals that lie outside
+	 * the box and on an edge.
+	 */
+	void split(const BoundingBox& _bb, Vbo& _inside, Vbo& _outside);
+
+	/**
+	 * adds a single triangle, consisting of 3 4-component float vertices and char normals
+	 * to the Vbo.
+	 * @param _verts
+	 * @param _normals
+	 */
+	void addTriangle(const float* _verts, const char* _normals);
 
 private:
 	void managedDraw();

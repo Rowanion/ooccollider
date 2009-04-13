@@ -60,6 +60,26 @@ VboManager::calcBB()
 	}
 }
 
+//void
+//VboManager::addVbo(std::string id, Vbo* _vbo)
+//{
+//	if (mPriVboMap==0) mPriVboMap = new map<string, Vbo*>;
+//	if (mPriVboMap->size() == 0) {
+//		mPriVboMap->insert(make_pair(id, _vbo));
+//		mPriBb.expand(_vbo->getBb());
+//		mPriNVertices += _vbo->mPriVertices->size;
+//		mPriNFaces += _vbo->mPriVertices->nFaces;
+//		mPriMemoryUsage += (_vbo->mPriVertices->size
+//				* _vbo->mPriVertices->nComponents * sizeof(float))
+//				+ (_vbo->mPriVertices->size * _vbo->mPriVertices->nComponents
+//						* sizeof(char));
+//	}
+//	else {
+//		Vbo* newVbo = mPriVboMap->begin()->second;
+//		*newVbo += *_vbo;
+//	}
+//}
+
 void
 VboManager::addVbo(std::string id, Vbo* _vbo)
 {
@@ -207,9 +227,9 @@ VboManager::makeVbos(Model* _model)
 	for (it = _model->getGrpStart(); it != _model->getGrpEnd(); ++it) {
 		VertexArray<float>* va = _model->getVArrayPtr(it);
 		VertexArray<char>* na = _model->getNArrayPtr(it);
-		Vbo *vbo = new Vbo();
-		vbo->setVData(va);
-		vbo->setNData(na);
+		Vbo *vbo = new Vbo(0, na, va);
+//		vbo->setVData(va);
+//		vbo->setNData(na);
 		cout << "passedMat: " << it->second->getMat().kdR << ", "
 				<< it->second->getMat().kdG << ", "
 				<< it->second->getMat().kdB << endl;
@@ -230,6 +250,7 @@ VboManager::printInfo()
 	cout << "--------------------------------------------------------" << endl;
 	cout << "Loaded No. of Vertices: " << mPriNVertices << "(x2 for the normals)"<< endl;
 	cout << "Loaded No. of Triangles: " << mPriNFaces << endl;
+	cout << "Number of VBOs: " << mPriVboMap->size() << endl;
 	size_t memory = sizeof(float) * mPriNVertices * 4 + sizeof(char)
 			* mPriNVertices * 4;
 	if (mPriMemoryUsage > 1073741824)
@@ -270,6 +291,46 @@ void
 VboManager::setColorTable(const ColorTable& _ct)
 {
 	mPriCt = _ct;
+}
+
+/**
+ * Debug-Function which merges all VBOs into the first one and removes the rest.
+ * Used to test the Addition-Operator for the later Octree-Generation.
+ */
+void VboManager::mergeDown()
+{
+	Vbo* firstVbo = mPriVboMap->begin()->second;
+	string firstId = mPriVboMap->begin()->first;
+	mIterator mIt = mPriVboMap->begin();
+	for (; mIt != mPriVboMap->end(); ++mIt) {
+		if (mIt->first != firstId) {
+			cout << "size of orig vbo: " << mIt->second->mPriVertices->size
+					<< endl;
+			*firstVbo += *mIt->second;
+		}
+	}
+	cout << "number of vbos now: " << mPriVboMap->size() << endl;
+	int idx = 0;
+	mIt = mPriVboMap->begin();
+	for (; mIt != mPriVboMap->end(); ++mIt) {
+		if (mIt->first != firstId) {
+			cout << "size of current vbo: " << mIt->second->mPriVertices->size
+					<< endl;
+			++idx;
+			delete mIt->second;
+			mPriVboMap->erase(mIt);
+		}
+	}
+}
+
+void VboManager::debugSplit(BoundingBox* _bb)
+{
+	Vbo* v = mPriVboMap->begin()->second;
+	Vbo* in = new Vbo;
+	Vbo* out = new Vbo;
+	v->split(*_bb, *in, *out);
+	delVbo(mPriVboMap->begin());
+	addVbo("defau", in);
 }
 
 } // end of namespace OOCTools

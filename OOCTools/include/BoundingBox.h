@@ -49,24 +49,131 @@ public:
 	std::string toString();
 	bool hasSharedComponent(const BoundingBox& _bb) const;
 	void drawSolid() const;
+
+	/**
+	 *  @brief Computes center of BB.
+	 *  @return   a pointer to a new V3f Reference containing the center coordinates of BB.
+	 *
+	 *  This is not an ordinary getter. This calculates the geometrical center of the BoundingBox
+	 *  and returns a pointer to it.
+	 *  Attention: the pointer is NOT kept by BB. The caller of the function has to make sure to
+	 *  clean it up after use!
+	 */
 	void computeCenter(V3f& _center) const;
+
+	/**
+	 * Performs a simple intersection-test between two Axis-ALigned BoundingBoxes.
+	 * @param _b
+	 * @return true if the boxes intersect.
+	 */
 	bool intersects(const BoundingBox& _b) const;
+
+	/**
+	 * A wrapper method to call the c-function triboxoverlap.c which performs an intersection-test
+	 * between this BoundingBox and the given triangle.
+	 * @param _a vertex a
+	 * @param _b vertex b
+	 * @param _c vertex c of the triangle
+	 * @return true if the triangle either intersects <b>or is completely inside</b> the
+	 * BoundingBox.
+	 */
 	bool intersects(const V3f& _a, const V3f& _b, const V3f& _c) const;
+
+	/**
+	 * Same as the other triangle-intersection method but this time with V3f Vertices.
+	 * @param _a vertex a
+	 * @param _b vertex b
+	 * @param _c vertex c of the triangle
+	 * @return true if the triangle either intersects <b>or is completely inside</b> the
+	 * BoundingBox.
+	 */
 	bool intersects(const V4f& _a, const V4f& _b, const V4f& _c) const;
+
+	bool intersects9Plus(const float* _a) const;
+
+	/**
+	 * Checks if the given vertex with 3 components is inside this BB.
+	 * @param _v pointer to a float array
+	 * @return true if Point is inside.
+	 */
 	bool isInside3(const float* _v) const;
+
+	bool isInside3Plus(const float *_v) const;
+
+	/**
+	 * Checks if the given vertices with 3 components are all inside this BB.
+	 * @param _v pointer to a float array containing 3x3 floats
+	 * @return true if all Points are inside.
+	 */
 	bool isInside9(const float* _v) const;
+
+	bool isInside9Plus(const float *_v) const;
+
+	/**
+	 * same as isInside3() only with single floats.
+	 * @see isInside3()
+	 */
 	bool isInside(float _f1, float _f2, float _f3) const;
+
+	/**
+	 * same as isInside9() only with single V3f references.
+	 * @ see isInside9()
+	 */
 	bool isInside(const V3f& _v1, const V3f& _v2, const V3f& _v3) const;
+
+	/**
+	 * same as isInside9() only with single V4f references.
+	 * @ see isInside9()
+	 */
 	bool isInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const;
+
+	/**
+	 * same as isInside3() only with a single V3f reference.
+	 * @see isInside3()
+	 */
 	bool isInside(const V3f& _v) const;
+
+	/**
+	 * same as isInside3() only with a single V4f reference.
+	 * @see isInside3()
+	 */
 	bool isInside(const V4f& _v) const;
+
+	/**
+	 * Performs a text if the given BoundingBox is completely inside this one.
+	 * @param _b the rhs-BB
+	 * @return true if is completely inside.
+	 */
 	bool isInside(const BoundingBox& _b) const;
+
+	/**
+	 * This is the complement-function of isInside(const V3f& _v)  - the name is pretty much
+	 * self-explanatory! *doh*
+	 * @see isInside(const V3f& _v)
+	 */
 	bool isOutside(const V3f& _v) const;
+
+	/**
+	 * @brief Tests if given BB is outside this one.
+	 * @param A pointer to a BoundingBox.
+	 * @return   true if the given BB-Ptr is completely outside of this BB. false else.
+	 *
+	 * Performs a test, if the given BB is completely outside this one.
+	 * This does not include the intersecting case. For this please use intersects()
+	 */
 	bool isOutside(const BoundingBox& _b) const;
 	bool isOutside(const V4f& _v) const;
 	void computeEdgeSizes(V3f& _sizes) const;
 	float computeDiameter() const;
+
+	/**
+	 * Assignment Operator
+	 */
 	BoundingBox& operator=(const BoundingBox& _bb);
+
+	/**
+	 * equality comparison operator
+	 */
 	bool operator==(const BoundingBox& _bb);
 	bool operator!=(const BoundingBox& _bb);
 
