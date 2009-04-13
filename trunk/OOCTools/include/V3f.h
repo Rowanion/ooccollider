@@ -80,6 +80,7 @@ public:
 	V3f& operator+=(const V3f &a);
 	V3f& operator+=(const float f);
 	V3f& operator*=(float f);
+	V3f& operator*=(const V3f& v);
 	V3f& operator-=(const V3f &a);
 	V3f operator/(float f) const;
 	V3f operator+(const V3f &a) const;

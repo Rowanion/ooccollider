@@ -320,6 +320,15 @@ V3f::operator*=(float f)
 }
 
 V3f&
+V3f::operator*=(const V3f& v)
+{
+	mPriData[0] *= v.getX();
+	mPriData[1] *= v.getY();
+	mPriData[2] *= v.getZ();
+	return *this;
+}
+
+V3f&
 V3f::operator-=(const V3f& a)
 {
    	mPriData[0]-=a.getX();

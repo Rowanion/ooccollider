@@ -13,6 +13,7 @@
 
 #include "declarations.h"
 #include "V3f.h"
+#include "glQuaternion.h"
 
 namespace ooctools {
 
@@ -115,6 +116,42 @@ class Camera
 		 */
 		const V3f& getView() const {return mView;};
 
+		/**
+		 * Shortcut for gluLookAt() with our camera-object. This is called each time the camera is
+		 * changed.
+		 */
+		void applyToGL() const;
+
+		/**
+		 * Rotation using boost::math::quaterions - <b>Highly experimental</b>
+		 * @param Angle the angle to rotate by
+		 * @param x x-part of the axis to rotate around
+		 * @param y y-part of the axis to rotate around
+		 * @param z z-part of the axis to rotate around
+		 */
+		void rotateVectorQuat(float Angle, float x, float y, float z, V3f& vector) const;
+
+		void rotateVectorQuat(float Angle, const V3f& axis, V3f& vector) const;
+
+		float getRoll() const {return mRollDegrees;};
+		void setRoll(float _roll);
+
+		// ----------------------------------------
+		void SetPerspective();
+		V3f m_DirectionVector;
+		float m_ForwardVelocity;
+		V3f m_Position;
+		float m_MaxForwardVelocity;
+		float m_MaxPitchRate;
+		float m_MaxHeadingRate;
+		float m_PitchDegrees;
+		float m_HeadingDegrees;
+		float m_RollDegrees;
+		glQuaternion m_qPitch;
+		glQuaternion m_qHeading;
+		glQuaternion m_qRoll;
+
+		// ---------------------------------------
 	private:
 		/**
 		* Our current eye-position.
@@ -130,6 +167,8 @@ class Camera
 		* Our UP-Vector for gluLookAt().
 		*/
 		V3f mUp; // = new float [] {0.0f,0.0f,0.0f};
+
+		float mRollDegrees;
 };
 
 } // ooctools

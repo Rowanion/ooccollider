@@ -62,6 +62,8 @@ public:
 
 	void switchOffVBO(std::string id);
 	void switchOnVBO(std::string id);
+	void mergeDown();
+	void debugSplit(BoundingBox* _bb);
 
 private:
 	VboManager();

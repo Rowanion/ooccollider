@@ -19,10 +19,12 @@ namespace ooctools {
 
 typedef vector<GLuint>::const_iterator GLuint_v_It;
 
-Vbo::Vbo() : mPriVId(0), mPriNId(0), mPriIdxId(0),
-	mPriUseIndices(false), _vboUsageMode(GL_STATIC_DRAW), mPriNormals(0),
-	mPriVertices(0), mPriIndices(0),	mPriCurrentColorF(0),
-	mPriCurrentColorB(0), isOffline(false), isGpuOnly(false)
+Vbo::Vbo(VertexArray<unsigned int>* _ia, VertexArray<char>* _na,
+		VertexArray<float>* _va) :
+	mPriVId(0), mPriNId(0), mPriIdxId(0), mPriUseIndices(false), _vboUsageMode(
+			GL_STATIC_DRAW), mPriNormals(0), mPriVertices(0), mPriIndices(0),
+			mPriCurrentColorF(0), mPriCurrentColorB(0), isOffline(false),
+			isGpuOnly(false)
 {
 
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &mPriMaxVertices);
@@ -37,6 +39,12 @@ Vbo::Vbo() : mPriVId(0), mPriNId(0), mPriIdxId(0),
 	mPriCurrentColorF[0] = defaultColorF.getX();
 	mPriCurrentColorF[1] = defaultColorF.getY();
 	mPriCurrentColorF[2] = defaultColorF.getZ();
+	if (_ia != 0)
+		setIndices(_ia);
+	if (_na != 0)
+		setNData(_na);
+	if (_va != 0)
+		setVData(_va);
 }
 
 Vbo::~Vbo()
@@ -153,7 +161,7 @@ Vbo::drawSingle(int vertexCount)
  *  @param  va  A pointer to a filled VertxArray instance.
  *  @return   Nothing.
  *
- *  This actually sets the vertx data of the VBO. Without this you cannot draw anything!
+ *  This actually sets the vertex data of the VBO. Without this you cannot draw anything!
  */
 void
 Vbo::setVData(VertexArray<float>* va)
@@ -331,7 +339,8 @@ Vbo::setOffline()
 void
 Vbo::setOnline()
 {
-	if (isOffline && !isGpuOnly){
+//	if (isOffline && !isGpuOnly){
+	if (!isGpuOnly){
 		if (mPriNId!=0){
 			// do stuff to normals
 			glBindBuffer(GL_ARRAY_BUFFER, mPriNId);
@@ -399,8 +408,6 @@ Vbo::getGpuMemory()
 
 /**
  *  @brief Deletes vertexarrays and keeps the gpu-side up and running.
- *  @param  a  An iterator.
- *  @param  b  Another iterator.
  *  @return   Nothing.
  *
  *  This deletes the VertexArrays and keeps the Mesh only in GPU-Memory.
@@ -424,6 +431,108 @@ Vbo::setGpuOnly()
 		}
 		isGpuOnly = true;
 	}
+}
+
+Vbo&
+Vbo::operator+=(const Vbo& rhs)
+{
+	if (mPriIndices != 0) {
+		*mPriIndices += *rhs.getIndices();
+		setIndices(mPriIndices);
+	}
+	if (mPriNormals != 0) {
+		*mPriNormals += *rhs.getNData();
+		setNData(mPriNormals);
+	}
+	if (mPriVertices != 0){
+		*mPriVertices += *rhs.getVData();
+		setVData(mPriVertices);
+		mPriVertices->calcBB();
+	}
+	return *this;
+}
+
+Vbo
+Vbo::operator+(const Vbo& rhs)
+{
+	Vbo b;
+
+	if (mPriIndices != 0){
+		VertexArray<unsigned int>* _vaui(mPriIndices);
+		*_vaui += *rhs.getIndices();
+		b.setIndices(_vaui);
+	}
+	if (mPriNormals != 0){
+		VertexArray<char>* _vac(mPriNormals);
+		*_vac += *rhs.getNData();
+		b.setNData(_vac);
+	}
+	if (mPriVertices != 0){
+		VertexArray<float>* _vaf(mPriVertices);
+		*_vaf += *rhs.getVData();
+		_vaf->calcBB();
+		b.setVData(_vaf);
+	}
+	return b;
+}
+
+bool
+Vbo::operator==(const Vbo& rhs) const
+{
+	if (mPriIndices == rhs.mPriIndices && mPriVertices == rhs.mPriVertices && mPriNormals == rhs.mPriNormals){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+// TODO
+void
+Vbo::split(const BoundingBox& _bb, Vbo& _inside, Vbo& _outside)
+{
+	// each step is tri
+	for (unsigned int i = 0; i < mPriVertices->size * mPriVertices->nComponents; i
+			+= mPriVertices->nComponents * 3) {
+		if (_bb.isInside9Plus(mPriVertices->mData + i)) {
+			_inside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
+		}
+		else if (_bb.intersects9Plus(mPriVertices->mData + i)){
+			_inside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
+			_outside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
+		}
+		else {
+			_outside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
+		}
+	}
+	_inside.setOnline();
+	_outside.setOnline();
+
+	/*
+	 * foreach tri in *this as _t {
+	 * 	if (_bb.isInside(_t)){
+	 * 		copy all vertices and normals of _t into _inside
+	 * 	}
+	 * 	else if (_bb.intersects(_t))
+	 * 		copy all vertices and normals of _t into _outside AND _inside
+	 * 	else // is outside
+	 * 		copy all vertices and normals of _t into _outside
+	 * }
+	 */
+}
+
+void Vbo::addTriangle(const float* _verts, const char* _normals)
+{
+	if (mPriVertices == 0){
+		mPriVertices = new VertexArray<float>(4);
+	}
+	if (mPriNormals == 0){
+		mPriNormals = new VertexArray<char>(4);
+	}
+	mPriVertices->addTriangle(_verts);
+	mPriVertices->mPriBb.expand(_verts);
+	mPriVertices->mPriBb.expand(_verts+4);
+	mPriVertices->mPriBb.expand(_verts+8);
+	mPriNormals->addTriangle(_normals);
 }
 
 void

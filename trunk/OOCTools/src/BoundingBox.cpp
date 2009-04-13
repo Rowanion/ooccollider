@@ -7,17 +7,20 @@
 
 #include "BoundingBox.h"
 
-#include "V3f.h"
 #include <cstddef>
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/freeglut.h>
-#include <GL/glu.h>
 #include <sstream>
 #include <string>
 #include <limits>
 #include <iostream>
 #include <cmath>
+
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/freeglut.h>
+#include <GL/glu.h>
+
+#include "V3f.h"
+#include "V4f.h"
 
 using namespace std;
 
@@ -208,6 +211,7 @@ BoundingBox::expand(const float *_v)
 {
 	expand(_v[0], _v[1], _v[2]);
 }
+
 void
 BoundingBox::expand(float _x, float _y, float _z)
 {
@@ -225,7 +229,7 @@ BoundingBox::expand(const BoundingBox &_bb)
 bool
 BoundingBox::hasSharedComponent(const BoundingBox &_bb) const
 {
-	// TODO WTF? which returns waht now?
+	// TODO WTF? which returns what now?
 	return _bb.getMax().hasSharedComponent(getMax());
 	return _bb.getMin().hasSharedComponent(getMin());
 	return false;
@@ -279,15 +283,6 @@ BoundingBox::drawSolid() const
 	glEnd();
 }
 
-/**
- *  @brief Computes center of BB.
- *  @return   a pointer to a new V3f Reference containing the center coordinates of BB.
- *
- *  This is not an ordinary getter. This calculates the geometrical center of the BoundingBox
- *  and returns a pointer to it.
- *  Attention: the pointer is NOT kept by BB. The caller of the function has to make sure to
- *  clean it up after use!
- */
 void
 BoundingBox::computeCenter(V3f &_center) const
 {
@@ -332,6 +327,27 @@ BoundingBox::intersects(const V4f &_a, const V4f &_b, const V4f &_c) const
 }
 
 bool
+BoundingBox::intersects9Plus(const float* _a) const
+{
+	V3f a(_a);
+	V3f b(_a+4);
+	V3f c(_a+8);
+	V3f center;
+	computeCenter(center);
+	V3f edges;
+	computeEdgeSizes(edges);
+	edges *= 0.5f;
+	float triverts[3][3];
+	for (int i=0; i<3; ++i){
+		triverts[0][i] = ((float*)a.getData())[i];
+		triverts[1][i] = ((float*)b.getData())[i];
+		triverts[2][i] = ((float*)c.getData())[i];
+	}
+	return triBoxOverlap((float*)center.getData(),(float*)edges.getData(), triverts);
+
+}
+
+bool
 BoundingBox::intersects(const BoundingBox &_b) const
 {
 	V3f d;
@@ -349,7 +365,6 @@ BoundingBox::intersects(const BoundingBox &_b) const
 	return false;
 }
 
-// vertex
 bool
 BoundingBox::isInside3(const float *_v) const
 {
@@ -358,12 +373,24 @@ BoundingBox::isInside3(const float *_v) const
 	return result;
 }
 
-// dreieck
+bool
+BoundingBox::isInside3Plus(const float *_v) const
+{
+	bool result = isInside(V4f(_v[0], _v[1], _v[2], _v[3]));
+//	delete _temp;
+	return result;
+}
+
 bool
 BoundingBox::isInside9(const float *_v) const
 {
 	return (isInside3(_v) && isInside3(_v+3) && isInside3(_v+6));
 
+}
+
+bool BoundingBox::isInside9Plus(const float *_v) const
+{
+	return (isInside3Plus(_v) && isInside3Plus(_v+4) && isInside3Plus(_v+8));
 }
 
 // vertex
@@ -393,13 +420,6 @@ BoundingBox::isInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const
 	else return false;
 }
 
-/**
- *  @brief Tests if given V3f is inside this one.
- *  @param A pointer to a V3f.
- *  @return   true if the given V3f-Ptr is completely inside of this BB. false else.
- *
- *  Performs a test, if the given V3f is completely inside this one.
- */
 bool
 BoundingBox::isInside(const V3f& _v) const
 {
@@ -415,13 +435,6 @@ BoundingBox::isInside(const V4f& _v) const
 	else return false;
 }
 
-/**
- *  @brief Tests if given BB is inside this one.
- *  @param A pointer to a BoundingBox.
- *  @return   true if the given BB-Ptr is completely inside of this BB. false else.
- *
- *  Performs a test, if the given BB is completely inside this one.
- */
 bool
 BoundingBox::isInside(const BoundingBox& _b) const
 {
@@ -430,14 +443,6 @@ BoundingBox::isInside(const BoundingBox& _b) const
 	else return false;
 }
 
-/**
- *  @brief Tests if given V3f is outside this BB.
- *  @param A pointer to a V3f Vertex.
- *  @return   true if the given V3f-Ptr is completely inside of this BB. False else.
- *
- *  Performs a test, if the given BB is completely outside this one.
- *  It's just an inversion of isInside(V3f*);
- */
 bool
 BoundingBox::isOutside(const V3f& _v) const
 {
@@ -451,14 +456,6 @@ BoundingBox::isOutside(const V4f& _v) const
 	return !isInside(temp);
 }
 
-/**
- *  @brief Tests if given BB is outside this one.
- *  @param A pointer to a BoundingBox.
- *  @return   true if the given BB-Ptr is completely outside of this BB. false else.
- *
- *  Performs a test, if the given BB is completely outside this one.
- *  This does not include the intersecting case. For this please use intersects()
- */
 bool
 BoundingBox::isOutside(const BoundingBox &_b) const
 {
@@ -479,9 +476,6 @@ BoundingBox::computeDiameter() const
 	return (mPrivMax-mPrivMin).getAbs().calculateMagnitude();
 }
 
-/**
- * Assignment Operator
- */
 BoundingBox&
 BoundingBox::operator=(const BoundingBox& _bb)
 {
@@ -492,9 +486,6 @@ BoundingBox::operator=(const BoundingBox& _bb)
 	return *this;
 }
 
-/**
- * equality comparison operator
- */
 bool
 BoundingBox::operator==(const BoundingBox& _bb)
 {
