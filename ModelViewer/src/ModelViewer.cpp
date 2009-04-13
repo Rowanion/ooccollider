@@ -25,6 +25,7 @@
 #include "ColorTable.h"
 #include "AbstractVertex.h"
 #include "Camera.h"
+//#include "glCamera.h"
 
 
 using namespace std;
@@ -67,13 +68,17 @@ float transY = 0.0;
 float transZ = 0.0;
 float modelScale = 1.0f;
 Camera camObj;
-float walkingSpeed = 1.0f;
+//glCamera cam;
+//unsigned int    MouseX, MouseY;
+int   CenterX, CenterY;
+
+float walkingSpeed = 0.3f;
 BoundingBox *bb1;
 BoundingBox *bb2;
 VboManager *vboMan;
 Fbo *fbo;
 ColorTable* ct;
-GLuint tex;
+
 
 RawModelWriter* moWri;
 
@@ -162,29 +167,6 @@ void setBrassMaterial()
 	cgSetParameter1f(g_cgShininess, brassShininess);
 }
 
-void setupTexture()
-{
-	unsigned char pixelData[] = {255, 0,0,0,255,0,0,0,255};
-	glGenTextures(1, &tex);
-	GET_GLERROR(0);
-
-	glBindTexture(GL_TEXTURE_1D, tex);
-	GET_GLERROR(0);
-
-// stretch the texture in all dimensions to the edge of the face
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
-		GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_1D,
-		GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D,
-		GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	GET_GLERROR(0);
-
-// this actually binds the scalar values as texture to the texture-name
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB16, 3,
-		0, GL_RGB, GL_UNSIGNED_BYTE, pixelData);
-	GET_GLERROR(0);
-}
 
 static void setOrthographicProjection() {
 
@@ -205,7 +187,23 @@ static void setOrthographicProjection() {
 	glMatrixMode(GL_MODELVIEW);
 }
 
-static void renderSpacedBitmapString(float x, float y, int spacing, void* font,
+//void *font = GLUT_BITMAP_9_BY_15;
+void *font=(void*)GLUT_BITMAP_HELVETICA_12;
+
+void
+drawString(std::string text, unsigned int x, unsigned int y)
+{
+	glWindowPos2i(x, y);
+	const char *string = text.c_str();
+  int len, i;
+
+  len = (int) text.size();
+  for (i = 0; i < len; i++) {
+    glutBitmapCharacter(font, string[i]);
+  }
+}
+
+void renderSpacedBitmapString(float x, float y, int spacing, void* font,
 		string s)
 {
 	string::iterator sIt;
@@ -247,16 +245,17 @@ static void doFPS(){
 	void *font=(void*)GLUT_BITMAP_HELVETICA_12;
 	setOrthographicProjection();
 	s << "FPS: " << fps;
-	renderSpacedBitmapString(30,35,1,font,s.str());
+//	renderSpacedBitmapString(30,35,1,font,s.str());
+	drawString(s.str(), 30,h-35);
 	glPopMatrix();
 	resetPerspectiveProjection();
 
 }
 
 static void display() {
-
 	glClearColor(0.0f,0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 	lpos[0] = (float)(g_dLightRadius*cos(g_iFrame*3.14f/200.0f));
 	lpos[1] = (float)(g_dLightRadius*sin(g_iFrame*3.14f/200.0f));
 	lpos[2] = g_dLightHeight;
@@ -269,16 +268,18 @@ static void display() {
 	glPushMatrix();
 //		glTranslatef(transX, 0.0, transZ);
 		glPushMatrix();
+//		cam.SetPrespective();
 
 //			glScalef(zoom, zoom, zoom);
 //			glScalef(modelScale,modelScale,modelScale);
 //			glRotatef(mouseRotX, 1.0f, 0.0, 0.0);
 //			glRotatef(mouseRotY, 0.0f, 1.0, 0.0);
 
-			gluLookAt(*camObj.getEye().x, *camObj.getEye().y, *camObj.getEye().z,
-					*camObj.getView().x, *camObj.getView().y, *camObj.getView().z,
-					*camObj.getUp().x, *camObj.getUp().y, *camObj.getUp().z);
-			glRotatef(180.0f, 1.0f, 0.0, 0.0);
+		camObj.applyToGL();
+//			gluLookAt(*camObj.getEye().x, *camObj.getEye().y, *camObj.getEye().z,
+//					*camObj.getView().x, *camObj.getView().y, *camObj.getView().z,
+//					*camObj.getUp().x, *camObj.getUp().y, *camObj.getUp().z);
+			glRotatef(camObj.getRoll(), 1.0f, 0.0, 0.0);
 //			glTranslatef(*camObj.getEye().x, *camObj.getEye().y, *camObj.getEye().z);
 
 			glPushMatrix();
@@ -303,6 +304,7 @@ static void display() {
 
 				CgToolkit::getInstancePtr()->startCgShader(CgToolkit::getInstancePtr()->cgVertexProfile, g_cgVertexProg);
 				CgToolkit::getInstancePtr()->startCgShader(CgToolkit::getInstancePtr()->cgFragProfile, g_cgFragmentProg);
+				GET_GLERROR(0);
 				//glColor4ub(222,143,28,1);
 
 
@@ -319,13 +321,7 @@ static void display() {
 //				}
 //				bb2->draw(0.0f, 1.0f, 0.0f);
 
-//				glActiveTexture(GL_TEXTURE0);
-//				glBindTexture(GL_TEXTURE_1D, tex);
-//				GET_GLERROR(0);
-//				glEnable(GL_TEXTURE_1D);
-//				GET_GLERROR(0);
-//				cgGLEnableTextureParameter(cgColorLut);
-//				GET_GLERROR(0);
+				GET_GLERROR(0);
 				glBegin(GL_TRIANGLES);
 //					glVertex3f(tri1.getX(), tri1.getY(), tri1.getZ());
 //					glVertex3f(tri2.getX(), tri2.getY(), tri2.getZ());
@@ -340,10 +336,8 @@ static void display() {
 					glVertex4f(tri2.getX(), tri2.getY(), tri2.getZ(), vboMan->getColorTable().calculateTexCoord(8));
 					glVertex4f(tri1.getX(), tri1.getY(), tri1.getZ(), vboMan->getColorTable().calculateTexCoord(8));
 				glEnd();
+				GET_GLERROR(0);
 				vboMan->drawVbos();
-//				ct->unbindTex();
-//				cgGLDisableTextureParameter(cgColorLut);
-//				glDisable(GL_TEXTURE_2D);
 				GET_GLERROR(0);
 //				fbo->bind();
 //				fbo->clear();
@@ -395,8 +389,10 @@ static void display() {
 	//glFlush();
 }
 
-void changeSize(int w, int h) {
+void changeSize(int _w, int _h) {
 
+	w = _w;
+	h = _h;
 	// Prevent a divide by zero, when window is too short
 	// (you cant make a window of zero width).
 	if(h == 0)
@@ -424,13 +420,82 @@ void changeSize(int w, int h) {
 	gluLookAt(0.0,0.0,5.0,
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
-
+	 CenterX = w/2;
+	 CenterY = h/2;
 
 	// -------------------------------------
 	                     								// load the identity matrix as the modelview (resets all previous transformations)
 
 
 }
+
+//void CheckMouse(int X,int Y)
+//{
+//    GLfloat DeltaMouse;
+//
+//    MouseX = X;
+//    MouseY = Y;
+//
+//    if(MouseX < CenterX)
+//    {
+//        DeltaMouse = GLfloat(CenterX - MouseX);
+//        cam.ChangeHeading(-0.2f * DeltaMouse);
+//
+//    }
+//	else if (MouseX > CenterX) {
+//		DeltaMouse = GLfloat(MouseX - CenterX);
+//		cam.ChangeHeading(0.2f * DeltaMouse);
+//	}
+//	if (MouseY < CenterY) {
+//		DeltaMouse = GLfloat(CenterY - MouseY);
+//		cam.ChangePitch(-0.2f * DeltaMouse);
+//	}
+//	else if (MouseY > CenterY) {
+//		DeltaMouse = GLfloat(MouseY - CenterY);
+//		cam.ChangePitch(0.2f * DeltaMouse);
+//	}
+//	glutWarpPointer(CenterX, CenterY);
+//
+//	glutPostRedisplay();
+//}
+
+//void CheckAlphaKeys(unsigned char key, int x,int y)
+//{
+//    if(key == 'w')
+//    {
+//        cam.ChangeVelocity(0.5f);
+//    }
+//    else if(key == 's')
+//    {
+//        cam.ChangeVelocity(-0.5f);
+//    }
+//    else if (key == 27) // esc
+//    {
+//        exit(0);
+//    }
+//    glutPostRedisplay();
+//}
+//
+//void CheckKeys(int key, int x,int y)
+//{
+//    if(key == GLUT_KEY_UP)
+//    {
+//        cam.ChangePitch(5.0f);
+//    }
+//    else if(key == GLUT_KEY_DOWN)
+//    {
+//        cam.ChangePitch(-5.0f);
+//    }
+//    else if(key == GLUT_KEY_LEFT)
+//    {
+//        cam.ChangeHeading(-5.0f);
+//    }
+//    else if(key == GLUT_KEY_RIGHT)
+//    {
+//        cam.ChangeHeading(5.0f);
+//    }
+//    glutPostRedisplay();
+//}
 
 void processNormalKeys(unsigned char key, int x, int y) {
 
@@ -455,9 +520,9 @@ void processNormalKeys(unsigned char key, int x, int y) {
 	else if (key == 'l') // toggle lightsource visibility
 		showLightSource = !showLightSource;
 	else if (key == '-')
-		camObj.rollRotation(1.7f);
+		camObj.setRoll(camObj.getRoll()+0.05f);
 	else if (key == '+')
-		camObj.rollRotation(-1.7f);
+		camObj.setRoll(camObj.getRoll()-0.05f);
 	else if (key == 'r') {
 		if (wireFrame)
 			glPolygonMode(GL_FRONT, GL_FILL);
@@ -508,16 +573,20 @@ void processMouseActiveMotion(int x, int y){
 	 *          |
 	 *          -y
 	 */
+	float angleY = (float)(oldPosX - x) / 200.0f;
+	float angleZ = (float)(oldPosY - y) / 200.0f;
 
-    camObj.mouseRotate(static_cast<float>(oldPosX - x) / 200.0f, static_cast<float>(oldPosY - y) / 300.0f);
+
+    camObj.mouseRotate(angleY, angleZ);
     oldPosX = x;
     oldPosY = y;
+//    glutWarpPointer(CenterX, CenterY);
 
 
 
-	mouseRotX += 0.5f*(x-mouseLastX);
-	mouseRotY += 0.5f*(y-mouseLastY);
-	mouseLastX = x; mouseLastY = y;
+//	mouseRotX += 0.5f*(x-mouseLastX);
+//	mouseRotY += 0.5f*(y-mouseLastY);
+//	mouseLastX = x; mouseLastY = y;
 }
 void processMousePassiveMotion(int x, int y){
 
@@ -572,6 +641,8 @@ static void glInit(int argc, char *argv[]){
 	glutCreateWindow("ModelConverter");
 	glewInit();
 	glutDisplayFunc(display);
+//    glutKeyboardFunc(CheckAlphaKeys);
+//    glutSpecialFunc(CheckKeys);
 	glutKeyboardFunc(processNormalKeys);
 	glutReshapeFunc(changeSize);
 	//glutIdleFunc(idle);
@@ -580,32 +651,41 @@ static void glInit(int argc, char *argv[]){
 	//adding here the mouse processing callbacks
 	glutMouseFunc(processMouse);
 	glutMouseWheelFunc(processMWheel);
+//	glutMotionFunc(CheckMouse);
 	glutMotionFunc(processMouseActiveMotion);
 	glutPassiveMotionFunc(processMousePassiveMotion);
 	glutEntryFunc(processMouseEntry);
+    // To enable moving without holding down the mousebutton,
+    // uncomment below.
+//    glutPassiveMotionFunc(CheckMouse);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
 	//glDisable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
-
-	setupTexture();
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+//	setupTexture();
 	GET_GLERROR(0);
 
-	vboMan->makeVbos(model);
 
-	loadDirectory(fs::path("/media/External/B3_ausschnitt"));
+//	vboMan->makeVbos(model);
+	vboMan->makeVbos(model2);
+
+//	loadDirectory(fs::path("/media/External/B3_ausschnitt_klein"));
 //	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
 //	moWri->readModel(fs::path("raw_objs/armadillo")); // 1,03 Mil. / 345k
+//	moWri->readModel(fs::path("raw_objs/MyMini/mini_obj2")); //912k / 304k
 //	moWri->readModel(fs::path("raw_objs/mini")); //912k / 304k
 //	moWri->readModel(fs::path("raw_objs/bunny")); //48k / 16k
 //	moWri->readModel(fs::path("raw_objs/shadow")); //30k / 10k
 //	moWri->readModel(fs::path("raw_objs/door")); //25k / 8k
 //	moWri->readModel(fs::path("raw_objs/beethoven")); //15k / 5k
 //	moWri->readModel(fs::path("raw_objs/robot")); //3,6k / 1,2k
+//	vboMan->mergeDown();
+	vboMan->debugSplit(bb1);
 	vboMan->printInfo();
 
 	GET_GLERROR(0);
@@ -643,6 +723,10 @@ static void glInit(int argc, char *argv[]){
 //
 //	ct->bindTex();
 
+	camObj.positionCamera(0.0,0.0,5.0,
+			0.0,0.0,-3.0,
+			0,1,0);
+
 	setBrassMaterial();
 	GET_GLERROR(0);
 
@@ -658,14 +742,14 @@ static void glInit(int argc, char *argv[]){
 int main(int argc, char *argv[]) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
-	camObj.positionCamera(0.0, 0.0, 10.0,  0.0, 0.0, -10.0,  0.0, 1.0, 0.0);
+
 	ct = new ColorTable(string("/media/External/B3x7/Farben/colortable.bin"));
 	moLoader.setColorTable(ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
 	 moWri = new RawModelWriter();
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
-	model = moLoader.parseMultipass("meshes/robot.obj", true);
-//	model = moLoader.parseMultipass("meshes/bunny.obj", true);
+//	model = moLoader.parseMultipass("meshes/robot.obj", true);
+	model2 = moLoader.parseMultipass("meshes/bunny.obj", true);
 //	model = moLoader.parseMultipass("meshes/happy_buddha.obj", true);
 //	model = moLoader.parseMultipass("meshes/Dragon.obj", true);
 //	model = moLoader.parseMultipass("meshes/mini_obj2.obj", true);
@@ -678,7 +762,8 @@ int main(int argc, char *argv[]) {
 //	ct.removePowerOfTwoOverhead();
 //	ct.debug();
 //	exit(0);
-	bb1 = new BoundingBox(2.0f, 1.0f);
+//	bb1 = new BoundingBox(2.0f, -2.0f);
+	bb1 = new BoundingBox(0.0f, -2.0f);
 //	bb2 = new BoundingBox(0.0f, -2.5333333f);
 //	unsigned char* testStream = new unsigned char[28];
 //	((unsigned int*)testStream)[0] = 8;
@@ -723,7 +808,9 @@ int main(int argc, char *argv[]) {
 	tri1 = V3f(0.5f, 1.8f, 1.5f);
 	tri2 = V3f(0.0f, 1.0f, 1.5f);
 	tri3 = V3f(1.5f, 0.7f, 1.5f);
+	cout << "does the bunny intersect with the other box? " << bb1->intersects(*model2->getBB()) << endl;
 	cout << "intersecting? " << bb1->intersects(tri1, tri2, tri3) << endl;
+//	return 0;
 	V3f center;
 	bb1->computeCenter(center);
 	cout << (center.toString()) << endl;
