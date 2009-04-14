@@ -3,6 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 30.01.2009
+ * @brief 	Model class declaration.
  *
  */
 
@@ -25,9 +26,18 @@
 namespace ooctools {
 
 /**
- * @class C
- * @brief B
- * L
+ * @class Model
+ * @brief This class represents a 3D Model.
+ * In our special case this is used only for the ObjModelLoader. Other model-types are
+ * represented directly as a collection of VBOs because
+ * <ol type="a">
+ * <li>less data-object-overhead</li>
+ * <li>once loaded, the model never changes</li>
+ * <li>we don't have the need to dynamically generate VertexArrays from an object.</li>
+ * <li>Once we have the octree we only have VBOs.</li>
+ * <li>Once we have the octree we're done anyway.</li>
+ * </ol>
+ * @see Vbo, VboManager, oocformats::ObjModelLoader
  */
 class Model
 {

@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 02.03.2009
- *
+ * @brief 	All headers of this namespace are included here as a shortcut.
  */
 
 #ifndef OOCTOOLS_H_
@@ -12,9 +12,11 @@
 #include "BoundingBox.h"
 #include "Camera.h"
 #include "CgToolkit.h"
+#include "ColorTable.h"
 #include "Face.h"
 #include "Fbo.h"
 #include "FboFactory.h"
+#include "MetaGroup.h"
 #include "Model.h"
 #include "StructDefs.h"
 #include "V3b.h"

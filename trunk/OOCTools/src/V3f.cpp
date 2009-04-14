@@ -415,6 +415,14 @@ V3f::calculateMagnitude(){
 	return sqrt(pow(mPriData[0],2)+pow(mPriData[1],2)+pow(mPriData[2],2));
 }
 
+string
+V3f::toString(const float* _array)
+{
+	stringstream st;
+	st << "(" << _array[0] << ", " << _array[1] << ", " << _array[2] << ")";
+	return (const std::string) st.str();
+}
+
 const string
 V3f::toString() const
 {

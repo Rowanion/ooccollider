@@ -54,10 +54,12 @@ VboManager::~VboManager()
 void
 VboManager::calcBB()
 {
+	BoundingBox newBb;
 	// TODO reset BB prior to calculation
 	for(mIterator it=mPriVboMap->begin(); it!=mPriVboMap->end(); ++it){
-		mPriBb.expand(it->second->getBb());
+		newBb.expand(it->second->getBb());
 	}
+	mPriBb = newBb;
 }
 
 //void
@@ -294,7 +296,7 @@ VboManager::setColorTable(const ColorTable& _ct)
 }
 
 /**
- * Debug-Function which merges all VBOs into the first one and removes the rest.
+ * @brief Debug-Function which merges all VBOs into the first one and removes the rest.
  * Used to test the Addition-Operator for the later Octree-Generation.
  */
 void VboManager::mergeDown()
@@ -330,7 +332,8 @@ void VboManager::debugSplit(BoundingBox* _bb)
 	Vbo* out = new Vbo;
 	v->split(*_bb, *in, *out);
 	delVbo(mPriVboMap->begin());
-	addVbo("defau", in);
+	addVbo("defau", out);
+	addVbo("defau1", in);
 }
 
 } // end of namespace OOCTools

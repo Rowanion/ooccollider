@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 02.02.2009
- *
+ * @brief 	AbstractVertex class declaration.
  */
 
 #ifndef ABSTRACTVERTEX_H_

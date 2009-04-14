@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 04.03.2009
- *
+ * @brief 	Fbo class declaration.
  */
 
 #ifndef FBO_H_
@@ -18,9 +18,10 @@
 namespace ooctools {
 
 /**
- * @class C
- * @brief B
- * L
+ * @class Fbo
+ * @brief This class represents a Framebuffer-Object.
+ * This is an element of the FboFactory. Right now it can be instantiated as stand-alone, which is not
+ * preferred.
  */
 class Fbo
 {

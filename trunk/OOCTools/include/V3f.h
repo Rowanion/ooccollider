@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 19.02.2009
- *
+ * @brief 	V3f class declaration.
  */
 
 #ifndef V3F_H_
@@ -16,9 +16,12 @@
 namespace ooctools {
 
 /**
- * @class C
- * @brief B
- * L
+ * @class V3f
+ * @brief This is a vector-class with 3 float-components.
+ * It's a pretty large class because of all the operators and vector-style methods defined here.
+ * Together with V4f it's used the most, because 3 floats are the most usual way to move around
+ * in 3D-space.
+ * @see V3b, V3ub, V4f
  */
 class V3f
 {
@@ -54,13 +57,27 @@ public:
 	bool hasSharedComponent(const V3f &_v) const;
 
 	/**
-	 * Performs normalization on this object and returns a reference to itself.
-	 * @return self
+	 * @brief Performs normalization on this vector and returns a reference to itself.
+	 * A vector is normalized by dividing it through its magnitude, ie.
+	 * \f$ \frac{\left( \begin{array}{c}
+	 * x \\
+	 * y \\
+	 * z
+	 * \end{array}\right)}
+	 * {\sqrt{(x^2 + y^2 + z^2}} \f$
+	 *
+	 * @return normalized self
 	 */
 	V3f& normalize();
 
 	void addFaceRef(Face *face);
 	V3f getAbs() const;
+
+	/**
+	 * @brief Calculates the magnitude of a vector.
+	 * @return magnitude, ie. \f$ \sqrt{(x^2 + y^2 + z^2} \f$
+	 *
+	 */
 	float calculateMagnitude();
 
 	bool operator>(const V3f &a) const;
@@ -88,14 +105,22 @@ public:
 	V3f operator*(float f) const;
 
 	/**
-	 * Returns the cross-product of the two input-vectors. Is a static function.
+	 * @brief Returns the cross-product of the two input-vectors.
+	 * It's a static function.
 	 * @param a reference of the first vector
 	 * @param b reference of the second vector
-	 * @return V3f object containing the cross product
+	 * @return V3f object containing the cross product, ie.
+	 * \f$ \left( \begin{array}{c}
+	 * y_a*z_b - z_a*y_b \\
+	 * z_a*x_b - x_a*z_b \\
+	 * x_a*y_b - y_a*x_b
+	 * \end{array}\right) \f$ .
 	 */
+
 	static V3f cross(const V3f &a, const V3f &b);
 	static void calcFNormal(Face *face);
 	static bool hasSharedComponent(const V3f& _v1, const V3f& _v2);
+	static std::string toString(const float* _array);
 
 	// back-reference for vertex-normal-calculation. DO NOT DELETE, DUH!
 	std::vector<Face*> *mPriFaceList;

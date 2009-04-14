@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 03.02.2009
- *
+ * @brief 	CgToolkit class declaration.
  */
 
 #ifndef CGTOOLKIT_H_
@@ -22,10 +22,14 @@ namespace ooctools {
 /**
  * @class CgToolkit
  *
- * @brief Management class for using nVidias Cg.
+ * @brief Management class for using Nvidia's Cg.
  *
- * Includes setting shader params, initialization, creating shader programs, etc.
- * Is a Singleton.
+ * Includes <ul>
+ * <li>setting shader params</li>
+ * <li>initialization</li>
+ * <li>creating shader programs, etc.</li>
+ * </ul>
+ * It's a <a target="_blank" href ="http://en.wikipedia.org/wiki/Singleton_pattern">Singleton</a>.
  */
 class CgToolkit
 {

@@ -99,35 +99,11 @@ V3ub::operator==(V3ub& a)
 }
 
 bool
-V3ub::operator==(V3ub* a)
-{
-	if (mPriData[0]==a->getX() && mPriData[1]==a->getY() && mPriData[2]==a->getZ())
-		return true;
-	else return false;
-}
-
-bool
 V3ub::operator!=(V3ub& a)
 {
 	if (mPriData[0]!=a.getX() || mPriData[1]!=a.getY() || mPriData[2]!=a.getZ())
 		return true;
 	else return false;
-}
-
-bool
-V3ub::operator!=(V3ub* a)
-{
-	if (mPriData[0]!=a->getX() || mPriData[1]!=a->getY() || mPriData[2]!=a->getZ())
-		return true;
-	else return false;
-}
-
-std::string
-V3ub::toString() const
-{
-	std::stringstream st;
-	st << "(" << (int)mPriData[0] << ", " << (int)mPriData[1] << ", " << (int)mPriData[2] << ")";
-	return st.str();
 }
 
 V3ub&
@@ -136,6 +112,14 @@ V3ub::operator=(const V3ub& a){
 	mPriData[1] = a.getY();
 	mPriData[2] = a.getZ();
 	return *this;
+}
+
+std::string
+V3ub::toString() const
+{
+	std::stringstream st;
+	st << "(" << (int)mPriData[0] << ", " << (int)mPriData[1] << ", " << (int)mPriData[2] << ")";
+	return st.str();
 }
 
 } // Namespace OOCTools

@@ -158,9 +158,8 @@ Model::getVArrayPtr(string _id)
 VertexArray<float>*
 Model::getVArrayPtr(MetaGroup* _grp)
 {
-	VertexArray<float>* va = new VertexArray<float>();
+	VertexArray<float>* va = new VertexArray<float>(4);
 	va->mData = new float[_grp->nVertices*4];
-	va->nComponents = 4;
 	va->stride = 4*sizeof(float);
 	va->size = _grp->nVertices;
 	size_t posCount = 0;
@@ -193,10 +192,9 @@ Model::getNArrayPtr(string _id)
 VertexArray<char>*
 Model::getNArrayPtr(MetaGroup *_grpPtr)
 {
-	VertexArray<char>* va = new VertexArray<char>();
+	VertexArray<char>* va = new VertexArray<char>(4);
 	va->mData = new char[_grpPtr->nNormals*4]; // we have normalCount normals and each of it has 3 components + 1 harmonic component -> power of 4 FTW!
 	va->stride = 4*sizeof(char);
-	va->nComponents = 4;
 	va->size = _grpPtr->nNormals;
 
 	size_t posCount = 0;
