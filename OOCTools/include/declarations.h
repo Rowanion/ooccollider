@@ -33,6 +33,8 @@ namespace ooctools{
 	class FboFactory;
 	class MetaGroup;
 	class Model;
+	class Octree;
+	class OctreeNode;
 	class Vbo;
 	class VboManager;
 	template<typename T> class VertexArray;

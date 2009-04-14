@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 12.02.2009
- *
+ * @brief 	VertexArray class declaration and definition.
  */
 
 #ifndef VERTEXARRAY_H_
@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cstring>
+
 #include "BoundingBox.h"
 #include "declarations.h"
 
@@ -44,6 +45,20 @@ class VertexArray
 		 * @param _verts
 		 */
 		void addTriangle(const T* _verts);
+
+		/**
+		 * @brief Removes a single face = 1 triangle = 3 * nComponents from mData and adjusts
+		 * the member variables.
+		 * Be prepared to receive some computational overhead! I'm not too experienced
+		 * with array-resizing, but it doesn't look efficient to me. Maybe there is no other way.
+		 * Maybe arrays aren't meant to be resized. *shrug* It's only used in PreProcessing -
+		 * so, who gives a frag?! Just make sure you're stocked up on coffee when starting the
+		 * PreProcessing!
+		 * @warning It does not check for emptiness, though!
+		 * @param index of the T-index (not the byte-index!) of the 1st value of the tri.
+		 * @see Vbo::stripDoubleTriangles()
+		 */
+		void removeTriangle(unsigned int index);
 
 		int nComponents; // V2, or V3 or V4?
 		size_t size; // number of grouped components in data; example: v1(1,2,3), v2(3,6,7) = 2 vertices
@@ -181,6 +196,26 @@ VertexArray<T>::addTriangle(const T* _verts)
 		size += 3;
 		++nFaces;
 	}
+}
+
+template<typename T>
+void
+VertexArray<T>::removeTriangle(size_t index)
+{
+	long lengthTotal = size * nComponents;
+	long lengthTriangle = nComponents * 3;
+	long length_1st = index;
+	long length_2nd = lengthTotal - length_1st - lengthTriangle;
+	T* newData = new T[(nComponents * size) - lengthTriangle];
+	memcpy(newData, mData, sizeof(T) * length_1st);
+	T* halfPtrOrig = mData + index + lengthTriangle;
+	T* halfPtrNew = newData + index;
+	memcpy(halfPtrNew, halfPtrOrig, sizeof(T) * length_2nd);
+	delete[] mData;
+	mData = 0;
+	mData = newData;
+	--nFaces;
+	size -= 3;
 }
 
 } // end of namespace OOCTools

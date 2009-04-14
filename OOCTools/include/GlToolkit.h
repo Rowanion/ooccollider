@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 02.02.2009
- *
+ * @brief 	Namespace-wide OpenGL-related includes, definitions and declarations.
  */
 
 #ifndef GLTOOLKIT_H_

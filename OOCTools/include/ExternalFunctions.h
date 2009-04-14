@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 10.03.2009
- *
+ * @brief 	Collection of helper-function that haven't found a proper home - yet!
  */
 #ifndef EXTERNALFUNCTIONS_H_
 #define EXTERNALFUNCTIONS_H_

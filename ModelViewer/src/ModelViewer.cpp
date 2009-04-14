@@ -563,7 +563,10 @@ processMouse(int button, int state, int x, int y)
 void processMWheel(int wheel, int direction, int x, int y){
 //	zoom += (0.06f * direction);
 //	glutPostRedisplay();
-	walkingSpeed += (0.06f * direction);
+	if (direction < 0)
+		walkingSpeed *= (0.006f);
+	else if (direction > 0)
+		walkingSpeed /= (0.006f);
 }
 void processMouseActiveMotion(int x, int y){
 	// setting the window coordinate-sys to
@@ -684,8 +687,9 @@ static void glInit(int argc, char *argv[]){
 //	moWri->readModel(fs::path("raw_objs/door")); //25k / 8k
 //	moWri->readModel(fs::path("raw_objs/beethoven")); //15k / 5k
 //	moWri->readModel(fs::path("raw_objs/robot")); //3,6k / 1,2k
-//	vboMan->mergeDown();
 	vboMan->debugSplit(bb1);
+	vboMan->mergeDown();
+
 	vboMan->printInfo();
 
 	GET_GLERROR(0);

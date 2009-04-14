@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 19.02.2009
- *
+ * @brief 	V4f class declaration.
  */
 
 #ifndef V4F_H_
@@ -16,9 +16,11 @@
 namespace ooctools {
 
 /**
- * @class C
- * @brief B
- * L
+ * @class V4f
+ * @brief New vector class to handle a vertex with a 4th component, ie. it's TextureCoordinate.
+ * This is a vector-class with 4 float-components. Most of it's functions and operations are
+ * taken and converted from V3f. So for a more thoroughly explanation look there.
+ * @see V3b, V3f, V3ub
  */
 class V4f
 {
@@ -83,9 +85,9 @@ public:
 	V4f operator-(const V4f &a) const;
 	V4f operator*(float f) const;
 
-	static V4f cross(V4f &a, V4f &b);
 	static void calcFNormal(Face *face);
 	static bool hasSharedComponent(const V4f& _v1, const V4f& _v2);
+	static std::string toString(const float* _array);
 
 	// back-reference for vertex-normal-calculation. DO NOT DELETE, DUH!
 	std::vector<Face*> *mPriFaceList;

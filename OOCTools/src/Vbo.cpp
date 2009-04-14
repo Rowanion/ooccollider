@@ -6,12 +6,17 @@
  */
 
 #include "Vbo.h"
+
 #include <stdio.h>
 #include <iostream>
 #include <vector>
 #include <math.h>
+
+#include "declarations.h"
+#include "Face.h"
 #include "BoundingBox.h"
 #include "V3ub.h"
+#include "V4f.h"
 #include "StructDefs.h"
 
 using namespace std;
@@ -436,6 +441,9 @@ Vbo::setGpuOnly()
 Vbo&
 Vbo::operator+=(const Vbo& rhs)
 {
+	cout << "l-verts: " << mPriVertices->size << ", l-normals: "<< mPriNormals->size << endl;
+	cout << "r-verts: " << rhs.mPriVertices->size << ", r-normals: "<< rhs.mPriNormals->size << endl;
+	cout << "---------------------------------------------------------" << endl;
 	if (mPriIndices != 0) {
 		*mPriIndices += *rhs.getIndices();
 		setIndices(mPriIndices);
@@ -449,6 +457,7 @@ Vbo::operator+=(const Vbo& rhs)
 		setVData(mPriVertices);
 		mPriVertices->calcBB();
 	}
+	stripDoubleTriangles();
 	return *this;
 }
 
@@ -473,6 +482,7 @@ Vbo::operator+(const Vbo& rhs)
 		_vaf->calcBB();
 		b.setVData(_vaf);
 	}
+	b.stripDoubleTriangles();
 	return b;
 }
 
@@ -486,24 +496,40 @@ Vbo::operator==(const Vbo& rhs) const
 	}
 }
 
-// TODO
 void
 Vbo::split(const BoundingBox& _bb, Vbo& _inside, Vbo& _outside)
 {
-	// each step is tri
+	// each step a triangle is evaluated
+	// notice that there is no evaluation of the correctness of given objects!
 	for (unsigned int i = 0; i < mPriVertices->size * mPriVertices->nComponents; i
 			+= mPriVertices->nComponents * 3) {
+		// if it's completely inside
 		if (_bb.isInside9Plus(mPriVertices->mData + i)) {
 			_inside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
 		}
+		// if it intersects
 		else if (_bb.intersects9Plus(mPriVertices->mData + i)){
 			_inside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
 			_outside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
 		}
+		// if it is outside
 		else {
 			_outside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
 		}
 	}
+
+	// set the VBO-Data for the gpu, thus turning it on.
+	// in practice for Octree-Generation the usefulness of this at this place remains to
+	// be seen....
+	if (_inside.mPriVId==0)
+		glGenBuffers(1, &_inside.mPriVId);
+	if (_inside.mPriNId==0)
+		glGenBuffers(1, &_inside.mPriNId);
+	if (_outside.mPriVId==0)
+		glGenBuffers(1, &_outside.mPriVId);
+	if (_outside.mPriNId==0)
+		glGenBuffers(1, &_outside.mPriNId);
+
 	_inside.setOnline();
 	_outside.setOnline();
 
@@ -533,6 +559,26 @@ void Vbo::addTriangle(const float* _verts, const char* _normals)
 	mPriVertices->mPriBb.expand(_verts+4);
 	mPriVertices->mPriBb.expand(_verts+8);
 	mPriNormals->addTriangle(_normals);
+}
+
+void Vbo::stripDoubleTriangles()
+{
+	map<string, int> hMap;
+	int faceComponents = mPriVertices->nComponents * 3;
+	string hash;
+	for (unsigned int i = 0; i < mPriVertices->nComponents * mPriVertices->size; i += faceComponents) {
+		hash.assign(Face::toString(mPriVertices->mData + i, mPriVertices->nComponents));
+		if (hMap.find(hash) == hMap.end()) {
+			hMap.insert(make_pair(hash, 1));
+		}
+		else {
+			cout << "hash: " << hash << endl;
+			mPriVertices->removeTriangle(i);
+			mPriNormals->removeTriangle(i);
+			i-=faceComponents;
+		}
+	}
+	setOnline();
 }
 
 void

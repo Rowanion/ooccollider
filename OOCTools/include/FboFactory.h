@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 04.03.2009
- *
+ * @brief 	FboFactory class declaration.
  */
 
 #ifndef FBOFACTORY_H_
@@ -21,9 +21,9 @@ namespace ooctools {
 
 
 /**
- * @class C
- * @brief B
- * L
+ * @class FboFactory
+ * @brief Manager-Class for everything around Framebuffer-Objects.
+ * Here you can create, delete, setup, bind and unbind FBOs.
  */
 class FboFactory
 {

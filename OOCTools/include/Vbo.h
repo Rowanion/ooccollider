@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 08.02.2009
- *
+ * @brief 	Vbo class declaration.
  */
 
 
@@ -24,9 +24,12 @@
 namespace ooctools {
 
 /**
- * @class C
- * @brief B
- * L
+ * @class Vbo
+ * @brief Representation of a Vertexbuffer-Object.
+ * A Vbo (in our case) consists of a VertexArray<float> containing the vertex-data and a
+ * VertexArray<char> containing the normals and (eventually) a VertexArray<unsigned int> containing
+ * the indices for vertices. But the latter is still gray theory - we'll get to that in the
+ * optimization-stage.
  */
 class Vbo
 {
@@ -97,6 +100,19 @@ public:
 
 private:
 	void managedDraw();
+
+	/**
+	 * @brief removes double triangles from the VertexArrays.
+	 * It will remove all duplicate triangles and their normals. It's color, ie. the
+	 * 4th component as the texture coordinate will be taken into account, too. So if we would
+	 * have two exact copies of a triangle with different texture coordinates, nothing gets
+	 * removed. I made this method, because when objects get split up, there are a some
+	 * redundant triangles which remain in both sides of the split. If somehow two VBOs
+	 * re merged later on, these triangles would be doubled and pile up.
+	 * @warning <b><i>Not tested yet!</i></b><br>
+	 * @todo Test it!
+	 */
+	void stripDoubleTriangles();
 
 	GLuint mPriVId;
 	GLuint mPriNId;

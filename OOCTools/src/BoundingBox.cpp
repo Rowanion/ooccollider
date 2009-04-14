@@ -105,6 +105,16 @@ BoundingBox::BoundingBox(const BoundingBox& _bb)
 	mPrivMin = _bb.getMin();
 }
 
+// TODO
+BoundingBox::BoundingBox(fs::path bbFile){
+
+}
+
+// TODO
+BoundingBox::BoundingBox(std::string bbFile){
+
+}
+
 BoundingBox::~BoundingBox()
 {
 //	cout << "BoundingBox..." << endl;
@@ -283,6 +293,10 @@ BoundingBox::drawSolid() const
 	glEnd();
 }
 
+//TODO
+void saveToFile(fs::path bbFile);
+void saveToFile(std::string bbFile);
+
 void
 BoundingBox::computeCenter(V3f &_center) const
 {
@@ -439,27 +453,6 @@ bool
 BoundingBox::isInside(const BoundingBox& _b) const
 {
 	if (isInside(_b.getMin()) && isInside(_b.getMax()))
-		return true;
-	else return false;
-}
-
-bool
-BoundingBox::isOutside(const V3f& _v) const
-{
-	return !isInside(_v);
-}
-
-bool
-BoundingBox::isOutside(const V4f& _v) const
-{
-	V3f temp (_v);
-	return !isInside(temp);
-}
-
-bool
-BoundingBox::isOutside(const BoundingBox &_b) const
-{
-	if (!_b.isInside(*this) && isOutside(_b.getMax()) && isOutside(_b.getMin()))
 		return true;
 	else return false;
 }

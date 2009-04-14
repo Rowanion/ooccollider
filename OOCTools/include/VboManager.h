@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 28.02.2009
- *
+ * @brief 	VboManager class declaration.
  */
 
 #ifndef VBOMANAGER_H_
@@ -21,13 +21,12 @@
 namespace ooctools {
 
 /**
- * @class C
- * @brief B
- *
- * will be a friend of VBO
- * according to its name serves as a container for multiple VBOs
- * thus enabling it to draw individual VBOs without having a gl-statechange between vbo-calls
- * additional bonus with this wrapper: we can have a global bounding box and a
+ * @class VboManager
+ * @brief Controller-class for Vertexbuffer-objects. Cannot generate them, though.
+ * This needs changing. It is a friend of Vbo.
+ * According to its name serves as a container for multiple VBOs,
+ * thus enabling it to draw individual VBOs without having a gl-statechange between vbo-calls.
+ * Additional bonus with this wrapper: we can have a global bounding box and a
  * global vertex- and face-count
  */
 class VboManager

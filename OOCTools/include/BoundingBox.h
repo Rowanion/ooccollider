@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 22.02.2009
- *
+ * @brief 	BoundingBox class declaration.
  */
 
 
@@ -12,8 +12,13 @@
 
 #include "V3f.h"
 
+#include <boost/system/config.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+
 #include "declarations.h"
 
+namespace fs = boost::filesystem;
 namespace ooctools {
 
 /**
@@ -33,6 +38,8 @@ public:
 	BoundingBox(float _valA, float _valB);
 	BoundingBox(const V3f& _vA, const V3f& _vB);
 	BoundingBox(const V4f& _vA, const V4f& _vB);
+	BoundingBox(fs::path bbFile);
+	BoundingBox(std::string bbFile);
 	BoundingBox(const BoundingBox& _bb);
 	virtual ~BoundingBox();
 	void draw() const;
@@ -49,6 +56,18 @@ public:
 	std::string toString();
 	bool hasSharedComponent(const BoundingBox& _bb) const;
 	void drawSolid() const;
+	void saveToFile(fs::path bbFile);
+	void saveToFile(std::string bbFile) const;
+
+	/**
+	 * @brief Resets the BB to it's initial values.
+	 * <ul>
+	 * <li>mPrivMin = numeric_limits<float>::max()</li>
+	 * <li>mPrivMax = -numeric_limits<float>::max()</li>
+	 * </ul>
+	 * This saves us from continued re-instantiation.
+	 */
+	void reset() const ;
 
 	/**
 	 *  @brief Computes center of BB.
@@ -62,14 +81,14 @@ public:
 	void computeCenter(V3f& _center) const;
 
 	/**
-	 * Performs a simple intersection-test between two Axis-ALigned BoundingBoxes.
+	 * @brief Performs a simple intersection-test between two Axis-ALigned BoundingBoxes.
 	 * @param _b
 	 * @return true if the boxes intersect.
 	 */
 	bool intersects(const BoundingBox& _b) const;
 
 	/**
-	 * A wrapper method to call the c-function triboxoverlap.c which performs an intersection-test
+	 * @brief A wrapper method to call the c-function triboxoverlap.c which performs an intersection-test
 	 * between this BoundingBox and the given triangle.
 	 * @param _a vertex a
 	 * @param _b vertex b
@@ -146,23 +165,6 @@ public:
 	 */
 	bool isInside(const BoundingBox& _b) const;
 
-	/**
-	 * This is the complement-function of isInside(const V3f& _v)  - the name is pretty much
-	 * self-explanatory! *doh*
-	 * @see isInside(const V3f& _v)
-	 */
-	bool isOutside(const V3f& _v) const;
-
-	/**
-	 * @brief Tests if given BB is outside this one.
-	 * @param A pointer to a BoundingBox.
-	 * @return   true if the given BB-Ptr is completely outside of this BB. false else.
-	 *
-	 * Performs a test, if the given BB is completely outside this one.
-	 * This does not include the intersecting case. For this please use intersects()
-	 */
-	bool isOutside(const BoundingBox& _b) const;
-	bool isOutside(const V4f& _v) const;
 	void computeEdgeSizes(V3f& _sizes) const;
 	float computeDiameter() const;
 
@@ -180,10 +182,13 @@ public:
 	static bool hasSharedComponent(const BoundingBox& _bb1, const BoundingBox& _bb2);
 
 private:
+	// member variables
 	V3f mPrivMin;
 	V3f mPrivMax;
 	V3f mPrivEdgeSizes;
 	V3f mPrivCenter;
+
+	// member methods
 	void drawImmediate() const;
 	void drawLineStrip() const;
 

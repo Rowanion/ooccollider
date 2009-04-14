@@ -7,7 +7,10 @@
 
 #include "Face.h"
 
+#include <sstream>
+
 #include "V3f.h"
+#include "V4f.h"
 #include "declarations.h"
 
 namespace ooctools {
@@ -29,6 +32,19 @@ Face::~Face()
 		texturePtrList.clear();
 	if (!normalPtrList.empty())
 		normalPtrList.clear();
+}
+
+std::string
+Face::toString(const float* _array, unsigned int _components){
+	std::stringstream st;
+	st << "[";
+	if (_components==4){
+		st << " " << V4f::toString(_array) << ", ";
+		st << V4f::toString(_array+_components) << ", ";
+		st << V4f::toString(_array+(_components*2)) << " ";
+	}
+	st << "]";
+	return st.str();
 }
 
 } // ooctools

@@ -3,6 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 23.03.2009
+ * @brief 	MetaGroup class declaration.
  *
  */
 
@@ -18,9 +19,8 @@
 namespace ooctools {
 
 /**
- * @class C
- * @brief B
- * L
+ * @class MetaGroup
+ * @brief Simple data-class which represents a collection of Faces in a Model.
  */
 class MetaGroup
 {

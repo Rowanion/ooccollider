@@ -384,6 +384,14 @@ V4f::getAbs() const
 	return V4f(fabs(getX()), fabs(getY()), fabs(getZ()), fabs(getW()));
 }
 
+string
+V4f::toString(const float* _array)
+{
+	stringstream st;
+	st << "(" << _array[0] << ", " << _array[1] << ", " << _array[2] << ", " << _array[3] << ")";
+	return (const std::string) st.str();
+}
+
 const string
 V4f::toString() const
 {

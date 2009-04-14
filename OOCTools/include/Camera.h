@@ -3,7 +3,7 @@
  * @author	TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date 	Created on: 07.04.2009
- *
+ * @brief 	Camera class declaration.
  */
 
 #ifndef CAMERA_H_

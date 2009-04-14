@@ -3,6 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 02.02.2009
+ * @brief 	Conveniently place all structs in one place.
  *
  */
 
@@ -32,9 +33,11 @@ namespace ooctools {
 //};
 
 /**
- * @struct C
- * @brief B
- * L
+ * @struct Material
+ * @brief Very simple RedGreenBlue container for material.
+ * Note that in life most material definitions aren't that simple. But because of the CAD-Model
+ * we're using we only have one color for a whole object. I chose to use the definition
+ * color = DiffuseColor = Material.
  */
 struct Material
 {
@@ -43,11 +46,6 @@ struct Material
 	float kdB; // diffuse color b
 };
 
-/**
- * @struct C
- * @brief B
- * L
- */
 //struct MtlMap
 //{
 //	std::string name;

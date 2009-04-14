@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 03.02.2009
- *
+ * @brief 	ColorTable class declaration.
  */
 
 #ifndef COLORTABLE_H_
