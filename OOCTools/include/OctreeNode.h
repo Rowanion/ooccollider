@@ -12,7 +12,9 @@
 
 #include <string>
 
+#include "BoundingBox.h"
 #include "declarations.h"
+#include "Vbo.h"
 
 namespace ooctools {
 
@@ -34,9 +36,36 @@ namespace ooctools {
 class OctreeNode
 {
 	public:
-		OctreeNode();
+		OctreeNode(OctreeNode* _father, const BoundingBox& _bb, std::string _path);
 		virtual ~OctreeNode();
-		bool isLeaf();
+
+		/**
+		 * @brief True, if this node has no children.
+		 * @return
+		 */
+		virtual bool isLeaf();
+		virtual bool isRoot();
+		BoundingBox subdivideFne();
+		BoundingBox subdivideFnw();
+		BoundingBox subdivideFse();
+		BoundingBox subdivideFsw();
+		BoundingBox subdivideBne();
+		BoundingBox subdivideBnw();
+		BoundingBox subdivideBse();
+		BoundingBox subdivideBsw();
+		const BoundingBox& getBb() const {return mPriBb;};
+
+		/**
+		 * @warning UNTESTED!
+		 * @param _vbo
+		 * @return
+		 */
+		bool insertVbo(ooctools::Vbo& _vbo);
+
+		// if is maxlevel -> load vbo there, if any, merge, save, delete vbos.
+		// else if is leaf -> load vbo there, if any, merge, test against constraint...
+		//		if holds, save, delete vbos.
+		//		else subdivide, propagate to children, delete old file on save
 
 	protected:
 		BoundingBox mPriBb;
@@ -44,7 +73,20 @@ class OctreeNode
 		size_t nVertices;
 		std::string path;
 		Octree* mPriRoot;
+		unsigned char mPriLevel;
+		const unsigned int mPriMaxLevel; // <- maxlevel = 8
+		unsigned char calculateLevel(unsigned char counter = 0);
+		bool testCondition(const Vbo& _vbo);
 
+		/**
+		 * @warning UNTESTED!
+		 * @param _vbo
+		 * @return
+		 */
+		bool subdivide(ooctools::Vbo& _vbo);
+
+
+		OctreeNode* father;
 		OctreeNode* fne;
 		OctreeNode* fnw;
 		OctreeNode* fse;

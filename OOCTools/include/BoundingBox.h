@@ -53,11 +53,12 @@ public:
 	void expand(const BoundingBox& _bb);
 	const V3f& getMin() const {return mPrivMin;};
 	const V3f& getMax() const {return mPrivMax;};
-	std::string toString();
+	std::string toString() const;
 	bool hasSharedComponent(const BoundingBox& _bb) const;
 	void drawSolid() const;
 	void saveToFile(fs::path bbFile);
 	void saveToFile(std::string bbFile) const;
+	static BoundingBox fromFile(fs::path bbFile);
 
 	/**
 	 * @brief Resets the BB to it's initial values.

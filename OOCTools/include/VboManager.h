@@ -62,7 +62,9 @@ public:
 	void switchOffVBO(std::string id);
 	void switchOnVBO(std::string id);
 	void mergeDown();
+	void clear();
 	void debugSplit(BoundingBox* _bb);
+	unsigned int getVboCount() const{return mPriVboMap->size();};
 
 private:
 	VboManager();

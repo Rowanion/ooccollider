@@ -38,6 +38,7 @@ friend class VboManager;
 
 public:
 	Vbo(VertexArray<unsigned int>* _ia = 0, VertexArray<char>* _na = 0, VertexArray<float>* _va = 0);
+	Vbo(const Vbo& _vbo);
 	virtual ~Vbo();
 
 	void drawSingle(int vertexCount);
@@ -45,21 +46,51 @@ public:
 	void debug();
 
 	//getter and setter methods
-	void setVData(VertexArray<float>* va);
-	void setNData(VertexArray<char>* va);
-	void setIndices(VertexArray<unsigned int>* _ia);
+
+	/**
+	 * @brief sets the vertex data for the VBO.
+	 * @param va the vertexarray.
+	 * @param useGl [true] Indicated whether the method should initialize the gl-side
+	 * of the function as well. Useful if you don't intent to draw the VBOs but you
+	 * like to encapsulate the vertexarray, indexarray and normalarray into a convenient
+	 * and easy way.
+	 * @see setNData(), setIndices()
+	 */
+	void setVData(VertexArray<float>* va, bool useGl = true);
+
+	/**
+	 * @brief sets the normal data for the VBO.
+	 * @param va the normalarray.
+	 * @param useGl [true] Indicated whether the method should initialize the gl-side
+	 * of the function as well. Useful if you don't intent to draw the VBOs but you
+	 * like to encapsulate the vertexarray, indexarray and normalarray into a convenient
+	 * and easy way.
+	 * @see setVData(), setIndices()
+	 */
+	void setNData(VertexArray<char>* va, bool useGl = true);
+
+	/**
+	 * @brief sets the vertex data for the VBO.
+	 * @param va the vertexarray.
+	 * @param useGl [true] Indicated whether the method should initialize the gl-side
+	 * of the function as well. Useful if you don't intent to draw the VBOs but you
+	 * like to encapsulate the vertexarray, indexarray and normalarray into a convenient
+	 * and easy way.
+	 * @see setVData(), setNData()
+	 */
+	void setIndices(VertexArray<unsigned int>* _ia, bool useGl = true);
 	const VertexArray<float>* getVData() const {return mPriVertices;};
 	const VertexArray<char>* getNData() const {return mPriNormals;};
 	const VertexArray<unsigned int>* getIndices() const {return mPriIndices;};
 	void setCgP(CGparameter cgp);
-	void setGlColor();
+//	void setGlColor();
 	void setOffline();
 	void setOnline();
 	void setGpuOnly();
-	void useGlColor(bool color){mPriUseGlColor = color;};
-	void setColor(V3f *_color);
-	void setColor(float r, float g, float b);
-	void setColor(V3ub *_color);
+//	void useGlColor(bool color){mPriUseGlColor = color;};
+//	void setColor(V3f *_color);
+//	void setColor(float r, float g, float b);
+//	void setColor(V3ub *_color);
 
 	const BoundingBox& getBb() const {return mPriVertices->mPriBb;};
 	size_t getCpuMemory();
@@ -98,8 +129,12 @@ public:
 	 */
 	void addTriangle(const float* _verts, const char* _normals);
 
-private:
-	void managedDraw();
+	bool hasVertices() const;
+	bool hasIndices() const;
+	bool hasNormals() const;
+
+	Vbo operator=(const Vbo& _rhs);
+	bool operator==(const Vbo& _rhs);
 
 	/**
 	 * @brief removes double triangles from the VertexArrays.
@@ -109,10 +144,11 @@ private:
 	 * removed. I made this method, because when objects get split up, there are a some
 	 * redundant triangles which remain in both sides of the split. If somehow two VBOs
 	 * re merged later on, these triangles would be doubled and pile up.
-	 * @warning <b><i>Not tested yet!</i></b><br>
-	 * @todo Test it!
 	 */
 	void stripDoubleTriangles();
+
+private:
+	void managedDraw();
 
 	GLuint mPriVId;
 	GLuint mPriNId;

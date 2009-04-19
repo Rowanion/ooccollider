@@ -48,6 +48,7 @@ VboManager::~VboManager()
 			delete it->second;
 		}
 	}
+	mPriVboMap->clear();
 	if (mPriVboMap!=0) delete mPriVboMap;
 }
 
@@ -85,7 +86,8 @@ VboManager::calcBB()
 void
 VboManager::addVbo(std::string id, Vbo* _vbo)
 {
-	if (mPriVboMap==0) mPriVboMap = new map<string, Vbo*>;
+	if (mPriVboMap==0)
+		mPriVboMap = new map<string, Vbo*>;
 	mPriVboMap->insert(make_pair(id, _vbo));
 	mPriBb.expand(_vbo->getBb());
 	mPriNVertices += _vbo->mPriVertices->size;
@@ -156,10 +158,10 @@ VboManager::drawVbos()
 		if(it->second->mPriIdxId!=0 && !usingIdxPtr) Vbo::enableIPtr();
 		else if (usingIdxPtr && it->second->mPriIdxId==0) Vbo::disableIPtr();
 
-		if (usingGlColor)
-			it->second->setGlColor();
-		else if (mPriCgDiffuseParam!=0)
-			CgToolkit::getInstancePtr()->cgSetParam3fv(mPriCgDiffuseParam, it->second->mPriCurrentColorF);
+//		if (usingGlColor)
+//			it->second->setGlColor();
+//		else if (mPriCgDiffuseParam!=0)
+//			CgToolkit::getInstancePtr()->cgSetParam3fv(mPriCgDiffuseParam, it->second->mPriCurrentColorF);
 
 		it->second->managedDraw();
 
@@ -181,10 +183,10 @@ VboManager::drawVbo(std::string id)
 	if(vbo->mPriIdxId!=0 && !usingIdxPtr) Vbo::enableIPtr();
 	else if (usingIdxPtr && vbo->mPriIdxId==0) Vbo::disableIPtr();
 
-	if (usingGlColor)
-		vbo->setGlColor();
-	else if (mPriCgDiffuseParam!=0)
-		CgToolkit::getInstancePtr()->cgSetParam3fv(mPriCgDiffuseParam, vbo->mPriCurrentColorF);
+//	if (usingGlColor)
+//		vbo->setGlColor();
+//	else if (mPriCgDiffuseParam!=0)
+//		CgToolkit::getInstancePtr()->cgSetParam3fv(mPriCgDiffuseParam, vbo->mPriCurrentColorF);
 
 	vbo->managedDraw();
 
@@ -236,8 +238,8 @@ VboManager::makeVbos(Model* _model)
 				<< it->second->getMat().kdG << ", "
 				<< it->second->getMat().kdB << endl;
 
-		vbo->setColor(it->second->getMat().kdR, it->second->getMat().kdG,
-				it->second->getMat().kdB);
+//		vbo->setColor(it->second->getMat().kdR, it->second->getMat().kdG,
+//				it->second->getMat().kdB);
 		addVbo(it->first, vbo);
 	}
 	for (mIterator mit = mPriVboMap->begin(); mit != mPriVboMap->end(); ++mit) {
@@ -301,28 +303,39 @@ VboManager::setColorTable(const ColorTable& _ct)
  */
 void VboManager::mergeDown()
 {
-	Vbo* firstVbo = mPriVboMap->begin()->second;
+	Vbo* firstVbo = new Vbo(*(mPriVboMap->begin()->second));
 	string firstId = mPriVboMap->begin()->first;
 	mIterator mIt = mPriVboMap->begin();
 	for (; mIt != mPriVboMap->end(); ++mIt) {
 		if (mIt->first != firstId) {
-			cout << "size of orig vbo: " << mIt->second->mPriVertices->size
-					<< endl;
+//			cout << "size of orig vbo: " << mIt->second->mPriVertices->size
+//					<< endl;
 			*firstVbo += *mIt->second;
 		}
 	}
 	cout << "number of vbos now: " << mPriVboMap->size() << endl;
-	int idx = 0;
-	mIt = mPriVboMap->begin();
-	for (; mIt != mPriVboMap->end(); ++mIt) {
-		if (mIt->first != firstId) {
-			cout << "size of current vbo: " << mIt->second->mPriVertices->size
-					<< endl;
-			++idx;
-			delete mIt->second;
-			mPriVboMap->erase(mIt);
+	clear();
+	addVbo("1", firstVbo);
+	mPriVboMap->begin()->second->mPriVertices->calcBB();
+	firstVbo->stripDoubleTriangles();
+}
+
+void
+VboManager::clear()
+{
+	cout << "mapsize: " << mPriVboMap->size() << endl;
+	cout << "bb-max: " << mPriBb.getMax().toString() << endl;
+	cout << "nfaces: " << mPriNFaces << endl;
+	if (!mPriVboMap->empty()){
+		for (mIterator it=mPriVboMap->begin(); it!=mPriVboMap->end(); ++it){
+			Vbo* value = it->second;
+			cout << value->getBb().toString() << endl;
+			delete value;
+			value = 0;
+
 		}
 	}
+	mPriVboMap->clear();
 }
 
 void VboManager::debugSplit(BoundingBox* _bb)
