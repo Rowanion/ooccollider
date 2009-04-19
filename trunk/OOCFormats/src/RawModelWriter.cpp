@@ -19,7 +19,9 @@
 #include "FileHeader.h"
 #include "MetaGroup.h"
 #include "OOCTools.h"
+#include "FileIO.h"
 
+#include "declarations.h"
 #include "../../OOCTools/include/declarations.h"
 
 using namespace std;
@@ -153,193 +155,34 @@ RawModelWriter::find_file(const fs::path& dir_path,
 }
 
 void
-RawModelWriter::writeV3f(const V3f& _v, fs::ofstream& _of)
-{
-	_of.write((char*) _v.x, sizeof(float));
-	_of.write((char*) _v.y, sizeof(float));
-	_of.write((char*) _v.z, sizeof(float));
-}
-
-V3f
-RawModelWriter::readV3f(fs::ifstream& _if)
-{
-	V3f v;
-	_if.read((char*) v.x, sizeof(float));
-	_if.read((char*) v.y, sizeof(float));
-	_if.read((char*) v.z, sizeof(float));
-	return v;
-}
-
-void
-RawModelWriter::writeV4f(const V4f& _v, fs::ofstream& _of)
-{
-	_of.write((char*) _v.x, sizeof(float));
-	_of.write((char*) _v.y, sizeof(float));
-	_of.write((char*) _v.z, sizeof(float));
-	_of.write((char*) _v.w, sizeof(float));
-}
-
-V4f
-RawModelWriter::readV4f(fs::ifstream& _if)
-{
-	V4f v;
-	_if.read((char*) v.x, sizeof(float));
-	_if.read((char*) v.y, sizeof(float));
-	_if.read((char*) v.z, sizeof(float));
-	_if.read((char*) v.w, sizeof(float));
-	return v;
-}
-
-void
-RawModelWriter::writeV3ub(V3ub* _v, fs::ofstream& _of)
-{
-	_of.write((char*) _v->x, sizeof(unsigned char));
-	_of.write((char*) _v->y, sizeof(unsigned char));
-	_of.write((char*) _v->z, sizeof(unsigned char));
-}
-
-V3ub*
-RawModelWriter::readV3ub(fs::ifstream& _if)
-{
-	V3ub* v = new V3ub();
-	*(v->x) = 125;
-	_if.read((char*) v->x, sizeof(unsigned char));
-	_if.read((char*) v->y, sizeof(unsigned char));
-	_if.read((char*) v->z, sizeof(unsigned char));
-	return v;
-}
-
-void
-RawModelWriter::writeV3b(V3b* _v, fs::ofstream& _of)
-{
-	_of.write((char*) _v->x, sizeof(char));
-	_of.write((char*) _v->y, sizeof(char));
-	_of.write((char*) _v->z, sizeof(char));
-}
-
-void
-RawModelWriter::writeBB(BoundingBox* _bb, fs::ofstream& _of)
-{
-	writeV3f(_bb->getMin(), _of);
-	writeV3f(_bb->getMax(), _of);
-}
-
-void
-RawModelWriter::writeVArrayf(VertexArray<float>* _va, fs::ofstream& _of)
-{
-	_of.write((char*) _va->mData, _va->size * _va->nComponents * sizeof(float));
-}
-
-void
-RawModelWriter::writeVArrayb(VertexArray<char>* _va, fs::ofstream& _of)
-{
-	_of.write((char*) _va->mData, _va->size * _va->nComponents * sizeof(char));
-}
-
-void
-RawModelWriter::writeInt(int _i, fs::ofstream& _of)
-{
-	_of.write((char*) &_i, sizeof(int));
-}
-
-void
-RawModelWriter::writeUInt(unsigned int _i, fs::ofstream& _of)
-{
-	_of.write((char*) &_i, sizeof(unsigned int));
-}
-
-void
-RawModelWriter::writeFloat(float _f, fs::ofstream& _of)
-{
-	_of.write((char*) &_f, sizeof(float));
-}
-
-char
-RawModelWriter::readByte(fs::ifstream& _if)
-{
-	char b;
-	_if.read((char*) &b, sizeof(char));
-	return b;
-}
-
-unsigned char
-RawModelWriter::readUByte(fs::ifstream& _if)
-{
-	unsigned char b;
-	_if.read((char*) &b, sizeof(unsigned char));
-	return b;
-}
-
-int
-RawModelWriter::readInt(fs::ifstream& _if)
-{
-	int i;
-	_if.read((char*) &i, sizeof(int));
-	return i;
-}
-
-unsigned int
-RawModelWriter::readUInt(fs::ifstream& _if)
-{
-	unsigned int i;
-	_if.read((char*) &i, sizeof(unsigned int));
-	return i;
-}
-
-float
-RawModelWriter::readFloat(fs::ifstream& _if)
-{
-	float f;
-	_if.read((char*) &f, sizeof(float));
-	return f;
-}
-
-void
-RawModelWriter::writeByte(char _b, fs::ofstream& _of)
-{
-	_of.write((char*) &_b, sizeof(char));
-}
-
-void
-RawModelWriter::writeUByte(unsigned char _ub, fs::ofstream& _of)
-{
-	_of.write((char*) &_ub, sizeof(unsigned char));
-}
-
-void
 RawModelWriter::writeHeader(MetaGroup* _grp, fs::ofstream& _of)
 {
 	// writing BoundingBox
-	writeBB(_grp->bb, _of);
+	FileIO::writeBB(_grp->bb, _of);
 
-	writeUInt(_grp->nFaces, _of);
+	FileIO::writeUInt(_grp->nFaces, _of);
 
 	// writing number of vertices to be extracted from this model group
-	writeInt(_grp->nVertices, _of);
+	FileIO::writeInt(_grp->nVertices, _of);
 	// writing number of normals to
-	writeInt(_grp->nNormals, _of);
+	FileIO::writeInt(_grp->nNormals, _of);
 	// TODO color support einfügen - ueber shader oder glcolor?
 	//	writeV3ub(_grp->color, _of);
-	writeUByte(255 * _grp->getMat().kdR, _of);
-	writeUByte(255 * _grp->getMat().kdG, _of);
-	writeUByte(255 * _grp->getMat().kdB, _of);
+	FileIO::writeUByte(255 * _grp->getMat().kdR, _of);
+	FileIO::writeUByte(255 * _grp->getMat().kdG, _of);
+	FileIO::writeUByte(255 * _grp->getMat().kdB, _of);
 }
 
 FileHeader
 RawModelWriter::readHeader(fs::ifstream& _if)
 {
 	FileHeader fh;
-	fh.bb = readBB(_if);
-	fh.nFaces = readUInt(_if);
-	fh.nVertices = readInt(_if);
-	fh.nNormals = readInt(_if);
-	fh.color = readV3ub(_if);
+	fh.bb = FileIO::readBB(_if);
+	fh.nFaces = FileIO::readUInt(_if);
+	fh.nVertices = FileIO::readInt(_if);
+	fh.nNormals = FileIO::readInt(_if);
+	fh.color = FileIO::readV3ub(_if);
 	return fh;
-}
-
-BoundingBox* RawModelWriter::readBB(fs::ifstream& _if)
-{
-	return new BoundingBox(readV3f(_if), readV3f(_if));
 }
 
 void
@@ -373,7 +216,7 @@ RawModelWriter::writeModel(Model* _model, fs::path _p)
 		writeHeader(it->second, of);
 //		cout << "number of faces in group " << it->first << ": " << it->second->nFaces << endl;
 		VertexArray<float>* floatVA = _model->getVArrayPtr(it);
-		writeVArrayf(floatVA, of);
+		FileIO::writeVArrayf(floatVA, of);
 		of.close();
 		delete floatVA;
 		floatVA = 0;
@@ -383,7 +226,7 @@ RawModelWriter::writeModel(Model* _model, fs::path _p)
 		of.seekp(0, ios::beg);
 		writeHeader(it->second, of);
 		VertexArray<char>* charVA = _model->getNArrayPtr(it);
-		writeVArrayb(charVA, of);
+		FileIO::writeVArrayb(charVA, of);
 		delete charVA;
 		charVA = 0;
 		of.close();
@@ -475,8 +318,8 @@ RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 						| ios::in);
 				fb.seekg(0, ios::beg);
 				FileHeader fh = readHeader(fb);
-				fb.seekg(getHeaderSize(), ios::beg);
-				float* fa = readFloatArray(fb, 4 * fh.nVertices);
+				fb.seekg(FileHeader::getHeaderSize(), ios::beg);
+				float* fa = FileIO::readFloatArray(fb, 4 * fh.nVertices);
 				VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
 				va->setBB(*fh.bb);
 				vbo->setVData(va);
@@ -493,8 +336,8 @@ RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 				fb.open(fs::path(dir_iter->path() / "nArray.bin"), ios::binary
 						| ios::in);
 				FileHeader fh = readHeader(fb);
-				fb.seekg(getHeaderSize(), ios::beg);
-				char* ba = readByteArray(fb, 4 * fh.nNormals);
+				fb.seekg(FileHeader::getHeaderSize(), ios::beg);
+				char* ba = FileIO::readByteArray(fb, 4 * fh.nNormals);
 				VertexArray<char>* va = new VertexArray<char>(4, fh.nNormals, ba);
 				vbo->setNData(va);
 			}
@@ -519,23 +362,6 @@ RawModelWriter::readModel(fs::path _p)
 {
 	ColorTable ct(_p / "colortable.bin");
 	return readModel(_p, ct);
-}
-
-float*
-RawModelWriter::readFloatArray(fs::ifstream& _if, int count)
-{
-	//cout << "reading " << count*sizeof(float) << " bytes as float" << endl;
-	char* data = new char[count * sizeof(float)];
-	_if.read((char*) data, count * sizeof(float));
-	return (float*) data;
-}
-
-char*
-RawModelWriter::readByteArray(fs::ifstream &_if, int count)
-{
-	char* data = new char[count * sizeof(char)];
-	_if.read((char*) data, count * sizeof(char));
-	return (char*) data;
 }
 
 string
@@ -570,6 +396,47 @@ RawModelWriter::removeSpecialCharsFromName(std::string& _origin)
 		_origin.append("_");
 		_origin.append(boost::lexical_cast<std::string>(nChanges));
 	}
+}
+
+Vbo*
+RawModelWriter::readRawVbo(fs::path _path)
+{
+	if (!fs::exists(_path / "vArray.bin"))
+		return 0;
+	else {
+
+		fs::ifstream in;
+		Vbo* vbo = new Vbo();
+		// read the VertexArray...
+		in.open(fs::path(_path / "vArray.bin"), ios::binary
+				| ios::in);
+		in.seekg(0, ios::beg);
+		FileHeader fh = RawModelWriter::readHeader(in);
+		in.seekg(FileHeader::getHeaderSize(), ios::beg);
+		float* fa = FileIO::readFloatArray(in, 4 * fh.nVertices);
+		VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
+		va->calcBB();
+		va->setBB(*fh.bb);
+		in.close();
+		vbo->setVData(va, false);
+
+		// read the NormalArray
+		in.open(fs::path(_path / "ndArray.bin"), ios::binary
+				| ios::in);
+		in.seekg(FileHeader::getHeaderSize(), ios::beg);
+		char* ca = FileIO::readByteArray(in, 4 * fh.nNormals);
+		VertexArray<char>* na = new VertexArray<char>(4, fh.nNormals, ca);
+		in.close();
+		vbo->setNData(na, false);
+
+		return vbo;
+	}
+}
+
+void
+RawModelWriter::writeRawVbo(Vbo* _vbo, fs::path _path)
+{
+
 }
 
 } // oocformats

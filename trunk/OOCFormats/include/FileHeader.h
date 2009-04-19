@@ -18,6 +18,13 @@ class FileHeader
 		FileHeader();
 		virtual ~FileHeader();
 
+		/**
+		 * Header-Format: 3xfloat32[minBB], 3xfloat32[maxBB], uint32[faceCount], int32[vertCount],
+		 * int32[normCount], 3xuchar[color]
+		 * Headersize: 39 byte
+		 */
+		static unsigned int getHeaderSize(){return 39;};
+
 		ooctools::BoundingBox* bb;
 		unsigned int nFaces;
 		int nVertices;
