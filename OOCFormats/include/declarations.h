@@ -23,9 +23,10 @@
 namespace oocformats {
 	class IModelLoader;
 	class FileHeader;
+	class FileIO;
 	class ModelWriter;
 	class ObjModelLoader;
 	class RawModelWriter;
 	class RawModelLoader;
-	class OctreeModelLoader;
+	class OctreeHandler;
 } // end of namespace oocformats
