@@ -8,6 +8,7 @@
 
 #include "MTLGenerator.h"
 #include <boost/filesystem.hpp>
+#include "BoundingBox.h"
 
 
 int main(int argc, char *argv[]) {
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
 	fs::path mtlDir("/media/External/B3x7/Part1");
 	fs::path xlsDir("/media/External/B3x7/Farben");
 	MTLGenerator::MTLGenerator *mtlg = new MTLGenerator::MTLGenerator(objDir, xlsDir, mtlDir);
-	mtlg->doTheParsing();
+//	mtlg->doTheParsing();
 //	mtlg->matchObjsVsMtls();
 	mtlg->setDirs(fs::path("/media/External/B3x7/Part2"), xlsDir, fs::path("/media/External/B3x7/Part2"));
 //	mtlg->doTheParsing();
@@ -32,6 +33,14 @@ int main(int argc, char *argv[]) {
 //	mtlg->matchMtlsVsObjs();
 //	mtlg->debug();
 //	mtlg->flipOAndG();
+
+	MTLGenerator::SceneHeader sh;
+	sh.triCount = 0;
+	sh.vertexCount = 0;
+//	mtlg->parseSceneBoundingBox(sh, fs::path("/media/External/B3_ausschnitt_klein"), fs::path("/media/ClemensHDD"));
+	mtlg->parseSceneBoundingBox(sh, fs::path("/media/ClemensHDD/B3_binary"), fs::path("/media/ClemensHDD"));
+
+
 	delete mtlg;
 	return 1;
 }

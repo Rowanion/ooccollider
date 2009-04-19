@@ -8,12 +8,12 @@ struct V2FI
 
 
 void main(V2FI IN,
-
 	  out float3 color     : COLOR0,
         	  uniform sampler1D colorLut)
 {
 
-	color.xyz = tex1D(colorLut, IN.texCoord).rgb;
+//	color.xyz = tex1D(colorLut, IN.texCoord).rgb;
+	color.xyz = float3(1,0,1);
 }
 
 

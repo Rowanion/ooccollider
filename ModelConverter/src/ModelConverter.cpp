@@ -27,7 +27,7 @@
 #include "ObjModelLoader.h"
 #include "ModelWriter.h"
 #include "RawModelWriter.h"
-#include "OctreeModelWriter.h"
+#include "OctreeHandler.h"
 #include "ColorTable.h"
 
 #include "../../OOCFormats/include/declarations.h"
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 		ObjModelLoader* objLoader = 0;
 		RawModelLoader* rawLoader = 0;
 		RawModelWriter* rawWriter = 0;
-		OctreeModelWriter* octWriter = 0;
+		OctreeHandler* octHandler = 0;
 //		ColorTable ct();
 
 		if (ctState != IS_OTHER_FILE){
@@ -222,6 +222,16 @@ int main(int argc, char *argv[]) {
 		}
 		else if (mode == "raw2oct") {
 			cout << "raw2oct" << endl;
+			octHandler = new OctreeHandler();
+			if (srcState == IS_NONEMPTY_DIR){
+				if (dstState == IS_NONEXISTENT){
+					fs::create_directory(dst);
+				}
+				BoundingBox bb = BoundingBox::fromFile(fs::path("/media/ClemensHDD/SceneBoundingBox.bin"));
+				// call recursive method in OctreeHandler
+				octHandler->generateOctree(src, dst, bb);
+			}
+			delete octHandler;
 		}
 		else {
 			printProgramInfo();

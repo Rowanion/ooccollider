@@ -3,7 +3,7 @@
  * @author	TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date 	Created on: 10.03.2009
- *
+ * @brief 	MTLGenerator class declaration
  */
 
 #ifndef MTLGENERATOR_H_
@@ -20,12 +20,28 @@
 
 #include "StructDefs.h"
 #include "ColorTable.h"
+#include "BoundingBox.h"
 #include "../../OOCTools/include/declarations.h"
 #include "../../OOCFormats/include/declarations.h"
 
 namespace fs = boost::filesystem;
 namespace MTLGenerator {
 
+struct SceneHeader{
+	ooctools::BoundingBox bb;
+	unsigned long long triCount;
+	unsigned long long vertexCount;
+};
+
+
+/**
+ * @class MTLGenerator
+ * @brief A tool-collection to parse anything scene-related.
+ * First i only intended to parse some xls/csv files which contained model-related
+ * color-information. But over time it grew to a parsing collection - everything related to
+ * preprocessing, like removal of erroneous chars from the model/mtl files, check for correctness
+ * of a obj-mtl pair, etc.
+ */
 class MTLGenerator {
 	typedef std::map<std::string, ooctools::MtlMap*>::iterator ObjIterator;
 	typedef std::map<std::string, ooctools::Material*>::iterator MatIterator;
@@ -59,6 +75,7 @@ public:
 	void debug();
 	void setDirs(fs::path _objDir, fs::path _xlsDir, fs::path _mtlDir);
 	void writeColorTable(fs::path _path);
+	bool parseSceneBoundingBox(SceneHeader& sh, fs::path startPath, fs::path dstPath, bool first = true);
 
 private:
 	fs::path mPrivObjFolder;
