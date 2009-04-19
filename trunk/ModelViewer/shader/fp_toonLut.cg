@@ -12,11 +12,11 @@ struct V2FI
 
 
 
-fragout main(V2FI IN,
+void main(V2FI IN,
+		out float3 outColor     : COLOR0,
 		uniform sampler1D colorLut)
 {
 	float4 baseColor = tex1D(colorLut, IN.texCoord);
-	fragout OUT;
 	float intensity;
 	float4 color;
 	float3 n = normalize(IN.Normal);
@@ -42,9 +42,8 @@ fragout main(V2FI IN,
 //	else
 //		color = float4(0.2,0.1,0.1,1.0);
 
-	OUT.col = color;
+	outColor = color.rgb;
 //	OUT.col = baseColor * tex2D(alphaTexture, IN.TCoords0.xy);
-	return OUT;
 }
 
 

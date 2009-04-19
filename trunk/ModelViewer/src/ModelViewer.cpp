@@ -25,6 +25,10 @@
 #include "ColorTable.h"
 #include "AbstractVertex.h"
 #include "Camera.h"
+#include "Octree.h"
+#include "OctreeNode.h"
+#include "OctreeHandler.h"
+#include "FileIO.h"
 //#include "glCamera.h"
 
 
@@ -75,6 +79,10 @@ int   CenterX, CenterY;
 float walkingSpeed = 0.3f;
 BoundingBox *bb1;
 BoundingBox *bb2;
+BoundingBox sbb;
+ooctools::Octree* oct2;
+OctreeHandler oh;
+
 VboManager *vboMan;
 Fbo *fbo;
 ColorTable* ct;
@@ -283,24 +291,27 @@ static void display() {
 //			glTranslatef(*camObj.getEye().x, *camObj.getEye().y, *camObj.getEye().z);
 
 			glPushMatrix();
-				if (showLightSource){
-					glEnable(GL_POINT_SPRITE);
-					glPointSize(10.0f);
-					glColor3f(1.0f, 1.0f, 0.0f);
-					glBegin(GL_POINTS);
-						glVertex3fv(lpos);
-					glEnd();
-					glDisable(GL_POINT_SPRITE);
-				}
+//				if (showLightSource){
+//					glEnable(GL_POINT_SPRITE);
+//					glPointSize(10.0f);
+//					glColor3f(1.0f, 1.0f, 0.0f);
+//					glBegin(GL_POINTS);
+//						glVertex3fv(lpos);
+//					glEnd();
+//					glDisable(GL_POINT_SPRITE);
+//				}
 				if (showBBox) {
 					vboMan->getBb().draw(0,255,0);
 					vboMan->drawBbs(255,0,0);
+					sbb.draw(255, 255, 0);
 				}
+
 //				vboMan->drawNormals();
 
 				// enable profiles
-				glColor3f(0.0f, 1.0f, 0.0f);
+//				glColor3f(0.0f, 1.0f, 0.0f);
 				bb1->draw(1.0f, 0.0f, 0.0f);
+				bb2->draw(0.0f, 1.0f, 0.0f);
 
 				CgToolkit::getInstancePtr()->startCgShader(CgToolkit::getInstancePtr()->cgVertexProfile, g_cgVertexProg);
 				CgToolkit::getInstancePtr()->startCgShader(CgToolkit::getInstancePtr()->cgFragProfile, g_cgFragmentProg);
@@ -319,7 +330,6 @@ static void display() {
 //				for(map<string, VBO*>::iterator it = vboList->begin(); it!= vboList->end(); ++it){
 //					it->second->draw(10);
 //				}
-//				bb2->draw(0.0f, 1.0f, 0.0f);
 
 				GET_GLERROR(0);
 				glBegin(GL_TRIANGLES);
@@ -351,7 +361,6 @@ static void display() {
 				CgToolkit::getInstancePtr()->stopCgShader(CgToolkit::getInstancePtr()->cgFragProfile);
 				CgToolkit::getInstancePtr()->stopCgShader(CgToolkit::getInstancePtr()->cgVertexProfile);
 				//vboMan->drawVBO("defaultGrp");
-
 				//vbo.draw(60);
 				//vbo2.draw(60);
 			glPopMatrix();
@@ -563,10 +572,11 @@ processMouse(int button, int state, int x, int y)
 void processMWheel(int wheel, int direction, int x, int y){
 //	zoom += (0.06f * direction);
 //	glutPostRedisplay();
-	if (direction < 0)
-		walkingSpeed *= (0.006f);
-	else if (direction > 0)
-		walkingSpeed /= (0.006f);
+//	if (direction < 0)
+//		walkingSpeed *= (0.006f);
+//	else if (direction > 0)
+//		walkingSpeed /= (0.006f);
+	walkingSpeed += (0.06f*direction);
 }
 void processMouseActiveMotion(int x, int y){
 	// setting the window coordinate-sys to
@@ -664,6 +674,7 @@ static void glInit(int argc, char *argv[]){
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+//	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
 	//glDisable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
@@ -675,7 +686,9 @@ static void glInit(int argc, char *argv[]){
 //	vboMan->makeVbos(model);
 	vboMan->makeVbos(model2);
 
-//	loadDirectory(fs::path("/media/External/B3_ausschnitt_klein"));
+
+	oh.readOctreeRecursive(fs::path("/media/ClemensHDD/B3_octree_ausschnitt"));
+//	loadDirectory(fs::path("/media/ClemensHDD/B3_ausschnitt_klein"));
 //	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
@@ -687,8 +700,8 @@ static void glInit(int argc, char *argv[]){
 //	moWri->readModel(fs::path("raw_objs/door")); //25k / 8k
 //	moWri->readModel(fs::path("raw_objs/beethoven")); //15k / 5k
 //	moWri->readModel(fs::path("raw_objs/robot")); //3,6k / 1,2k
-	vboMan->debugSplit(bb1);
-	vboMan->mergeDown();
+//	vboMan->debugSplit(bb1);
+//	vboMan->mergeDown();
 
 	vboMan->printInfo();
 
@@ -736,7 +749,8 @@ static void glInit(int argc, char *argv[]){
 
 	// endCg .....
 	vboMan->setCgDiffParam(g_cgKd);
-	fbo = FboFactory::getInstance()->createCompleteFbo(w,h);
+	// using just this causes all glColor calls to ignored and be set to orange ..ooOO( -- )
+//	fbo = FboFactory::getInstance()->createCompleteFbo(w,h);
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glutMainLoop(); // Infinite event loop
@@ -747,6 +761,8 @@ int main(int argc, char *argv[]) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
 
+	sbb = BoundingBox::fromFile(fs::path("/media/ClemensHDD/SceneBoundingBox.bin"));
+	oct2 = new Octree(sbb, string(""));
 	ct = new ColorTable(string("/media/External/B3x7/Farben/colortable.bin"));
 	moLoader.setColorTable(ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
 	 moWri = new RawModelWriter();
@@ -767,8 +783,10 @@ int main(int argc, char *argv[]) {
 //	ct.debug();
 //	exit(0);
 //	bb1 = new BoundingBox(2.0f, -2.0f);
-	bb1 = new BoundingBox(0.0f, -2.0f);
-//	bb2 = new BoundingBox(0.0f, -2.5333333f);
+//	bb1 = new BoundingBox(0.0f, -2.0f);
+	bb1 = new BoundingBox(V3f(103.773, -715.835, 0), V3f(1355.28, -354.488, 1200.71));
+	bb2 = new BoundingBox(V3f(989.783, -182.595, -380.283), V3f(991.252, -175.79, -370.003));
+	cout << "intersecting, are they? " << bb1->intersects(*bb2) << endl;
 //	unsigned char* testStream = new unsigned char[28];
 //	((unsigned int*)testStream)[0] = 8;
 //	testStream[4] = 255;

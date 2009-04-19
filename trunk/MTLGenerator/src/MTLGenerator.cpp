@@ -22,6 +22,9 @@
 
 #include "StructDefs.h"
 #include "ColorTable.h"
+#include "BoundingBox.h"
+#include "FileHeader.h"
+#include "RawModelWriter.h"
 #include "../../OOCTools/include/declarations.h"
 #include "../../OOCFormats/include/declarations.h"
 
@@ -84,8 +87,8 @@ void MTLGenerator::matchObjsVsMtls(){
 				if (!fs::exists(mtlFile)) {
 					cerr << "The file " << (dir_iter->path()) << " has no matching Material-File "<< mtlFile << "!" << endl;
 					cout << "generating mtl-file with default color " <<
-					defaultColorF->getX()	<< ", " << defaultColorF->getY() <<
-					", "<< defaultColorF->getZ() << "!" << endl;
+					defaultColorF.getX()	<< ", " << defaultColorF.getY() <<
+					", "<< defaultColorF.getZ() << "!" << endl;
 					generateMissingMTL(mtlFile);
 //					adjustOBJ(mtlFile);
 					++missMatches;
@@ -166,7 +169,7 @@ void MTLGenerator::parseXLS(fs::path file){
 			mat->kdB = quotient*atoi(tokens[4].c_str());
 
 			// collecting the color-map
-			ct.addColori(new V3ub((unsigned char)atoi(tokens[2].c_str()), (unsigned char)atoi(
+			ct.addColori(V3ub((unsigned char)atoi(tokens[2].c_str()), (unsigned char)atoi(
 					tokens[3].c_str()), (unsigned char)atoi(tokens[4].c_str())));
 			// color-counting
 			stringstream ss;
@@ -452,8 +455,8 @@ void MTLGenerator::generateMissingMTL(fs::path &mtlFile){
 		if (line.substr(0,1)=="g"){
 //			cout << "writing " << mtlFile << endl;
 			outFile << "newmtl " << line.substr(2) << endl;
-			outFile << "Kd " << defaultColorF->getX() << " " <<
-			defaultColorF->getY() << " " << defaultColorF->getZ() << endl;
+			outFile << "Kd " << defaultColorF.getX() << " " <<
+			defaultColorF.getY() << " " << defaultColorF.getZ() << endl;
 		}
 	}
 	outFile << endl;
@@ -504,6 +507,54 @@ void MTLGenerator::setDirs(fs::path _objDir, fs::path _xlsDir, fs::path _mtlDir)
 void
 MTLGenerator::writeColorTable(fs::path _path){
 
+}
+
+bool
+MTLGenerator::parseSceneBoundingBox(SceneHeader& sh, fs::path startPath, fs::path dstPath, bool first)
+{
+	//
+	// start at startpath
+	// if is directory -> recursion
+	// else filename =vArray.bin{
+	// read header
+	// }
+	if ( !exists( startPath ) || !exists( dstPath )){
+		cerr << "There is something wrong with the paths!" << endl;
+		return false;
+	}
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+	for ( fs::directory_iterator itr( startPath ); itr != end_itr; ++itr )
+	{
+		if ( fs::is_directory(itr->status()) )
+		{
+			bool condition = parseSceneBoundingBox(sh, itr->path(), dstPath, false);
+			if (!condition)
+				return false;
+		}
+		else if ( itr->path().filename() == "vArray.bin" )
+		{
+			RawModelWriter moWri;
+			cout << "added " << itr->path() << endl;
+
+			fs::ifstream fb;
+			fb.open(itr->path(), ios::binary | ios::in);
+			fb.seekg(0, ios::beg);
+			FileHeader fh = moWri.readHeader(fb);
+			fb.close();
+			sh.bb.expand(*fh.bb);
+			sh.triCount += fh.nFaces;
+			sh.vertexCount += fh.nVertices;
+		}
+	}
+
+	if (first){
+		cout << "Done!" << endl;
+		cout << "# Vertices: " << sh.vertexCount << endl;
+		cout << "# faces: " << sh.triCount << endl;
+		cout << sh.bb.toString() << endl;
+		sh.bb.saveToFile(dstPath / "SceneBoundingBox.bin");
+	}
+	return true;
 }
 
 void MTLGenerator::debug(){
