@@ -14,6 +14,10 @@
 #include <iostream>
 #include <cmath>
 
+#include <boost/system/config.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/freeglut.h>
@@ -74,9 +78,39 @@ BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 		mPrivMin = V3f(_vA);
 		mPrivMax = V3f(_vB);
 	}
-	else {
+	else if (_vA > _vB){
 		mPrivMin = V3f(_vB);
 		mPrivMax = V3f(_vA);
+	}
+	else {
+		mPrivMin = V3f();
+		mPrivMax = V3f();
+		if (_vA.getX() > _vB.getX()){
+			*mPrivMin.x = _vB.getX();
+			*mPrivMax.x = _vA.getX();
+		}
+		else {
+			*mPrivMin.x = _vA.getX();
+			*mPrivMax.x = _vB.getX();
+		}
+
+		if (_vA.getY() > _vB.getY()){
+			*mPrivMin.y = _vB.getY();
+			*mPrivMax.y = _vA.getY();
+		}
+		else {
+			*mPrivMin.y = _vA.getY();
+			*mPrivMax.y = _vB.getY();
+		}
+
+		if (_vA.getZ() > _vB.getZ()){
+			*mPrivMin.z = _vB.getZ();
+			*mPrivMax.z = _vA.getZ();
+		}
+		else {
+			*mPrivMin.z = _vA.getZ();
+			*mPrivMax.z = _vB.getZ();
+		}
 	}
 }
 
@@ -246,7 +280,7 @@ BoundingBox::hasSharedComponent(const BoundingBox &_bb) const
 }
 
 std::string
-BoundingBox::toString()
+BoundingBox::toString() const
 {
 	std::string s;
 	std::stringstream ss;
@@ -300,7 +334,11 @@ void saveToFile(std::string bbFile);
 void
 BoundingBox::computeCenter(V3f &_center) const
 {
-	_center = ((mPrivMax+mPrivMin)*0.5);
+	V3f edges;
+	computeEdgeSizes(edges);
+//	V3f step = (mPrivMin.getAbs() + mPrivMax.getAbs()) *0.5f;
+//	_center = (mPrivMin + step);
+	_center = mPrivMin + (edges*0.5f);
 }
 
 bool
@@ -373,10 +411,15 @@ BoundingBox::intersects(const BoundingBox &_b) const
 	computeEdgeSizes(s1);
 	_b.computeEdgeSizes(s2);
 
+	unsigned int matches = 0;
 	for (int i=0; i<3; ++i) {
-		if (fabs(d.getData()[i]) < 0.5*(s1.getData()[i] + s2.getData()[i])) return true;
+		if (fabs(d.getData()[i]) < 0.5*(s1.getData()[i] + s2.getData()[i]))
+			++matches;
 	}
-	return false;
+	if (matches == 3)
+		return true;
+	else
+		return false;
 }
 
 bool
@@ -491,6 +534,38 @@ bool
 BoundingBox::operator!=(const BoundingBox& _bb)
 {
 	return !(*this == _bb);
+}
+
+void
+BoundingBox::saveToFile(fs::path bbFile){
+	fs::ofstream of;
+	of.open(bbFile, ios::binary | ios::out);
+	of.seekp(0, ios::beg);
+	of.write((char*) mPrivMin.x, sizeof(float));
+	of.write((char*) mPrivMin.y, sizeof(float));
+	of.write((char*) mPrivMin.z, sizeof(float));
+	of.write((char*) mPrivMax.x, sizeof(float));
+	of.write((char*) mPrivMax.y, sizeof(float));
+	of.write((char*) mPrivMax.z, sizeof(float));
+	of.close();
+}
+
+BoundingBox
+BoundingBox::fromFile(fs::path bbFile)
+{
+	V3f min, max;
+	fs::ifstream input;
+	input.open(bbFile, ios::binary | ios::in);
+	input.seekg(0, ios::beg);
+	input.read((char*) min.x, sizeof(float));
+	input.read((char*) min.y, sizeof(float));
+	input.read((char*) min.z, sizeof(float));
+	input.read((char*) max.x, sizeof(float));
+	input.read((char*) max.y, sizeof(float));
+	input.read((char*) max.z, sizeof(float));
+	input.close();
+	BoundingBox bb(min, max);
+	return bb;
 }
 
 } // end of Namespace OOCTools

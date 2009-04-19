@@ -46,11 +46,11 @@ struct Material
 	float kdB; // diffuse color b
 };
 
-//struct MtlMap
-//{
-//	std::string name;
-//	std::map<std::string, Material*> matMap;
-//};
+struct MtlMap
+{
+	std::string name;
+	std::map<std::string, Material*> matMap;
+};
 
 } // end of namespace OOCTools
 #endif /* STRUCTDEFS_H_ */

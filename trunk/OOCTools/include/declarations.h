@@ -44,7 +44,6 @@ namespace ooctools{
 	class V4f;
 
 	struct Material;
-	struct FileHeader;
 	struct MtlMap;
 
 

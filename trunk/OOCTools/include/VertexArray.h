@@ -101,6 +101,7 @@ VertexArray<T>::VertexArray(const VertexArray<T>& _va) :
 {
 	mData = new T[size * nComponents * sizeof(T)];
 	memcpy(mData, _va.mData, size * sizeof(T) * nComponents);
+	mPriBb = _va.mPriBb;
 }
 
 template<typename T>

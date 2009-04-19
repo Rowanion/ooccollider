@@ -35,21 +35,42 @@ Vbo::Vbo(VertexArray<unsigned int>* _ia, VertexArray<char>* _na,
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &mPriMaxVertices);
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &mPriMaxIndices);
 	_upperVertexBound = 500;
-	mPriUseGlColor = false;
-	mPriCurrentColorB = new unsigned char[3];
-	mPriCurrentColorB[0] = defaultColorB.getX();
-	mPriCurrentColorB[1] = defaultColorB.getY();
-	mPriCurrentColorB[2] = defaultColorB.getZ();
-	mPriCurrentColorF = new float[3];
-	mPriCurrentColorF[0] = defaultColorF.getX();
-	mPriCurrentColorF[1] = defaultColorF.getY();
-	mPriCurrentColorF[2] = defaultColorF.getZ();
+//	mPriUseGlColor = false;
+//	mPriCurrentColorB = new unsigned char[3];
+//	mPriCurrentColorB[0] = defaultColorB.getX();
+//	mPriCurrentColorB[1] = defaultColorB.getY();
+//	mPriCurrentColorB[2] = defaultColorB.getZ();
+//	mPriCurrentColorF = new float[3];
+//	mPriCurrentColorF[0] = defaultColorF.getX();
+//	mPriCurrentColorF[1] = defaultColorF.getY();
+//	mPriCurrentColorF[2] = defaultColorF.getZ();
 	if (_ia != 0)
 		setIndices(_ia);
 	if (_na != 0)
 		setNData(_na);
 	if (_va != 0)
 		setVData(_va);
+}
+
+Vbo::Vbo(const Vbo& _vbo) :
+	mPriVId(0), mPriNId(0), mPriIdxId(0), mPriUseIndices(false), _vboUsageMode(
+			GL_STATIC_DRAW), mPriNormals(0), mPriVertices(0), mPriIndices(0),
+			mPriCurrentColorF(0), mPriCurrentColorB(0), isOffline(false),
+			isGpuOnly(false)
+{
+	if (_vbo.hasIndices()){
+		setIndices(new VertexArray<unsigned int>(*_vbo.getIndices()), false);
+		mPriUseIndices = true;
+	}
+	if (_vbo.hasVertices()){
+		setVData(new VertexArray<float>(*_vbo.getVData()), false);
+	}
+	if (_vbo.hasNormals()){
+		setNData(new VertexArray<char>(*_vbo.getNData()), false);
+	}
+	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &mPriMaxVertices);
+	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &mPriMaxIndices);
+	_upperVertexBound = 500;
 }
 
 Vbo::~Vbo()
@@ -83,15 +104,14 @@ Vbo::~Vbo()
 			mPriIndices = 0;
 		}
 	}
-	if (mPriCurrentColorF!=0){
-		delete[] mPriCurrentColorF;
-		mPriCurrentColorF = 0;
-	}
-	if (mPriCurrentColorB!=0){
-		delete[] mPriCurrentColorB;
-		mPriCurrentColorB = 0;
-	}
-	cout << "deleting VBO..." << endl;
+//	if (mPriCurrentColorF!=0){
+//		delete[] mPriCurrentColorF;
+//		mPriCurrentColorF = 0;
+//	}
+//	if (mPriCurrentColorB!=0){
+//		delete[] mPriCurrentColorB;
+//		mPriCurrentColorB = 0;
+//	}
 }
 
 void
@@ -100,18 +120,18 @@ Vbo::draw(int vertexCount)
 	if (!isOffline) {
 		GLuint_v_It it;
 
-		if (mPriUseGlColor){
-			if (mPriCurrentColorB!=0)
-				glColor3ubv(mPriCurrentColorB);
-			else
-				glColor3ubv(defaultColorB.getData());
-		}
-		else {
-			if (mPriCurrentColorF!=0)
-				cgSetParameter3fv(mPriDiffuseParameter, mPriCurrentColorF);
-			else
-				cgSetParameter3fv(mPriDiffuseParameter, defaultColorF.getData());
-		}
+//		if (mPriUseGlColor){
+//			if (mPriCurrentColorB!=0)
+//				glColor3ubv(mPriCurrentColorB);
+//			else
+//				glColor3ubv(defaultColorB.getData());
+//		}
+//		else {
+//			if (mPriCurrentColorF!=0)
+//				cgSetParameter3fv(mPriDiffuseParameter, mPriCurrentColorF);
+//			else
+//				cgSetParameter3fv(mPriDiffuseParameter, defaultColorF.getData());
+//		}
 		drawSingle(vertexCount);
 	}
 }
@@ -169,15 +189,18 @@ Vbo::drawSingle(int vertexCount)
  *  This actually sets the vertex data of the VBO. Without this you cannot draw anything!
  */
 void
-Vbo::setVData(VertexArray<float>* va)
+Vbo::setVData(VertexArray<float>* va, bool useGl)
 {
 	mPriVertices = va;
-	if (mPriVId==0)
-		glGenBuffers(1, &mPriVId);
+	if (useGl) {
+		if (mPriVId == 0)
+			glGenBuffers(1, &mPriVId);
 
-	glBindBuffer(GL_ARRAY_BUFFER, mPriVId);
-	glBufferData(GL_ARRAY_BUFFER, va->nComponents*sizeof(float)*va->size, va->mData, _vboUsageMode);
-	glVertexPointer(va->nComponents, GL_FLOAT, va->stride, bufferOffset(0));
+		glBindBuffer(GL_ARRAY_BUFFER, mPriVId);
+		glBufferData(GL_ARRAY_BUFFER, va->nComponents * sizeof(float)
+				* va->size, va->mData, _vboUsageMode);
+		glVertexPointer(va->nComponents, GL_FLOAT, va->stride, bufferOffset(0));
+	}
 }
 
 //void VBO::setIndices(void *idx, int idxSize){
@@ -187,25 +210,32 @@ Vbo::setVData(VertexArray<float>* va)
 //	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _idxSize, idx, _vboUsageMode);
 //}
 void
-Vbo::setIndices(VertexArray<unsigned int>* _ia)
+Vbo::setIndices(VertexArray<unsigned int>* _ia, bool useGl)
 {
 	mPriIndices = _ia;
-	if (mPriIdxId==0)
-		glGenBuffers(1, &mPriIdxId);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIdxId);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _ia->nComponents*sizeof(unsigned int)*_ia->size, _ia->mData, _vboUsageMode);
+	if (useGl) {
+		if (mPriIdxId == 0)
+			glGenBuffers(1, &mPriIdxId);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIdxId);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _ia->nComponents
+				* sizeof(unsigned int) * _ia->size, _ia->mData, _vboUsageMode);
+	}
 }
 
 void
-Vbo::setNData(VertexArray<char>* va)
+Vbo::setNData(VertexArray<char>* va, bool useGl)
 {
 	mPriNormals = va;
-	if (mPriNId==0)
-		glGenBuffers(1, &mPriNId);
+	if (useGl) {
+		if (mPriNId == 0)
+			glGenBuffers(1, &mPriNId);
 
-	glBindBuffer(GL_ARRAY_BUFFER, mPriNId);
-	glBufferData(GL_ARRAY_BUFFER, va->nComponents*sizeof(char)*va->size, va->mData, _vboUsageMode);
-	glNormalPointer(GL_BYTE, va->stride, bufferOffset(0));
+		glBindBuffer(GL_ARRAY_BUFFER, mPriNId);
+		glBufferData(
+				GL_ARRAY_BUFFER, va->nComponents * sizeof(char) * va->size,
+				va->mData, _vboUsageMode);
+		glNormalPointer(GL_BYTE, va->stride, bufferOffset(0));
+	}
 }
 
 void
@@ -250,57 +280,57 @@ Vbo::managedDraw()
 	}
 }
 
-void
-Vbo::setColor(V3f* _color)
-{
+//void
+//Vbo::setColor(V3f* _color)
+//{
+//
+//	if (mPriCurrentColorF== 0) mPriCurrentColorF = new float[3];
+//	mPriCurrentColorF[0] = _color->getX();
+//	mPriCurrentColorF[1] = _color->getY();
+//	mPriCurrentColorF[2] = _color->getZ();
+//
+//	if (mPriCurrentColorB== 0) mPriCurrentColorB = new unsigned char[3];
+//	mPriCurrentColorB[0] =255*_color->getX();
+//	mPriCurrentColorB[1] =255*_color->getY();
+//	mPriCurrentColorB[2] =255*_color->getZ();
+//}
 
-	if (mPriCurrentColorF== 0) mPriCurrentColorF = new float[3];
-	mPriCurrentColorF[0] = _color->getX();
-	mPriCurrentColorF[1] = _color->getY();
-	mPriCurrentColorF[2] = _color->getZ();
+//void
+//Vbo::setColor(float r, float g, float b)
+//{
+//	cout << r << ", " << g << ", " << b << endl;
+//	if (mPriCurrentColorF== 0) mPriCurrentColorF = new float[3];
+//	mPriCurrentColorF[0] = r;
+//	mPriCurrentColorF[1] = g;
+//	mPriCurrentColorF[2] = b;
+//
+//	if (mPriCurrentColorB== 0) mPriCurrentColorB = new unsigned char[3];
+//	mPriCurrentColorB[0] =255*r;
+//	mPriCurrentColorB[1] =255*g;
+//	mPriCurrentColorB[2] =255*b;
+//}
 
-	if (mPriCurrentColorB== 0) mPriCurrentColorB = new unsigned char[3];
-	mPriCurrentColorB[0] =255*_color->getX();
-	mPriCurrentColorB[1] =255*_color->getY();
-	mPriCurrentColorB[2] =255*_color->getZ();
-}
+//void
+//Vbo::setColor(V3ub* _color)
+//{
+//	if (mPriCurrentColorF== 0) mPriCurrentColorF = new float[3];
+//
+//	float quotient = 1.0f/255.0f;
+//	mPriCurrentColorF[0] = quotient * _color->getX();
+//	mPriCurrentColorF[1] = quotient * _color->getY();
+//	mPriCurrentColorF[2] = quotient * _color->getZ();
+//
+//	if (mPriCurrentColorB== 0) mPriCurrentColorB = new unsigned char[3];
+//	mPriCurrentColorB[0] =_color->getX();
+//	mPriCurrentColorB[1] =_color->getY();
+//	mPriCurrentColorB[2] =_color->getZ();
+//}
 
-void
-Vbo::setColor(float r, float g, float b)
-{
-	cout << r << ", " << g << ", " << b << endl;
-	if (mPriCurrentColorF== 0) mPriCurrentColorF = new float[3];
-	mPriCurrentColorF[0] = r;
-	mPriCurrentColorF[1] = g;
-	mPriCurrentColorF[2] = b;
-
-	if (mPriCurrentColorB== 0) mPriCurrentColorB = new unsigned char[3];
-	mPriCurrentColorB[0] =255*r;
-	mPriCurrentColorB[1] =255*g;
-	mPriCurrentColorB[2] =255*b;
-}
-
-void
-Vbo::setColor(V3ub* _color)
-{
-	if (mPriCurrentColorF== 0) mPriCurrentColorF = new float[3];
-
-	float quotient = 1.0f/255.0f;
-	mPriCurrentColorF[0] = quotient * _color->getX();
-	mPriCurrentColorF[1] = quotient * _color->getY();
-	mPriCurrentColorF[2] = quotient * _color->getZ();
-
-	if (mPriCurrentColorB== 0) mPriCurrentColorB = new unsigned char[3];
-	mPriCurrentColorB[0] =_color->getX();
-	mPriCurrentColorB[1] =_color->getY();
-	mPriCurrentColorB[2] =_color->getZ();
-}
-
-void
-Vbo::setGlColor()
-{
-	glColor3ubv(defaultColorB.getData());
-}
+//void
+//Vbo::setGlColor()
+//{
+//	glColor3ubv(defaultColorB.getData());
+//}
 
 /**
  *  @brief	Erases the gpu-part of this VBO.
@@ -346,20 +376,26 @@ Vbo::setOnline()
 {
 //	if (isOffline && !isGpuOnly){
 	if (!isGpuOnly){
-		if (mPriNId!=0){
+		if (mPriNormals != 0){
 			// do stuff to normals
+			if (mPriNId==0)
+				glGenBuffers(1, &mPriNId);
 			glBindBuffer(GL_ARRAY_BUFFER, mPriNId);
 			glBufferData(GL_ARRAY_BUFFER, mPriNormals->nComponents*sizeof(char)*mPriNormals->size, mPriNormals->mData, _vboUsageMode);
 			glNormalPointer(GL_BYTE, mPriNormals->stride, bufferOffset(0));
 		}
-		if (mPriVId!=0){
+		if (mPriVertices!=0){
 			// do stuff to vertices
+			if (mPriVId==0)
+				glGenBuffers(1, &mPriVId);
 			glBindBuffer(GL_ARRAY_BUFFER, mPriVId);
 			glBufferData(GL_ARRAY_BUFFER, mPriVertices->nComponents*sizeof(float)*mPriVertices->size, mPriVertices->mData, _vboUsageMode);
 			glVertexPointer(mPriVertices->nComponents, GL_FLOAT, mPriVertices->stride, bufferOffset(0));
 		}
-		if (mPriIdxId!=0){
+		if (mPriIndices!=0){
 			// do stuff to indices
+			if (mPriIdxId==0)
+				glGenBuffers(1, &mPriIdxId);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIdxId);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, mPriIndices->nComponents*sizeof(unsigned char)*mPriIndices->size, mPriIndices->mData, _vboUsageMode);
 		}
@@ -441,23 +477,20 @@ Vbo::setGpuOnly()
 Vbo&
 Vbo::operator+=(const Vbo& rhs)
 {
-	cout << "l-verts: " << mPriVertices->size << ", l-normals: "<< mPriNormals->size << endl;
-	cout << "r-verts: " << rhs.mPriVertices->size << ", r-normals: "<< rhs.mPriNormals->size << endl;
-	cout << "---------------------------------------------------------" << endl;
 	if (mPriIndices != 0) {
 		*mPriIndices += *rhs.getIndices();
 		setIndices(mPriIndices);
 	}
 	if (mPriNormals != 0) {
-		*mPriNormals += *rhs.getNData();
-		setNData(mPriNormals);
+		*mPriNormals += *(rhs.getNData());
+		setNData(mPriNormals, false);
 	}
 	if (mPriVertices != 0){
 		*mPriVertices += *rhs.getVData();
-		setVData(mPriVertices);
+		setVData(mPriVertices, false);
 		mPriVertices->calcBB();
 	}
-	stripDoubleTriangles();
+//	stripDoubleTriangles();
 	return *this;
 }
 
@@ -501,6 +534,19 @@ Vbo::split(const BoundingBox& _bb, Vbo& _inside, Vbo& _outside)
 {
 	// each step a triangle is evaluated
 	// notice that there is no evaluation of the correctness of given objects!
+	if (_inside.getVData() == 0){
+		_inside.setVData(new VertexArray<float>(4), false);
+	}
+	if (_inside.getNData() == 0){
+		_inside.setNData(new VertexArray<char>(4), false);
+	}
+	if (_outside.getVData() == 0){
+		_outside.setVData(new VertexArray<float>(4), false);
+	}
+	if (_outside.getNData() == 0){
+		_outside.setNData(new VertexArray<char>(4), false);
+	}
+
 	for (unsigned int i = 0; i < mPriVertices->size * mPriVertices->nComponents; i
 			+= mPriVertices->nComponents * 3) {
 		// if it's completely inside
@@ -521,17 +567,17 @@ Vbo::split(const BoundingBox& _bb, Vbo& _inside, Vbo& _outside)
 	// set the VBO-Data for the gpu, thus turning it on.
 	// in practice for Octree-Generation the usefulness of this at this place remains to
 	// be seen....
-	if (_inside.mPriVId==0)
-		glGenBuffers(1, &_inside.mPriVId);
-	if (_inside.mPriNId==0)
-		glGenBuffers(1, &_inside.mPriNId);
-	if (_outside.mPriVId==0)
-		glGenBuffers(1, &_outside.mPriVId);
-	if (_outside.mPriNId==0)
-		glGenBuffers(1, &_outside.mPriNId);
-
-	_inside.setOnline();
-	_outside.setOnline();
+//	if (_inside.mPriVId==0)
+//		glGenBuffers(1, &_inside.mPriVId);
+//	if (_inside.mPriNId==0)
+//		glGenBuffers(1, &_inside.mPriNId);
+//	if (_outside.mPriVId==0)
+//		glGenBuffers(1, &_outside.mPriVId);
+//	if (_outside.mPriNId==0)
+//		glGenBuffers(1, &_outside.mPriNId);
+//
+//	_inside.setOnline();
+//	_outside.setOnline();
 
 	/*
 	 * foreach tri in *this as _t {
@@ -549,10 +595,10 @@ Vbo::split(const BoundingBox& _bb, Vbo& _inside, Vbo& _outside)
 void Vbo::addTriangle(const float* _verts, const char* _normals)
 {
 	if (mPriVertices == 0){
-		mPriVertices = new VertexArray<float>(4);
+		setVData(new VertexArray<float>(4), false);
 	}
 	if (mPriNormals == 0){
-		mPriNormals = new VertexArray<char>(4);
+		setNData(new VertexArray<char>(4), false);
 	}
 	mPriVertices->addTriangle(_verts);
 	mPriVertices->mPriBb.expand(_verts);
@@ -561,6 +607,8 @@ void Vbo::addTriangle(const float* _verts, const char* _normals)
 	mPriNormals->addTriangle(_normals);
 }
 
+//TODO optimize!
+// like save a vector of indices which need deletion and then do the copy in one go.
 void Vbo::stripDoubleTriangles()
 {
 	map<string, int> hMap;
@@ -572,13 +620,50 @@ void Vbo::stripDoubleTriangles()
 			hMap.insert(make_pair(hash, 1));
 		}
 		else {
-			cout << "hash: " << hash << endl;
 			mPriVertices->removeTriangle(i);
 			mPriNormals->removeTriangle(i);
 			i-=faceComponents;
 		}
 	}
-	setOnline();
+//	setOnline();
+}
+
+bool
+Vbo::hasVertices() const
+{
+	if (mPriVertices != 0 && mPriVertices->size>0) return true;
+	else return false;
+}
+
+bool
+Vbo::hasIndices() const
+{
+	if (mPriIndices != 0 && mPriIndices->size>0) return true;
+	else return false;
+}
+
+bool
+Vbo::hasNormals() const
+{
+	if (mPriNormals != 0 && mPriNormals->size>0) return true;
+	else return false;
+}
+
+Vbo
+Vbo::operator=(const Vbo& _rhs)
+{
+	if (_rhs == *this)
+		return *this;
+	else
+		return Vbo(_rhs);
+
+}
+
+bool
+Vbo::operator==(const Vbo& _rhs)
+{
+	if (this == &_rhs) return true;
+	else return false;
 }
 
 void
