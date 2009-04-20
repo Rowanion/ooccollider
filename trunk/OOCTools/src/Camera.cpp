@@ -221,48 +221,50 @@ void Camera::setRoll(float _roll)
 		mRollDegrees = 0.0f;
 }
 
-void Camera::SetPerspective()
-{
-	GLfloat Matrix[16];
-	glQuaternion q;
-
-	// Make the Quaternions that will represent our rotations
-	m_qPitch.CreateFromAxisAngle(1.0f, 0.0f, 0.0f, m_PitchDegrees);
-	m_qHeading.CreateFromAxisAngle(0.0f, 1.0f, 0.0f, m_HeadingDegrees);
-	m_qRoll.CreateFromAxisAngle(0.0f, 0.0f, 1.0f, m_RollDegrees);
-
-	// Combine the pitch and heading rotations and store the results in q
-//	q = m_qPitch * m_qHeading;
-	q = m_qPitch * m_qHeading * m_qRoll;
-	q.CreateMatrix(Matrix);
-
-	// Let OpenGL set our new prespective on the world!
-	glMultMatrixf(Matrix);
-
-	// Create a matrix from the pitch Quaternion and get the j vector
-	// for our direction.
-	m_qPitch.CreateMatrix(Matrix);
-	*m_DirectionVector.y = Matrix[9];
-
-	// Combine the heading and pitch rotations and make a matrix to get
-	// the i and j vectors for our direction.
-	q = m_qHeading * m_qPitch;
-	q.CreateMatrix(Matrix);
-	*m_DirectionVector.x = Matrix[8];
-	*m_DirectionVector.z = Matrix[10];
-
-	// Scale the direction by our speed.
-	m_DirectionVector *= m_ForwardVelocity;
-
-	// Increment our position by the vector
-	*m_Position.x += *m_DirectionVector.x;
-	*m_Position.y += *m_DirectionVector.y;
-	*m_Position.z += *m_DirectionVector.z;
-
-	// Translate to our new position.
-	glTranslatef(-*m_Position.x, -*m_Position.y, *m_Position.z);
-
-}
+// removed this method because it uses quaterions. I didn't get them to coorperate. So there will be
+// probably no nice camera. Instead we'll go with a working one.
+//void Camera::SetPerspective()
+//{
+//	GLfloat Matrix[16];
+//	glQuaternion q;
+//
+//	// Make the Quaternions that will represent our rotations
+//	m_qPitch.CreateFromAxisAngle(1.0f, 0.0f, 0.0f, m_PitchDegrees);
+//	m_qHeading.CreateFromAxisAngle(0.0f, 1.0f, 0.0f, m_HeadingDegrees);
+//	m_qRoll.CreateFromAxisAngle(0.0f, 0.0f, 1.0f, m_RollDegrees);
+//
+//	// Combine the pitch and heading rotations and store the results in q
+////	q = m_qPitch * m_qHeading;
+//	q = m_qPitch * m_qHeading * m_qRoll;
+//	q.CreateMatrix(Matrix);
+//
+//	// Let OpenGL set our new prespective on the world!
+//	glMultMatrixf(Matrix);
+//
+//	// Create a matrix from the pitch Quaternion and get the j vector
+//	// for our direction.
+//	m_qPitch.CreateMatrix(Matrix);
+//	*m_DirectionVector.y = Matrix[9];
+//
+//	// Combine the heading and pitch rotations and make a matrix to get
+//	// the i and j vectors for our direction.
+//	q = m_qHeading * m_qPitch;
+//	q.CreateMatrix(Matrix);
+//	*m_DirectionVector.x = Matrix[8];
+//	*m_DirectionVector.z = Matrix[10];
+//
+//	// Scale the direction by our speed.
+//	m_DirectionVector *= m_ForwardVelocity;
+//
+//	// Increment our position by the vector
+//	*m_Position.x += *m_DirectionVector.x;
+//	*m_Position.y += *m_DirectionVector.y;
+//	*m_Position.z += *m_DirectionVector.z;
+//
+//	// Translate to our new position.
+//	glTranslatef(-*m_Position.x, -*m_Position.y, *m_Position.z);
+//
+//}
 
 
 } // ooctools

@@ -13,7 +13,7 @@
 
 #include "declarations.h"
 #include "V3f.h"
-#include "glQuaternion.h"
+//#include "glQuaternion.h"
 
 namespace ooctools {
 
@@ -147,9 +147,11 @@ class Camera
 		float m_PitchDegrees;
 		float m_HeadingDegrees;
 		float m_RollDegrees;
-		glQuaternion m_qPitch;
-		glQuaternion m_qHeading;
-		glQuaternion m_qRoll;
+
+		// Have at thee, evil, evil quaterions!
+//		glQuaternion m_qPitch;
+//		glQuaternion m_qHeading;
+//		glQuaternion m_qRoll;
 
 		// ---------------------------------------
 	private:
