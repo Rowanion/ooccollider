@@ -421,7 +421,7 @@ RawModelWriter::readRawVbo(fs::path _path)
 		vbo->setVData(va, false);
 
 		// read the NormalArray
-		in.open(fs::path(_path / "ndArray.bin"), ios::binary
+		in.open(fs::path(_path / "nArray.bin"), ios::binary
 				| ios::in);
 		in.seekg(FileHeader::getHeaderSize(), ios::beg);
 		char* ca = FileIO::readByteArray(in, 4 * fh.nNormals);
