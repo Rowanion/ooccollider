@@ -25,7 +25,6 @@
 
 #include "OOCTools.h"
 #include "ObjModelLoader.h"
-#include "ModelWriter.h"
 #include "RawModelWriter.h"
 #include "OctreeHandler.h"
 #include "ColorTable.h"
