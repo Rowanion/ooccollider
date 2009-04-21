@@ -17,6 +17,7 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include "declarations.h"
+#include "TriBoxTest.h"
 
 namespace fs = boost::filesystem;
 namespace ooctools {
@@ -188,6 +189,7 @@ private:
 	V3f mPrivMax;
 	V3f mPrivEdgeSizes;
 	V3f mPrivCenter;
+	TriBoxTest mTriBoxTest;
 
 	// member methods
 	void drawImmediate() const;

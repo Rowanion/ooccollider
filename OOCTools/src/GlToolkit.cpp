@@ -1,8 +1,9 @@
-/*
- * GlToolkit.cpp
- *
- *  Created on: 23.03.2009
- *      Author: ava
+/**
+ * @file	GlToolkit.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 23.03.2009
+ * @brief   Class definition of GlToolkit
  */
 
 #include "GlToolkit.h"
@@ -42,7 +43,7 @@ float performOcclusionQuery(float *modelViewMatrix, BoundingBox *obj, GLfloat *d
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 			glDepthFunc(GL_ALWAYS);
 			glShadeModel(GL_FLAT);
-			FboFactory::getInstance()->drawDepthToFb(depthBuffer, wPos, hPos,width, height);
+			FboFactory::getSingleton()->drawDepthToFb(depthBuffer, wPos, hPos,width, height);
 		glPopAttrib();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glBeginQuery(GL_SAMPLES_PASSED, oQuery);

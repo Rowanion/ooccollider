@@ -1,8 +1,9 @@
-/*
- * VBOToolkit.cpp
- *
- *  Created on: 08.02.2009
- *      Author: ava
+/**
+ * @file	Vbo.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 08.02.2009
+ * @brief   Class definition of Vbo
  */
 
 #include "Vbo.h"

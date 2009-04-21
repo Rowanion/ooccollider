@@ -1,8 +1,9 @@
-/*
- * CgToolkit.cpp
- *
- *  Created on: 03.02.2009
- *      Author: ava
+/**
+ * @file	CgToolkit.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 03.02.2009
+ * @brief   Class definition of CgToolkit
  */
 
 #include "CgToolkit.h"
@@ -19,7 +20,7 @@ namespace ooctools {
 using namespace std;
 
 CgToolkit *CgToolkit::mPriInstancePtr = 0;
-CgToolkit *CgToolkit::getInstancePtr()
+CgToolkit *CgToolkit::getSingleton()
 {
 	if (CgToolkit::mPriInstancePtr==0)
 		CgToolkit::mPriInstancePtr = new CgToolkit();

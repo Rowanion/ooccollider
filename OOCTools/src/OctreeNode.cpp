@@ -3,7 +3,7 @@
  * @author	TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date 	Created on: 13.04.2009
- *
+ * @brief   Class definition of OctreeNode
  */
 
 #include "OctreeNode.h"
@@ -150,11 +150,11 @@ OctreeNode::insertVbo(ooctools::Vbo& _vbo)
 		} // if so - merge it with this one and save it
 		else {
 			Vbo* originalVbo = new Vbo(_vbo);
-			VboManager::getInstancePtr()->addVbo("1", originalVbo);
-			VboManager::getInstancePtr()->addVbo("2", old);
-			VboManager::getInstancePtr()->mergeDown();
-			OctreeHandler::writeOctreeVbo(*VboManager::getInstancePtr()->getVbo("1"), fs::path(path));
-			VboManager::getInstancePtr()->clear();
+			VboManager::getSingleton()->addVbo("1", originalVbo);
+			VboManager::getSingleton()->addVbo("2", old);
+			VboManager::getSingleton()->mergeDown();
+			OctreeHandler::writeOctreeVbo(*VboManager::getSingleton()->getVbo("1"), fs::path(path));
+			VboManager::getSingleton()->clear();
 		}
 	}	// are we at a nonMaxLevel leaf?
 	else if (isLeaf()) {
@@ -168,16 +168,16 @@ OctreeNode::insertVbo(ooctools::Vbo& _vbo)
 		}
 		else {	// if so, load it, merge it and test the new object on condition
 			Vbo* originalVbo = new Vbo(_vbo);
-			VboManager::getInstancePtr()->addVbo("1", originalVbo);
-			VboManager::getInstancePtr()->addVbo("2", old);
-			VboManager::getInstancePtr()->mergeDown();
-			if (testCondition(*VboManager::getInstancePtr()->getVbo("1"))){
-				OctreeHandler::writeOctreeVbo(*VboManager::getInstancePtr()->getVbo("1"), fs::path(path));
-				VboManager::getInstancePtr()->clear();
+			VboManager::getSingleton()->addVbo("1", originalVbo);
+			VboManager::getSingleton()->addVbo("2", old);
+			VboManager::getSingleton()->mergeDown();
+			if (testCondition(*VboManager::getSingleton()->getVbo("1"))){
+				OctreeHandler::writeOctreeVbo(*VboManager::getSingleton()->getVbo("1"), fs::path(path));
+				VboManager::getSingleton()->clear();
 			}
 			else {	// if the condition does not hold - subdivide and delete old file.
-				Vbo temp(*VboManager::getInstancePtr()->getVbo("1"));
-				VboManager::getInstancePtr()->clear();
+				Vbo temp(*VboManager::getSingleton()->getVbo("1"));
+				VboManager::getSingleton()->clear();
 				subdivide(temp);
 				fs::path p(path);
 				p /= "vArray.oct";
@@ -386,6 +386,32 @@ bool
 OctreeNode::testCondition(const Vbo& _vbo)
 {
 	return false;
+}
+
+void
+OctreeNode::drawBbs()
+{
+	if(isLeaf()){
+		mPriBb.draw(0,0,255);
+	}
+	else {
+		if (fne !=0)
+			fne->drawBbs();
+		if (fnw !=0)
+			fnw->drawBbs();
+		if (fse !=0)
+			fse->drawBbs();
+		if (fsw !=0)
+			fsw->drawBbs();
+		if (bne !=0)
+			bne->drawBbs();
+		if (bnw !=0)
+			bnw->drawBbs();
+		if (bse !=0)
+			bse->drawBbs();
+		if (bsw !=0)
+			bsw->drawBbs();
+	}
 }
 
 } // ooctools

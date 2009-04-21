@@ -3,7 +3,7 @@
  * @author	TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date 	Created on: 13.04.2009
- *
+ * @brief Class definition of Octree
  */
 
 #include "Octree.h"
@@ -28,6 +28,7 @@ Octree::~Octree()
 
 	// TODO Auto-generated destructor stub
 }
+
 
 
 

@@ -1,8 +1,9 @@
-/*
- * FBOFactory.cpp
- *
- *  Created on: 04.03.2009
- *      Author: ava
+/**
+ * @file	FboFactory.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 04.03.2009
+ * @brief   Class definition of FboFactory
  */
 
 #include "FboFactory.h"
@@ -18,7 +19,7 @@ namespace ooctools {
 FboFactory* FboFactory::mPriInstance = 0;
 
 FboFactory*
-FboFactory::getInstance()
+FboFactory::getSingleton()
 {
 	if (mPriInstance == 0){
 		mPriInstance = new FboFactory();
@@ -83,7 +84,7 @@ void
 FboFactory::checkFbo(GLuint id)
 {
 	if (id != mPriActiveFbo){
-		mPriFboList.at(id)->bind();
+		mPriFboList[id]->bind();
 	}
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	cout << FboFactory::statusToString(status) << endl;
@@ -95,7 +96,7 @@ FboFactory::checkFbo(Fbo* _fbo)
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	cout << FboFactory::statusToString(status) << endl;
 	if (_fbo->getId() != mPriActiveFbo){
-		mPriFboList.at(_fbo->getId())->bind();
+		mPriFboList[_fbo->getId()]->bind();
 	}
 	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	cout << FboFactory::statusToString(status) << endl;

@@ -36,7 +36,7 @@ void inline getGlError(int ret)
 	}
 }
 
-inline char* bufferOffset(int i){return (char *)0 + (i);};
+inline char* bufferOffset(int i){return (char *)0 + (i);}
 float performOcclusionQuery(float *modelViewMatrix, BoundingBox *obj, GLfloat *depthBuffer,
 		int wPos, int hPos, int width, int height);
 

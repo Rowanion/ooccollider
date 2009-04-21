@@ -67,6 +67,8 @@ class OctreeNode
 		//		if holds, save, delete vbos.
 		//		else subdivide, propagate to children, delete old file on save
 
+		void drawBbs();
+
 	protected:
 		BoundingBox mPriBb;
 		size_t nTriangles;
