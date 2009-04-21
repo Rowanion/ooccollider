@@ -1,8 +1,9 @@
-/*
- * FBO.cpp
- *
- *  Created on: 04.03.2009
- *      Author: ava
+/**
+ * @file	Fbo.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 04.03.2009
+ * @brief   Class definition of Fbo
  */
 
 #include "Fbo.h"

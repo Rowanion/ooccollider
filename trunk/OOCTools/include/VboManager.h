@@ -44,8 +44,8 @@ public:
 	void drawBb(std::string id, float r, float g, float b);
 	void drawBb(std::string id, int r, int g, int b);
 	void addVbo(std::string id, Vbo *_vbo);
-	Vbo *getVbo(std::string id);
-	Vbo *getVbo(mIterator it);
+	const Vbo *getVbo(std::string id) const;
+	const Vbo *getVbo(mIterator it) const;
 	void delVbo(std::string id);
 	void delVbo(mIterator it);
 	BoundingBox& getBb(){return mPriBb;};
@@ -57,14 +57,14 @@ public:
 	ColorTable& getColorTable();
 	void setColorTable(const ColorTable& _ct);
 
-	static VboManager *getInstancePtr();
+	static VboManager *getSingleton();
 
 	void switchOffVBO(std::string id);
 	void switchOnVBO(std::string id);
 	void mergeDown();
 	void clear();
 	void debugSplit(BoundingBox* _bb);
-	unsigned int getVboCount() const{return mPriVboMap->size();};
+	unsigned int getVboCount() const{return mPriVboMap.size();};
 
 private:
 	VboManager();
@@ -72,7 +72,7 @@ private:
 
 	size_t mPriNVertices;
 	size_t mPriNFaces;
-	std::map<std::string, Vbo*> *mPriVboMap;
+	std::map<std::string, Vbo*> mPriVboMap;
 	BoundingBox mPriBb;
 	bool usingIdxPtr;
 	bool usingVertexPtr;

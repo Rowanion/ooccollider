@@ -21,7 +21,6 @@ namespace ooctools {
  * @class VertexArray
  * @brief Class represents a vertexarray with all additional information, like BoundingBox,
  * Vertex-Count and Face-Count.
- * L
  */
 template<typename T>
 class VertexArray

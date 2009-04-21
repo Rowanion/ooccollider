@@ -1,8 +1,9 @@
-/*
- * Face.cpp
- *
- *  Created on: 23.03.2009
- *      Author: ava
+/**
+ * @file	Face.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 23.03.2009
+ * @brief   Class definition of Face
  */
 
 #include "Face.h"

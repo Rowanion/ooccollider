@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 23.03.2009
- *
+ * @brief   Class definition of ColorTable
  */
 
 #include "ColorTable.h"
@@ -117,7 +117,8 @@ void
 ColorTable::setupTexture()
 {
 //	inflateToPowerOfTwo();
-	unsigned char pixelData[nColorsi*3];
+	unsigned char* pixelData;
+	pixelData = new unsigned char[nColorsi*3];
 	toByteStream(pixelData);
 
 	if (texId == 0)
@@ -138,6 +139,7 @@ ColorTable::setupTexture()
 	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB16, nColorsi,
 		0, GL_RGB, GL_UNSIGNED_BYTE, pixelData);
 	GET_GLERROR(0);
+	delete[] pixelData;
 }
 
 unsigned int
@@ -358,7 +360,7 @@ ColorTable::inflateToPowerOfTwo()
 	float log = log2(nColorsf);
 	float logCeil = ceil(log);
 	if ( log < logCeil && nColorsi != 0 && dummyIndex == 0){
-		float nextPowerOfTwo = pow(2.0, logCeil);
+		float nextPowerOfTwo = pow(2.0f, logCeil);
 		addNDummyColors(static_cast<unsigned int>(nextPowerOfTwo-nColorsf));
 	}
 	nColorsi = colors.size();

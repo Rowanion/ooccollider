@@ -3,7 +3,7 @@
  * @author	TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date 	Created on: 07.04.2009
- *
+ * @brief   Class definition of Camera
  */
 
 #include "Camera.h"

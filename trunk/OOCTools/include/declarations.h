@@ -23,7 +23,6 @@
  */
 
 namespace ooctools{
-//	class AbstractVertex;
 	class BoundingBox;
 	class Camera;
 	class CgToolkit;
@@ -42,6 +41,7 @@ namespace ooctools{
 	class V3f;
 	class V3ub;
 	class V4f;
+	class TriBoxTest;
 
 	struct Material;
 	struct MtlMap;

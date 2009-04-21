@@ -1,14 +1,16 @@
-/*
- * Model.cpp
- *
- *  Created on: 30.01.2009
- *      Author: ava
+/**
+ * @file	Model.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 30.01.2009
+ * @brief   Class definition of Model
  */
 
 #include "Model.h"
 
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
+
 #include <iostream>
 #include <cstdlib>
 

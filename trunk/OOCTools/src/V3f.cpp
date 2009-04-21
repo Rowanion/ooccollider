@@ -1,8 +1,9 @@
-/*
- * V3f.cpp
- *
- *  Created on: 19.02.2009
- *      Author: ava
+/**
+ * @file	V3f.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 19.02.2009
+ * @brief   Class definition of V3f
  */
 
 #include "V3f.h"

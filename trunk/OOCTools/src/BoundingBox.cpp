@@ -1,8 +1,9 @@
-/*
- * BoundingBox.cpp
- *
- *  Created on: 22.02.2009
- *      Author: ava
+/**
+ * @file	BoundingBox.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 22.02.2009
+ * @brief   Class definition of BoundingBox
  */
 
 #include "BoundingBox.h"
@@ -25,13 +26,12 @@
 
 #include "V3f.h"
 #include "V4f.h"
+#include "TriBoxTest.h"
 
 using namespace std;
 
 namespace ooctools {
 
-extern "C" int planeBoxOverlap(float normal[3],float d, float maxbox[3]);
-extern "C" int triBoxOverlap(const float boxcenter[3],const float boxhalfsize[3],const float triverts[3][3]);
 
 bool
 BoundingBox::hasSharedComponent(const BoundingBox &_bb1, const BoundingBox &_bb2)
@@ -42,7 +42,7 @@ BoundingBox::hasSharedComponent(const BoundingBox &_bb1, const BoundingBox &_bb2
 BoundingBox::BoundingBox() :
 	mPrivMin((float)numeric_limits<float>::max()), mPrivMax((float)-numeric_limits<float>::max()),
 //	mPrivMin(3.0f), mPrivMax(3.0f),
-	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f)
+	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 {
 	// note the minus sign on the following line
 	// ::min() would return the positive value of the smallest magnitude,
@@ -50,14 +50,14 @@ BoundingBox::BoundingBox() :
 }
 
 BoundingBox::BoundingBox(float _value) : mPrivMin(_value), mPrivMax(_value),
-mPrivEdgeSizes(0.0f), mPrivCenter(0.0f)
+mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 {
 }
 
 BoundingBox::BoundingBox(float _valA, float _valB) :
 		mPrivMin(numeric_limits<float>::max()), mPrivMax(-numeric_limits<float>::max()),
 //		mPrivMin(2.0f), mPrivMax(2.0f),
-		mPrivEdgeSizes(0.0f), mPrivCenter(0.0f)
+		mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 {
 	if (_valA<_valB) {
 		mPrivMin = V3f(_valA);
@@ -72,7 +72,7 @@ BoundingBox::BoundingBox(float _valA, float _valB) :
 BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 //	mPrivMin(1.0f), mPrivMax(1.0f),
 	mPrivMin(numeric_limits<float>::max()), mPrivMax(-numeric_limits<float>::max()),
-	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f)
+	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 {
 	if (_vA < _vB) {
 		mPrivMin = V3f(_vA);
@@ -117,7 +117,7 @@ BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 //	mPrivMin(1.0f), mPrivMax(1.0f),
 	mPrivMin(numeric_limits<float>::max()), mPrivMax(-numeric_limits<float>::max()),
-	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f)
+	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 {
 	V3f vA (_vA);
 	V3f vB (_vB);
@@ -133,19 +133,21 @@ BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 /**
  * Copy Constructor
  */
-BoundingBox::BoundingBox(const BoundingBox& _bb)
+BoundingBox::BoundingBox(const BoundingBox& _bb) : mTriBoxTest()
 {
 	mPrivMax = _bb.getMax();
 	mPrivMin = _bb.getMin();
 }
 
 // TODO
-BoundingBox::BoundingBox(fs::path bbFile){
+BoundingBox::BoundingBox(fs::path bbFile) : mTriBoxTest()
+{
 
 }
 
 // TODO
-BoundingBox::BoundingBox(std::string bbFile){
+BoundingBox::BoundingBox(std::string bbFile) : mTriBoxTest()
+{
 
 }
 
@@ -355,7 +357,7 @@ BoundingBox::intersects(const V3f &_a, const V3f &_b, const V3f &_c) const
 		triverts[1][i] = ((float*)_b.getData())[i];
 		triverts[2][i] = ((float*)_c.getData())[i];
 	}
-	return triBoxOverlap((float*)center.getData(),(float*)edges.getData(), triverts);
+	return mTriBoxTest.triBoxOverlap((float*)center.getData(),(float*)edges.getData(), triverts);
 }
 
 bool
@@ -375,7 +377,7 @@ BoundingBox::intersects(const V4f &_a, const V4f &_b, const V4f &_c) const
 		triverts[1][i] = ((float*)b.getData())[i];
 		triverts[2][i] = ((float*)c.getData())[i];
 	}
-	return triBoxOverlap((float*)center.getData(),(float*)edges.getData(), triverts);
+	return mTriBoxTest.triBoxOverlap((float*)center.getData(),(float*)edges.getData(), triverts);
 }
 
 bool
@@ -395,7 +397,7 @@ BoundingBox::intersects9Plus(const float* _a) const
 		triverts[1][i] = ((float*)b.getData())[i];
 		triverts[2][i] = ((float*)c.getData())[i];
 	}
-	return triBoxOverlap((float*)center.getData(),(float*)edges.getData(), triverts);
+	return mTriBoxTest.triBoxOverlap((float*)center.getData(),(float*)edges.getData(), triverts);
 
 }
 

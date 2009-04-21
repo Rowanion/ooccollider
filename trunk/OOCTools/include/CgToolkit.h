@@ -10,12 +10,13 @@
 #define CGTOOLKIT_H_
 
 #include <string>
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/freeglut.h>
+#include <map>
+
+#include "GlToolkit.h"
+
 #include <Cg/cg.h>
 #include <Cg/cgGL.h>
-#include <map>
+
 
 namespace ooctools {
 
@@ -34,7 +35,7 @@ namespace ooctools {
 class CgToolkit
 {
 public:
-	static CgToolkit *getInstancePtr();
+	static CgToolkit *getSingleton();
 
 	virtual ~CgToolkit();
 	void initCG(bool verbose);

@@ -29,7 +29,7 @@ class FboFactory
 {
 public:
 	virtual ~FboFactory();
-	static FboFactory *getInstance();
+	static FboFactory* getSingleton();
 	static std::string statusToString(GLenum status);
 	Fbo *createFbo(int _width, int _height);
 	Fbo *createCompleteFbo(int _width, int _height);

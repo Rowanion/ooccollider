@@ -26,5 +26,6 @@
 #include "Vbo.h"
 #include "VboManager.h"
 #include "VertexArray.h"
+#include "TriBoxTest.h"
 
 #endif /* OOCTOOLS_H_ */
