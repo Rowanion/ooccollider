@@ -297,7 +297,7 @@ RawModelWriter::testAndSetDir(fs::path _p)
 VboManager*
 RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 {
-	VboManager* vboMan = VboManager::getInstancePtr();
+	VboManager* vboMan = VboManager::getSingleton();
 	if (!fs::exists(_p)) {
 		cerr << "The path " << _p << " does not exist!" << endl;
 		return 0;

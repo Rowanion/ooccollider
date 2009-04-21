@@ -27,13 +27,15 @@
 <builder arguments="-j3" buildPath="${workspace_loc:/OOCFormats/Debug}" command="make" id="cdt.managedbuild.target.gnu.builder.so.debug.1877437988" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.so.debug"/>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1737556313" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 <tool command="mpic++" id="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug.774710291" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug">
-<option id="gnu.cpp.compiler.so.debug.option.optimization.level.408958509" name="Optimization Level" superClass="gnu.cpp.compiler.so.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.so.debug.option.optimization.level.408958509" name="Optimization Level" superClass="gnu.cpp.compiler.so.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.so.debug.option.debugging.level.1697417699" name="Debug Level" superClass="gnu.cpp.compiler.so.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.1403324307" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/include&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/include}&quot;"/>
 </option>
+<option id="gnu.cpp.compiler.option.warnings.pedantic.289546317" name="Pedantic (-pedantic)" superClass="gnu.cpp.compiler.option.warnings.pedantic" value="true" valueType="boolean"/>
+<option id="gnu.cpp.compiler.option.other.other.1695517832" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0  -ansi -Wno-long-long -Wno-deprecated -fPIC -ffast-math -funroll-loops -msse2" valueType="string"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.268206715" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool command="mpicc" id="cdt.managedbuild.tool.gnu.c.compiler.so.debug.507692464" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.debug">
@@ -493,6 +495,7 @@
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 <cconfiguration id="cdt.managedbuild.config.gnu.so.release.559404057">
 <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.so.release.559404057" moduleId="org.eclipse.cdt.core.settings" name="Release">
@@ -966,6 +969,7 @@
 </storageModule>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">
