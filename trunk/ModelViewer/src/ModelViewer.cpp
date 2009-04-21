@@ -20,10 +20,8 @@
 
 #include "OOCTools.h"
 #include "ObjModelLoader.h"
-#include "ModelWriter.h"
 #include "RawModelWriter.h"
 #include "ColorTable.h"
-#include "AbstractVertex.h"
 #include "Camera.h"
 #include "Octree.h"
 #include "OctreeNode.h"
@@ -310,11 +308,11 @@ static void display() {
 
 				// enable profiles
 //				glColor3f(0.0f, 1.0f, 0.0f);
-				bb1->draw(1.0f, 0.0f, 0.0f);
-				bb2->draw(0.0f, 1.0f, 0.0f);
+//				bb1->draw(1.0f, 0.0f, 0.0f);
+//				bb2->draw(0.0f, 1.0f, 0.0f);
 
-				CgToolkit::getInstancePtr()->startCgShader(CgToolkit::getInstancePtr()->cgVertexProfile, g_cgVertexProg);
-				CgToolkit::getInstancePtr()->startCgShader(CgToolkit::getInstancePtr()->cgFragProfile, g_cgFragmentProg);
+				CgToolkit::getSingleton()->startCgShader(CgToolkit::getSingleton()->cgVertexProfile, g_cgVertexProg);
+				CgToolkit::getSingleton()->startCgShader(CgToolkit::getSingleton()->cgFragProfile, g_cgFragmentProg);
 				GET_GLERROR(0);
 				//glColor4ub(222,143,28,1);
 
@@ -358,8 +356,8 @@ static void display() {
 //				fbo->unbind();
 
 
-				CgToolkit::getInstancePtr()->stopCgShader(CgToolkit::getInstancePtr()->cgFragProfile);
-				CgToolkit::getInstancePtr()->stopCgShader(CgToolkit::getInstancePtr()->cgVertexProfile);
+				CgToolkit::getSingleton()->stopCgShader(CgToolkit::getSingleton()->cgFragProfile);
+				CgToolkit::getSingleton()->stopCgShader(CgToolkit::getSingleton()->cgVertexProfile);
 				//vboMan->drawVBO("defaultGrp");
 				//vbo.draw(60);
 				//vbo2.draw(60);
@@ -631,7 +629,7 @@ void loadDirectory(fs::path _path)
 		cerr << "No colortable found in " << _path << "!" << endl;
 		exit(0);
 	}
-	VboManager* vboMan = VboManager::getInstancePtr();
+	VboManager* vboMan = VboManager::getSingleton();
 	ColorTable ct(_path / "colortable.bin");
 	vboMan->setColorTable(ct);
 
@@ -682,12 +680,12 @@ static void glInit(int argc, char *argv[]){
 //	setupTexture();
 	GET_GLERROR(0);
 
+	//	vboMan->makeVbos(model);
+		vboMan->makeVbos(model2);
 
-//	vboMan->makeVbos(model);
-	vboMan->makeVbos(model2);
 
 
-	oh.readOctreeRecursive(fs::path("/media/ClemensHDD/B3_octree_ausschnitt"));
+	oh.readOctreeRecursive(fs::path("/media/ClemensHDD/B3_octree_ausschnitt"), oct2);
 //	loadDirectory(fs::path("/media/ClemensHDD/B3_ausschnitt_klein"));
 //	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
@@ -708,14 +706,14 @@ static void glInit(int argc, char *argv[]){
 	GET_GLERROR(0);
 
 	// Cg ....
-	CgToolkit::getInstancePtr()->initCG(true);
+	CgToolkit::getSingleton()->initCG(true);
 	getGlError(0);
-	g_cgVertexProg = CgToolkit::getInstancePtr()->loadCgShader(
-			CgToolkit::getInstancePtr()->cgVertexProfile,
+	g_cgVertexProg = CgToolkit::getSingleton()->loadCgShader(
+			CgToolkit::getSingleton()->cgVertexProfile,
 			"shader/vp_phongFLut.cg", true);
 
-	g_cgFragmentProg = CgToolkit::getInstancePtr()->loadCgShader(
-			CgToolkit::getInstancePtr()->cgFragProfile,
+	g_cgFragmentProg = CgToolkit::getSingleton()->loadCgShader(
+			CgToolkit::getSingleton()->cgFragProfile,
 			"shader/fp_phongFLut.cg", true);
 	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
 	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
@@ -763,8 +761,8 @@ int main(int argc, char *argv[]) {
 
 	sbb = BoundingBox::fromFile(fs::path("/media/ClemensHDD/SceneBoundingBox.bin"));
 	oct2 = new Octree(sbb, string(""));
-	ct = new ColorTable(string("/media/External/B3x7/Farben/colortable.bin"));
-	moLoader.setColorTable(ColorTable(string("/media/External/B3x7/Farben/colortable.bin")));
+	ct = new ColorTable(string("/media/ClemensHDD/colortable.bin"));
+	moLoader.setColorTable(ColorTable(string("/media/ClemensHDD/colortable.bin")));
 	 moWri = new RawModelWriter();
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
@@ -784,9 +782,9 @@ int main(int argc, char *argv[]) {
 //	exit(0);
 //	bb1 = new BoundingBox(2.0f, -2.0f);
 //	bb1 = new BoundingBox(0.0f, -2.0f);
-	bb1 = new BoundingBox(V3f(103.773, -715.835, 0), V3f(1355.28, -354.488, 1200.71));
-	bb2 = new BoundingBox(V3f(989.783, -182.595, -380.283), V3f(991.252, -175.79, -370.003));
-	cout << "intersecting, are they? " << bb1->intersects(*bb2) << endl;
+//	bb1 = new BoundingBox(V3f(103.773, -715.835, 0), V3f(1355.28, -354.488, 1200.71));
+//	bb2 = new BoundingBox(V3f(989.783, -182.595, -380.283), V3f(991.252, -175.79, -370.003));
+//	cout << "intersecting, are they? " << bb1->intersects(*bb2) << endl;
 //	unsigned char* testStream = new unsigned char[28];
 //	((unsigned int*)testStream)[0] = 8;
 //	testStream[4] = 255;
@@ -830,15 +828,12 @@ int main(int argc, char *argv[]) {
 	tri1 = V3f(0.5f, 1.8f, 1.5f);
 	tri2 = V3f(0.0f, 1.0f, 1.5f);
 	tri3 = V3f(1.5f, 0.7f, 1.5f);
-	cout << "does the bunny intersect with the other box? " << bb1->intersects(*model2->getBB()) << endl;
-	cout << "intersecting? " << bb1->intersects(tri1, tri2, tri3) << endl;
+//	cout << "does the bunny intersect with the other box? " << bb1->intersects(*model2->getBB()) << endl;
+//	cout << "intersecting? " << bb1->intersects(tri1, tri2, tri3) << endl;
 //	return 0;
-	V3f center;
-	bb1->computeCenter(center);
-	cout << (center.toString()) << endl;
 //	model->calculateNormals();
 
-	vboMan = VboManager::getInstancePtr();
+	vboMan = VboManager::getSingleton();
 
 
 //	modelScale = 1.0f/((fabs(model->getMaxBB()->getX()) +	fabs(model->getMinBB()->getX()))/2.0);
