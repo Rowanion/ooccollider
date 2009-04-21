@@ -47,7 +47,14 @@ class OctreeHandler
 		 */
 		static ooctools::Vbo* readOctreeVbo(fs::path _path);
 
-		void readOctreeRecursive(fs::path _path);
+		/**
+		 * @brief Starts recursive depth-first-search at given location and inserts all VBOs
+		 * it can find into the VBOManager.
+		 * @param _path
+		 * @param tree
+		 * @todo rewrite it, so that the tree-parameter is "complete" after reading.
+		 */
+		void readOctreeRecursive(fs::path _path, ooctools::Octree* tree);
 
 	private:
 		void parsePhase1(const fs::path& src, const fs::path& dst);

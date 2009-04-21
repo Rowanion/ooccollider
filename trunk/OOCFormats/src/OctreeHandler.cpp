@@ -130,37 +130,22 @@ OctreeHandler::readOctreeVbo(fs::path _path){
 
 		return vbo;
 	}
-
-
-//	fs::ofstream of;
-//	of.open(fs::path(_path / "vArray.oct"), ios::binary | ios::out);
-//	of.seekp(0, ios::beg);
-//	FileIO::writeUInt(_vbo.getVData()->size*_vbo.getVData()->nComponents, of);
-//	of.seekp(sizeof(unsigned int), ios::beg);
-//	FileIO::writeVArrayf(_vbo.getVData(), of);
-//	of.close();
-//
-//	of.open(fs::path(_path / "nArray.oct"), ios::binary | ios::out);
-//	of.seekp(0, ios::beg);
-//	FileIO::writeUInt(_vbo.getNData()->size*_vbo.getNData()->nComponents, of);
-//	of.seekp(sizeof(unsigned int), ios::beg);
-//	FileIO::writeVArrayb(_vbo.getNData(), of);
-//	of.close();
 }
 
+//TODO rewrite it, so that the tree is "complete"
 void
-OctreeHandler::readOctreeRecursive(fs::path _path)
+OctreeHandler::readOctreeRecursive(fs::path _path, Octree* tree)
 {
-	string pfad(_path.string());
+
 	fs::directory_iterator dir_iter(_path), dir_end;
 	for (; dir_iter != dir_end; ++dir_iter) {
 		if (fs::is_directory(dir_iter->status())){
-			readOctreeRecursive(dir_iter->path());
+			readOctreeRecursive(dir_iter->path(), tree);
 		}
 		else if (dir_iter->path().filename() == "vArray.oct"){
 			Vbo* vbo = readOctreeVbo(dir_iter->path().parent_path());
 			vbo->setOnline();
-			VboManager::getInstancePtr()->addVbo(boost::lexical_cast<std::string>(VboManager::getInstancePtr()->getVboCount()), vbo);
+			VboManager::getSingleton()->addVbo(boost::lexical_cast<std::string>(VboManager::getSingleton()->getVboCount()), vbo);
 		}
 	}
 
