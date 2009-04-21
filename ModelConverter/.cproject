@@ -22,13 +22,15 @@
 <builder arguments="-j3" buildPath="${workspace_loc:/ModelConverter/Debug}" command="make" id="cdt.managedbuild.target.gnu.builder.exe.debug.968237372" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1025865202" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 <tool command="mpic++" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1134276154" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
-<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1660947272" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1660947272" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.exe.debug.option.debugging.level.401533301" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.1326497893" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/include&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/include}&quot;"/>
 </option>
+<option id="gnu.cpp.compiler.option.other.other.729708746" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -ansi -Wno-long-long -Wno-deprecated -fPIC -ffast-math -funroll-loops -msse2" valueType="string"/>
+<option id="gnu.cpp.compiler.option.warnings.pedantic.579211363" name="Pedantic (-pedantic)" superClass="gnu.cpp.compiler.option.warnings.pedantic" value="true" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.685100066" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool command="mpicc" id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.908615641" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
