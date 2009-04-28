@@ -551,7 +551,7 @@ Vbo::split(const BoundingBox& _bb, Vbo& _inside, Vbo& _outside)
 	for (unsigned int i = 0; i < mPriVertices->size * mPriVertices->nComponents; i
 			+= mPriVertices->nComponents * 3) {
 		// if it's completely inside
-		if (_bb.isInside9Plus(mPriVertices->mData + i)) {
+		if (_bb.hasInside9Plus(mPriVertices->mData + i)) {
 			_inside.addTriangle(mPriVertices->mData+i, mPriNormals->mData+i);
 		}
 		// if it intersects

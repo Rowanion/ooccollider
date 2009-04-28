@@ -59,12 +59,12 @@ public:
 	/**
 	 * @brief Performs normalization on this vector and returns a reference to itself.
 	 * A vector is normalized by dividing it through its magnitude, ie.
-	 * \f$ \frac{\left( \begin{array}{c}
+	 * @f[ \frac{\left( \begin{array}{c}
 	 * x \\
 	 * y \\
 	 * z
 	 * \end{array}\right)}
-	 * {\sqrt{(x^2 + y^2 + z^2}} \f$
+	 * {\sqrt{(x^2 + y^2 + z^2}} @f]
 	 *
 	 * @return normalized self
 	 */
@@ -75,7 +75,7 @@ public:
 
 	/**
 	 * @brief Calculates the magnitude of a vector.
-	 * @return magnitude, ie. \f$ \sqrt{(x^2 + y^2 + z^2} \f$
+	 * @return magnitude, ie. @f$ \sqrt{(x^2 + y^2 + z^2} @f$
 	 *
 	 */
 	float calculateMagnitude();

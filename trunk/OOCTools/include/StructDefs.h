@@ -14,8 +14,10 @@
 #include <string>
 #include <vector>
 #include <cstddef>
+
 #include "V3ub.h"
 #include "V3f.h"
+#include "BoundingBox.h"
 
 #include "declarations.h"
 
@@ -50,6 +52,13 @@ struct MtlMap
 {
 	std::string name;
 	std::map<std::string, Material*> matMap;
+};
+
+struct ProcessingObject
+{
+	std::string pathName;
+	unsigned int triangleCount;
+	BoundingBox bb;
 };
 
 } // end of namespace OOCTools

@@ -11,9 +11,13 @@
 
 #include <cstddef>
 #include <cstring>
+#include <cstdlib>
+#include <ext/hash_map>
 
 #include "BoundingBox.h"
 #include "declarations.h"
+
+using __gnu_cxx::hash_map;
 
 namespace ooctools {
 

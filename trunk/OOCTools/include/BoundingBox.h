@@ -117,55 +117,55 @@ public:
 	 * @param _v pointer to a float array
 	 * @return true if Point is inside.
 	 */
-	bool isInside3(const float* _v) const;
+	bool hasInside3(const float* _v) const;
 
-	bool isInside3Plus(const float *_v) const;
+	bool hasInside3Plus(const float *_v) const;
 
 	/**
 	 * Checks if the given vertices with 3 components are all inside this BB.
 	 * @param _v pointer to a float array containing 3x3 floats
 	 * @return true if all Points are inside.
 	 */
-	bool isInside9(const float* _v) const;
+	bool hasInside9(const float* _v) const;
 
-	bool isInside9Plus(const float *_v) const;
-
-	/**
-	 * same as isInside3() only with single floats.
-	 * @see isInside3()
-	 */
-	bool isInside(float _f1, float _f2, float _f3) const;
+	bool hasInside9Plus(const float *_v) const;
 
 	/**
-	 * same as isInside9() only with single V3f references.
-	 * @ see isInside9()
+	 * same as hasInside3() only with single floats.
+	 * @see hasInside3()
 	 */
-	bool isInside(const V3f& _v1, const V3f& _v2, const V3f& _v3) const;
+	bool hasInside(float _f1, float _f2, float _f3) const;
 
 	/**
-	 * same as isInside9() only with single V4f references.
-	 * @ see isInside9()
+	 * same as hasInside9() only with single V3f references.
+	 * @ see hasInside9()
 	 */
-	bool isInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const;
+	bool hasInside(const V3f& _v1, const V3f& _v2, const V3f& _v3) const;
 
 	/**
-	 * same as isInside3() only with a single V3f reference.
-	 * @see isInside3()
+	 * same as hasInside9() only with single V4f references.
+	 * @ see hasInside9()
 	 */
-	bool isInside(const V3f& _v) const;
+	bool hasInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const;
 
 	/**
-	 * same as isInside3() only with a single V4f reference.
-	 * @see isInside3()
+	 * same as hasInside3() only with a single V3f reference.
+	 * @see hasInside3()
 	 */
-	bool isInside(const V4f& _v) const;
+	bool hasInside(const V3f& _v) const;
+
+	/**
+	 * same as hasInside3() only with a single V4f reference.
+	 * @see hasInside3()
+	 */
+	bool hasInside(const V4f& _v) const;
 
 	/**
 	 * Performs a text if the given BoundingBox is completely inside this one.
 	 * @param _b the rhs-BB
 	 * @return true if is completely inside.
 	 */
-	bool isInside(const BoundingBox& _b) const;
+	bool hasInside(const BoundingBox& _b) const;
 
 	void computeEdgeSizes(V3f& _sizes) const;
 	float computeDiameter() const;
