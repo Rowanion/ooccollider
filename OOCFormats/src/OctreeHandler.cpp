@@ -21,6 +21,9 @@
 #include "OctreeNode.h"
 #include "FileIO.h"
 #include "VboManager.h"
+#include "LooseProcessingOctree.h"
+#include "StructDefs.h"
+#include "FileHeader.h"
 
 using namespace std;
 using namespace oocformats;
@@ -28,7 +31,7 @@ using namespace ooctools;
 namespace fs = boost::filesystem;
 namespace oocformats {
 
-OctreeHandler::OctreeHandler() : mPriOctree(0)
+OctreeHandler::OctreeHandler() : mPriOctree(0), mProcOctree(0)
 {
 	// TODO Auto-generated constructor stub
 
@@ -66,7 +69,7 @@ OctreeHandler::generateOctree(const fs::path& src, const fs::path& dst, const Bo
 			generateOctree(p, dst, 0);
 		}
 		else if (dir_iter->path().filename() == "vArray.bin"){
-			Vbo* v = RawModelWriter::readRawVbo(dir_iter->path().parent_path());
+			Vbo* v = RawModelHandler::readRawVbo(dir_iter->path().parent_path());
 			mPriOctree->insertVbo(*v);
 		}
 	}
@@ -150,6 +153,73 @@ OctreeHandler::readOctreeRecursive(fs::path _path, Octree* tree)
 	}
 
 
+}
+
+LooseProcessingOctree*
+OctreeHandler::rawToProcOctree(const fs::path& _path, const BoundingBox& _bb)
+{
+	bool rootIteration = false;
+	if (mProcOctree == 0){
+		mProcOctree = new LooseProcessingOctree(0, _bb, string(""));
+		rootIteration = true;
+	}
+	fs::directory_iterator dir_iter(_path), dir_end;
+	for (; dir_iter != dir_end; ++dir_iter) {
+		if (fs::is_directory(dir_iter->status())){
+			rawToProcOctree(dir_iter->path(), _bb);
+		}
+		else if (dir_iter->path().filename() == "vArray.bin"){
+			fs::ifstream in;
+			in.open(dir_iter->path(), ios::binary | ios::in);
+			in.seekg(0, ios::beg);
+			FileHeader fh = FileIO::readHeader(in);
+			in.close();
+			ProcessingObject* po = new ProcessingObject();
+			po->bb = *fh.bb;
+			po->pathName = dir_iter->path().parent_path().string();
+			po->triangleCount = fh.nFaces;
+			mProcOctree->insertObject(po);
+		}
+	}
+
+	if (rootIteration){
+		LooseProcessingOctree* temp = mProcOctree;
+		mProcOctree = 0;
+		return temp;
+	}
+	else
+		return 0;
+}
+
+void
+OctreeHandler::writeProcTree(LooseProcessingOctree* _tree)
+{
+	if (!_tree->isLeaf()) {
+		writeProcTree(_tree->getFne());
+		writeProcTree(_tree->getFnw());
+		writeProcTree(_tree->getFse());
+		writeProcTree(_tree->getFsw());
+		writeProcTree(_tree->getBne());
+		writeProcTree(_tree->getBnw());
+		writeProcTree(_tree->getBse());
+		writeProcTree(_tree->getBsw());
+	}
+	vector<ProcessingObject*> temp = _tree->getData();
+	if (!temp.empty()){
+		fs::path currentPath(_tree->getPath());
+		FileIO::recursiveTestAndSet(currentPath);
+		vector<ProcessingObject*>::const_iterator it = temp.begin();
+		fs::ofstream outFile;
+		outFile.open( currentPath / "objectList.txt", ios::out);
+		outFile << "Tree-Path: "<< _tree->getPath() << endl;
+		outFile << "TriCount: "<< _tree->getTriangleCount() << endl;
+		outFile << "Size(bytes): " << (4*sizeof(char)+4*sizeof(float))*_tree->getTriangleCount()*3 << endl;
+		outFile << "TreeLevel: " << _tree->getLevel() << endl;
+		for(; it != temp.end(); ++it){
+			outFile << (*it)->pathName << endl;
+		}
+		outFile.close();
+	}
 }
 
 } // oocformats

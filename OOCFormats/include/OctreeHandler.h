@@ -13,10 +13,12 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include "declarations.h"
-#include "RawModelWriter.h"
+#include "RawModelHandler.h"
 #include "Octree.h"
+#include "LooseProcessingOctree.h"
 
 namespace fs = boost::filesystem;
+using namespace ooctools;
 namespace oocformats {
 
 /**
@@ -56,10 +58,15 @@ class OctreeHandler
 		 */
 		void readOctreeRecursive(fs::path _path, ooctools::Octree* tree);
 
+		void readLooseProcOctreeRecursive(fs::path _path, LooseProcessingOctree* tree);
+		LooseProcessingOctree* rawToProcOctree(const fs::path& _path, const BoundingBox& _bb);
+		void writeProcTree(LooseProcessingOctree* _tree);
+
 	private:
 		void parsePhase1(const fs::path& src, const fs::path& dst);
-		RawModelWriter mPriRawHandler;
+		RawModelHandler mPriRawHandler;
 		ooctools::Octree* mPriOctree;
+		ooctools::LooseProcessingOctree* mProcOctree;
 };
 
 } // oocformats

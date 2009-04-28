@@ -12,6 +12,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+#include "FileHeader.h"
 #include "V3f.h"
 #include "V4f.h"
 #include "V3ub.h"
@@ -227,6 +228,18 @@ FileIO::recursiveTestAndSet(fs::path _path)
 		fs::create_directory(_path);
 	}
 	return true;
+}
+
+FileHeader
+FileIO::readHeader(fs::ifstream& _if)
+{
+	FileHeader fh;
+	fh.bb = FileIO::readBB(_if);
+	fh.nFaces = FileIO::readUInt(_if);
+	fh.nVertices = FileIO::readInt(_if);
+	fh.nNormals = FileIO::readInt(_if);
+	fh.color = FileIO::readV3ub(_if);
+	return fh;
 }
 
 } //oocformats
