@@ -20,7 +20,7 @@
 
 #include "OOCTools.h"
 #include "ObjModelLoader.h"
-#include "RawModelWriter.h"
+#include "RawModelHandler.h"
 #include "ColorTable.h"
 #include "Camera.h"
 #include "Octree.h"
@@ -86,7 +86,7 @@ Fbo *fbo;
 ColorTable* ct;
 
 
-RawModelWriter* moWri;
+RawModelHandler* moWri;
 
 // frame - the number of frames since we last computed the frame rate
 // time - the current number of milliseconds
@@ -642,6 +642,28 @@ void loadDirectory(fs::path _path)
 	}
 }
 
+void loadDirectory(fs::path _path, const ColorTable& _ct)
+{
+	if (!fs::exists(_path)) {
+		cerr << "The path " << _path << " does not exist!" << endl;
+		exit(0);
+	}
+	else if (!fs::is_directory(_path)) {
+		cerr << "The path " << _path << " is not a directory!" << endl;
+		exit(0);
+	}
+	VboManager* vboMan = VboManager::getSingleton();
+	vboMan->setColorTable(_ct);
+
+	fs::directory_iterator dir_iter(_path), dir_end;
+	for (; dir_iter != dir_end; ++dir_iter) {
+		// iter contains an entry in the starting path _p - hopefully a directory
+		if (is_directory(dir_iter->status())) {
+			moWri->readModel(dir_iter->path(), _ct);
+		}
+	}
+}
+
 static void glInit(int argc, char *argv[]){
 	//readObj("meshes/cow.obj");
 	GET_GLERROR(0);
@@ -680,14 +702,15 @@ static void glInit(int argc, char *argv[]){
 //	setupTexture();
 	GET_GLERROR(0);
 
-	//	vboMan->makeVbos(model);
+//		vboMan->makeVbos(model);
 		vboMan->makeVbos(model2);
 
 
 
-	oh.readOctreeRecursive(fs::path("/media/ClemensHDD/B3_octree_ausschnitt"), oct2);
+//	oh.readOctreeRecursive(fs::path("/media/ClemensHDD/B3_octree_ausschnitt"), oct2);
+	loadDirectory(fs::path("/media/ClemensHDD/B3_binary/Part2/DPA-E232W1201S11--D-11"), *ct);
 //	loadDirectory(fs::path("/media/ClemensHDD/B3_ausschnitt_klein"));
-//	moWri->readModel(fs::path("/media/External/B3_raw/Part2/DPA-E
+//	moWri->readModel(fs::path("/media/ClemensHDD/B3_ausschnitt/DPA-E232W1201S11--D-11/232W1250-88_Geometry_0"), *ct);
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
 //	moWri->readModel(fs::path("raw_objs/dragon")); //2,6 Mil. / 871k
 //	moWri->readModel(fs::path("raw_objs/armadillo")); // 1,03 Mil. / 345k
@@ -710,11 +733,11 @@ static void glInit(int argc, char *argv[]){
 	getGlError(0);
 	g_cgVertexProg = CgToolkit::getSingleton()->loadCgShader(
 			CgToolkit::getSingleton()->cgVertexProfile,
-			"shader/vp_phongFLut.cg", true);
+			"shader/vp_NoLightLut.cg", true);
 
 	g_cgFragmentProg = CgToolkit::getSingleton()->loadCgShader(
 			CgToolkit::getSingleton()->cgFragProfile,
-			"shader/fp_phongFLut.cg", true);
+			"shader/fp_NoLightLut.cg", true);
 	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
 	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
 	getGlError(0);
@@ -755,7 +778,7 @@ static void glInit(int argc, char *argv[]){
 
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
 
@@ -763,7 +786,8 @@ int main(int argc, char *argv[]) {
 	oct2 = new Octree(sbb, string(""));
 	ct = new ColorTable(string("/media/ClemensHDD/colortable.bin"));
 	moLoader.setColorTable(ColorTable(string("/media/ClemensHDD/colortable.bin")));
-	 moWri = new RawModelWriter();
+	 moWri = new RawModelHandler();
+
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
 //	model = moLoader.parseMultipass("meshes/robot.obj", true);
