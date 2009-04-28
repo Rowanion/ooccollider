@@ -25,7 +25,7 @@ namespace ooctools {
 
 OctreeNode::OctreeNode(OctreeNode* _father, const BoundingBox& _bb,
 		string _path) :
-	mPriBb(_bb), path(_path), mPriMaxLevel(8), father(_father), fne(0), fnw(0), fse(0), fsw(
+	mPriBb(_bb), path(_path), father(_father), fne(0), fnw(0), fse(0), fsw(
 			0), bne(0), bnw(0), bse(0), bsw(0)
 {
 	// TODO Auto-generated constructor stub
@@ -140,7 +140,7 @@ OctreeNode::insertVbo(ooctools::Vbo& _vbo)
 	if (isRoot()) {
 		subdivide(_vbo);
 	} // are we already at the deepest level?
-	else if (mPriLevel == mPriMaxLevel) {
+	else if (mPriLevel == MAX_OCTREE_LEVEL) {
 		Vbo* old = 0;
 		old = OctreeHandler::readOctreeVbo(fs::path(path));
 		// is there already a written file present?
@@ -208,7 +208,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 	temp = fne;
 	cout << temp->getBb().toString()  << endl;
 
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);
@@ -232,7 +232,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 	temp = fnw;
 	cout << temp->getBb().toString()  << endl;
 
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);
@@ -254,7 +254,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 	temp = fse;
 	cout << temp->getBb().toString()  << endl;
 
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);
@@ -275,7 +275,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 	}
 	temp = fsw;
 	cout << temp->getBb().toString()  << endl;
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);
@@ -296,7 +296,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 		bne = new OctreeNode(this, subdivideBne(), path + "/bne");
 	}
 	temp = bne;
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);
@@ -316,7 +316,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 		bnw = new OctreeNode(this, subdivideBnw(), path + "/bnw");
 	}
 	temp = bnw;
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);
@@ -336,7 +336,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 		bse = new OctreeNode(this, subdivideBse(), path + "/bse");
 	}
 	temp = bse;
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);
@@ -356,7 +356,7 @@ OctreeNode::subdivide(ooctools::Vbo& _vbo)
 		bsw = new OctreeNode(this, subdivideBsw(), path + "/bsw");
 	}
 	temp = bsw;
-	if (temp->getBb().isInside(_vbo.getBb())) {
+	if (temp->getBb().hasInside(_vbo.getBb())) {
 
 		// do something
 		temp->insertVbo(_vbo);

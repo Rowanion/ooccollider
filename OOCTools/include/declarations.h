@@ -30,6 +30,7 @@ namespace ooctools{
 	class Face;
 	class Fbo;
 	class FboFactory;
+	class LooseProcessingOctree;
 	class MetaGroup;
 	class Model;
 	class Octree;
@@ -45,6 +46,7 @@ namespace ooctools{
 
 	struct Material;
 	struct MtlMap;
+	struct ProcessingObject;
 
 
 } // end of namespace ooctools

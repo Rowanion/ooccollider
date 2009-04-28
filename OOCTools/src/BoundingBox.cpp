@@ -425,69 +425,70 @@ BoundingBox::intersects(const BoundingBox &_b) const
 }
 
 bool
-BoundingBox::isInside3(const float *_v) const
+BoundingBox::hasInside3(const float *_v) const
 {
-	bool result = isInside(V3f(_v[0], _v[1], _v[2]));
+	bool result = hasInside(V3f(_v[0], _v[1], _v[2]));
 //	delete _temp;
 	return result;
 }
 
 bool
-BoundingBox::isInside3Plus(const float *_v) const
+BoundingBox::hasInside3Plus(const float *_v) const
 {
-	bool result = isInside(V4f(_v[0], _v[1], _v[2], _v[3]));
+	bool result = hasInside(V4f(_v[0], _v[1], _v[2], _v[3]));
 //	delete _temp;
 	return result;
 }
 
 bool
-BoundingBox::isInside9(const float *_v) const
+BoundingBox::hasInside9(const float *_v) const
 {
-	return (isInside3(_v) && isInside3(_v+3) && isInside3(_v+6));
+	return (hasInside3(_v) && hasInside3(_v+3) && hasInside3(_v+6));
 
 }
 
-bool BoundingBox::isInside9Plus(const float *_v) const
+bool
+BoundingBox::hasInside9Plus(const float *_v) const
 {
-	return (isInside3Plus(_v) && isInside3Plus(_v+4) && isInside3Plus(_v+8));
+	return (hasInside3Plus(_v) && hasInside3Plus(_v+4) && hasInside3Plus(_v+8));
 }
 
 // vertex
 bool
-BoundingBox::isInside(float _f1, float _f2, float _f3) const
+BoundingBox::hasInside(float _f1, float _f2, float _f3) const
 {
-	bool result = isInside(V3f(_f1, _f2, _f3));
+	bool result = hasInside(V3f(_f1, _f2, _f3));
 //	delete _temp;
 	return result;
 }
 
 // dreieck
 bool
-BoundingBox::isInside(const V3f& _v1, const V3f& _v2, const V3f& _v3) const
+BoundingBox::hasInside(const V3f& _v1, const V3f& _v2, const V3f& _v3) const
 {
-	if (isInside(_v1) && isInside(_v2) && isInside(_v3)) return true;
+	if (hasInside(_v1) && hasInside(_v2) && hasInside(_v3)) return true;
 	else return false;
 }
 
 bool
-BoundingBox::isInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const
+BoundingBox::hasInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const
 {
 	V3f v1(_v1);
 	V3f v2(_v2);
 	V3f v3(_v3);
-	if (isInside(v1) && isInside(v2) && isInside(v3)) return true;
+	if (hasInside(v1) && hasInside(v2) && hasInside(v3)) return true;
 	else return false;
 }
 
 bool
-BoundingBox::isInside(const V3f& _v) const
+BoundingBox::hasInside(const V3f& _v) const
 {
 	if (_v > mPrivMin && _v < mPrivMax) return true;
 	else return false;
 }
 
 bool
-BoundingBox::isInside(const V4f& _v) const
+BoundingBox::hasInside(const V4f& _v) const
 {
 	V3f temp(_v);
 	if (temp > mPrivMin && temp < mPrivMax) return true;
@@ -495,9 +496,9 @@ BoundingBox::isInside(const V4f& _v) const
 }
 
 bool
-BoundingBox::isInside(const BoundingBox& _b) const
+BoundingBox::hasInside(const BoundingBox& _b) const
 {
-	if (isInside(_b.getMin()) && isInside(_b.getMax()))
+	if (hasInside(_b.getMin()) && hasInside(_b.getMax()))
 		return true;
 	else return false;
 }

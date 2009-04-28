@@ -18,6 +18,8 @@
 
 namespace ooctools {
 
+#define MAX_OCTREE_LEVEL 8
+
 /**
  * @class OctreeNode
  * @brief Represents a node in an octree datastructure.
@@ -45,18 +47,17 @@ class OctreeNode
 		 */
 		virtual bool isLeaf();
 		virtual bool isRoot();
-		BoundingBox subdivideFne();
-		BoundingBox subdivideFnw();
-		BoundingBox subdivideFse();
-		BoundingBox subdivideFsw();
-		BoundingBox subdivideBne();
-		BoundingBox subdivideBnw();
-		BoundingBox subdivideBse();
-		BoundingBox subdivideBsw();
-		const BoundingBox& getBb() const {return mPriBb;};
+		virtual BoundingBox subdivideFne();
+		virtual BoundingBox subdivideFnw();
+		virtual BoundingBox subdivideFse();
+		virtual BoundingBox subdivideFsw();
+		virtual BoundingBox subdivideBne();
+		virtual BoundingBox subdivideBnw();
+		virtual BoundingBox subdivideBse();
+		virtual BoundingBox subdivideBsw();
+		const virtual BoundingBox& getBb() const {return mPriBb;};
 
 		/**
-		 * @warning UNTESTED!
 		 * @param _vbo
 		 * @return
 		 */
@@ -67,7 +68,7 @@ class OctreeNode
 		//		if holds, save, delete vbos.
 		//		else subdivide, propagate to children, delete old file on save
 
-		void drawBbs();
+		void virtual drawBbs();
 
 	protected:
 		BoundingBox mPriBb;
@@ -76,12 +77,10 @@ class OctreeNode
 		std::string path;
 		Octree* mPriRoot;
 		unsigned char mPriLevel;
-		const unsigned int mPriMaxLevel; // <- maxlevel = 8
-		unsigned char calculateLevel(unsigned char counter = 0);
-		bool testCondition(const Vbo& _vbo);
+		virtual unsigned char calculateLevel(unsigned char counter = 0);
+		virtual bool testCondition(const Vbo& _vbo);
 
 		/**
-		 * @warning UNTESTED!
 		 * @param _vbo
 		 * @return
 		 */

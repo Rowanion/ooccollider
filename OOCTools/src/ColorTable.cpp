@@ -237,9 +237,9 @@ ColorTable::addByteStream(const unsigned char* _dataStream, unsigned int _nColor
 	for(unsigned int i = 0; i<_nColors*3; i+=3){
 		int idx = addColori(V3ub(localData));
 		localData+=3;
-		cout << "color: " << colors.at(idx)->toString() << endl;
+//		cout << "color: " << colors.at(idx)->toString() << endl;
 	}
-	cout << "quotient: " << getQuotient() << endl;
+//	cout << "quotient: " << getQuotient() << endl;
 }
 
 /**
@@ -268,30 +268,32 @@ ColorTable::addFile(fs::path _filePath, bool checkParent)
 		}else {
 			cout << "parent" << _filePath.parent_path().parent_path() << endl;
 			cerr << "Error: ColorTable '" << _filePath << "' does not exist! - quitting" << endl;
-			exit(0);
+//			exit(0);
 		}
 	}
-	char* memblock;
-	fs::ifstream inFile;
-	inFile.open( _filePath,ios::binary|ios::in);
-	// reserve space for one int  we'll read - the number of colors in file
-	memblock = new char[sizeof(unsigned int)];
-	// goto the beginning of the file
-	inFile.seekg(0, ios::beg);
-	// read in one int
-	inFile.read((char*)memblock, sizeof(unsigned int));
-	unsigned int localNColors = *(unsigned int*)memblock;
-	// free up reserved space
-	delete[] memblock;
-	// jump ahead one int - to skip future reading of the # colors
-	inFile.seekg(sizeof(unsigned int), ios::beg);
-	// read in all colors
-	memblock = new char[3*localNColors*sizeof(unsigned char)];
-	inFile.read((char*)memblock, 3*localNColors*sizeof(unsigned char));
-	inFile.close();
-	addByteStream((unsigned char*)memblock, localNColors);
-	delete[] memblock;
-//	inflateToPowerOfTwo();
+	else {
+		char* memblock;
+		fs::ifstream inFile;
+		inFile.open(_filePath, ios::binary | ios::in);
+		// reserve space for one int  we'll read - the number of colors in file
+		memblock = new char[sizeof(unsigned int)];
+		// goto the beginning of the file
+		inFile.seekg(0, ios::beg);
+		// read in one int
+		inFile.read((char*) memblock, sizeof(unsigned int));
+		unsigned int localNColors = *(unsigned int*) memblock;
+		// free up reserved space
+		delete[] memblock;
+		// jump ahead one int - to skip future reading of the # colors
+		inFile.seekg(sizeof(unsigned int), ios::beg);
+		// read in all colors
+		memblock = new char[3 * localNColors * sizeof(unsigned char)];
+		inFile.read((char*) memblock, 3 * localNColors * sizeof(unsigned char));
+		inFile.close();
+		addByteStream((unsigned char*) memblock, localNColors);
+		delete[] memblock;
+		//	inflateToPowerOfTwo();
+	}
 }
 
 ColorTable&
