@@ -53,6 +53,7 @@ class FileIO
 		static float* readFloatArray(fs::ifstream& _if, int count);
 		static char* readByteArray(fs::ifstream &_if, int count);
 		static ooctools::BoundingBox* readBB(fs::ifstream& _if);
+		static FileHeader readHeader(fs::ifstream& _if);
 
 		/**
 		 * @brief Tests whether the given directory exists and sets it if not.

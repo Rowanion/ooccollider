@@ -1,13 +1,13 @@
 /**
- * @file	RawModelWriter.h
+ * @file	RawModelHandler.h
  * @author	TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date 	Created on: 24.02.2009
- * @brief   Class declaration of RawModelWriter
+ * @brief   Class declaration of RawModelHandler
  */
 
-#ifndef RAWMODELWRITER_H_
-#define RAWMODELWRITER_H_
+#ifndef RAWMODELHANDLER_H_
+#define RAWMODELHANDLER_H_
 
 #include <string>
 #include <map>
@@ -25,17 +25,16 @@ namespace oocformats {
  * @class RawModelWriter
  * @brief Handlerclass for dealing with the fileformat for phase 1.
  */
-class RawModelWriter {
+class RawModelHandler {
 public:
-	RawModelWriter();
-	virtual ~RawModelWriter();
+	RawModelHandler();
+	virtual ~RawModelHandler();
 	void testWrite(ooctools::MetaGroup *_grp);
 	bool find_file(const fs::path & dir_path, const std::string & file_name, fs::path & path_found );
 	char* readFileBytes(const char *name);
 	void testRead();
 
 	void writeHeader(ooctools::MetaGroup* _grp, fs::ofstream& _of);
-	static FileHeader readHeader(fs::ifstream& _if);
 
 	/**
 	 * @param _model a pointer to the model, which will be saved as binary file
@@ -68,4 +67,4 @@ private:
 
 } // oocformats
 
-#endif /* RAWMODELWRITER_H_ */
+#endif /* RAWMODELHANDLER_H_ */

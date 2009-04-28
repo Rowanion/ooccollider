@@ -5,7 +5,7 @@
  *      Author: ava
  */
 
-#include "RawModelWriter.h"
+#include "RawModelHandler.h"
 
 #include <iostream>
 #include <map>
@@ -30,20 +30,20 @@ namespace fs = boost::filesystem;
 
 namespace oocformats {
 
-RawModelWriter::RawModelWriter() : constructorCalled(false)
+RawModelHandler::RawModelHandler() : constructorCalled(false)
 {
 	constructorCalled = true;
 	// TODO Auto-generated constructor stub
 
 }
 
-RawModelWriter::~RawModelWriter()
+RawModelHandler::~RawModelHandler()
 {
 	// TODO Auto-generated destructor stub
 }
 
 void
-RawModelWriter::testWrite(MetaGroup* _grp)
+RawModelHandler::testWrite(MetaGroup* _grp)
 {
 
 	char* memblock;
@@ -60,7 +60,7 @@ RawModelWriter::testWrite(MetaGroup* _grp)
 }
 
 void
-RawModelWriter::testRead()
+RawModelHandler::testRead()
 {
 	void* memblock;
 	fs::path my_path("raw_objs/file.txt");
@@ -69,7 +69,7 @@ RawModelWriter::testRead()
 	fs::ifstream::pos_type size = fb.tellg();
 	memblock = new char[4 * sizeof(float)];
 	fb.seekg(0, ios::beg);
-	readHeader(fb);
+	FileIO::readHeader(fb);
 	//fb.read((char*)memblock, 4*sizeof(float));
 	//float ftest = readFloat(fb);
 	//cout << "Size: " << size<< ((float*)memblock)[0]<< ", " << ((float*)memblock)[1] << ", " << ((float*)memblock)[2] << ", " << ((float*)memblock)[3] << ", " << ftest << endl;
@@ -78,7 +78,7 @@ RawModelWriter::testRead()
 }
 
 void
-RawModelWriter::testWriteArrayf(float* farray, int entries)
+RawModelHandler::testWriteArrayf(float* farray, int entries)
 {
 	void* memblock;
 	fs::path my_path("raw_objs/farray.txt");
@@ -101,7 +101,7 @@ RawModelWriter::testWriteArrayf(float* farray, int entries)
 }
 
 void
-RawModelWriter::testReadArrayf(int entries)
+RawModelHandler::testReadArrayf(int entries)
 {
 	void* memblock;
 	fs::path my_path("raw_objs/farray.txt");
@@ -122,7 +122,7 @@ RawModelWriter::testReadArrayf(int entries)
 	delete[] (char*)memblock;
 }
 char*
-RawModelWriter::readFileBytes(const char* name)
+RawModelHandler::readFileBytes(const char* name)
 {
 	fs::ifstream fl(name);
 	fl.seekg(0, ios::end);
@@ -134,7 +134,7 @@ RawModelWriter::readFileBytes(const char* name)
 }
 
 bool
-RawModelWriter::find_file(const fs::path& dir_path,
+RawModelHandler::find_file(const fs::path& dir_path,
 		const string& file_name, fs::path& path_found)
 {
 	if (!exists(dir_path))
@@ -155,7 +155,7 @@ RawModelWriter::find_file(const fs::path& dir_path,
 }
 
 void
-RawModelWriter::writeHeader(MetaGroup* _grp, fs::ofstream& _of)
+RawModelHandler::writeHeader(MetaGroup* _grp, fs::ofstream& _of)
 {
 	// writing BoundingBox
 	FileIO::writeBB(_grp->bb, _of);
@@ -173,20 +173,8 @@ RawModelWriter::writeHeader(MetaGroup* _grp, fs::ofstream& _of)
 	FileIO::writeUByte(255 * _grp->getMat().kdB, _of);
 }
 
-FileHeader
-RawModelWriter::readHeader(fs::ifstream& _if)
-{
-	FileHeader fh;
-	fh.bb = FileIO::readBB(_if);
-	fh.nFaces = FileIO::readUInt(_if);
-	fh.nVertices = FileIO::readInt(_if);
-	fh.nNormals = FileIO::readInt(_if);
-	fh.color = FileIO::readV3ub(_if);
-	return fh;
-}
-
 void
-RawModelWriter::writeModel(Model* _model, fs::path _p)
+RawModelHandler::writeModel(Model* _model, fs::path _p)
 {
 	// file init stuff
 
@@ -234,7 +222,7 @@ RawModelWriter::writeModel(Model* _model, fs::path _p)
 }
 
 void
-RawModelWriter::testAndSetDir(fs::path _p)
+RawModelHandler::testAndSetDir(fs::path _p)
 {
 	if (!exists(_p)) {
 		fs::create_directory(_p);
@@ -295,7 +283,7 @@ RawModelWriter::testAndSetDir(fs::path _p)
 //}
 
 VboManager*
-RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
+RawModelHandler::readModel(fs::path _p, const ColorTable& _ct)
 {
 	VboManager* vboMan = VboManager::getSingleton();
 	if (!fs::exists(_p)) {
@@ -317,7 +305,7 @@ RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 				fb.open(fs::path(dir_iter->path() / "vArray.bin"), ios::binary
 						| ios::in);
 				fb.seekg(0, ios::beg);
-				FileHeader fh = readHeader(fb);
+				FileHeader fh = FileIO::readHeader(fb);
 				fb.seekg(FileHeader::getHeaderSize(), ios::beg);
 				float* fa = FileIO::readFloatArray(fb, 4 * fh.nVertices);
 				VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
@@ -335,7 +323,7 @@ RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 				fs::ifstream fb;
 				fb.open(fs::path(dir_iter->path() / "nArray.bin"), ios::binary
 						| ios::in);
-				FileHeader fh = readHeader(fb);
+				FileHeader fh = FileIO::readHeader(fb);
 				fb.seekg(FileHeader::getHeaderSize(), ios::beg);
 				char* ba = FileIO::readByteArray(fb, 4 * fh.nNormals);
 				VertexArray<char>* va = new VertexArray<char>(4, fh.nNormals, ba);
@@ -358,14 +346,14 @@ RawModelWriter::readModel(fs::path _p, const ColorTable& _ct)
 }
 
 VboManager*
-RawModelWriter::readModel(fs::path _p)
+RawModelHandler::readModel(fs::path _p)
 {
 	ColorTable ct(_p / "colortable.bin");
 	return readModel(_p, ct);
 }
 
 string
-RawModelWriter::unscrewOsgGroupName(const string& _gName)
+RawModelHandler::unscrewOsgGroupName(const string& _gName)
 {
 	if (_gName.substr(0,8) == "/media/E") {
 		string::size_type loc = _gName.find(".obj");
@@ -382,7 +370,7 @@ RawModelWriter::unscrewOsgGroupName(const string& _gName)
 }
 
 void
-RawModelWriter::removeSpecialCharsFromName(std::string& _origin)
+RawModelHandler::removeSpecialCharsFromName(std::string& _origin)
 {
 	unsigned int nChanges = 0;
 	std::string sChars("!*~$|?%§;{}#<>:\" /\\");
@@ -399,7 +387,7 @@ RawModelWriter::removeSpecialCharsFromName(std::string& _origin)
 }
 
 Vbo*
-RawModelWriter::readRawVbo(fs::path _path)
+RawModelHandler::readRawVbo(fs::path _path)
 {
 	if (!fs::exists(_path / "vArray.bin"))
 		return 0;
@@ -411,7 +399,7 @@ RawModelWriter::readRawVbo(fs::path _path)
 		in.open(fs::path(_path / "vArray.bin"), ios::binary
 				| ios::in);
 		in.seekg(0, ios::beg);
-		FileHeader fh = RawModelWriter::readHeader(in);
+		FileHeader fh = FileIO::readHeader(in);
 		in.seekg(FileHeader::getHeaderSize(), ios::beg);
 		float* fa = FileIO::readFloatArray(in, 4 * fh.nVertices);
 		VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
@@ -434,7 +422,7 @@ RawModelWriter::readRawVbo(fs::path _path)
 }
 
 void
-RawModelWriter::writeRawVbo(Vbo* _vbo, fs::path _path)
+RawModelHandler::writeRawVbo(Vbo* _vbo, fs::path _path)
 {
 
 }
