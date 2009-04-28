@@ -25,9 +25,10 @@
 
 #include "OOCTools.h"
 #include "ObjModelLoader.h"
-#include "RawModelWriter.h"
+#include "RawModelHandler.h"
 #include "OctreeHandler.h"
 #include "ColorTable.h"
+#include "LooseProcessingOctree.h"
 
 #include "../../OOCFormats/include/declarations.h"
 
@@ -98,8 +99,7 @@ int main(int argc, char *argv[]) {
 		PathState ctState = checkPath(cTable);
 		Model* model = 0;
 		ObjModelLoader* objLoader = 0;
-		RawModelLoader* rawLoader = 0;
-		RawModelWriter* rawWriter = 0;
+		RawModelHandler* rawWriter = 0;
 		OctreeHandler* octHandler = 0;
 //		ColorTable ct();
 
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
 				ColorTable ct(cTable);
 				ct.writeToFile(dst / "colortable.bin");
 				objLoader = new ObjModelLoader(ct);
-				rawWriter = new RawModelWriter();
+				rawWriter = new RawModelHandler();
 				// TODO read whole bunch of object-files
 				// modify writeModel that the colortable is not saved and
 				// and the group-dirs are written directly into the given dir
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
 				model = objLoader->parseMultipass(src.string(), true);
 
 //				model->setColorTable(ct);
-				rawWriter = new RawModelWriter();
+				rawWriter = new RawModelHandler();
 				string objName(src.filename().substr(0, src.filename().size()-4));
 				if (!fs::exists(fs::path(dst / objName)))
 					fs::create_directory(fs::path(dst / objName));
@@ -230,6 +230,17 @@ int main(int argc, char *argv[]) {
 				// call recursive method in OctreeHandler
 				octHandler->generateOctree(src, dst, bb);
 			}
+			delete octHandler;
+		}
+		else if (mode == "raw2lpo") { // looseprocessingoctree
+			cout << "raw2lpo" << endl;
+			octHandler = new OctreeHandler();
+			LooseProcessingOctree* lpo;
+			lpo = octHandler->rawToProcOctree(fs::path("/media/ClemensHDD/B3_binary"), BoundingBox::fromFile("/media/ClemensHDD/SceneBoundingBox.bin"));
+			lpo->setBasePath(string("/media/ClemensHDD/LooseProcOctree"));
+			octHandler->writeProcTree(lpo);
+
+			delete lpo;
 			delete octHandler;
 		}
 		else {
