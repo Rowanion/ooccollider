@@ -36,6 +36,9 @@ using namespace std;
 using namespace ooctools;
 using namespace oocformats;
 
+#define COLOR_TABLE "/home-e/ava/Diplom/Model/colortable.bin"
+#define BOUNDING_BOX "/home-e/ava/Diplom/Model/SceneBoundingBox.bin"
+
 enum PathState
 {
     IS_ERROR = 0,
@@ -236,8 +239,8 @@ int main(int argc, char *argv[]) {
 			cout << "raw2lpo" << endl;
 			octHandler = new OctreeHandler();
 			LooseProcessingOctree* lpo;
-			lpo = octHandler->rawToProcOctree(fs::path("/media/ClemensHDD/B3_binary"), BoundingBox::fromFile("/media/ClemensHDD/SceneBoundingBox.bin"));
-			lpo->setBasePath(string("/media/ClemensHDD/LooseProcOctree"));
+			lpo = octHandler->rawToProcOctree(fs::path("/media/Titanstab/B3_ausschnitt"), BoundingBox::fromFile(BOUNDING_BOX));
+			lpo->setBasePath(string("/tmp/model/loctree"));
 			octHandler->writeProcTree(lpo);
 
 			delete lpo;

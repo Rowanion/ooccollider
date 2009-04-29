@@ -79,6 +79,12 @@ class LooseProcessingOctree
 		std::vector<ProcessingObject*>& getData() {return mObjectList;};
 		unsigned int getTriangleCount() const {return nTriangles;};
 
+		/**
+		 * @brief Debug-Function to check the correctness of subdivision.
+		 * @param maxLevel
+		 */
+		void generateEmptyTree(unsigned int maxLevel);
+
 	private:
 		std::vector<ProcessingObject*> mObjectList;
 		BoundingBox mBb;

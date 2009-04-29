@@ -55,6 +55,7 @@ public:
 	void testReadArrayf(int entries);
 	static ooctools::Vbo* readRawVbo(fs::path _path);
 	static void writeRawVbo(ooctools::Vbo* _vbo, fs::path _path);
+	void recursiveReadRawVbos(fs::path _path);
 
 private:
 	void testAndSetDir(fs::path _p);

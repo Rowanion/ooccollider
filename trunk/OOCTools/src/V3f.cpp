@@ -216,20 +216,20 @@ V3f::operator>(const V3f& a) const
 //}
 
 bool
-V3f::operator>=(V3f& a)
+V3f::operator>=(const V3f& a) const
 {
 	if (mPriData[0] >= a.getX() && mPriData[1] >= a.getY() && mPriData[2] >= a.getZ())
 		return true;
 	else return false;
 }
 
-bool
-V3f::operator>=(V3f* a)
-{
-	if (mPriData[0] >= a->getX() && mPriData[1] >= a->getY() && mPriData[2] >= a->getZ())
-		return true;
-	else return false;
-}
+//bool
+//V3f::operator>=(V3f* a)
+//{
+//	if (mPriData[0] >= a->getX() && mPriData[1] >= a->getY() && mPriData[2] >= a->getZ())
+//		return true;
+//	else return false;
+//}
 
 bool
 V3f::operator<(const V3f& a) const
@@ -248,20 +248,20 @@ V3f::operator<(const V3f& a) const
 //}
 
 bool
-V3f::operator<=(V3f& a)
+V3f::operator<=(const V3f& a) const
 {
 	if (mPriData[0] <= a.getX() && mPriData[1] <= a.getY() && mPriData[2] <= a.getZ())
 		return true;
 	else return false;
 }
 
-bool
-V3f::operator<=(V3f* a)
-{
-	if (mPriData[0] <= a->getX() && mPriData[1] <= a->getY() && mPriData[2] <= a->getZ())
-		return true;
-	else return false;
-}
+//bool
+//V3f::operator<=(V3f* a)
+//{
+//	if (mPriData[0] <= a->getX() && mPriData[1] <= a->getY() && mPriData[2] <= a->getZ())
+//		return true;
+//	else return false;
+//}
 
 V3f&
 V3f::operator=(const V3f& a)

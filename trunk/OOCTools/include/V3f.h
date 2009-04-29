@@ -82,12 +82,12 @@ public:
 
 	bool operator>(const V3f &a) const;
 //	bool operator>(V3f *a);
-	bool operator>=(V3f &a);
-	bool operator>=(V3f *a);
+	bool operator>=(const V3f& a) const;
+//	bool operator>=(V3f *a);
 	bool operator<(const V3f &a) const;
 //	bool operator<(const V3f *a);
-	bool operator<=(V3f &a);
-	bool operator<=(V3f *a);
+	bool operator<=(const V3f& a) const;
+//	bool operator<=(V3f *a);
 	bool operator==(const V3f &a);
 //	bool operator==(V3f *a);
 	bool operator!=(V3f &a);

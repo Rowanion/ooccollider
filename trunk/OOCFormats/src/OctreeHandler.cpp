@@ -208,14 +208,24 @@ OctreeHandler::writeProcTree(LooseProcessingOctree* _tree)
 	if (!temp.empty()){
 		fs::path currentPath(_tree->getPath());
 		FileIO::recursiveTestAndSet(currentPath);
-		vector<ProcessingObject*>::const_iterator it = temp.begin();
 		fs::ofstream outFile;
 		outFile.open( currentPath / "objectList.txt", ios::out);
 		outFile << "Tree-Path: "<< _tree->getPath() << endl;
 		outFile << "TriCount: "<< _tree->getTriangleCount() << endl;
 		outFile << "Size(bytes): " << (4*sizeof(char)+4*sizeof(float))*_tree->getTriangleCount()*3 << endl;
 		outFile << "TreeLevel: " << _tree->getLevel() << endl;
+		outFile << "Node-BB: "<< _tree->getBb().toString() << endl;
+		V3f edges;
+		_tree->getBb().computeEdgeSizes(edges);
+		outFile << "Node-EdgeSizes: "<< edges.toString() << endl;
+		outFile << "Loose Node-BB: "<< _tree->getExtBb().toString() << endl;
+		BoundingBox tempBB;
+		vector<ProcessingObject*>::const_iterator it = temp.begin();
 		for(; it != temp.end(); ++it){
+			tempBB.expand((*it)->bb);
+		}
+		outFile << "Object-BB: "<< tempBB.toString() << endl;
+		for(it = temp.begin(); it != temp.end(); ++it){
 			outFile << (*it)->pathName << endl;
 		}
 		outFile.close();
