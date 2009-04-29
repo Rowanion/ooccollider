@@ -207,8 +207,9 @@ LooseProcessingOctree::insertObject(ProcessingObject* _po)
 		nTriangles+=_po->triangleCount;
 		return true;
 	}
-	else { // <- we're not a leaf
+	else { // <- we're a leaf
 		makeChildren();
+		mObjectList.push_back(_po);
 		unsigned size = mObjectList.size();
 		vector<ProcessingObject*>::iterator startIt;
 		for(unsigned i=0; i<size; ++i){
@@ -256,7 +257,8 @@ LooseProcessingOctree::insertObject(ProcessingObject* _po)
 			}
 
 		}
-		return insertObject(_po); // <-- we're not a leaf anymore - this saves us code.
+		return true;
+		//insertObject(_po); // <-- we're not a leaf anymore - this saves us code.
 	}
 
 }
@@ -349,6 +351,22 @@ LooseProcessingOctree::setBasePath(const string& _path, int oldSize)
 		bnw->setBasePath(_path, oldSize);
 		bse->setBasePath(_path, oldSize);
 		bsw->setBasePath(_path, oldSize);
+	}
+}
+
+void
+LooseProcessingOctree::generateEmptyTree(unsigned int maxLevel)
+{
+	if (mPriLevel < maxLevel){
+		makeChildren();
+		fnw->generateEmptyTree(maxLevel);
+		fne->generateEmptyTree(maxLevel);
+		fsw->generateEmptyTree(maxLevel);
+		fse->generateEmptyTree(maxLevel);
+		bnw->generateEmptyTree(maxLevel);
+		bne->generateEmptyTree(maxLevel);
+		bsw->generateEmptyTree(maxLevel);
+		bse->generateEmptyTree(maxLevel);
 	}
 }
 

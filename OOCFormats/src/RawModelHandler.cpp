@@ -392,7 +392,7 @@ RawModelHandler::readRawVbo(fs::path _path)
 	if (!fs::exists(_path / "vArray.bin"))
 		return 0;
 	else {
-
+		string path_string = _path.string();
 		fs::ifstream in;
 		Vbo* vbo = new Vbo();
 		// read the VertexArray...
@@ -403,7 +403,7 @@ RawModelHandler::readRawVbo(fs::path _path)
 		in.seekg(FileHeader::getHeaderSize(), ios::beg);
 		float* fa = FileIO::readFloatArray(in, 4 * fh.nVertices);
 		VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
-		va->calcBB();
+//		va->calcBB();
 		va->setBB(*fh.bb);
 		in.close();
 		vbo->setVData(va, false);
@@ -418,6 +418,23 @@ RawModelHandler::readRawVbo(fs::path _path)
 		vbo->setNData(na, false);
 
 		return vbo;
+	}
+}
+
+void
+RawModelHandler::recursiveReadRawVbos(fs::path _path)
+{
+	fs::directory_iterator dir_iter(_path), dir_end;
+	for (; dir_iter != dir_end; ++dir_iter) {
+		string path_string = dir_iter->path().string();
+		if (fs::is_directory(dir_iter->status())) {
+			recursiveReadRawVbos(dir_iter->path());
+		}
+		else if (dir_iter->path().filename() == "vArray.bin") {
+			Vbo* vbo = readRawVbo(dir_iter->path().parent_path());
+			vbo->setOnline();
+			ooctools::VboManager::getSingleton()->addVbo(_path.string(),vbo);
+		}
 	}
 }
 

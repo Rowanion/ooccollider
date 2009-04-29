@@ -27,6 +27,7 @@
 #include "OctreeNode.h"
 #include "OctreeHandler.h"
 #include "FileIO.h"
+#include "LooseProcessingOctree.h"
 //#include "glCamera.h"
 
 
@@ -34,7 +35,8 @@ using namespace std;
 using namespace ooctools;
 using namespace oocformats;
 
-
+#define COLOR_TABLE "/home-e/ava/Diplom/Model/colortable.bin"
+#define BOUNDING_BOX "/home-e/ava/Diplom/Model/SceneBoundingBox.bin"
 #define GET_GLERROR(ret) \
 { \
          GLenum err = glGetError(); \
@@ -80,6 +82,7 @@ BoundingBox *bb2;
 BoundingBox sbb;
 ooctools::Octree* oct2;
 OctreeHandler oh;
+LooseProcessingOctree* lpo;
 
 VboManager *vboMan;
 Fbo *fbo;
@@ -120,6 +123,8 @@ float myLightColor[] = { 0.95f, 0.95f, 0.95f };  /* White */
 float eyePosition[] = { 0.0f, 0.0f, 8.0f, 1.0f };
 
 float colorLutData[] = {1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f};
+
+unsigned char bbColors[6][3] = {{255,0,0}, {0,255,0}, {0,0,255}, {255,255,0}, {0,255,255}, {255,0,255}};
 
 int g_iFrame=0;
 double g_dDist=8.0;
@@ -173,6 +178,35 @@ void setBrassMaterial()
 	cgSetParameter1f(g_cgShininess, brassShininess);
 }
 
+void drawLpoBbs(LooseProcessingOctree* _lpo){
+	if (!_lpo->isLeaf()){
+		drawLpoBbs(_lpo->getFnw());
+		drawLpoBbs(_lpo->getFne());
+		drawLpoBbs(_lpo->getFsw());
+		drawLpoBbs(_lpo->getFse());
+		drawLpoBbs(_lpo->getBnw());
+		drawLpoBbs(_lpo->getBne());
+		drawLpoBbs(_lpo->getBsw());
+		drawLpoBbs(_lpo->getBse());
+	}
+	glColor3ubv(bbColors[lpo->getLevel()]);
+	_lpo->getBb().draw();
+}
+
+void drawXLpoBbs(LooseProcessingOctree* _lpo){
+	if (!_lpo->isLeaf()){
+		drawXLpoBbs(_lpo->getFnw());
+		drawXLpoBbs(_lpo->getFne());
+		drawXLpoBbs(_lpo->getFsw());
+		drawXLpoBbs(_lpo->getFse());
+		drawXLpoBbs(_lpo->getBnw());
+		drawXLpoBbs(_lpo->getBne());
+		drawXLpoBbs(_lpo->getBsw());
+		drawXLpoBbs(_lpo->getBse());
+	}
+	glColor3ubv(bbColors[_lpo->getLevel()]);
+	_lpo->getExtBb().draw();
+}
 
 static void setOrthographicProjection() {
 
@@ -298,6 +332,8 @@ static void display() {
 //					glEnd();
 //					glDisable(GL_POINT_SPRITE);
 //				}
+			drawLpoBbs(lpo);
+
 				if (showBBox) {
 					vboMan->getBb().draw(0,255,0);
 					vboMan->drawBbs(255,0,0);
@@ -708,7 +744,28 @@ static void glInit(int argc, char *argv[]){
 
 
 //	oh.readOctreeRecursive(fs::path("/media/ClemensHDD/B3_octree_ausschnitt"), oct2);
-	loadDirectory(fs::path("/media/ClemensHDD/B3_binary/Part2/DPA-E232W1201S11--D-11"), *ct);
+//	loadDirectory(fs::path("/tmp/model"), *ct);
+//	moWri->recursiveReadRawVbos(fs::path("/media/Titanstab/B3_ausschnitt"));
+	Vbo* _vbo = moWri->readRawVbo(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E294W5100S02-DD-1.2/294W5110-(_)(6)_S294W502-6634_S294W502-6634(1)_Geometry_0_2"));
+	_vbo->setOnline();
+	vboMan->addVbo("1", _vbo);
+	_vbo = moWri->readRawVbo(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E294W5100S02-DD-1.2/294W5110-(_)(5)_S294W502-6634_S294W502-6634(1)_Geometry_0_2"));
+	_vbo->setOnline();
+	vboMan->addVbo("2", _vbo);
+	_vbo = moWri->readRawVbo(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E294W5100S03--D-1.3/294W5110-(_)(4)_S294W510-(_)_S294W510-6634(1)_Geometry_0_2"));
+	_vbo->setOnline();
+	vboMan->addVbo("3", _vbo);
+	_vbo = moWri->readRawVbo(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E294W5100S03--D-1.3/294W5110-(_)(3)_S294W510-(_)_S294W510-6634(1)_Geometry_0_2"));
+	_vbo->setOnline();
+	vboMan->addVbo("4", _vbo);
+	_vbo = moWri->readRawVbo(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E294W5100S01-HD-1.2/294W5110-(_)(4)_S294W510-(_)_S294W510-6634(1)_Geometry_0_2"));
+	_vbo->setOnline();
+	vboMan->addVbo("5", _vbo);
+	_vbo = moWri->readRawVbo(fs::path("/media/Titanstab/B3_ausschnitt/DPA-E294W5100S01-HD-1.2/294W5110-(_)(3)_S294W510-(_)_S294W510-6634(1)_Geometry_0_2"));
+	_vbo->setOnline();
+	vboMan->addVbo("6", _vbo);
+
+//	vboMan->addVbo("blablubb", RawModelHandler::readRawVbo(fs::path("/tmp/model/145W5813-1(1)_145W5813-1(1)_Geometry_0_1/")));
 //	loadDirectory(fs::path("/media/ClemensHDD/B3_ausschnitt_klein"));
 //	moWri->readModel(fs::path("/media/ClemensHDD/B3_ausschnitt/DPA-E232W1201S11--D-11/232W1250-88_Geometry_0"), *ct);
 //	moWri->readModel(fs::path("raw_objs/budda")); // 3,2 Mil. / 1,08 Mil.
@@ -733,11 +790,11 @@ static void glInit(int argc, char *argv[]){
 	getGlError(0);
 	g_cgVertexProg = CgToolkit::getSingleton()->loadCgShader(
 			CgToolkit::getSingleton()->cgVertexProfile,
-			"shader/vp_NoLightLut.cg", true);
+			"shader/vp_phongFLut.cg", true);
 
 	g_cgFragmentProg = CgToolkit::getSingleton()->loadCgShader(
 			CgToolkit::getSingleton()->cgFragProfile,
-			"shader/fp_NoLightLut.cg", true);
+			"shader/fp_phongFLut.cg", true);
 	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
 	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
 	getGlError(0);
@@ -782,16 +839,18 @@ int main(int argc, char **argv) {
 // theory: parse obj into Model* - then write it with Phase1ModelWriter
 // then delete model;
 
-	sbb = BoundingBox::fromFile(fs::path("/media/ClemensHDD/SceneBoundingBox.bin"));
+	sbb = BoundingBox::fromFile(fs::path(BOUNDING_BOX));
 	oct2 = new Octree(sbb, string(""));
-	ct = new ColorTable(string("/media/ClemensHDD/colortable.bin"));
-	moLoader.setColorTable(ColorTable(string("/media/ClemensHDD/colortable.bin")));
-	 moWri = new RawModelHandler();
-
+	ct = new ColorTable(string(COLOR_TABLE));
+	moLoader.setColorTable(ColorTable(string(COLOR_TABLE)));
+	moWri = new RawModelHandler();
+	cout << "SceneBoundingBox: " << sbb.toString() << endl;
+	lpo = new LooseProcessingOctree(0, sbb, "/");
+	lpo->generateEmptyTree(4);
 //	model = moLoader.parseMultipass("/media/External/B3_triangles/Part1/C141T4001S01-BD-1V4.obj", true);
 //	model = moLoader.parseMultipass("meshes/osg.obj", true);
 //	model = moLoader.parseMultipass("meshes/robot.obj", true);
-	model2 = moLoader.parseMultipass("meshes/bunny.obj", true);
+	model2 = moLoader.parseMultipass("/home-e/ava/Diplom/Model/bunny.obj", true);
 //	model = moLoader.parseMultipass("meshes/happy_buddha.obj", true);
 //	model = moLoader.parseMultipass("meshes/Dragon.obj", true);
 //	model = moLoader.parseMultipass("meshes/mini_obj2.obj", true);

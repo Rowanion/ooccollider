@@ -159,7 +159,7 @@ BoundingBox::~BoundingBox()
 void
 BoundingBox::draw() const
 {
-	glColor3ub(255,0,0);
+//	glColor3ub(255,0,0);
 	drawLineStrip();
 }
 void
@@ -483,7 +483,7 @@ BoundingBox::hasInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const
 bool
 BoundingBox::hasInside(const V3f& _v) const
 {
-	if (_v > mPrivMin && _v < mPrivMax) return true;
+	if (_v >= mPrivMin && _v < mPrivMax) return true;
 	else return false;
 }
 
@@ -506,7 +506,8 @@ BoundingBox::hasInside(const BoundingBox& _b) const
 void
 BoundingBox::computeEdgeSizes(V3f &_sizes) const
 {
-	_sizes = (mPrivMax-mPrivMin);
+	V3f e = (mPrivMax-mPrivMin);
+	_sizes = e.getAbs();
 }
 
 float
