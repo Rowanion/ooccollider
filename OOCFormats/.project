@@ -3,6 +3,7 @@
 	<name>OOCFormats</name>
 	<comment></comment>
 	<projects>
+		<project>OOCTools</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
