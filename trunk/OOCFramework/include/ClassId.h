@@ -48,8 +48,26 @@ public:
 	 */
 	unsigned int getId() const {return mCrcId;};
 
+	/**
+	 * @brief Returns half of the id.
+	 * This dirty little hack was introduced because MPI only can send int as message type,
+	 * but a crc calculation needs full 32byte length to avoid even the rough collisions.
+	 * A Warning, though: This is by no means safe!!! It shjould work in a project as small
+	 * as this one.
+	 * @return the positive int-version of the classid, a.k.a. half of the id.
+	 */
+	int getShortId() const {return (int)(mCrcId>>1);};
+
+	/**
+	 * @brief Returns the real classname. This serves just for debugging purposes to
+	 * verify that there are no crc-collisions within the project's used class names.
+	 * @return a string with the classname.
+	 */
+	const std::string getClassName() const {return mClassName;};
+
 private:
 	unsigned int mCrcId;
+	std::string mClassName;
 
 	/**
 	 * @brief Performs the crc32 encoding. It comes in two flavours: this
