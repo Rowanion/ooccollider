@@ -24,7 +24,12 @@ namespace oocformats {
 	class IModelLoader;
 	class FileHeader;
 	class FileIO;
+	class LooseOctree;
+	class LooseProcessingOctree;
 	class ObjModelLoader;
-	class RawModelHandler;
 	class OctreeHandler;
+	class RawModelHandler;
+	class TriangleStream;
+
+	struct ProcessingObject;
 } // end of namespace oocformats
