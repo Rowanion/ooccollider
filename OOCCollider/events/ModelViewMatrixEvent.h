@@ -1,0 +1,47 @@
+/**
+ * @file	ModelViewMatrixEvent.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 12.05.2009
+ * @brief 	ModelViewMatrixEvent class declaration.
+ */
+
+#ifndef MODELVIEWMATRIXEVENT_H_
+#define MODELVIEWMATRIXEVENT_H_
+
+#include "IEvent.h"
+#include "ClassId.h"
+
+
+/**
+ * @class ModelViewMatrixEvent
+ *
+ * @brief This event serves as container-event for the ModelviewMatrix of the master-Node.
+ * It is transmitted round about every frame to all other nodes. Because all input happens
+ * at the Master-Node, the input is applied to the local Transformation/Rotation Matrix, which is
+ * then sent to the other nodes. There it is multiplied on the identity matrix.
+ * Serves as frame for equivalent messages.
+ *
+ * This event originates from the Master-Node and will be submitted to all the other nodes.
+ *
+ */
+class ModelViewMatrixEvent : public oocframework::IEvent{
+public:
+	ModelViewMatrixEvent();
+	ModelViewMatrixEvent(const float* matrix);
+	virtual ~ModelViewMatrixEvent();
+	static const oocframework::ClassId* classid();
+	virtual const oocframework::ClassId* getClassId(){return mClassId;};
+	virtual bool instanceOf(const oocframework::ClassId* cId) const;
+	virtual unsigned getByteSize(){return ModelViewMatrixEvent::mProByteSize;};
+
+	const float* getMatrix() const {return (float*)mProData;};
+
+protected:
+	static oocframework::ClassId* mClassId;
+	static unsigned mProByteSize;
+	virtual void init();
+private:
+};
+
+#endif /* MODELVIEWMATRIXEVENT_H_ */
