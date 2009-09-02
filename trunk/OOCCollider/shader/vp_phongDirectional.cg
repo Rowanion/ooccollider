@@ -1,0 +1,60 @@
+// geometric input (sent by application)
+
+
+struct appin
+{
+  float4 position     : POSITION;
+  float4 normal       : NORMAL;
+  float3 color         : COLOR0;
+};
+
+// vertex program output
+
+struct V2FI
+{
+  float4 oPosition 		: POSITION;
+  float3 oNormal   		: TEXCOORD0;
+  float3 oColor			: COLOR0;
+  float texCoord;
+  float4 diffuse		: TEXCOORD1;
+  float4 ambient		: TEXCOORD2;
+  float3 lightDir		: TEXCOORD3;
+  float3 halfVector		: TEXCOORD4;
+};
+
+V2FI main(appin IN)
+{
+  V2FI OUT;
+
+  // extract TextureCoordinate from 4th component and access the texture with it
+  OUT.texCoord = IN.position.w;
+//  OUT.oColor = tex1D(colorLut, 0.20002).rgb;
+
+  // restore harmonic component
+  float4 tempPos = IN.position;
+  tempPos.w = 1.0;
+
+  // project point onto screen
+  OUT.oPosition = mul(glstate.matrix.mvp, tempPos);
+
+	
+		/* first transform the normal into eye space and 
+		normalize the result */
+		OUT.oNormal = normalize(mul(glstate.matrix.invtrans.modelview[0],IN.normal)).xyz;
+		
+		/* now normalize the light's direction. Note that 
+		according to the OpenGL specification, the light 
+		is stored in eye space. Also since we're talking about 
+		a directional light, the position field is actually direction */
+		OUT.lightDir = normalize(float3(glstate.light[0].position));
+	
+		/* Normalize the halfVector to pass it to the fragment shader */
+		OUT.halfVector = normalize((glstate.light[0].half).xyz);
+					
+		/* Compute the diffuse, ambient and globalAmbient terms */
+		OUT.diffuse = glstate.material.front.diffuse * glstate.light[0].diffuse;
+		OUT.ambient = glstate.material.front.ambient * glstate.light[0].ambient;
+		OUT.ambient += glstate.lightmodel.ambient * glstate.material.front.ambient;
+		
+		return OUT;	
+	} 

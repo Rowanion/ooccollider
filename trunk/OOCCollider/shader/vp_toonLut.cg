@@ -1,0 +1,52 @@
+
+
+// geometric input (sent by application)
+
+struct appin
+{
+	float4 Position		: POSITION;
+	float3 Normal       : NORMAL;
+	float3 TCoords0     : TEXCOORD0;
+//  float4 baseColor;
+};
+
+// vertex program output
+
+struct V2FI
+{
+	float4 HPosition    : POSITION;
+	float3 Normal       : TEXCOORD0;
+	float3 LightVector  : TEXCOORD1;
+	float texCoord		: COLOR0;
+//  float4 baseColor;
+};
+
+V2FI main(appin IN,
+		uniform float4   lightPosition               // light pos in object space
+
+	  )
+{
+  V2FI OUT;
+
+  OUT.texCoord = IN.Position.w;
+  float4 tempPos = IN.Position;
+  tempPos.w = 1.0;
+
+  // compute view vector
+  float4 pos       = mul(glstate.matrix.modelview[0], tempPos);
+
+  // compute light vector
+
+  float4 lightpos  = mul(glstate.matrix.invtrans.modelview[0], lightPosition);
+  OUT.LightVector  = (lightpos-pos).xyz;
+
+  // project point onto screen
+//  OUT.HPosition    = mul(Proj, pos);
+  OUT.HPosition = mul(glstate.matrix.mvp, tempPos);
+
+  // transform normal - should use inverse transpose !
+  OUT.Normal       = mul(glstate.matrix.invtrans.modelview[0], float4(IN.Normal,0.0)).xyz;
+
+  return OUT;
+}
+
