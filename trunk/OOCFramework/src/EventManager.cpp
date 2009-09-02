@@ -10,6 +10,7 @@
 
 #include <map>
 #include <vector>
+#include <iostream>
 
 #include "declarations.h"
 #include "AbstractEventListener.h"
@@ -63,12 +64,12 @@ void EventManager::fire(IEvent& event) {
 	 * map<ClassId*, vector<AbtractEventListener*> >
 	 */
 
-
 	for (LMap::const_iterator mcIter = mListenerMap.begin(); mcIter!= mListenerMap.end(); ++mcIter){
-		if (event.instanceOf(mcIter->first))
+		if (event.instanceOf(mcIter->first)){
 			for (LSet::const_iterator csIter = mcIter->second.begin(); csIter!= mcIter->second.end(); ++csIter) {
 				(*csIter)->notify(event);
 			}
+		}
 	}
 }
 

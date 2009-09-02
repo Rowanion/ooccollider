@@ -11,6 +11,8 @@
 #include <string>
 #include <iostream>
 
+#include "EventManager.h"
+
 using namespace std;
 
 namespace oocframework {
@@ -18,7 +20,7 @@ namespace oocframework {
 unsigned int ClassId::mCrctab[256];
 bool ClassId::initiated = false;;
 
-ClassId::ClassId(std::string name) {
+ClassId::ClassId(std::string name) : mClassName(name) {
 	if (!ClassId::isInited()){
 		ClassId::crc32_init();
 	}
