@@ -295,7 +295,7 @@ void VboManager::mergeDown()
 			*firstVbo += *mIt->second;
 		}
 	}
-	cout << "number of vbos now: " << mPriVboMap.size() << endl;
+//	cout << "number of vbos now: " << mPriVboMap.size() << endl;
 	clear();
 	addVbo("1", firstVbo);
 	mPriVboMap.begin()->second->mPriVertices->calcBB();
@@ -305,13 +305,13 @@ void VboManager::mergeDown()
 void
 VboManager::clear()
 {
-	cout << "mapsize: " << mPriVboMap.size() << endl;
-	cout << "bb-max: " << mPriBb.getMax().toString() << endl;
-	cout << "nfaces: " << mPriNFaces << endl;
+//	cout << "mapsize: " << mPriVboMap.size() << endl;
+//	cout << "bb-max: " << mPriBb.getMax().toString() << endl;
+//	cout << "nfaces: " << mPriNFaces << endl;
 	if (!mPriVboMap.empty()){
 		for (mIterator it=mPriVboMap.begin(); it!=mPriVboMap.end(); ++it){
 			Vbo* value = it->second;
-			cout << value->getBb().toString() << endl;
+//			cout << value->getBb().toString() << endl;
 			delete value;
 			value = 0;
 

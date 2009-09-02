@@ -103,14 +103,25 @@ FboFactory::checkFbo(Fbo* _fbo)
 }
 
 void
-FboFactory::drawColorToFb(GLubyte *pixels, int wPos, int hPos, int width, int height)
+FboFactory::drawColorToFb(const GLubyte *pixels, int wPos, int hPos, int width, int height)
 {
-	glWindowPos2i(wPos, hPos);
-	glDrawPixels(width,height,GL_BGRA, GL_UNSIGNED_BYTE, pixels);
+
+	// alternate method
+//	glMatrixMode(GL_MODELVIEW);
+//	glLoadIdentity();
+//	glMatrixMode(GL_PROJECTION);
+//	glLoadIdentity();
+//	glOrtho(0, width, 0, height, -1, 1);
+//	glRasterPos2i(wPos,hPos);
+//	glDrawPixels(width,height,GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid*)pixels);
+//	glMatrixMode(GL_MODELVIEW);
+
+	glWindowPos2i(wPos,hPos);
+	glDrawPixels(width, height,GL_BGRA, GL_UNSIGNED_BYTE, (void*) pixels);
 }
 
 void
-FboFactory::drawDepthToFb(GLfloat *depth, int wPos, int hPos, int width, int height)
+FboFactory::drawDepthToFb(const GLfloat* depth, int wPos, int hPos, int width, int height)
 {
 	glWindowPos2i(wPos, hPos);
 	glDrawPixels(width, height,GL_DEPTH_COMPONENT, GL_FLOAT, depth);

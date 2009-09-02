@@ -54,11 +54,29 @@ struct MtlMap
 	std::map<std::string, Material*> matMap;
 };
 
-struct ProcessingObject
-{
-	std::string pathName;
-	unsigned int triangleCount;
-	BoundingBox bb;
+struct V4N4{
+	float v[4];
+	char n[4];
+};
+
+struct StatisticalData{
+	unsigned int totalObjects;
+	unsigned int totalMemory;
+	unsigned int totalTris;
+	unsigned int totalNodes;
+	unsigned int maxLevel;
+	// nodes containing data
+	unsigned int nodesPerLevel[17];
+	unsigned int memoryPerLevel[17];
+	unsigned int trisPerLevel[17];
+	unsigned int objectsPerLevel[17];
+	float trisPerNodePerLevel[17];
+	float objectDistributionPerLevel[17];
+
+	float objectsPerNode;
+	float trisPerNode;
+
+
 };
 
 } // end of namespace OOCTools

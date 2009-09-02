@@ -36,7 +36,7 @@ class V3b
 public:
 	V3b();
 	V3b(char _x, char _y, char _z);
-	V3b(char *_data);
+	V3b(const char *_data);
 	V3b(char);
 	virtual ~V3b();
 	char *x;

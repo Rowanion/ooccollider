@@ -48,7 +48,7 @@ V3b::V3b(char _x) : x(0), y(0), z(0)
 	mPriCount = 3;
 }
 
-V3b::V3b(char* _data) : x(0), y(0), z(0)
+V3b::V3b(const char* _data) : x(0), y(0), z(0)
 {
 	mPriData = new char[3];
 	x = mPriData;

@@ -44,8 +44,8 @@ public:
 	void drawBb(std::string id, float r, float g, float b);
 	void drawBb(std::string id, int r, int g, int b);
 	void addVbo(std::string id, Vbo *_vbo);
-	const Vbo *getVbo(std::string id) const;
-	const Vbo *getVbo(mIterator it) const;
+	const Vbo* getVbo(std::string id) const;
+	const Vbo* getVbo(mIterator it) const;
 	void delVbo(std::string id);
 	void delVbo(mIterator it);
 	BoundingBox& getBb(){return mPriBb;};
@@ -82,7 +82,7 @@ private:
 	size_t mPriMemoryUsage;
 	ColorTable mPriCt;
 
-	static VboManager *mPriInstancePtr;
+	static VboManager* mPriInstancePtr;
 };
 
 } // end of namespace OOCTools

@@ -17,7 +17,7 @@
 #include "BoundingBox.h"
 #include "declarations.h"
 
-using __gnu_cxx::hash_map;
+
 
 namespace ooctools {
 
@@ -204,7 +204,7 @@ VertexArray<T>::addTriangle(const T* _verts)
 
 template<typename T>
 void
-VertexArray<T>::removeTriangle(size_t index)
+VertexArray<T>::removeTriangle(unsigned int index)
 {
 	long lengthTotal = size * nComponents;
 	long lengthTriangle = nComponents * 3;
