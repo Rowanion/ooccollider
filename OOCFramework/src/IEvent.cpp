@@ -17,8 +17,9 @@
 namespace oocframework {
 
 oocframework::ClassId* IEvent::mClassId = 0;
+unsigned IEvent::mProByteSize = 0;
 
-IEvent::IEvent()
+IEvent::IEvent() : mProData(0)
 {
 	init();
 }
@@ -44,6 +45,16 @@ IEvent::instanceOf(const ClassId* cId) const
 const oocframework::ClassId* IEvent::classid()
 {
 	return mClassId;
+}
+
+unsigned IEvent::getByteSize()
+{
+	return 0;
+}
+
+const char* IEvent::getData() const
+{
+	return mProData;
 }
 
 } // oocframework
