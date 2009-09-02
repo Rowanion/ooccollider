@@ -36,10 +36,20 @@ public:
 	void createAndAddColorTex();
 	void createAndAddDepthTex();
 	void createAndAddColorBuf();
+	void setDimensions(int width, int height);
+	void drawAsQuad();
 	void unbind();
 	void clear();
+	void clearDepth();
+	void clearColor();
 	GLuint getColorTexId(){return mPriColorTexture;};
 	GLuint getDepthTexId(){return mPriDepthTexture;};
+	inline bool isBound() const {return fboIsBound;};
+	GLfloat* mapDepthBuffer(GLenum access = GL_READ_ONLY);
+	void unmapDepthBuffer();
+
+	int mPriWidth;
+	int mPriHeight;
 
 private:
 	GLuint mPriFBO;
@@ -47,9 +57,8 @@ private:
 	GLuint mPriColorTexture;
 	GLuint mPriDepthTexture;
 	GLuint mPriColorBuffer;
-	int mPriWidth;
-	int mPriHeight;
-
+	bool fboIsBound;
+	float* mPriTestArr;
 
 };
 

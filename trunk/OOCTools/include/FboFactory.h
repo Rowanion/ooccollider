@@ -38,8 +38,8 @@ public:
 	const int getMaxColorAttach(){return (const int) mPriMaxColorAttach;}; //maximum number of color buffers
 	void checkFbo(GLuint id);
 	void checkFbo(Fbo *_fbo);
-	void drawColorToFb(GLubyte *pixels, int wPos, int hPos, int width, int height);
-	void drawDepthToFb(GLfloat *depth, int wPos, int hPos, int width, int height);
+	void drawColorToFb(const GLubyte* pixels, int wPos, int hPos, int width, int height);
+	void drawDepthToFb(const GLfloat* depth, int wPos, int hPos, int width, int height);
 	void readColorFromFb(GLubyte *pixels, int wPos, int hPos, int width, int height);
 	void readDepthFromFb(GLfloat *depth, int wPos, int hPos, int width, int height);
 

@@ -55,6 +55,8 @@ public:
 	void setZ(float f){mPriData[2]=f;};
 	const std::string toString() const;
 	bool hasSharedComponent(const V3f &_v) const;
+	float getMaxComponent()const;
+	float getMinComponent()const;
 
 	/**
 	 * @brief Performs normalization on this vector and returns a reference to itself.
@@ -79,6 +81,7 @@ public:
 	 *
 	 */
 	float calculateMagnitude();
+	float dot(const V3f& rhs)const;
 
 	bool operator>(const V3f &a) const;
 //	bool operator>(V3f *a);
@@ -121,6 +124,8 @@ public:
 	static void calcFNormal(Face *face);
 	static bool hasSharedComponent(const V3f& _v1, const V3f& _v2);
 	static std::string toString(const float* _array);
+	float calcDistance(const V3f& point) const;
+	float calcSimpleDistance(const V3f& point) const;
 
 	// back-reference for vertex-normal-calculation. DO NOT DELETE, DUH!
 	std::vector<Face*> *mPriFaceList;

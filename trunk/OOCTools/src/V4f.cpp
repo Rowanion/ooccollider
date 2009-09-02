@@ -397,8 +397,9 @@ const string
 V4f::toString() const
 {
 		stringstream st;
+		st.clear();
 		st << "(" << mPriData[0] << ", " << mPriData[1] << ", " << mPriData[2] << ", " << mPriData[3] << ")";
-		return (const std::string) st.str();
+		return st.str();
 }
 
 } // Namespace OOCTools

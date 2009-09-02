@@ -11,17 +11,18 @@
 #include <GL/gl.h>
 #include <GL/freeglut.h>
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 namespace ooctools {
 
-Fbo::Fbo(int _width, int _height)
+Fbo::Fbo(int _width, int _height) : fboIsBound(false)
 {
 	// TODO Auto-generated constructor stub
 	mPriWidth = _width;
 	mPriHeight = _height;
 	glGenFramebuffersEXT(1, &mPriFBO);
-
+	mPriTestArr = 0;
 }
 
 Fbo::~Fbo()
@@ -32,19 +33,38 @@ Fbo::~Fbo()
 void
 Fbo::bind()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mPriFBO);
+	if (!fboIsBound){
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mPriFBO);
+		fboIsBound = true;
+	}
 }
 
 void
 Fbo::unbind()
 {
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	if (fboIsBound){
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		fboIsBound = false;
+	}
 }
 
 void
 Fbo::clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void
+Fbo::clearDepth()
+{
+	glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void
+Fbo::clearColor()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void
@@ -78,6 +98,34 @@ Fbo::createAndAddDepthBuf()
 	bind();
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, mPriDepthBuffer);
 	unbind();
+}
+
+void
+Fbo::setDimensions(int width, int height)
+{
+	mPriWidth = width;
+	mPriHeight = height;
+	if(mPriDepthBuffer!=0){
+		// set current renderbuffer
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mPriDepthBuffer);
+		// associate storage space with bound renderbuffer
+		glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, mPriWidth, mPriHeight);
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+		bind();
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, mPriDepthBuffer);
+		unbind();
+	}
+
+	if (mPriColorTexture!=0){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mPriColorTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, mPriWidth, mPriHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		bind();
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mPriColorTexture, 0);
+		unbind();
+
+	}
 }
 
 // this did not work
@@ -119,7 +167,7 @@ Fbo::createAndAddColorTex()
 
 	// reserving space for the colorbuffer
 //	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, mPriWidth, mPriHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, mPriWidth, mPriHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, mPriWidth, mPriHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// attaching texture to FBO
@@ -158,6 +206,61 @@ Fbo::createAndAddDepthTex()
 	bind();
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mPriDepthTexture, 0);
 	unbind();
+}
+
+void Fbo::drawAsQuad()
+{
+	bool texOn = true;
+	if (!glIsEnabled(GL_TEXTURE_2D)) {
+		glEnable(GL_TEXTURE_2D);
+		texOn = false;
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriColorTexture);
+
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+		glLoadIdentity ();
+		glMatrixMode (GL_PROJECTION);
+		glPushMatrix ();
+			glLoadIdentity ();
+			glBegin (GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f); glVertex3i (-1, -1, -1);
+				glTexCoord2f(1.0f, 0.0f); glVertex3i (1, -1, -1);
+				glTexCoord2f(1.0f, 1.0f); glVertex3i (1, 1, -1);
+				glTexCoord2f(0.0f, 1.0f); glVertex3i (-1, 1, -1);
+			glEnd ();
+		glPopMatrix ();
+		glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
+
+	if (!texOn){
+		glDisable(GL_TEXTURE_2D);
+	}
+
+}
+
+GLfloat*
+Fbo::mapDepthBuffer(GLenum access)
+{
+	delete[] mPriTestArr;
+	mPriTestArr = new float[mPriWidth * mPriHeight];
+	float* temp;
+	cout << "binding depthbuffer" << endl;
+	glBindBuffer(GL_PIXEL_PACK_BUFFER, mPriDepthBuffer);
+	cout << "mapping depthbuffer" << endl;
+	temp = (GLfloat*)glMapBuffer(GL_PIXEL_PACK_BUFFER, access);
+	memcpy(mPriTestArr, temp, mPriWidth * mPriHeight*sizeof(float));
+	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+	return mPriTestArr;
+}
+
+void
+Fbo::unmapDepthBuffer()
+{
+	glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
 } // end of namespace OOCTools

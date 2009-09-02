@@ -432,4 +432,40 @@ V3f::toString() const
 		return (const std::string) st.str();
 }
 
+float
+V3f::getMaxComponent()const
+{
+	float val = mPriData[0];
+	(val < mPriData[1]) ? val= mPriData[1] : val;
+	(val < mPriData[2]) ? val= mPriData[2] : val;
+	return val;
+}
+
+float
+V3f::getMinComponent()const
+{
+	float val = mPriData[0];
+	(val > mPriData[1]) ? val= mPriData[1] : val;
+	(val > mPriData[2]) ? val= mPriData[2] : val;
+	return val;
+}
+
+float
+V3f::dot(const V3f& rhs)const
+{
+	return (mPriData[0]*rhs.getX() + mPriData[1]*rhs.getY() + mPriData[2]*rhs.getZ());
+}
+
+float
+V3f::calcDistance(const V3f& point) const
+{
+	return sqrt(pow((*x - point.getX()), 2.0) + pow((*y - point.getY()), 2.0) + pow((*z - point.getZ()), 2.0));
+}
+
+float
+V3f::calcSimpleDistance(const V3f& point) const
+{
+	return pow((*x - point.getX()), 2.0) + pow((*y - point.getY()), 2.0) + pow((*z - point.getZ()), 2.0);
+}
+
 } // Namespace OOCTools

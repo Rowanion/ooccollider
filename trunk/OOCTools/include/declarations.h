@@ -22,6 +22,12 @@
  * to header files in general, this seems like a reasonable compromise.
  */
 
+/**
+ * @namespace ooctools
+ * @brief Contained in this namespace are, as the name suggests, all the
+ * tools used to make life as a 3D-Programmer easier. Vectors, ContainerClasses,
+ * etc.
+ */
 namespace ooctools{
 	class BoundingBox;
 	class Camera;
@@ -30,11 +36,12 @@ namespace ooctools{
 	class Face;
 	class Fbo;
 	class FboFactory;
-	class LooseProcessingOctree;
+	class GeometricOps;
+	class IndexedVbo;
 	class MetaGroup;
+	class MTRand;
 	class Model;
-	class Octree;
-	class OctreeNode;
+	class Quaternion;
 	class Vbo;
 	class VboManager;
 	template<typename T> class VertexArray;
@@ -42,11 +49,11 @@ namespace ooctools{
 	class V3f;
 	class V3ub;
 	class V4f;
+	class Triangle;
 	class TriBoxTest;
 
 	struct Material;
 	struct MtlMap;
-	struct ProcessingObject;
 
 
 } // end of namespace ooctools
