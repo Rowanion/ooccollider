@@ -1,0 +1,17 @@
+// data interpolated from vertex program output
+struct V2FI
+{
+	float3 texCoord   : TEXCOORD0;
+};
+
+void main(V2FI IN,
+	  out float4 color     : COLOR0,
+		uniform sampler2D depthTex)
+{
+//	color = float4(0.0, 0.0, 1.0, 1.0);
+	color = float4(0.0, tex2D(depthTex, IN.texCoord).r, 1.0, 1.0);
+//	if (color.g<0.0 || color.g>1.0){
+		//color.r = 1.0;
+//	}
+//	color = (float4(tex2D(depthTex, IN.texCoord).rrr, 1.0)*10000.0)-9998.0;
+}
