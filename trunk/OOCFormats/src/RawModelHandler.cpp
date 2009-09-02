@@ -30,7 +30,7 @@ namespace fs = boost::filesystem;
 
 namespace oocformats {
 
-RawModelHandler::RawModelHandler() : constructorCalled(false)
+RawModelHandler::RawModelHandler() : constructorCalled(false), mFio(FileIO())
 {
 	constructorCalled = true;
 	// TODO Auto-generated constructor stub
@@ -53,7 +53,7 @@ RawModelHandler::testWrite(MetaGroup* _grp)
 	fs::ofstream::pos_type size = 4 * sizeof(float);
 	memblock = new char[size];
 	fb.seekp(0, ios::beg);
-	writeHeader(_grp, fb);
+	mFio.writeHeader(_grp, fb);
 	//fb.write((char*)_data, size),
 	fb.close();
 	delete[] memblock;
@@ -69,7 +69,8 @@ RawModelHandler::testRead()
 	fs::ifstream::pos_type size = fb.tellg();
 	memblock = new char[4 * sizeof(float)];
 	fb.seekg(0, ios::beg);
-	FileIO::readHeader(fb);
+	FileHeader fh = FileHeader();
+	mFio.readHeader(fh, fb);
 	//fb.read((char*)memblock, 4*sizeof(float));
 	//float ftest = readFloat(fb);
 	//cout << "Size: " << size<< ((float*)memblock)[0]<< ", " << ((float*)memblock)[1] << ", " << ((float*)memblock)[2] << ", " << ((float*)memblock)[3] << ", " << ftest << endl;
@@ -155,25 +156,6 @@ RawModelHandler::find_file(const fs::path& dir_path,
 }
 
 void
-RawModelHandler::writeHeader(MetaGroup* _grp, fs::ofstream& _of)
-{
-	// writing BoundingBox
-	FileIO::writeBB(_grp->bb, _of);
-
-	FileIO::writeUInt(_grp->nFaces, _of);
-
-	// writing number of vertices to be extracted from this model group
-	FileIO::writeInt(_grp->nVertices, _of);
-	// writing number of normals to
-	FileIO::writeInt(_grp->nNormals, _of);
-	// TODO color support einfügen - ueber shader oder glcolor?
-	//	writeV3ub(_grp->color, _of);
-	FileIO::writeUByte(255 * _grp->getMat().kdR, _of);
-	FileIO::writeUByte(255 * _grp->getMat().kdG, _of);
-	FileIO::writeUByte(255 * _grp->getMat().kdB, _of);
-}
-
-void
 RawModelHandler::writeModel(Model* _model, fs::path _p)
 {
 	// file init stuff
@@ -201,10 +183,10 @@ RawModelHandler::writeModel(Model* _model, fs::path _p)
 		fs::path localPath(_p / groupName / "vArray.bin");
 		of.open(localPath, ios::binary | ios::out);
 		of.seekp(0, ios::beg);
-		writeHeader(it->second, of);
+		mFio.writeHeader(it->second, of);
 //		cout << "number of faces in group " << it->first << ": " << it->second->nFaces << endl;
 		VertexArray<float>* floatVA = _model->getVArrayPtr(it);
-		FileIO::writeVArrayf(floatVA, of);
+		mFio.writeVArrayf(floatVA, of);
 		of.close();
 		delete floatVA;
 		floatVA = 0;
@@ -212,9 +194,9 @@ RawModelHandler::writeModel(Model* _model, fs::path _p)
 		localPath = (_p / groupName / "nArray.bin");
 		of.open(localPath, ios::binary | ios::out);
 		of.seekp(0, ios::beg);
-		writeHeader(it->second, of);
+		mFio.writeHeader(it->second, of);
 		VertexArray<char>* charVA = _model->getNArrayPtr(it);
-		FileIO::writeVArrayb(charVA, of);
+		mFio.writeVArrayb(charVA, of);
 		delete charVA;
 		charVA = 0;
 		of.close();
@@ -305,9 +287,10 @@ RawModelHandler::readModel(fs::path _p, const ColorTable& _ct)
 				fb.open(fs::path(dir_iter->path() / "vArray.bin"), ios::binary
 						| ios::in);
 				fb.seekg(0, ios::beg);
-				FileHeader fh = FileIO::readHeader(fb);
+				FileHeader fh = FileHeader();
+				mFio.readHeader(fh, fb);
 				fb.seekg(FileHeader::getHeaderSize(), ios::beg);
-				float* fa = FileIO::readFloatArray(fb, 4 * fh.nVertices);
+				float* fa = mFio.readFloatArray(fb, 4 * fh.nVertices);
 				VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
 				va->setBB(*fh.bb);
 				vbo->setVData(va);
@@ -323,9 +306,10 @@ RawModelHandler::readModel(fs::path _p, const ColorTable& _ct)
 				fs::ifstream fb;
 				fb.open(fs::path(dir_iter->path() / "nArray.bin"), ios::binary
 						| ios::in);
-				FileHeader fh = FileIO::readHeader(fb);
+				FileHeader fh = FileHeader();
+				mFio.readHeader(fh, fb);
 				fb.seekg(FileHeader::getHeaderSize(), ios::beg);
-				char* ba = FileIO::readByteArray(fb, 4 * fh.nNormals);
+				char* ba = mFio.readByteArray(fb, 4 * fh.nNormals);
 				VertexArray<char>* va = new VertexArray<char>(4, fh.nNormals, ba);
 				vbo->setNData(va);
 			}
@@ -399,9 +383,10 @@ RawModelHandler::readRawVbo(fs::path _path)
 		in.open(fs::path(_path / "vArray.bin"), ios::binary
 				| ios::in);
 		in.seekg(0, ios::beg);
-		FileHeader fh = FileIO::readHeader(in);
+		FileHeader fh = FileHeader();
+		mFio.readHeader(fh, in);
 		in.seekg(FileHeader::getHeaderSize(), ios::beg);
-		float* fa = FileIO::readFloatArray(in, 4 * fh.nVertices);
+		float* fa = mFio.readFloatArray(in, 4 * fh.nVertices);
 		VertexArray<float>* va = new VertexArray<float>(4, fh.nVertices, fa);
 //		va->calcBB();
 		va->setBB(*fh.bb);
@@ -412,11 +397,10 @@ RawModelHandler::readRawVbo(fs::path _path)
 		in.open(fs::path(_path / "nArray.bin"), ios::binary
 				| ios::in);
 		in.seekg(FileHeader::getHeaderSize(), ios::beg);
-		char* ca = FileIO::readByteArray(in, 4 * fh.nNormals);
+		char* ca = mFio.readByteArray(in, 4 * fh.nNormals);
 		VertexArray<char>* na = new VertexArray<char>(4, fh.nNormals, ca);
 		in.close();
 		vbo->setNData(na, false);
-
 		return vbo;
 	}
 }

@@ -17,6 +17,7 @@
 
 #include "declarations.h"
 #include "../../OOCTools/include/declarations.h"
+#include "FileIO.h"
 
 namespace fs = boost::filesystem;
 namespace oocformats {
@@ -53,8 +54,8 @@ public:
 	ooctools::VboManager* readModel(fs::path _p, const ooctools::ColorTable& _ct);
 	void testWriteArrayf(float* farray, int entries);
 	void testReadArrayf(int entries);
-	static ooctools::Vbo* readRawVbo(fs::path _path);
-	static void writeRawVbo(ooctools::Vbo* _vbo, fs::path _path);
+	ooctools::Vbo* readRawVbo(fs::path _path);
+	void writeRawVbo(ooctools::Vbo* _vbo, fs::path _path);
 	void recursiveReadRawVbos(fs::path _path);
 
 private:
@@ -63,6 +64,7 @@ private:
 	void removeSpecialCharsFromName(std::string& _origin);
 
 	bool constructorCalled;
+	FileIO mFio;
 
 };
 
