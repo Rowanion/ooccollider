@@ -52,9 +52,15 @@ using namespace oocframework;
 
 RenderCoreGlFrame::RenderCoreGlFrame() :
 	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0),
-			frame(0), mPriVboMan(0), mPriCgt(0), eyePosition(ooctools::V3f()), mPriCamHasMoved(false), mPriIVbo(0), mPriFbo(0),
-			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),
-			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()), mPriUseWireFrame(false), mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(100.0f) {
+			frame(0), mPriVboMan(0), mPriCgt(0), eyePosition(ooctools::V3f()),
+			mPriCamHasMoved(false), mPriIVbo(0), mPriFbo(0),
+			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0),
+			mPriDepthBuffer(0), mPriTriCount(0), priFrustum(0), mPriIdPathMap(
+					std::map<uint64_t, std::string>()), mPriMissingIdsInFrustum(std::set<uint64_t>()),
+					mPriObsoleteVbos(std::vector< std::map<uint64_t, ooctools::IndexedVbo*>::iterator >()),
+			mPriUseWireFrame(false),
+			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
+					100.0f) {
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -185,7 +191,8 @@ void RenderCoreGlFrame::display()
 //	for(set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!=mPriIdsInFrustum.end(); it++){
 //		cout << *it << endl;
 //	}
-	requestMissingVbos(&mPriIdsInFrustum, &mPriVbosInFrustum);
+	divideIdList();
+	requestMissingVbos();
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum);
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum2);
 //	compareVbos(&mPriVbosInFrustum, &mPriVbosInFrustum2);
@@ -585,178 +592,100 @@ this->priFrustum[i][0] + this->priFrustum[i][1] * this->priFrustum[i][1]
 //void
 //RenderCoreGlFrame::requestMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap)
 //{
-//	// change list to set - auto-sorted
-//	// we look for two cases:
-//		// nodes we haven't loaded yet
-//		// nodes we don't need anymore
+//
 //	multimap<float, uint64_t> missingVbosMap = multimap<float, uint64_t>();
-//	bool term = false;
-//	if (vboMap->size() >0) term = true;
-////	cout << "ids in frustum: " << idList->size() << endl;
-////	cout << "vbos already in map: " << vboMap->size() << endl;
+//
 //	std::set<uint64_t>::iterator setIt = idList->begin();
-//	VboMapIter mapIt = vboMap->begin();
-//	VboMapIter eraseIt;
-//	unsigned loadCount = 0;
-//	for(; setIt!=idList->end(); ++setIt){
-//		while(mapIt != vboMap->end() && *setIt > mapIt->first){
-//			eraseIt = mapIt; // needs to be erased
-//			mapIt++;
-//			eraseIt->second->setOffline();
-//			VboMapIter eraseIt2 = eraseIt++;
-//			mPriOfflineVbosInFrustum.insert(eraseIt2, eraseIt);
-////			delete eraseIt->second;
-//			vboMap->erase(eraseIt2);
-//			if (mPriOfflineVbosInFrustum.size()>MAX_OFFLINE_VBOS){
+//	std::set<uint64_t>::iterator requestIt = mPriRequestedVboList.begin();
+//	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIt = vboMap->begin();
+//	std::map<uint64_t, ooctools::IndexedVbo*>::iterator eraseVboIt;
+//	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboOfflineIt = mPriOfflineVbosInFrustum.begin();
+//	for (; setIt != idList->end(); ++setIt){ // check each element of the frustum-list against the elements we already have
+//		vboIt = vboMap->find(*setIt);
+//		if (vboIt == vboMap->end()){ // id is not in list -> it needs to be loaded
+//			vboOfflineIt = mPriOfflineVbosInFrustum.find(*setIt);
+//			if (vboOfflineIt != mPriOfflineVbosInFrustum.end()){ // missing element is just offline -> move to online
+//				vboOfflineIt->second->setOnline();
+//				vboMap->insert(*vboOfflineIt);
+//				mPriOfflineVbosInFrustum.erase(vboOfflineIt);
+//				vboOfflineIt = mPriOfflineVbosInFrustum.end();
+//			}
+//			else { // missing element needs to be requested
+//				// compute eye distance
+//				ooctools::V3f center = ooctools::V3f();
+//				mPriIdLoMap[*setIt]->getBb().computeCenter(center);
+//				missingVbosMap.insert(make_pair(eyePosition.calcSimpleDistance(center), *setIt));
+//			}
+//		}
+//	}
+//
+//	setIt = idList->begin();
+//	for (vboIt = vboMap->begin(); vboIt != vboMap->end(); ++vboIt){ // check each element in current vboList if it is also in the newList
+//		setIt = idList->find(vboIt->first);
+//		if (setIt == idList->end()){ // element in currentList is not in frustum list -> remove it
+//			vboIt->second->setOffline();
+//			if (mPriOfflineVbosInFrustum.size()>MAX_OFFLINE_VBOS){ // cachelist is overfull -> reduce by one
+//				//TODO remove the element with highest eye-distance
 //				delete mPriOfflineVbosInFrustum.begin()->second;
 //				mPriOfflineVbosInFrustum.erase(mPriOfflineVbosInFrustum.begin());
 //			}
-//		}
-//		if (mapIt == vboMap->end() || *setIt < mapIt->first){
-//			// needs to be inserted
-////			vboMap->insert(make_pair(*setIt, new IndexedVbo(fs::path("/media/ClemensHDD/Sampletree/data/1/3/404.idx"))));
-//			VboMapIter offIt = mPriOfflineVbosInFrustum.find(*setIt);
-//			if (offIt != mPriOfflineVbosInFrustum.end()){
-//				offIt->second->setOnline();
-//				VboMapIter offIt2 = offIt++;
-//				vboMap->insert(offIt2, offIt);
-//				mPriOfflineVbosInFrustum.erase(offIt2);
+//			mPriOfflineVbosInFrustum.insert(*vboIt);
+//			eraseVboIt = vboIt++;
+//			vboMap->erase(eraseVboIt);
+//			if (vboIt == vboMap->end()){
+//				break;
 //			}
-//			else {
-//				if (loadCount <= MAX_LOADS_PER_FRAME){
-//					set<uint64_t>::iterator requestedListIt = mPriRequestedVboList.find(*setIt);
-//					if (requestedListIt == mPriRequestedVboList.end()){
-//						missingVbosMap.insert(make_pair((float)loadCount, *setIt));
-////						vboMap->insert(make_pair(*setIt, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[*setIt]+".idx"))));
-//						cout << *setIt << endl;
-//						loadCount++;
-//					}
-//				}
-//				else
-//					break;
-//			}
-//		}
-//		else if(*setIt == mapIt->first){
-//			mapIt++;
 //		}
 //	}
 //
-//	// requesting and receiving of the missing VBOs
-//	NodeRequestEvent nre = NodeRequestEvent(missingVbosMap, MpiControl::getSingleton()->getRank());
-//	MpiControl::getSingleton()->send(new Message(nre, 2));
-//	std::map<uint64_t, ooctools::IndexedVbo*> newVbosMap = std::map<uint64_t, ooctools::IndexedVbo*>();
-//	Message* msg = 0;
-//	bool gotAllVbos = false;
-//	while(!gotAllVbos){
-//		msg = MpiControl::getSingleton()->directReceive(2);
-//		if (msg->getType() == VboEvent::classid()->getShortId()){
-//			VboEvent ve = VboEvent(msg);
-////			vboMap->insert(make_pair(ve.getNodeId(), new IndexedVbo(ve.getIndexArray(), ve.getIndexCount(), ve.getVertexArray(), ve.getVertexCount())));
-//			newVbosMap.insert(make_pair(ve.getNodeId(), new IndexedVbo(ve.getIndexArray(), ve.getIndexCount(), ve.getVertexArray(), ve.getVertexCount())));
-//		}
-//		else if(msg->getType() == EndTransmissionEvent::classid()->getShortId()){
-//			gotAllVbos = true;
-//		}
-//	delete msg;
-//	msg = 0;
-//	}
-//
-//	std::map<uint64_t, ooctools::IndexedVbo*>::iterator newVboIt = newVbosMap.begin();
-//	multimap<float, uint64_t>::iterator missingIt = missingVbosMap.begin();
-//	for (; missingIt!=missingVbosMap.end(); ++missingIt){
-//		// load all collected ids into the map
-//
-//		newVboIt = newVbosMap.find(missingIt->second);
-//		if (newVboIt == newVbosMap.end()){
-//			mPriRequestedVboList.insert(missingIt->second);
-//			cout << "vbo in todo list is not in receptionlist!!!" << endl;
-//			cout << "id: " << newVboIt->first << endl;
-//			exit(0);
+//	cerr << "------------------------total size of request-list: " << missingVbosMap.size() << endl;
+//	multimap<float, uint64_t> reducedList = multimap<float, uint64_t>();
+//	multimap<float, uint64_t>::iterator multiMapIt = missingVbosMap.begin();
+//	unsigned requestCount =0;
+//	for(; multiMapIt != missingVbosMap.end(); ++multiMapIt){
+//		if (requestCount <= MAX_LOADS_PER_FRAME){
+//			requestIt = mPriRequestedVboList.find(multiMapIt->second);
+//			if (requestIt == mPriRequestedVboList.end()){ // element is not already requested -> make it so
+//				// tag this node as requested until next DepthBuffer-update
+//				mPriRequestedVboList.insert(multiMapIt->second);
+//				reducedList.insert(*multiMapIt);
+//				requestCount++;
+//			}
 //		}
 //		else{
-//			vboMap->insert(make_pair(missingIt->second, newVboIt->second));
+//			break;
 //		}
 //	}
-//}
+//	cerr << "------------------------requestcount: " << requestCount << endl;
+//	cerr << "------------------------sent size of request-list: " << reducedList.size() << endl;
 //
-//void
-//RenderCoreGlFrame::loadMissingVbosFromDisk(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap)
-//{
-//	// change list to set - auto-sorted
-//	// we look for two cases:
-//		// nodes we haven't loaded yet
-//		// nodes we don't need anymore
-//	bool term = false;
-//	if (vboMap->size() >0) term = true;
-////	cout << "ids in frustum: " << idList->size() << endl;
-////	cout << "vbos already in map: " << vboMap->size() << endl;
-//	std::set<uint64_t>::iterator setIt = idList->begin();
-//	VboMapIter mapIt = vboMap->begin();
-//	VboMapIter eraseIt;
-//	unsigned loadCount = 0;
-//	cout << "list of nodes LOADED by RenderCore: " << endl;
-//	for(; setIt!=idList->end(); ++setIt){
-//		while(mapIt != vboMap->end() && *setIt > mapIt->first){
-//			eraseIt = mapIt; // needs to be erased
-//			mapIt++;
-////			cout << "deleting " << "/media/ClemensHDD/Sampletree/data/"+mPriIdPathMap[eraseIt->first]+".idx" << endl;
-////			cout << "because " << *setIt << " > " << eraseIt->first << endl;
-//			eraseIt->second->setOffline();
-//			VboMapIter eraseIt2 = eraseIt++;
-//			mPriOfflineVbosInFrustum.insert(eraseIt2, eraseIt);
-////			delete eraseIt->second;
-//			vboMap->erase(eraseIt2);
-//			if (mPriOfflineVbosInFrustum.size()>MAX_OFFLINE_VBOS){
-//				delete mPriOfflineVbosInFrustum.begin()->second;
-//				mPriOfflineVbosInFrustum.erase(mPriOfflineVbosInFrustum.begin());
-//			}
-//		}
-//		if (mapIt == vboMap->end() || *setIt < mapIt->first){
-//			// needs to be inserted
-////			cout << "adding " << "/media/ClemensHDD/Sampletree/data/"+mPriIdPathMap[*setIt]+".idx" << endl;
-////			vboMap->insert(make_pair(*setIt, new IndexedVbo(fs::path("/media/ClemensHDD/Sampletree/data/1/3/404.idx"))));
-//			VboMapIter offIt = mPriOfflineVbosInFrustum.find(*setIt);
-//			if (offIt != mPriOfflineVbosInFrustum.end()){
-//				offIt->second->setOnline();
-//				VboMapIter offIt2 = offIt++;
-//				vboMap->insert(offIt2, offIt);
-//				mPriOfflineVbosInFrustum.erase(offIt2);
-//			}
-//			else {
-//				if (loadCount <= MAX_LOADS_PER_FRAME){
-//					vboMap->insert(make_pair(*setIt, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[*setIt]+".idx"))));
-//					cout << *setIt << endl;
-//					loadCount++;
-//				}
-//				else
-//					break;
-//			}
-//		}
-//		else if(*setIt == mapIt->first){
-//			mapIt++;
-//		}
+//	// requesting and receiving of the missing VBOs
+//	if (requestCount>0){
+//		NodeRequestEvent nre = NodeRequestEvent(reducedList, MpiControl::getSingleton()->getRank());
+//		MpiControl::getSingleton()->push(new Message(nre, 2));
+//		MpiControl::getSingleton()->isend();
 //	}
-////	if (term )exit(0);
+//
 //}
 
 void
-RenderCoreGlFrame::requestMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap)
+RenderCoreGlFrame::requestMissingVbos()
 {
-
+//TODO umbau auf die zusatz methode und maps
 	multimap<float, uint64_t> missingVbosMap = multimap<float, uint64_t>();
 
-	std::set<uint64_t>::iterator setIt = idList->begin();
+	std::set<uint64_t>::iterator setIt = mPriIdsInFrustum.begin();
 	std::set<uint64_t>::iterator requestIt = mPriRequestedVboList.begin();
-	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIt = vboMap->begin();
+	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIt = mPriVbosInFrustum.begin();
 	std::map<uint64_t, ooctools::IndexedVbo*>::iterator eraseVboIt;
 	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboOfflineIt = mPriOfflineVbosInFrustum.begin();
-	for (; setIt != idList->end(); ++setIt){ // check each element of the frustum-list against the elements we already have
-		vboIt = vboMap->find(*setIt);
-		if (vboIt == vboMap->end()){ // id is not in list -> it needs to be loaded
+	for (; setIt != mPriIdsInFrustum.end(); ++setIt){ // check each element of the frustum-list against the elements we already have
+		vboIt = mPriVbosInFrustum.find(*setIt);
+		if (vboIt == mPriVbosInFrustum.end()){ // id is not in list -> it needs to be loaded
 			vboOfflineIt = mPriOfflineVbosInFrustum.find(*setIt);
 			if (vboOfflineIt != mPriOfflineVbosInFrustum.end()){ // missing element is just offline -> move to online
 				vboOfflineIt->second->setOnline();
-				vboMap->insert(*vboOfflineIt);
+				mPriVbosInFrustum.insert(*vboOfflineIt);
 				mPriOfflineVbosInFrustum.erase(vboOfflineIt);
 				vboOfflineIt = mPriOfflineVbosInFrustum.end();
 			}
@@ -769,10 +698,10 @@ RenderCoreGlFrame::requestMissingVbos(std::set<uint64_t>* idList, std::map<uint6
 		}
 	}
 
-	setIt = idList->begin();
-	for (vboIt = vboMap->begin(); vboIt != vboMap->end(); ++vboIt){ // check each element in current vboList if it is also in the newList
-		setIt = idList->find(vboIt->first);
-		if (setIt == idList->end()){ // element in currentList is not in frustum list -> remove it
+	setIt = mPriIdsInFrustum.begin();
+	for (vboIt = mPriVbosInFrustum.begin(); vboIt != mPriVbosInFrustum.end(); ++vboIt){ // check each element in current vboList if it is also in the newList
+		setIt = mPriIdsInFrustum.find(vboIt->first);
+		if (setIt == mPriIdsInFrustum.end()){ // element in currentList is not in frustum list -> remove it
 			vboIt->second->setOffline();
 			if (mPriOfflineVbosInFrustum.size()>MAX_OFFLINE_VBOS){ // cachelist is overfull -> reduce by one
 				//TODO remove the element with highest eye-distance
@@ -781,8 +710,8 @@ RenderCoreGlFrame::requestMissingVbos(std::set<uint64_t>* idList, std::map<uint6
 			}
 			mPriOfflineVbosInFrustum.insert(*vboIt);
 			eraseVboIt = vboIt++;
-			vboMap->erase(eraseVboIt);
-			if (vboIt == vboMap->end()){
+			mPriVbosInFrustum.erase(eraseVboIt);
+			if (vboIt == mPriVbosInFrustum.end()){
 				break;
 			}
 		}
@@ -876,6 +805,35 @@ RenderCoreGlFrame::loadMissingVbosFromDisk(std::set<uint64_t>* idList, std::map<
 		}
 	}
 //	if (term )exit(0);
+}
+
+void
+RenderCoreGlFrame::divideIdList()
+{
+	// input: set<uint64_t> idsInFrustum, map<uint64_t, IndexedVbo*> loadedVbos
+	// output set<uint64_t> missingIdsInFrustum, vector<map<uint64_t, IndexedVbo*>::iterator> obsoleteVbos
+	set<uint64_t>::iterator setIt;
+	set<uint64_t>::iterator reqIt;
+	map<uint64_t, IndexedVbo*>::iterator mapIt;
+
+	// iterator over idList and save every id that is not loaded in a new list
+	for (setIt=mPriIdsInFrustum.begin(); setIt!=mPriIdsInFrustum.end(); ++setIt){
+		mapIt = mPriVbosInFrustum.find(*setIt);
+		if (mapIt == mPriVbosInFrustum.end()){
+			reqIt = mPriRequestedVboList.find(*setIt);
+			if (reqIt == mPriRequestedVboList.end()){
+				mPriMissingIdsInFrustum.insert(*setIt);
+			}
+		}
+	}
+
+	//iterate over loadedVboList and save an iterator for each one that is obsolete
+	for (mapIt = mPriVbosInFrustum.begin(); mapIt!= mPriVbosInFrustum.end(); ++mapIt){
+		setIt = mPriIdsInFrustum.find(mapIt->first);
+		if (setIt == mPriIdsInFrustum.end()){
+			mPriObsoleteVbos.push_back(mapIt);
+		}
+	}
 }
 
 void

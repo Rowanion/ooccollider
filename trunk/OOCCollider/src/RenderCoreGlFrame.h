@@ -121,8 +121,9 @@ private:
 	std::map<uint64_t, oocformats::LooseOctree*> mPriIdLoMap;
 	std::set<uint64_t> mPriIdsInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVbosInFrustum;
-	std::map<uint64_t, ooctools::IndexedVbo*> mPriVbosInFrustum2;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriOfflineVbosInFrustum;
+	std::set<uint64_t> mPriMissingIdsInFrustum;
+	std::vector< std::map<uint64_t, ooctools::IndexedVbo*>::iterator > mPriObsoleteVbos;
 
 	bool mPriUseWireFrame;
 
@@ -158,9 +159,10 @@ private:
 	typedef std::map<uint64_t, ooctools::IndexedVbo*>::iterator VboMapIter;
 
 	void calcFPS();
-	void requestMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
+	void requestMissingVbos();
 	void loadMissingVbosFromDisk(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
 	void compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap2);
+	void divideIdList();
 };
 
 #endif /* RENDERCOREGLFRAME_H_ */
