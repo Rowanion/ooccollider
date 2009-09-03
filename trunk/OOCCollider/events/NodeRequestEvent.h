@@ -34,6 +34,7 @@ class NodeRequestEvent : public oocframework::IEvent{
 public:
 	NodeRequestEvent();
 	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int reciepient);
+	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int reciepient);
 	NodeRequestEvent(const Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();

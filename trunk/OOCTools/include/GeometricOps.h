@@ -84,6 +84,7 @@ public:
 	 */
 	static void calcTriangleEdges4(const float* triangle, V3f& edges);
 
+	static void transposeMat4( float* _mat );
 	static bool calcEyePosition( float* _mat , V3f& eye);
 };
 
