@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <cmath>
 
 #include "GeometricOps.h"
 #include "V3f.h"
@@ -37,8 +38,14 @@ using namespace oocframework;
 
 #define MAX_OFFLINE_VBOS 1000
 #define MAX_LOADS_PER_FRAME 80
-#define DEPTHBUFFER_INTERVAL 50
+#define DEPTHBUFFER_INTERVAL 10
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
+#ifdef OFFICE
+#endif
+#ifdef HOME
+#endif
+#ifdef CLUSTER
+#endif
 
 #define GET_GLERROR(ret) \
 { \
@@ -151,9 +158,8 @@ void RenderCoreGlFrame::init() {
 void RenderCoreGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
-	g_cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "/media/ClemensHDD/workspace4/OOCCollider/shader/vp_phongDirectional.cg", true);
-
-	g_cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "/media/ClemensHDD/workspace4/OOCCollider/shader/fp_phongDirectional.cg", true);
+	g_cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_phongDirectional.cg", true);
+	g_cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_phongDirectional.cg", true);
 	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
 	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
 	g_cgLightColor = cgGetNamedParameter(g_cgFragmentProg, "lightColor");
@@ -182,11 +188,15 @@ void RenderCoreGlFrame::display()
 	glLoadIdentity();
 	glMultMatrixf(mPriModelViewMatrix);
 
-	ooctools::GeometricOps::calcEyePosition(mPriModelViewMatrix, eyePosition);
+	if (mPriCamHasMoved){
+		if (!ooctools::GeometricOps::calcEyePosition(mPriModelViewMatrix, eyePosition)){
+			cout << "----------------------------------------- NO INVERSE!" << endl;
+		}
+	}
 
 	getFrustum();
 	mPriIdsInFrustum.clear();
-	mPriLo->isInFrustum(priFrustum, &mPriIdsInFrustum, true, 0);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
 //	cout << "list of nodes in frustum: " << endl;
 //	for(set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!=mPriIdsInFrustum.end(); it++){
 //		cout << *it << endl;
@@ -671,80 +681,40 @@ this->priFrustum[i][0] + this->priFrustum[i][1] * this->priFrustum[i][1]
 void
 RenderCoreGlFrame::requestMissingVbos()
 {
-//TODO umbau auf die zusatz methode und maps
-	multimap<float, uint64_t> missingVbosMap = multimap<float, uint64_t>();
+	//TODO umbau auf die zusatz methode und maps
+	// deleting obsolete vbos
+	//TODO use cache buffer
+	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
+		mPriObsoleteVbos[i]->second->setOffline();
+		delete mPriObsoleteVbos[i]->second;
+		mPriVbosInFrustum.erase(mPriObsoleteVbos[i]);
+	}
+	mPriObsoleteVbos.clear();
 
-	std::set<uint64_t>::iterator setIt = mPriIdsInFrustum.begin();
-	std::set<uint64_t>::iterator requestIt = mPriRequestedVboList.begin();
-	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIt = mPriVbosInFrustum.begin();
-	std::map<uint64_t, ooctools::IndexedVbo*>::iterator eraseVboIt;
-	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboOfflineIt = mPriOfflineVbosInFrustum.begin();
-	for (; setIt != mPriIdsInFrustum.end(); ++setIt){ // check each element of the frustum-list against the elements we already have
-		vboIt = mPriVbosInFrustum.find(*setIt);
-		if (vboIt == mPriVbosInFrustum.end()){ // id is not in list -> it needs to be loaded
-			vboOfflineIt = mPriOfflineVbosInFrustum.find(*setIt);
-			if (vboOfflineIt != mPriOfflineVbosInFrustum.end()){ // missing element is just offline -> move to online
-				vboOfflineIt->second->setOnline();
-				mPriVbosInFrustum.insert(*vboOfflineIt);
-				mPriOfflineVbosInFrustum.erase(vboOfflineIt);
-				vboOfflineIt = mPriOfflineVbosInFrustum.end();
-			}
-			else { // missing element needs to be requested
-				// compute eye distance
-				ooctools::V3f center = ooctools::V3f();
-				mPriIdLoMap[*setIt]->getBb().computeCenter(center);
-				missingVbosMap.insert(make_pair(eyePosition.calcSimpleDistance(center), *setIt));
-			}
-		}
+	//calculate eye distances of missing vbos
+	//TODO use caching
+	multimap<float, uint64_t> missingIdDistances = multimap<float, uint64_t>();
+	set<uint64_t>::iterator setIt = mPriMissingIdsInFrustum.begin();
+	for (; setIt != mPriMissingIdsInFrustum.end(); ++setIt){
+		// compute eye distance
+		ooctools::V3f center = ooctools::V3f();
+		mPriIdLoMap[*setIt]->getBb().computeCenter(center);
+		missingIdDistances.insert(make_pair(eyePosition.calcDistance(center), *setIt));
 	}
 
-	setIt = mPriIdsInFrustum.begin();
-	for (vboIt = mPriVbosInFrustum.begin(); vboIt != mPriVbosInFrustum.end(); ++vboIt){ // check each element in current vboList if it is also in the newList
-		setIt = mPriIdsInFrustum.find(vboIt->first);
-		if (setIt == mPriIdsInFrustum.end()){ // element in currentList is not in frustum list -> remove it
-			vboIt->second->setOffline();
-			if (mPriOfflineVbosInFrustum.size()>MAX_OFFLINE_VBOS){ // cachelist is overfull -> reduce by one
-				//TODO remove the element with highest eye-distance
-				delete mPriOfflineVbosInFrustum.begin()->second;
-				mPriOfflineVbosInFrustum.erase(mPriOfflineVbosInFrustum.begin());
-			}
-			mPriOfflineVbosInFrustum.insert(*vboIt);
-			eraseVboIt = vboIt++;
-			mPriVbosInFrustum.erase(eraseVboIt);
-			if (vboIt == mPriVbosInFrustum.end()){
-				break;
-			}
+	// add MAX_LOADS_PER_FRAME of missingIdDistances to requestedList and request them
+	if (missingIdDistances.size() > 0){
+		multimap<float, uint64_t>::iterator multiIt = missingIdDistances.begin();
+		unsigned reqCount = 0;
+		for (; (multiIt != missingIdDistances.end() && reqCount < MAX_LOADS_PER_FRAME); ++multiIt){
+			mPriRequestedVboList.insert(multiIt->second);
+			reqCount++;
 		}
-	}
-
-	cerr << "------------------------total size of request-list: " << missingVbosMap.size() << endl;
-	multimap<float, uint64_t> reducedList = multimap<float, uint64_t>();
-	multimap<float, uint64_t>::iterator multiMapIt = missingVbosMap.begin();
-	unsigned requestCount =0;
-	for(; multiMapIt != missingVbosMap.end(); ++multiMapIt){
-		if (requestCount <= MAX_LOADS_PER_FRAME){
-			requestIt = mPriRequestedVboList.find(multiMapIt->second);
-			if (requestIt == mPriRequestedVboList.end()){ // element is not already requested -> make it so
-				// tag this node as requested until next DepthBuffer-update
-				mPriRequestedVboList.insert(multiMapIt->second);
-				reducedList.insert(*multiMapIt);
-				requestCount++;
-			}
-		}
-		else{
-			break;
-		}
-	}
-	cerr << "------------------------requestcount: " << requestCount << endl;
-	cerr << "------------------------sent size of request-list: " << reducedList.size() << endl;
-
-	// requesting and receiving of the missing VBOs
-	if (requestCount>0){
-		NodeRequestEvent nre = NodeRequestEvent(reducedList, MpiControl::getSingleton()->getRank());
+		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank());
 		MpiControl::getSingleton()->push(new Message(nre, 2));
 		MpiControl::getSingleton()->isend();
+		mPriMissingIdsInFrustum.clear();
 	}
-
 }
 
 void

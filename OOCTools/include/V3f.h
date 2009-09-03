@@ -126,6 +126,7 @@ public:
 	static std::string toString(const float* _array);
 	float calcDistance(const V3f& point) const;
 	float calcSimpleDistance(const V3f& point) const;
+	static float calcSimpleDistance(const V3f& p1, const V3f& p2);
 
 	// back-reference for vertex-normal-calculation. DO NOT DELETE, DUH!
 	std::vector<Face*> *mPriFaceList;

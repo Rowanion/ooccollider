@@ -147,7 +147,7 @@ class LooseOctree
 		void printNodePath(int64_t id) const;
 
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
-
+		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids);
 		inline void setDataLoaded(){mPriDataLoaded = true;};
 		inline void setDataUnloaded(){mPriDataLoaded = false;};
 		inline bool isDataLoaded() const {return mPriDataLoaded;};

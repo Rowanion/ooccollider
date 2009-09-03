@@ -658,6 +658,86 @@ void LooseOctree::printNodePath(int64_t id) const
 	}
 }
 
+
+
+
+void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids) {
+	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
+
+	for (unsigned int p = 0; p < 6; ++p) {
+		aPosCounter = 8;
+		aIPtIn = 1;
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (aPosCounter == 0) //exclude
+		return;
+		else
+			aTotalIn += aIPtIn;
+	}
+
+	if (this->hasData()) {
+		_ids->insert(this->mPriId);
+	}
+
+
+	if (aTotalIn == 6) { //include
+		//vollständig drin
+	}
+	// kinder weiter testen
+
+	for (unsigned i = 0; i < 8; i++) {  //intersect
+		if (this->mChildren[i] != 0) {
+			(this->mChildren[i])->isInFrustum_orig(_frustum, _ids);
+		}
+	}
+}
+
 void LooseOctree::isInFrustum(float** _frustum, std::set<uint64_t>*
 		_ids, bool _showOctree, unsigned* _threshold, bool debug) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;

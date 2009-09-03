@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <cmath>
 
 #include "ClassId.h"
 #include "IEvent.h"
@@ -40,6 +41,29 @@ NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, 
 //		std::cout << mapIt->second << std::endl;
 		((float*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] = mapIt->first;
 		((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*mapSize)))[elementCount] = mapIt->second;
+//		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
+
+		elementCount++;
+	}
+	init();
+}
+
+NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient) {
+
+	unsigned mapSize = idMap.size();
+	unsigned minSize = std::min(threshold, mapSize);
+	std::multimap<float, uint64_t>::const_iterator mapIt;
+
+	mPriByteSize = sizeof(unsigned) + sizeof(int) + (sizeof(float)*minSize) + (sizeof(uint64_t)*minSize);
+	mProData = new char[mPriByteSize];
+	((unsigned*)mProData)[0] = minSize;
+	((int*)(mProData+sizeof(unsigned)))[0] = recipient;
+	unsigned elementCount = 0;
+//	std::cout << "list of node-requests inside the Event: " << std::endl;
+	for (mapIt = idMap.begin(); (mapIt!= idMap.end() && elementCount<threshold); ++mapIt){
+//		std::cout << mapIt->second << std::endl;
+		((float*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] = mapIt->first;
+		((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*minSize)))[elementCount] = mapIt->second;
 //		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
 
 		elementCount++;

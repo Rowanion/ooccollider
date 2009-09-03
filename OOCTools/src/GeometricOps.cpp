@@ -181,10 +181,24 @@ long double GeometricOps::calcTriangleArea4(const float* triangle)
 	return area;
 }
 
+void GeometricOps::transposeMat4( float* _mat ) {
+	float	temp;
+	int		i, j;
+
+	for( i = 0; i < 4; i++ ) {
+		for( j = i + 1; j < 4; j++ ) {
+			temp = _mat[ i + (4 * j) ];
+			_mat[ i + (4 * j)] = _mat[ j + (4 * i) ];
+			_mat[ j + (4 * i) ] = temp;
+        }
+	}
+}
+
 bool GeometricOps::calcEyePosition( float* _mat, V3f& eye )
 {
 	float mat[16];
 	memcpy(mat, _mat, 16*sizeof(float));
+	transposeMat4(mat);
 	// 84+4+16 = 104 multiplications
 	//			   1 division
 	double det, invDet;
@@ -265,9 +279,12 @@ bool GeometricOps::calcEyePosition( float* _mat, V3f& eye )
 	mat[2 + (3 * 4)] = - det3_201_013 * invDet;
 	mat[3 + (3 * 4)] = + det3_201_012 * invDet;
 
-	eye.setX(mat[3]);
-	eye.setX(mat[7]);
-	eye.setX(mat[11]);
+//	eye.setX(mat[3]);
+//	eye.setX(mat[7]);
+//	eye.setX(mat[11]);
+	eye.setX(mat[12]);
+	eye.setX(mat[13]);
+	eye.setX(mat[14]);
 	return true;
 }
 

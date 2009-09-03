@@ -459,13 +459,19 @@ V3f::dot(const V3f& rhs)const
 float
 V3f::calcDistance(const V3f& point) const
 {
-	return sqrt(pow((*x - point.getX()), 2.0) + pow((*y - point.getY()), 2.0) + pow((*z - point.getZ()), 2.0));
+	return sqrt(pow((getX() - point.getX()), 2.0) + pow((getY() - point.getY()), 2.0) + pow((getZ() - point.getZ()), 2.0));
 }
 
 float
 V3f::calcSimpleDistance(const V3f& point) const
 {
 	return pow((*x - point.getX()), 2.0) + pow((*y - point.getY()), 2.0) + pow((*z - point.getZ()), 2.0);
+}
+
+float
+V3f::calcSimpleDistance(const V3f& p1, const V3f& p2)
+{
+	return pow((p2.getX() - p1.getX()), 2.0) + pow((p2.getY() - p1.getY()), 2.0) + pow((p2.getZ() - p1.getZ()), 2.0);
 }
 
 } // Namespace OOCTools

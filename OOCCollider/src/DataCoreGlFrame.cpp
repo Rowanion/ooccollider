@@ -140,7 +140,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	for (unsigned i=0; i< nre.getIdxCount(); ++i){
 		map<uint64_t, std::string>::iterator IT = mPriIdPathMap.find(nre.getId(i));
 		if(IT == mPriIdPathMap.end()) {
-			cerr << "ID not in pathmap!" << endl;
+			cerr << "ID " << nre.getId(i) << " not in pathmap!" << endl;
 			exit(0);
 		}
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
@@ -180,6 +180,8 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				//TODO the following code now performs occlusion queries for each vbo WITHOUT adding
 				// to the depthbuffer on successful test. This only happens after all test have been performed.
 				unsigned queryCount = 0;
+				glDepthMask(GL_FALSE);
+
 				for(distIterator = mPriDistanceMap.begin(); distIterator != mPriDistanceMap.end(); ++distIterator){
 //				for(vboIterator = mPriVboMap.begin(); vboIterator != mPriVboMap.end(); ++vboIterator){
 					glBeginQuery(GL_SAMPLES_PASSED, mPriOccQueries[queryCount]);
@@ -187,6 +189,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					glEndQuery(GL_SAMPLES_PASSED);
 					queryCount++;
 				}
+				glDepthMask(GL_TRUE);
 
 				// handle query-results
 				queryCount = 0;
@@ -199,6 +202,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					}
 					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[distIterator->second]);
 //					cout << vboCount << ": " << mPriOccResults[vboCount] << endl;
+//					if (true){
 					if (mPriOccResults[distIterator->second]>2){
 						// add visible VBO to the current DepthBuffer
 						mPriVboMap[distIterator->second]->managedDraw(true);
@@ -454,8 +458,9 @@ void DataCoreGlFrame::drawAsQuad()
 void DataCoreGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
-	cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "/media/ClemensHDD/workspace4/OOCCollider/shader/vp_depth2color.cg", true);
-	cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "/media/ClemensHDD/workspace4/OOCCollider/shader/fp_depth2color.cg", true);
+	cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true);
+	cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true);
+
 	cgTexture = cgGetNamedParameter(cgFragmentProg, "depthTex");
 	cgGLSetTextureParameter(cgTexture, mPriTexId);
 }
