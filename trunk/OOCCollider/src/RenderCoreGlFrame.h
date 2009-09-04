@@ -91,6 +91,7 @@ private:
 	float mPriEyePosition[3];
 	ooctools::V3f eyePosition;
 	bool mPriCamHasMoved;
+	unsigned mPriBBMode;
 
 	float myGlobalAmbient[3]; /* Dim */
 	float myLightColor[3];  /* White */
@@ -98,6 +99,7 @@ private:
 	ooctools::IndexedVbo* mPriIVbo;
 	ooctools::Camera camObj;
 
+	ooctools::ColorTable mPriColorTable;
 
 	ooctools::Fbo* mPriFbo;
 	int mPriWindowWidth;
@@ -107,6 +109,7 @@ private:
 
 	GLubyte* mPriPixelBuffer;
 	GLfloat* mPriDepthBuffer;
+	GLuint mPriDepthTexId;
 
 	unsigned mPriTriCount;
 
@@ -156,6 +159,13 @@ private:
 	CGparameter g_cgKe;
 	CGparameter g_cgModelViewInv;
 
+	CGprogram cgVertNoLight;
+	CGprogram cgFragNoLight;
+
+	CGprogram cgVertDepthTex;
+	CGprogram cgFragDepthTex;
+	CGparameter cgDepthTex;
+
 	typedef std::map<uint64_t, ooctools::IndexedVbo*>::iterator VboMapIter;
 
 	void calcFPS();
@@ -163,6 +173,9 @@ private:
 	void loadMissingVbosFromDisk(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
 	void compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap2);
 	void divideIdList();
+
+	void setupTexture();
+	void drawDepthTex();
 };
 
 #endif /* RENDERCOREGLFRAME_H_ */

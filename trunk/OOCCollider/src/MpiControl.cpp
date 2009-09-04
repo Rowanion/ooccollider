@@ -128,7 +128,7 @@ void MpiControl::send(Message* msg)
 	MPI::Status stat;
 	if (msg != 0){
 //		cout << "sending immediate msg...." << endl;
-		cout << mRank << " to " << msg->getDst() << "" << endl;
+//		cout << mRank << " to " << msg->getDst() << "" << endl;
 		MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, msg->getDst(), msg->getType());
 		delete msg;
 //		cout << "deleted msg!" << endl;

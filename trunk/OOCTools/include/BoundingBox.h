@@ -44,6 +44,7 @@ public:
 	BoundingBox(const BoundingBox& _bb);
 	virtual ~BoundingBox();
 	void draw() const;
+	void draw(float texCoord) const;
 	void draw(float _r, float _g, float _b) const;
 	void draw(int _r, int _g, int _b) const;
 	void draw(float* _rgb) const;
@@ -57,6 +58,7 @@ public:
 	std::string toString() const;
 	bool hasSharedComponent(const BoundingBox& _bb) const;
 	void drawSolid() const;
+	void drawSolid(float texCoord) const;
 	void saveToFile(fs::path bbFile);
 	void saveToFile(std::string bbFile) const;
 	static BoundingBox fromFile(fs::path bbFile);
@@ -194,6 +196,7 @@ private:
 	// member methods
 	void drawImmediate() const;
 	void drawLineStrip() const;
+	void drawLineStrip(float texCoord) const;
 
 };
 

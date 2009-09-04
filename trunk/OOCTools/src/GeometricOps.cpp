@@ -279,12 +279,12 @@ bool GeometricOps::calcEyePosition( float* _mat, V3f& eye )
 	mat[2 + (3 * 4)] = - det3_201_013 * invDet;
 	mat[3 + (3 * 4)] = + det3_201_012 * invDet;
 
-//	eye.setX(mat[3]);
-//	eye.setX(mat[7]);
-//	eye.setX(mat[11]);
-	eye.setX(mat[12]);
-	eye.setX(mat[13]);
-	eye.setX(mat[14]);
+	eye.setX(mat[3]);
+	eye.setX(mat[7]);
+	eye.setX(mat[11]);
+//	eye.setX(mat[12]);
+//	eye.setX(mat[13]);
+//	eye.setX(mat[14]);
 	return true;
 }
 

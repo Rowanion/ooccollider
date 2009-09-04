@@ -9,7 +9,10 @@ void main(V2FI IN,
 		uniform sampler2D depthTex)
 {
 //	color = float4(0.0, 0.0, 1.0, 1.0);
-	color = float4(0.0, tex2D(depthTex, IN.texCoord).r, 1.0, 1.0);
+	//color = sqrt(float4((tex2D(depthTex, IN.texCoord).rgb), 1.0));
+	color = (float4((tex2D(depthTex, IN.texCoord).aaa), 1.0))/5.0;
+	//color = sqrt(float4(tex2Dproj(depthTex, IN.texCoord).rgb, 1.0));
+	//color = sqrt(float4(tex2Dproj(depthTex, IN.texCoord).aaa, 1.0));
 //	if (color.g<0.0 || color.g>1.0){
 		//color.r = 1.0;
 //	}

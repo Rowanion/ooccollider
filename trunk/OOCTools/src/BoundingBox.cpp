@@ -162,6 +162,13 @@ BoundingBox::draw() const
 //	glColor3ub(255,0,0);
 	drawLineStrip();
 }
+
+void
+BoundingBox::draw(float texCoord) const
+{
+	drawLineStrip(texCoord);
+}
+
 void
 BoundingBox::draw(float _r, float _g, float _b) const
 {
@@ -234,6 +241,33 @@ BoundingBox::drawLineStrip() const
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
+	glEnd();
+}
+
+void
+BoundingBox::drawLineStrip(float texCoord) const
+{
+	glBegin(GL_LINE_LOOP);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+	glEnd();
+
+	glBegin(GL_LINES);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
 	glEnd();
 }
 
@@ -323,6 +357,45 @@ BoundingBox::drawSolid() const
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+
+
+
+	glEnd();
+}
+
+void
+BoundingBox::drawSolid(float texCoord) const
+{
+	glBegin(GL_QUADS);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
 
 
 

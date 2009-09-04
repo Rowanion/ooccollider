@@ -12,8 +12,8 @@ void main(V2FI IN,
         	  uniform sampler1D colorLut)
 {
 
-//	color.xyz = tex1D(colorLut, IN.texCoord).rgb;
-	color.xyz = float3(1,0,1);
+	color.xyz = tex1D(colorLut, IN.texCoord).rgb;
+//	color.xyz = float3(1,0,1);
 }
 
 

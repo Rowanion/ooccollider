@@ -72,26 +72,26 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 	unsigned frames = 0;
 	do {
 		while(!MpiControl::getSingleton()->outQueueEmpty()){
-			cout << "master found that his outqueue is not empty.....sending...." << endl;
+//			cout << "master found that his outqueue is not empty.....sending...." << endl;
 			MpiControl::getSingleton()->send();
 		}
 
 		if (!mTerminateApplication){
 			//send matrix/camera to when the out-queue is empty
-			cout << "master sending matrix..." << endl;
+//			cout << "master sending matrix..." << endl;
 			for (int i=1; i<MpiControl::getSingleton()->getSize(); ++i){
 				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),i,(char*)glFrame->getMvMatrix());
 				MpiControl::getSingleton()->send(msg);
-				cout << "master sent matrix to " << i << endl;
+//				cout << "master sent matrix to " << i << endl;
 			}
-			cout << "master has sent all matrices" << endl;
+//			cout << "master has sent all matrices" << endl;
 
 			//rcv kacheln from all renderers
-			cout << "0 waiting for any..." << endl;
+//			cout << "0 waiting for any..." << endl;
 			receiveQueue(MPI_ANY_SOURCE);
 
 			glFrame->display();
-			cout << "end of display 0..." << endl;
+//			cout << "end of display 0..." << endl;
 		}
 		else{
 			mRunning=false;
