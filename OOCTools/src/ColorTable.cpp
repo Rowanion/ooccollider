@@ -109,8 +109,9 @@ ColorTable::unbindTex()
 void
 ColorTable::setCgParams(CGprogram shader)
 {
-		cgTex = cgGetNamedParameter(shader, "colorLut");
-		cgGLSetTextureParameter(cgTex, texId);
+
+	cgTex = cgGetNamedParameter(shader, "colorLut");
+	cgGLSetTextureParameter(cgTex, texId);
 }
 
 void
@@ -404,6 +405,31 @@ bool ColorTable::isInflated(){
 	if (dummyIndex != 0 && dummySpace != colors.begin())
 		return true;
 	else return false;
+}
+
+void ColorTable::drawLegend()
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_1D, texId);
+	glEnable(GL_TEXTURE_1D);
+
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+		glLoadIdentity ();
+		glMatrixMode (GL_PROJECTION);
+		glPushMatrix ();
+			glLoadIdentity ();
+			glDepthMask(GL_FALSE);
+			glBegin (GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f); glVertex2f (-1.0f, -1.0f);
+				glTexCoord2f(1.0f, 0.0f); glVertex2f (1.0f, -1.0f);
+				glTexCoord2f(1.0f, 1.0f); glVertex2f (1.0f, -0.95f);
+				glTexCoord2f(0.0f, 1.0f); glVertex2f (-1.0f, -0.95f);
+			glEnd ();
+			glDepthMask(GL_TRUE);
+		glPopMatrix ();
+		glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
 }
 
 } // ooctools

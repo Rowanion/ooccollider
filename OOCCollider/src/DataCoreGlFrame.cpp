@@ -56,8 +56,7 @@ DataCoreGlFrame::DataCoreGlFrame() :
 		fps[i] = 0.0f;
 	}
 	mPriVboMan = VboManager::getSingleton();
-	mPriVboMan->setColorTable(ColorTable(string(
-			"/media/ClemensHDD/colortable.bin")));
+	mPriVboMan->setColorTable(ColorTable(string(BASE_MODEL_PATH) + string("/colortable.bin")));
 	mPriCgt = CgToolkit::getSingleton();
 	myGlobalAmbient[0] = 0.1f;
 	myGlobalAmbient[1] = 0.1f;
@@ -471,7 +470,7 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		ModelViewMatrixEvent& mve = (ModelViewMatrixEvent&)event;
 //		glLoadMatrixf(mve.getMatrix());
 		memcpy(mPriModelViewMatrix, mve.getMatrix(), 16*sizeof(float));
-		cout << "loaded matrix: " << MpiControl::getSingleton()->getRank() << endl;
+//		cout << "loaded matrix: " << MpiControl::getSingleton()->getRank() << endl;
 	}
 	else if (event.instanceOf(KeyPressedEvent::classid())){
 		KeyPressedEvent& mde = (KeyPressedEvent&)event;

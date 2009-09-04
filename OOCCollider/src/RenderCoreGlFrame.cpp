@@ -60,7 +60,7 @@ using namespace oocframework;
 RenderCoreGlFrame::RenderCoreGlFrame() :
 	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0),
 			frame(0), mPriVboMan(0), mPriCgt(0), eyePosition(ooctools::V3f()),
-			mPriCamHasMoved(false), mPriIVbo(0), mPriFbo(0),
+			mPriCamHasMoved(false), mPriBBMode(0), mPriIVbo(0), mPriFbo(0),
 			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0),
 			mPriDepthBuffer(0), mPriTriCount(0), priFrustum(0), mPriIdPathMap(
 					std::map<uint64_t, std::string>()), mPriMissingIdsInFrustum(std::set<uint64_t>()),
@@ -73,8 +73,8 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 		fps[i] = 0.0f;
 	}
 	mPriVboMan = VboManager::getSingleton();
-	mPriVboMan->setColorTable(ColorTable(string(
-			"/media/ClemensHDD/colortable.bin")));
+	mPriColorTable = ColorTable(string(BASE_MODEL_PATH) + string("/colortable.bin"));
+	mPriVboMan->setColorTable(mPriColorTable);
 	mPriCgt = CgToolkit::getSingleton();
 	myGlobalAmbient[0] = 0.1f;
 	myGlobalAmbient[1] = 0.1f;
@@ -130,13 +130,17 @@ void RenderCoreGlFrame::init() {
 	//	glEnable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glGenTextures(1, &mPriDepthTexId);
+//	mPriDepthTexId = 25;
 	GET_GLERROR(0);
 	// Cg ....
 	setupCg();
-	mPriVboMan->getColorTable().setupTexture();
-	mPriVboMan->getColorTable().setCgParams(g_cgFragmentProg);
-	mPriVboMan->getColorTable().bindTex();
-	mPriVboMan->getColorTable().debug();
+	mPriColorTable.setupTexture();
+	mPriColorTable.setCgParams(cgFragNoLight);
+	mPriColorTable.bindTex();
+	mPriColorTable.setCgParams(g_cgFragmentProg);
+	mPriColorTable.bindTex();
+	mPriColorTable.debug();
 	camObj.positionCamera(0.0,0.0,5.0,
 			0.0,0.0,-3.0,
 			0,1,0);
@@ -149,7 +153,6 @@ void RenderCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
-//	setVbo(new IndexedVbo(fs::path("/home/ava/Diplom/Model/Octree/data/5/5/182.idx")));
 
 	mPriSceneBB = mPriLo->getBb();
 	mPriSceneBB.computeCenter(mPriSceneCenter);
@@ -158,8 +161,23 @@ void RenderCoreGlFrame::init() {
 void RenderCoreGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
+	cgVertDepthTex = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true);
+	cgFragDepthTex = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
+	glEnable(GL_TEXTURE_2D);
+	cgDepthTex = cgGetNamedParameter(cgFragDepthTex, "depthTex");
+	cgGLSetTextureParameter(cgDepthTex, mPriDepthTexId);
+	cgGLEnableTextureParameter(cgDepthTex);
+//	glDisable(GL_TEXTURE_2D);
+
+
+	cgVertNoLight = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_NoLightLut.cg", true);
+	cgFragNoLight = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_NoLightLut.cg", true);
+
 	g_cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_phongDirectional.cg", true);
 	g_cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_phongDirectional.cg", true);
+
 	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
 	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
 	g_cgLightColor = cgGetNamedParameter(g_cgFragmentProg, "lightColor");
@@ -184,15 +202,21 @@ void RenderCoreGlFrame::display()
 
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
+	GET_GLERROR(0);
 	glClear(GL_DEPTH_BUFFER_BIT);
+	GET_GLERROR(0);
 	glLoadIdentity();
+	GET_GLERROR(0);
 	glMultMatrixf(mPriModelViewMatrix);
+	GET_GLERROR(0);
 
 	if (mPriCamHasMoved){
 		if (!ooctools::GeometricOps::calcEyePosition(mPriModelViewMatrix, eyePosition)){
 			cout << "----------------------------------------- NO INVERSE!" << endl;
 		}
 	}
+	GET_GLERROR(0);
+	setupTexture();
 
 	getFrustum();
 	mPriIdsInFrustum.clear();
@@ -211,7 +235,7 @@ void RenderCoreGlFrame::display()
 	cgGLSetParameter3fv(g_cgLightPosition,camObj.getEye().getData());
 	cgGLSetParameter3fv(g_cgEyePosition,camObj.getEye().getData());
 
-//	normalizeFrustum();
+	//	normalizeFrustum();
 //	glLoadIdentity();
 //	gluLookAt( // Set camera position and orientation
 //			0.0, 0.0, 10.0, // Camera position (x,y,z)
@@ -231,9 +255,11 @@ void RenderCoreGlFrame::display()
 					glLightfv(GL_LIGHT0, GL_POSITION, camObj.getEye().getData());
 				glPopMatrix();
 				glColor3f(1.0f,0.0f,0.0f);
+				GET_GLERROR(0);
 				mPriFbo->bind();
 				mPriFbo->clear();
 				mPriSceneBB.draw();
+				GET_GLERROR(0);
 				cout << "Number of VBOs: " << mPriVbosInFrustum.size()<< endl;
 //				cout << "Number of Tris being rendered: " << mPriTriCount<< endl;
 //				for (std::set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!= mPriIdsInFrustum.end(); ++it){
@@ -242,16 +268,49 @@ void RenderCoreGlFrame::display()
 //					mPriIdLoMap[(*it)]->getBb().draw();
 //				}
 
-				mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
-				mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+				GET_GLERROR(0);
 
-				if (mPriIVbo != 0){
-					mPriIVbo->managedDraw();
-				}
 				for (std::map<uint64_t, ooctools::IndexedVbo*>::iterator it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
-					it->second->managedDraw();
+					if (mPriBBMode == 0){
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+						it->second->managedDraw();
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+					}
+					else if (mPriBBMode == 1){
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+						it->second->managedDraw();
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+					}
+					else if (mPriBBMode == 2){
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+					}
+					else if (mPriBBMode == 3){
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						mPriIdLoMap[it->first]->getBb().drawSolid(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+					}
 				}
-				// DRAW IT
+				if (mPriBBMode>0){
+					mPriColorTable.drawLegend();
+				}
+				GET_GLERROR(0);
+				// DRAW an orientation line
 				glBegin(GL_LINES);
 					glVertex4f(mPriEyePosition[1], mPriEyePosition[2], mPriEyePosition[3], mPriVboMan->getColorTable().calculateTexCoord(31));
 					glVertex4f(mPriSceneCenter.getX(), mPriSceneCenter.getY(), mPriSceneCenter.getZ(), mPriVboMan->getColorTable().calculateTexCoord(31));
@@ -266,6 +325,7 @@ void RenderCoreGlFrame::display()
 				// dumping the depth-buffer every 100 frames....
 				cout << "frame: " << frame << ", camMoved? " << mPriCamHasMoved<< endl;
 				if (frame == (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved){
+					GET_GLERROR(0);
 					mPriCamHasMoved = false;
 					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
 //					cout << "getting depthb...." << endl;
@@ -286,15 +346,13 @@ void RenderCoreGlFrame::display()
 //				MpiControl::getSingleton()->sendAll();
 //				delete msg;
 
-				mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-				mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-
 				mPriFbo->unbind();
 			glPopMatrix();
 		glPopMatrix();
 	glPopMatrix();
 
-	mPriFbo->drawAsQuad();
+//	mPriFbo->drawAsQuad();
+	drawDepthTex();
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
@@ -681,7 +739,6 @@ this->priFrustum[i][0] + this->priFrustum[i][1] * this->priFrustum[i][1]
 void
 RenderCoreGlFrame::requestMissingVbos()
 {
-	//TODO umbau auf die zusatz methode und maps
 	// deleting obsolete vbos
 	//TODO use cache buffer
 	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
@@ -703,6 +760,10 @@ RenderCoreGlFrame::requestMissingVbos()
 	}
 
 	// add MAX_LOADS_PER_FRAME of missingIdDistances to requestedList and request them
+	cout << "-------------------- still missing VBOs: " << mPriMissingIdsInFrustum.size() << endl;
+	cout << "-------------------- invisible VBOs: " << mPriIdsInFrustum.size() - mPriMissingIdsInFrustum.size() - mPriVbosInFrustum.size() << endl;
+	cout << "-------------------- total VBOs in frustum: " << mPriIdsInFrustum.size() << endl;
+	cout << "-------------------- requesting VBOs : " << std::min((int)mPriMissingIdsInFrustum.size(), MAX_LOADS_PER_FRAME) << endl;
 	if (missingIdDistances.size() > 0){
 		multimap<float, uint64_t>::iterator multiIt = missingIdDistances.begin();
 		unsigned reqCount = 0;
@@ -865,6 +926,62 @@ RenderCoreGlFrame::compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap
 	}
 }
 
+void RenderCoreGlFrame::setupTexture()
+{
+
+	GET_GLERROR(0);
+	glActiveTexture(GL_TEXTURE0);
+	GET_GLERROR(0);
+	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
+	GET_GLERROR(0);
+	glEnable(GL_TEXTURE_2D);
+	GET_GLERROR(0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_ALPHA);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+	GET_GLERROR(0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWindowWidth, mPriWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBuffer);
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA16, mPriWindowWidth, mPriWindowHeight, 0, GL_ALPHA, GL_FLOAT, mPriDepthBuffer);
+	GET_GLERROR(0);
+
+}
+
+void RenderCoreGlFrame::drawDepthTex()
+{
+	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertDepthTex);
+	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragDepthTex);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
+	GET_GLERROR(0);
+	glEnable(GL_TEXTURE_2D);
+
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+		glLoadIdentity ();
+		glMatrixMode (GL_PROJECTION);
+		glPushMatrix ();
+			glLoadIdentity ();
+			glBegin (GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f); glVertex3i (-1, -1, -1);
+				glTexCoord2f(1.0f, 0.0f); glVertex3i (1, -1, -1);
+				glTexCoord2f(1.0f, 1.0f); glVertex3i (1, 1, -1);
+				glTexCoord2f(0.0f, 1.0f); glVertex3i (-1, 1, -1);
+			glEnd ();
+		glPopMatrix ();
+		glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
+	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+	glDisable(GL_TEXTURE_2D);
+
+}
+
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
@@ -897,6 +1014,11 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 				else
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				mPriUseWireFrame = !mPriUseWireFrame;
+			break;
+			case 'O': // switch BoundingBoxMode
+				mPriBBMode++;
+				if (mPriBBMode>3)
+					mPriBBMode = 0;
 			break;
 			case 'F': // increase far-clipping plane
 				mPriFarClippingPlane*=2.0f;
