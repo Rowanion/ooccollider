@@ -421,15 +421,17 @@ void ColorTable::drawLegend()
 			glLoadIdentity ();
 			glDepthMask(GL_FALSE);
 			glBegin (GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f); glVertex2f (-1.0f, -1.0f);
-				glTexCoord2f(1.0f, 0.0f); glVertex2f (1.0f, -1.0f);
-				glTexCoord2f(1.0f, 1.0f); glVertex2f (1.0f, -0.95f);
-				glTexCoord2f(0.0f, 1.0f); glVertex2f (-1.0f, -0.95f);
+				glTexCoord1f(0.0f); glVertex2f (-1.0f, -1.0f);
+				glTexCoord1f(1.0f); glVertex2f (1.0f, -1.0f);
+				glTexCoord1f(1.0f); glVertex2f (1.0f, -0.95f);
+				glTexCoord1f(0.0f); glVertex2f (-1.0f, -0.95f);
 			glEnd ();
 			glDepthMask(GL_TRUE);
 		glPopMatrix ();
 		glMatrixMode (GL_MODELVIEW);
 	glPopMatrix ();
+	glBindTexture(GL_TEXTURE_1D, 0);
+	glDisable(GL_TEXTURE_1D);
 }
 
 } // ooctools
