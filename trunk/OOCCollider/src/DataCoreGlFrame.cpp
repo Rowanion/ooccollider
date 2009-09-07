@@ -144,7 +144,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 		}
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
-		mPriVboMap.insert(make_pair(nre.getId(i), new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[nre.getId(i)]+".idx"))));
+		mPriVboMap.insert(make_pair(nre.getId(i), new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[nre.getId(i)]+".idx"), nre.getId(i))));
 		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
 //		cout << nre.getDistance(i) << endl;
 //		exit(0);
@@ -194,7 +194,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				queryCount = 0;
 				for(distIterator = mPriDistanceMap.begin(); distIterator != mPriDistanceMap.end(); ++distIterator){
 //				for(vboIterator = mPriVboMap.begin(); vboIterator != mPriVboMap.end(); ++vboIterator){
-					GLint queryState;
+					GLint queryState = GL_FALSE;
 					while(queryState != GL_TRUE){
 					  glGetQueryObjectiv(mPriOccQueries[0], GL_QUERY_RESULT_AVAILABLE, &queryState);
 //					  cout << "waiting for end of query..." << endl;
@@ -202,9 +202,10 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[distIterator->second]);
 //					cout << vboCount << ": " << mPriOccResults[vboCount] << endl;
 //					if (true){
-					if (mPriOccResults[distIterator->second]>2){
+					if (mPriOccResults[distIterator->second]>4){
 						// add visible VBO to the current DepthBuffer
 						mPriVboMap[distIterator->second]->managedDraw(true);
+						mPriVisibleVbosVector.push_back(mPriVboMap[distIterator->second]);
 
 						// send the visible object to the requester
 						VboEvent ve = VboEvent(mPriVboMap[distIterator->second], distIterator->second);
@@ -280,7 +281,23 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	}
 	MpiControl::getSingleton()->send(new Message(EndTransmissionEvent::classid()->getShortId(), 0, nre.getRecepient(), 0));
 
+
 */
+
+	// DEBUG
+	if (mPriVisibleVbosVector.size()>0){
+		VboEvent testVe = VboEvent(mPriVisibleVbosVector);
+		cout << "Local   --    Event" << endl;
+		//	cout << "Event: " << endl;
+		for (unsigned i=0; i< testVe.getVboCount(); ++i){
+			for (unsigned j=0; j< testVe.getIndexCount(i); ++j){
+				cout << mPriVisibleVbosVector[i]->getIndexData()[j] << "   --   " <<testVe.getIndexArray(i)[j] << endl;
+			}
+	//		cout <<  testVe.getBytePrefixSum(i) << endl;
+		}
+	}
+	// END DEBUG
+
 	// cleanup
 	unsigned vboMapSize = mPriVboMap.size();
 	for (unsigned i=0; i< vboMapSize; ++i){
@@ -290,6 +307,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	}
 	mPriVboMap.clear();
 	mPriDistanceMap.clear();
+	mPriVisibleVbosVector.clear();
 
 	mPriOccResults.clear();
 	// draw the result for debugging

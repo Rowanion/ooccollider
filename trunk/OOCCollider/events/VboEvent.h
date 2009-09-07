@@ -35,6 +35,7 @@ public:
 	VboEvent();
 	VboEvent(const ooctools::IndexedVbo* vbo, uint64_t nodeId);
 	VboEvent(std::string path, uint64_t nodeId);
+	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec);
 	VboEvent(const Message* msg);
 	virtual ~VboEvent();
 	static const oocframework::ClassId* classid();
@@ -87,6 +88,17 @@ public:
 	 * to do all the cleaning-up.
 	 */
 	ooctools::IndexedVbo* createIVbo() const;
+
+	// ------------------------------------------------------------------------------------------
+	//TODO after done implementation of new methods add a '=0' default val to the params
+	const unsigned* getIndexArray(unsigned idx) const;
+	unsigned getVboCount() const;
+	unsigned getBytePrefixSum(unsigned idx) const;
+	unsigned getIndexCount(unsigned idx) const;
+	unsigned getVertexCount(unsigned idx) const;
+	uint64_t getNodeId(unsigned idx) const;
+
+
 
 protected:
 	static oocframework::ClassId* mClassId;

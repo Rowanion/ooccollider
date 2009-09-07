@@ -94,13 +94,13 @@ ColorTable::bindTex()
 	glBindTexture(GL_TEXTURE_1D, texId);
 	GET_GLERROR(0);
 	glEnable(GL_TEXTURE_1D);
-	cgGLEnableTextureParameter(cgTex);
+//	cgGLEnableTextureParameter(cgTex);
 }
 
 void
 ColorTable::unbindTex()
 {
-	cgGLDisableTextureParameter(cgTex);
+//	cgGLDisableTextureParameter(cgTex);
 	glBindTexture(GL_TEXTURE_1D, 0);
 	GET_GLERROR(0);
 	glDisable(GL_TEXTURE_1D);
