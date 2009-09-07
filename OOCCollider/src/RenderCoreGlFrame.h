@@ -42,6 +42,7 @@ public:
 	virtual void setupCg();
 	virtual void display();
 	virtual void reshape(int width, int height);
+	virtual void reshape(int width, int height, float farPlane);
 	virtual void setVbo(ooctools::IndexedVbo* iVbo);
 	virtual void resizeWindow();
 	virtual void resizeWindow(unsigned _height, unsigned _width);
@@ -88,10 +89,11 @@ private:
 
 	float mPriModelViewMatrix[16];
 	float* mPriModelViewProjMatrix;
-	float mPriEyePosition[3];
-	ooctools::V3f eyePosition;
+	ooctools::V3f mPriEyePosition;
 	bool mPriCamHasMoved;
 	unsigned mPriBBMode;
+
+	float mPriAspectRatio;
 
 	float myGlobalAmbient[3]; /* Dim */
 	float myLightColor[3];  /* White */
@@ -158,9 +160,11 @@ private:
 	CGparameter g_cgKa;
 	CGparameter g_cgKe;
 	CGparameter g_cgModelViewInv;
+	CGparameter cgFragLUT;
 
 	CGprogram cgVertNoLight;
 	CGprogram cgFragNoLight;
+	CGparameter cgNoLightLUT;
 
 	CGprogram cgVertDepthTex;
 	CGprogram cgFragDepthTex;

@@ -26,7 +26,7 @@ friend class VboManager;
 
 public:
 	IndexedVbo(const unsigned* _idxData, unsigned _idxCount, const V4N4* _vertexData, unsigned _vertexCount, bool initiateOnline=true);
-	IndexedVbo(fs::path path, bool initiateOnline=true);
+	IndexedVbo(fs::path path, uint64_t id, bool initiateOnline=true);
 	virtual ~IndexedVbo();
 	void managedDraw(bool dataNodeMode = false);
 	void setOnline();
@@ -36,6 +36,7 @@ public:
 	inline unsigned getVertexCount() const {return mPriVertexCount;};
 	inline unsigned getTriCount() const {return mPriVertexCount/3;};
 	inline unsigned getIndexCount() const {return mPriIndexCount;};
+	inline uint64_t getId() const {return mPriId;};
 
 private:
 	V4N4* mPriVertexData;
@@ -46,6 +47,7 @@ private:
 	GLuint mPriVertexId;
 	GLuint mPriIdxId;
 	bool mPriIsGpuOnly;
+	uint64_t mPriId;
 };
 
 }

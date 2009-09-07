@@ -19,6 +19,7 @@
 #include "IEvent.h"
 
 using namespace std;
+using namespace ooctools;
 
 oocframework::ClassId* VboEvent::mClassId = new oocframework::ClassId("VboEvent");
 
@@ -29,7 +30,7 @@ VboEvent::VboEvent() {
 	init();
 }
 
-VboEvent::VboEvent(const ooctools::IndexedVbo* vbo, uint64_t nodeId)
+VboEvent::VboEvent(const ooctools::IndexedVbo* vbo, uint64_t nodeId) // single vbo
 {
 	unsigned iCount = vbo->getIndexCount();
 	unsigned vCount = vbo->getVertexCount();
@@ -43,7 +44,61 @@ VboEvent::VboEvent(const ooctools::IndexedVbo* vbo, uint64_t nodeId)
 	memcpy((mProData+sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount), vbo->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
 }
 
-VboEvent::VboEvent(std::string path, uint64_t nodeId)
+VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec) // multiple vbos
+{
+	unsigned vboCount = vboVec.size();
+	unsigned bytePrefixSums[vboCount+1];
+	bytePrefixSums[0] = 0;
+	for (unsigned i=1; i <= vboCount; ++i){
+		bytePrefixSums[i] = bytePrefixSums[i-1] + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*vboVec[i-1]->getIndexCount() + sizeof(V4N4)*vboVec[i-1]->getVertexCount();
+	}
+	// vbocount + bytePrefixSums+1 + sum of bytes
+	mPriByteSize = sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[vboCount];
+	mProData = new char[mPriByteSize];
+
+	((unsigned*)mProData)[0] = vboCount;
+	memcpy(((mProData + sizeof(unsigned))), bytePrefixSums, sizeof(unsigned)*(vboCount+1));
+
+	for (unsigned i=0; i < vboCount; ++i){
+		char* tempPt =  (mProData + sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[i]);
+		unsigned iCount = vboVec[i]->getIndexCount();
+		unsigned vCount = vboVec[i]->getVertexCount();
+
+		((uint64_t*)tempPt)[0] = vboVec[i]->getId();
+		((unsigned*)(tempPt + sizeof(uint64_t)))[0] = iCount;
+		((unsigned*)(tempPt + sizeof(uint64_t)))[1] = vCount;
+		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2), vboVec[i]->getIndexData(), sizeof(unsigned)*iCount);
+		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount), vboVec[i]->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
+	}
+}
+
+// ------------------------------------------------
+//TODO implement the rest of the new methods
+const unsigned* VboEvent::getIndexArray(unsigned idx) const
+{
+	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 ));
+};
+unsigned VboEvent::getVertexCount(unsigned idx) const
+{
+	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t)))[1];
+}
+unsigned VboEvent::getIndexCount(unsigned idx) const
+{
+	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t)))[0];
+}
+uint64_t VboEvent::getNodeId(unsigned idx) const
+{
+	return ((uint64_t*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx)))[0];
+}
+unsigned VboEvent::getVboCount() const
+{
+	return ((unsigned*)mProData)[0];
+}
+unsigned VboEvent::getBytePrefixSum(unsigned idx) const
+{
+	return ((unsigned*)(mProData + sizeof(unsigned)))[idx];
+}
+VboEvent::VboEvent(std::string path, uint64_t nodeId) // single vbo
 {
 	unsigned iCount = 0;
 	unsigned vCount = 0;

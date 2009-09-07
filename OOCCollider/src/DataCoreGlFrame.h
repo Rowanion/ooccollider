@@ -125,6 +125,7 @@ private:
 	std::map<uint64_t, oocformats::LooseOctree*> mPriIdLoMap;
 	std::set<uint64_t> mPriIdsInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVboMap;
+	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVector;
 	std::multimap<float, uint64_t> mPriDistanceMap;
 
 	bool mPriUseWireFrame;

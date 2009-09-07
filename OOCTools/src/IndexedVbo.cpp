@@ -36,10 +36,10 @@ IndexedVbo::IndexedVbo(const unsigned* _idxData, unsigned _idxCount, const V4N4*
 	}
 }
 
-IndexedVbo::IndexedVbo(fs::path path, bool initiateOnline) :
+IndexedVbo::IndexedVbo(fs::path path, uint64_t id, bool initiateOnline) :
 	 mPriVertexData(0), mPriVertexCount(0),
 	 mPriIndexData(0), mPriIndexCount(0), mPriIsOffline(false),
-	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false)
+	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false), mPriId(id)
 {
 	fs::ifstream dataFile;
 	fs::ifstream idxFile;
