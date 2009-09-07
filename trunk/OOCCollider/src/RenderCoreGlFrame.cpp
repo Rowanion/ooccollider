@@ -161,14 +161,14 @@ void RenderCoreGlFrame::init() {
 void RenderCoreGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
-	cgVertDepthTex = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true);
-	cgFragDepthTex = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
-	glEnable(GL_TEXTURE_2D);
-	cgDepthTex = cgGetNamedParameter(cgFragDepthTex, "depthTex");
-	cgGLSetTextureParameter(cgDepthTex, mPriDepthTexId);
-	cgGLEnableTextureParameter(cgDepthTex);
+//	cgVertDepthTex = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true);
+//	cgFragDepthTex = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true);
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
+//	glEnable(GL_TEXTURE_2D);
+//	cgDepthTex = cgGetNamedParameter(cgFragDepthTex, "depthTex");
+//	cgGLSetTextureParameter(cgDepthTex, mPriDepthTexId);
+//	cgGLEnableTextureParameter(cgDepthTex);
 //	glDisable(GL_TEXTURE_2D);
 
 
@@ -216,7 +216,7 @@ void RenderCoreGlFrame::display()
 		}
 	}
 	GET_GLERROR(0);
-	setupTexture();
+//	setupTexture();
 
 	getFrustum();
 	mPriIdsInFrustum.clear();
@@ -351,8 +351,8 @@ void RenderCoreGlFrame::display()
 		glPopMatrix();
 	glPopMatrix();
 
-//	mPriFbo->drawAsQuad();
-	drawDepthTex();
+	mPriFbo->drawAsQuad();
+//	drawDepthTex();
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
