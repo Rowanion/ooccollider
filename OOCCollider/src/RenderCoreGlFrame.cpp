@@ -127,7 +127,7 @@ void RenderCoreGlFrame::init() {
 	glDrawBuffer(GL_FRONT_AND_BACK);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	//	glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glGenTextures(1, &mPriDepthTexId);
@@ -400,8 +400,8 @@ void RenderCoreGlFrame::reshape(int width, int height)
 }
 
 void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
-	cout << "Window resized to: " << width << ", " << height << endl;
-	cout << "SIZE CHANGED" << endl;
+//	cout << "Window resized to: " << width << ", " << height << endl;
+//	cout << "SIZE CHANGED" << endl;
 
 	if (mPriPixelBuffer==0|| mPriWindowWidth != width || mPriWindowHeight != height){
 		delete[] mPriPixelBuffer;
@@ -1076,7 +1076,10 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(VboEvent::classid())){
 		VboEvent& ve = (VboEvent&)event;
-		mPriVbosInFrustum.insert(make_pair(ve.getNodeId(), new IndexedVbo(ve.getIndexArray(), ve.getIndexCount(), ve.getVertexArray(), ve.getVertexCount())));
+		for (unsigned i=0; i< ve.getVboCount(); ++i){
+			mPriVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
+		}
+//		mPriVbosInFrustum.insert(make_pair(ve.getNodeId(), new IndexedVbo(ve.getIndexArray(), ve.getIndexCount(), ve.getVertexArray(), ve.getVertexCount())));
 	}
 
 

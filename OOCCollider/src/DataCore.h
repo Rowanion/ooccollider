@@ -21,11 +21,10 @@
 #include "OctreeHandler.h"
 #include "LooseOctree.h"
 
-class DataCore: public AbstractEventHandler {
+class DataCore {
 public:
 	DataCore(unsigned _width=640, unsigned _height=480);
 	virtual ~DataCore();
-	virtual void Event(int event, bool state);
 	void renderOneFrame();
 	void waitForDepthBuffers();
 

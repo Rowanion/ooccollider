@@ -127,7 +127,7 @@ void DataCoreGlFrame::display()
 void DataCoreGlFrame::display(NodeRequestEvent& nre)
 {
 //	resizeWindow(height, width);
-	cout << "starting display of DataCore" << endl;
+//	cout << "starting display of DataCore" << endl;
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT||GL_DEPTH_BUFFER_BIT);
@@ -193,25 +193,16 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				// handle query-results
 				queryCount = 0;
 				for(distIterator = mPriDistanceMap.begin(); distIterator != mPriDistanceMap.end(); ++distIterator){
-//				for(vboIterator = mPriVboMap.begin(); vboIterator != mPriVboMap.end(); ++vboIterator){
 					GLint queryState = GL_FALSE;
 					while(queryState != GL_TRUE){
 					  glGetQueryObjectiv(mPriOccQueries[0], GL_QUERY_RESULT_AVAILABLE, &queryState);
-//					  cout << "waiting for end of query..." << endl;
 					}
 					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[distIterator->second]);
-//					cout << vboCount << ": " << mPriOccResults[vboCount] << endl;
 //					if (true){
 					if (mPriOccResults[distIterator->second]>4){
 						// add visible VBO to the current DepthBuffer
 						mPriVboMap[distIterator->second]->managedDraw(true);
 						mPriVisibleVbosVector.push_back(mPriVboMap[distIterator->second]);
-
-						// send the visible object to the requester
-						VboEvent ve = VboEvent(mPriVboMap[distIterator->second], distIterator->second);
-						Message* msg = new Message(ve, nre.getRecepient());
-						MpiControl::getSingleton()->push(msg);
-//						MpiControl::getSingleton()->isend();
 					}
 					queryCount++;
 				}
@@ -284,19 +275,11 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 */
 
-	// DEBUG
-	if (mPriVisibleVbosVector.size()>0){
-		VboEvent testVe = VboEvent(mPriVisibleVbosVector);
-		cout << "Local   --    Event" << endl;
-		//	cout << "Event: " << endl;
-		for (unsigned i=0; i< testVe.getVboCount(); ++i){
-			for (unsigned j=0; j< testVe.getIndexCount(i); ++j){
-				cout << mPriVisibleVbosVector[i]->getIndexData()[j] << "   --   " <<testVe.getIndexArray(i)[j] << endl;
-			}
-	//		cout <<  testVe.getBytePrefixSum(i) << endl;
-		}
-	}
-	// END DEBUG
+	// send the visible object to the requester
+	VboEvent ve = VboEvent(mPriVisibleVbosVector);
+	Message* msg = new Message(ve, nre.getRecepient());
+	MpiControl::getSingleton()->push(msg);
+//  MpiControl::getSingleton()->isend();
 
 	// cleanup
 	unsigned vboMapSize = mPriVboMap.size();

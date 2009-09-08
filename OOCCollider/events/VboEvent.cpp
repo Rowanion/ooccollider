@@ -30,18 +30,26 @@ VboEvent::VboEvent() {
 	init();
 }
 
-VboEvent::VboEvent(const ooctools::IndexedVbo* vbo, uint64_t nodeId) // single vbo
+VboEvent::VboEvent(const ooctools::IndexedVbo* vbo) // single vbo
 {
-	unsigned iCount = vbo->getIndexCount();
-	unsigned vCount = vbo->getVertexCount();
-	mPriByteSize = sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount + sizeof(float)*vCount*4 + sizeof(char)*vCount*4;
+	unsigned bytePrefixSums[2];
+	bytePrefixSums[0] = 0;
+	bytePrefixSums[1] = sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*vbo->getIndexCount() + sizeof(V4N4)*vbo->getVertexCount();
+	mPriByteSize = sizeof(unsigned) + sizeof(unsigned)*(2) + bytePrefixSums[1];
 	mProData = new char[mPriByteSize];
 
-	((uint64_t*)mProData)[0] = nodeId;
-	((unsigned*)(mProData+sizeof(uint64_t)))[0] = iCount;
-	((unsigned*)(mProData+sizeof(uint64_t)))[1] = vCount;
-	memcpy((mProData+sizeof(uint64_t)+sizeof(unsigned)*2), vbo->getIndexData(), sizeof(unsigned)*iCount);
-	memcpy((mProData+sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount), vbo->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
+	((unsigned*)mProData)[0] = 1;
+	memcpy(((mProData + sizeof(unsigned))), bytePrefixSums, sizeof(unsigned)*(2));
+
+	char* tempPt =  (mProData + sizeof(unsigned) + sizeof(unsigned)*(2));
+	unsigned iCount = vbo->getIndexCount();
+	unsigned vCount = vbo->getVertexCount();
+
+	((uint64_t*)tempPt)[0] = vbo->getId();
+	((unsigned*)(tempPt + sizeof(uint64_t)))[0] = iCount;
+	((unsigned*)(tempPt + sizeof(uint64_t)))[1] = vCount;
+	memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2), vbo->getIndexData(), sizeof(unsigned)*iCount);
+	memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount), vbo->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
 }
 
 VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec) // multiple vbos
@@ -74,6 +82,10 @@ VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec) // multiple
 
 // ------------------------------------------------
 //TODO implement the rest of the new methods
+const ooctools::V4N4* VboEvent::getVertexArray(unsigned idx) const
+{
+	return ((ooctools::V4N4*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*getIndexCount(idx)));
+};
 const unsigned* VboEvent::getIndexArray(unsigned idx) const
 {
 	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 ));
@@ -114,16 +126,24 @@ VboEvent::VboEvent(std::string path, uint64_t nodeId) // single vbo
 	vertexFile.read((char*)&vCount, sizeof(unsigned));
 	vertexFile.seekg(sizeof(unsigned), ios::beg);
 
-	mPriByteSize = sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount + sizeof(float)*vCount*4 + sizeof(char)*vCount*4;
+	unsigned bytePrefixSums[2];
+	bytePrefixSums[0] = 0;
+	bytePrefixSums[1] = sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount + sizeof(V4N4)*vCount;
+	mPriByteSize = sizeof(unsigned) + sizeof(unsigned)*(2) + bytePrefixSums[1];
 	mProData = new char[mPriByteSize];
-	((uint64_t*)mProData)[0] = nodeId;
-	((unsigned*)(mProData+sizeof(uint64_t)))[0] = iCount;
-	((unsigned*)(mProData+sizeof(uint64_t)))[1] = vCount;
-	idxFile.read((mProData+sizeof(uint64_t)+sizeof(unsigned)*2), sizeof(unsigned)*iCount);
-	vertexFile.read((mProData+sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
+	((unsigned*)mProData)[0] = 1;
+	memcpy(((mProData + sizeof(unsigned))), bytePrefixSums, sizeof(unsigned)*(2));
+	char* tempPt =  (mProData + sizeof(unsigned) + sizeof(unsigned)*(2));
+
+	((uint64_t*)tempPt)[0] = nodeId;
+	((unsigned*)(tempPt + sizeof(uint64_t)))[0] = iCount;
+	((unsigned*)(tempPt + sizeof(uint64_t)))[1] = vCount;
+	idxFile.read((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2), sizeof(unsigned)*iCount);
+	vertexFile.read((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
 
 	idxFile.close();
 	vertexFile.close();
+
 }
 
 VboEvent::VboEvent(const Message* msg){

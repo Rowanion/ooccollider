@@ -56,12 +56,6 @@ public:
 		return mMouseY;
 	}
 
-	/**
-	 * @brief Change the event handler.
-	 * @param handler
-	 * @return the old handler.
-	 */
-	AbstractEventHandler* Set_Event_Handler(AbstractEventHandler* handler);
 	void attachGlFrame(AbstractGlFrame* _glFrame);
 	bool isGlFrameAttached() const;
 	const AbstractGlFrame* getGlFrame() const {	return mGlFrame;};

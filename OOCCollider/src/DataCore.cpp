@@ -43,7 +43,6 @@ DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(tru
 	title << "DataNode (" << MpiControl::getSingleton()->getRank() << ")";
 	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
-	mWindow->Set_Event_Handler(this);
 	mGlFrame = new DataCoreGlFrame();
 	mWindow->attachGlFrame(mGlFrame);
 	mGlFrame->init();
@@ -72,32 +71,6 @@ DataCore::~DataCore() {
 	mGlFrame = 0;
 	delete mWindow;
 	mWindow = 0;
-}
-
-void
-DataCore::Event(int event, bool state)
-{
-	switch (event){
-	case EVENT_MOUSE_RIGHT:
-		mWindow->iconify();
-		break;
-	case GLFW_KEY_ESC:
-		mRunning = false;
-		break;
-	case EVENT_WINDOW_CLOSED:
-		mRunning = false;
-		break;
-	case GLFW_KEY_F1:
-		((DataCoreGlFrame*)mWindow->getGlFrame())->debug();
-		break;
-	case EVENT_MOUSEWHEEL_MOVED:
-		if (state) cout << "UP" << endl;
-		else cout << "DOWN" << endl;
-		break;
-	default:
-		cout << "Event fired: " << event << " with state: " << state << endl;
-		break;
-	}
 }
 
 void DataCore::sendMethod(int dest)

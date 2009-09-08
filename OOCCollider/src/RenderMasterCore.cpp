@@ -49,7 +49,6 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
 	mWindow->enableKeyCallback();
 	mWindow->enableMouseCallback();
-	mWindow->Set_Event_Handler(this);
 	SimpleGlFrame* glFrame = new SimpleGlFrame();
 //	RenderMasterCoreGlFrame* glFrame = new RenderMasterCoreGlFrame();
 	mWindow->attachGlFrame(glFrame);
@@ -124,7 +123,6 @@ RenderMasterCore::RenderMasterCore() : mWindow(0), mRunning(true), mPriOh(Octree
 	mWindow = new OOCWindow(640, 480, 8, false, "MASTER_NODE");
 	mWindow->enableKeyCallback();
 	mWindow->enableMouseCallback();
-	mWindow->Set_Event_Handler(this);
 	RenderMasterCoreGlFrame* glFrame = new RenderMasterCoreGlFrame();
 	mWindow->attachGlFrame(glFrame);
 	glFrame->init();

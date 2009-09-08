@@ -29,11 +29,14 @@ namespace fs = boost::filesystem;
  * This event originates from Data-Nodes and will be sent to Render-Nodes.
  * This event is a reply to NodeRequestEvent.
  *
+ * @warning This class is not safe when created with vector of size 0. Will throw segfaults when accessing
+ * fields or methods.
+ *
  */
 class VboEvent : public oocframework::IEvent{
 public:
 	VboEvent();
-	VboEvent(const ooctools::IndexedVbo* vbo, uint64_t nodeId);
+	VboEvent(const ooctools::IndexedVbo* vbo);
 	VboEvent(std::string path, uint64_t nodeId);
 	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec);
 	VboEvent(const Message* msg);
@@ -50,15 +53,20 @@ public:
 	inline virtual unsigned getByteSize(){return mPriByteSize;};
 
 	/**
+	 * @brief Returns the number of VBOs encapsulated in this event.
+	 */
+	unsigned getVboCount() const;
+
+	/**
 	 * @brief returns the Octree-node-Id to which this VBO belongs.
 	 */
-	inline uint64_t getNodeId() const {return ((uint64_t*)mProData)[0];};
+	uint64_t getNodeId(unsigned idx=0) const;
 
 	/**
 	 * @brief returns the number of indices stored in this vbo.
 	 * Obvious side-node: @f$ \frac{\# indices}{3} = \# triangles @f$
 	 */
-	inline unsigned getIndexCount() const {return ((unsigned*)(mProData+sizeof(uint64_t)))[0];};
+	unsigned getIndexCount(unsigned idx=0) const;
 
 	/**
 	 * @brief returns the number of <strong>vertices</strong> stored in this vbo.
@@ -66,21 +74,17 @@ public:
 	 * and a 4-char-component vertex-normal.
 	 * @see ooctools::V4N4
 	 */
-	inline unsigned getVertexCount() const {return ((unsigned*)(mProData+sizeof(uint64_t)))[1];};
+	unsigned getVertexCount(unsigned idx=0) const;
 
 	/**
 	 * @brief Returns a const pointer to the index-data of the vbo.
 	 */
-	inline const unsigned* getIndexArray() const {
-		return ((unsigned*)(mProData+sizeof(uint64_t)+sizeof(unsigned)*2));
-	};
+	const unsigned* getIndexArray(unsigned idx=0) const;
 
 	/**
 	 * @brief Returns a const pointer to the vertex-data of the vbo.
 	 */
-	inline const ooctools::V4N4* getVertexArray() const {
-		return ((const ooctools::V4N4*)(mProData+sizeof(uint64_t)+sizeof(unsigned)*2 + sizeof(unsigned)*getIndexCount()));
-	};
+	const ooctools::V4N4* getVertexArray(unsigned idx=0) const;
 
 	/**
 	 * @brief Creates a packed-up-and-ready-to-go IndexedVbo and returns it.
@@ -89,22 +93,23 @@ public:
 	 */
 	ooctools::IndexedVbo* createIVbo() const;
 
-	// ------------------------------------------------------------------------------------------
-	//TODO after done implementation of new methods add a '=0' default val to the params
-	const unsigned* getIndexArray(unsigned idx) const;
-	unsigned getVboCount() const;
-	unsigned getBytePrefixSum(unsigned idx) const;
-	unsigned getIndexCount(unsigned idx) const;
-	unsigned getVertexCount(unsigned idx) const;
-	uint64_t getNodeId(unsigned idx) const;
-
-
 
 protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();
 private:
 	unsigned mPriByteSize;
+
+	/**
+	 * @brief Returns the number of bytes all other VBOs prior to this one take up.
+	 * Because every VBO can have its own individual size, we need to jump irregular within our
+	 * data container. The VBO with index 0 would need to jump 0 bytes, because there is no VBO prior
+	 * to that one. The VBO with index 10 would need to jump the accumulated number of bytes all of its
+	 * predecessors take up. And that's what this function returns.
+	 * Because of this fact, the bytePrefixSums array has vboCount+1 fields, the first entry always contains
+	 * 0 and the last entry always contains the sum of all VBOs.
+	 */
+	unsigned getBytePrefixSum(unsigned idx=0) const;
 };
 
 #endif /* VBOEVENT_H_ */

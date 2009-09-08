@@ -26,7 +26,7 @@
 #include "Fbo.h"
 
 
-class RenderMasterCore: public AbstractEventHandler, oocframework::AbstractEventListener {
+class RenderMasterCore: oocframework::AbstractEventListener {
 public:
 	RenderMasterCore();
 	RenderMasterCore(unsigned _width = 640, unsigned _height = 480);

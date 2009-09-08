@@ -579,8 +579,6 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 			default:
 			break;
 		}
-//		ModelViewMatrixEvent mve = ModelViewMatrixEvent(mModelViewMatrix);
-//		oocframework::EventManager::getSingleton()->fire(mve);
 	}
 	else if (event.instanceOf(MouseWheelEvent::classid())){
 		MouseWheelEvent& mwe = (MouseWheelEvent&)event;
