@@ -28,6 +28,7 @@
 #include "ColorBufferEvent.h"
 #include "DepthBufferEvent.h"
 #include "VboEvent.h"
+#include "InfoRequestEvent.h"
 
 
 using namespace std;
@@ -152,6 +153,10 @@ void RenderCore::handleMsg(Message* msg)
 		else if (msg->getType() == VboEvent::classid()->getShortId()){
 			VboEvent ve = VboEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(ve);
+		}
+		else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
+			InfoRequestEvent ire = InfoRequestEvent();
+			oocframework::EventManager::getSingleton()->fire(ire);
 		}
 		delete msg;
 	}

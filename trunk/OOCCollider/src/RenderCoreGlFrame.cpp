@@ -31,6 +31,7 @@
 #include "KillApplicationEvent.h"
 #include "EndTransmissionEvent.h"
 #include "ModelViewMatrixEvent.h"
+#include "InfoRequestEvent.h"
 
 using namespace std;
 using namespace ooctools;
@@ -89,6 +90,7 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 			ModelViewMatrixEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this,
 			VboEvent::classid());
+	oocframework::EventManager::getSingleton()->addListener(this, InfoRequestEvent::classid());
 
 
 	mPriModelViewProjMatrix = new float[16];
@@ -104,6 +106,7 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, KeyPressedEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, ModelViewMatrixEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, VboEvent::classid());
+	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
 
 	delete[] mPriModelViewProjMatrix;
 	mPriModelViewProjMatrix = 0;
@@ -129,7 +132,7 @@ void RenderCoreGlFrame::init() {
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	glGenTextures(1, &mPriDepthTexId);
 //	mPriDepthTexId = 25;
 	GET_GLERROR(0);
@@ -783,6 +786,7 @@ RenderCoreGlFrame::requestMissingVbos()
 	//TODO use cache buffer
 	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
 		mPriObsoleteVbos[i]->second->setOffline();
+		mPriTriCount -= mPriObsoleteVbos[i]->second->getTriCount();
 		delete mPriObsoleteVbos[i]->second;
 		mPriVbosInFrustum.erase(mPriObsoleteVbos[i]);
 	}
@@ -825,8 +829,6 @@ RenderCoreGlFrame::loadMissingVbosFromDisk(std::set<uint64_t>* idList, std::map<
 	// we look for two cases:
 		// nodes we haven't loaded yet
 		// nodes we don't need anymore
-	bool term = false;
-	if (vboMap->size() >0) term = true;
 //	cout << "ids in frustum: " << idList->size() << endl;
 //	cout << "vbos already in map: " << vboMap->size() << endl;
 	std::set<uint64_t>::iterator setIt = idList->begin();
@@ -905,6 +907,13 @@ RenderCoreGlFrame::divideIdList()
 			mPriObsoleteVbos.push_back(mapIt);
 		}
 	}
+
+	if (mPriMissingIdsInFrustum.size() > 0){
+		cout << "number of new vbos: " << mPriMissingIdsInFrustum.size() << endl;
+		cout << mPriIdsInFrustum.size() << " - " << mPriVbosInFrustum.size() - mPriObsoleteVbos.size() + mPriMissingIdsInFrustum.size() << endl;
+	}
+	if (mPriObsoleteVbos.size() > 0)
+	cout << "number of obs vbos: " << mPriObsoleteVbos.size() << endl;
 }
 
 void
@@ -1077,9 +1086,14 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	else if (event.instanceOf(VboEvent::classid())){
 		VboEvent& ve = (VboEvent&)event;
 		for (unsigned i=0; i< ve.getVboCount(); ++i){
+			mPriTriCount += ve.getIndexCount(i)/3;
 			mPriVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
 		}
-//		mPriVbosInFrustum.insert(make_pair(ve.getNodeId(), new IndexedVbo(ve.getIndexArray(), ve.getIndexCount(), ve.getVertexArray(), ve.getVertexCount())));
+	}
+	else if (event.instanceOf(InfoRequestEvent::classid())){
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") - currently loaded tris: " << mPriTriCount << endl;
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") - currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") - total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
 	}
 
 

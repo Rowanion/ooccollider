@@ -29,6 +29,7 @@
 #include "NodeRequestEvent.h"
 #include "VboEvent.h"
 #include "EndTransmissionEvent.h"
+#include "InfoRequestEvent.h"
 
 using namespace std;
 using namespace ooctools;
@@ -71,6 +72,8 @@ DataCoreGlFrame::DataCoreGlFrame() :
 			ModelViewMatrixEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this,
 			DepthBufferEvent::classid());
+	oocframework::EventManager::getSingleton()->addListener(this,
+			InfoRequestEvent::classid());
 
 }
 
@@ -78,6 +81,7 @@ DataCoreGlFrame::~DataCoreGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, KeyPressedEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, ModelViewMatrixEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, DepthBufferEvent::classid());
+	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
 
 }
 
@@ -87,9 +91,9 @@ void DataCoreGlFrame::init() {
 	glDrawBuffer(GL_FRONT_AND_BACK);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	//	glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glShadeModel(GL_SMOOTH);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	GET_GLERROR(0);
 	camObj.positionCamera(0.0,0.0,5.0,
 			0.0,0.0,-3.0,
@@ -524,5 +528,7 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		}
 
 	}
-
+	else if (event.instanceOf(InfoRequestEvent::classid())){
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") - INFO" << endl;
+	}
 }
