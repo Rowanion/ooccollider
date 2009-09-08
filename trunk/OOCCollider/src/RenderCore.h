@@ -20,11 +20,10 @@
 #include "OctreeHandler.h"
 #include "LooseOctree.h"
 
-class RenderCore: public AbstractEventHandler {
+class RenderCore {
 public:
 	RenderCore(unsigned _width=640, unsigned _height=480);
 	virtual ~RenderCore();
-	virtual void Event(int event, bool state);
 
 private:
 	OOCWindow* mWindow;

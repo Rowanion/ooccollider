@@ -18,6 +18,7 @@
 #include "KeyPressedEvent.h"
 #include "MouseWheelEvent.h"
 #include "WindowClosedEvent.h"
+#include "MouseButtonEvent.h"
 
 using namespace std;
 
@@ -112,7 +113,7 @@ OOCWindow::flip()
 void
 OOCWindow::Key_Callback(int key, int action)
 {
-	cout << "Key callback" << endl;
+//	cout << "Key callback" << endl;
 	// If there is an event handler, tell it about this key (second
 	// parameter indicates whether the key was pressed or released).
 	if (action == GLFW_PRESS){
@@ -128,22 +129,18 @@ OOCWindow::Mouse_Button_Callback(int button, int action)
 {
 	MouseButtonEvent mbe(OOCWindow::instance->mMouseX, OOCWindow::instance->mMouseY, action, button);
 	oocframework::EventManager::getSingleton()->fire(mbe);
-	cout << "MOUSE: " << button << ", action: " << action << endl;
-	if (OOCWindow::instance->mHandler != 0) {
-		bool pressed = action == GLFW_PRESS;
-		if (button == 0){
-			if (OOCWindow::mouseLeftState!=action){
-			}
+	//	cout << "MOUSE: " << button << ", action: " << action << endl;
+	if (button == 0){
+		if (OOCWindow::mouseLeftState!=action){
+		}
 
-			OOCWindow::instance->mHandler->Event(EVENT_MOUSE_LEFT, pressed);
-			OOCWindow::mouseLeftState= action;
-		}
-		else if (button == 1){
-			OOCWindow::instance->mHandler->Event(EVENT_MOUSE_RIGHT, pressed);
-			OOCWindow::mouseRightState= action;
-		}
-		else if (button == 2)
-			OOCWindow::instance->mHandler->Event(EVENT_MOUSE_MIDDLE, pressed);
+		OOCWindow::mouseLeftState= action;
+	}
+	else if (button == 1){
+		OOCWindow::mouseRightState= action;
+	}
+	else if (button == 2){
+
 	}
 }
 
@@ -206,26 +203,15 @@ OOCWindow::windowClosedCallback()
 void
 OOCWindow::mouseWheelCallback(int pos)
 {
-	if (OOCWindow::instance->mHandler != 0) {
-		if (pos > OOCWindow::instance->mMouseWheelPos){
-			MouseWheelEvent mwe = MouseWheelEvent(MouseWheelEvent::UP);
-			oocframework::EventManager::getSingleton()->fire(mwe);
-			OOCWindow::instance->mHandler->Event(EVENT_MOUSEWHEEL_MOVED, true);
-		}
-		else if (pos < OOCWindow::instance->mMouseWheelPos){
-			MouseWheelEvent mwe = MouseWheelEvent(MouseWheelEvent::DOWN);
-			oocframework::EventManager::getSingleton()->fire(mwe);
-			OOCWindow::instance->mHandler->Event(EVENT_MOUSEWHEEL_MOVED, false);
-		}
+	if (pos > OOCWindow::instance->mMouseWheelPos){
+		MouseWheelEvent mwe = MouseWheelEvent(MouseWheelEvent::UP);
+		oocframework::EventManager::getSingleton()->fire(mwe);
+	}
+	else if (pos < OOCWindow::instance->mMouseWheelPos){
+		MouseWheelEvent mwe = MouseWheelEvent(MouseWheelEvent::DOWN);
+		oocframework::EventManager::getSingleton()->fire(mwe);
 	}
 	OOCWindow::instance->mMouseWheelPos = pos;
-}
-
-AbstractEventHandler*
-OOCWindow::Set_Event_Handler(AbstractEventHandler* handler) {
-	AbstractEventHandler* old = handler;
-	mHandler = handler;
-	return old;
 }
 
 void
