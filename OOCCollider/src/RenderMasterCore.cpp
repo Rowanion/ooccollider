@@ -34,6 +34,7 @@
 #include "ColorBufferEvent.h"
 #include "MouseWheelEvent.h"
 #include "SimpleGlFrame.h"
+#include "InfoRequestEvent.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -59,6 +60,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 	mPriEventMan->addListener(this, MouseDraggedEvent::classid());
 	mPriEventMan->addListener(this, KeyPressedEvent::classid());
 	mPriEventMan->addListener(this, WindowClosedEvent::classid());
+	mPriEventMan->addListener(this, InfoRequestEvent::classid());
 
 	glFrame->init();
 
@@ -169,6 +171,7 @@ RenderMasterCore::~RenderMasterCore() {
 	mPriEventMan->removeListener(this, MouseDraggedEvent::classid());
 	mPriEventMan->removeListener(this, KeyPressedEvent::classid());
 	mPriEventMan->removeListener(this, WindowClosedEvent::classid());
+	mPriEventMan->removeListener(this, InfoRequestEvent::classid());
 
 	mRunning = false;
 	delete mWindow;
@@ -326,6 +329,12 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 			MpiControl::getSingleton()->push(new Message(kpe,1));
 			MpiControl::getSingleton()->push(new Message(kpe,2));
 			break;
+		case 'I':{
+			InfoRequestEvent ire = InfoRequestEvent();
+			MpiControl::getSingleton()->push(new Message(ire,1));
+			MpiControl::getSingleton()->push(new Message(ire,2));
+			oocframework::EventManager::getSingleton()->fire(ire);
+			break;}
 		default:
 			MpiControl::getSingleton()->push(new Message(kpe,1));
 			break;

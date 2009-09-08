@@ -27,6 +27,7 @@
 #include "KeyPressedEvent.h"
 #include "DepthBufferEvent.h"
 #include "VboEvent.h"
+#include "InfoRequestEvent.h"
 
 #define RENDER_NODES 1
 
@@ -152,6 +153,10 @@ void DataCore::receiveMethod(int source)
 //				}
 				mGlFrame->display(nre);
 
+			}
+			else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
+				InfoRequestEvent ire = InfoRequestEvent();
+				oocframework::EventManager::getSingleton()->fire(ire);
 			}
 			delete msg;
 		}

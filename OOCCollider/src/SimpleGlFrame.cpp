@@ -31,6 +31,7 @@
 #include "FboFactory.h"
 #include "ColorBufferEvent.h"
 #include "KillApplicationEvent.h"
+#include "InfoRequestEvent.h"
 
 
 using namespace std;
@@ -72,6 +73,7 @@ SimpleGlFrame::SimpleGlFrame() :
 	oocframework::EventManager::getSingleton()->addListener(this, MouseButtonEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, MouseWheelEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, KeyPressedEvent::classid());
+	oocframework::EventManager::getSingleton()->addListener(this, InfoRequestEvent::classid());
 }
 
 SimpleGlFrame::~SimpleGlFrame() {
@@ -84,6 +86,7 @@ SimpleGlFrame::~SimpleGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, MouseButtonEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, MouseWheelEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, KeyPressedEvent::classid());
+	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
 
 }
 
@@ -607,5 +610,9 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 //		exit(0);
 		memcpy(mPriColorBuffer, cbe.getPixel(), cbe.getHeight()*cbe.getWidth()*sizeof(GLubyte)*4);
 	}
+	else if (event.instanceOf(InfoRequestEvent::classid())){
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") - INFO" << endl;
+	}
+
 
 }
