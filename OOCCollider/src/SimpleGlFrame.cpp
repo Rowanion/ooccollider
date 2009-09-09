@@ -429,26 +429,26 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				KillApplicationEvent kae = KillApplicationEvent();
 				oocframework::EventManager::getSingleton()->fire(kae);
 				break;}
-			case 'L':{ // dump current matrix and exit
-				cout << "loading matrix...." << endl;
-				initMatrices();
-				myGLRotMatrix[0] = -0.78640;
-				myGLRotMatrix[1] = -0.47611;
-				myGLRotMatrix[2] = -0.393593;
-				myGLRotMatrix[3] = 0;
-				myGLRotMatrix[4] = -0.40381;
-				myGLRotMatrix[5] = -0.0859697;
-				myGLRotMatrix[6] = 0.910807;
-				myGLRotMatrix[7] = 0;
-				myGLRotMatrix[8] = -0.467475;
-				myGLRotMatrix[9] = 0.875187;
-				myGLRotMatrix[10] = -0.124651;
-				myGLRotMatrix[11] = 0;
-				myGLRotMatrix[12] = 15.3023;
-				myGLRotMatrix[13] = 38.3899;
-				myGLRotMatrix[14] = 160.453;
-				myGLRotMatrix[15] = 1;
-				break;}
+//			case 'L':{ // dump current matrix and exit
+//				cout << "loading matrix...." << endl;
+//				initMatrices();
+//				myGLRotMatrix[0] = -0.78640;
+//				myGLRotMatrix[1] = -0.47611;
+//				myGLRotMatrix[2] = -0.393593;
+//				myGLRotMatrix[3] = 0;
+//				myGLRotMatrix[4] = -0.40381;
+//				myGLRotMatrix[5] = -0.0859697;
+//				myGLRotMatrix[6] = 0.910807;
+//				myGLRotMatrix[7] = 0;
+//				myGLRotMatrix[8] = -0.467475;
+//				myGLRotMatrix[9] = 0.875187;
+//				myGLRotMatrix[10] = -0.124651;
+//				myGLRotMatrix[11] = 0;
+//				myGLRotMatrix[12] = 15.3023;
+//				myGLRotMatrix[13] = 38.3899;
+//				myGLRotMatrix[14] = 160.453;
+//				myGLRotMatrix[15] = 1;
+//				break;}
 			case '0':{
 				// save current camera-position to 'pos'
 				unsigned pos = 0;
@@ -612,6 +612,7 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		cout << "(" << MpiControl::getSingleton()->getRank() << ") - INFO" << endl;
+		cout << "---------------------------------------" << endl;
 	}
 
 

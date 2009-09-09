@@ -91,6 +91,7 @@ private:
 	float* mPriModelViewProjMatrix;
 	ooctools::V3f mPriEyePosition;
 	bool mPriCamHasMoved;
+	bool mPriLoadLocal;
 	unsigned mPriBBMode;
 
 	float mPriAspectRatio;
@@ -174,7 +175,7 @@ private:
 
 	void calcFPS();
 	void requestMissingVbos();
-	void loadMissingVbosFromDisk(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
+	void loadMissingVbosFromDisk();
 	void compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap2);
 	void divideIdList();
 

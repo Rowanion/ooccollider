@@ -530,5 +530,6 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		cout << "(" << MpiControl::getSingleton()->getRank() << ") - INFO" << endl;
+		cout << "---------------------------------------" << endl;
 	}
 }
