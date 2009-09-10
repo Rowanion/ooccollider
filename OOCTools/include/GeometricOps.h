@@ -13,6 +13,10 @@
 
 namespace ooctools{
 
+/**
+ * @class GeometricOps
+ * @brief Collection class for static geometric operations such as triangle-center calculations or matrix inversions.
+ */
 class GeometricOps {
 public:
 	GeometricOps();
@@ -84,8 +88,39 @@ public:
 	 */
 	static void calcTriangleEdges4(const float* triangle, V3f& edges);
 
+	/**
+	 * @brief Efficiently transposes a 4x4 matrix bye swapping the entries above the diagonal with
+	 * the entries below the diagonal.
+	 * @param _mat The matrix which will be transposed. Will contain the transposed matrix as well.
+	 * @note This code was taken from the source of the Doom3-Engine, which has been released under the GPL. (http://www.iddevnet.com/doom3)
+	 */
 	static void transposeMat4( float* _mat );
+
+	/**
+	 * @brief Calculates current eye-position by transposing and inverting the given ModelView matrix.
+	 * Transpose is neccessary because OpenGL matrices are column-major, whereas DirectX- and Doom3-Matrices are row-major.
+	 * Code performs in 84+4+16 = 104 multiplications and 1 division.
+	 * @param _mat The current ModelView matrix.
+	 * @param eye A reference to the container where the eye-position will be stored.
+	 * @note This code is a modified version from the source of the Doom3-Engine, which has been released under the GPL. (http://www.iddevnet.com/doom3)
+	 */
 	static bool calcEyePosition( float* _mat , V3f& eye);
+
+	/**
+	 * @brief Calculates current eye-position by transposing and fast-inverting the given ModelView matrix.
+	 * Transpose is neccessary because OpenGL matrices are column-major, whereas DirectX- and Doom3-Matrices are row-major.
+	 * Code performs in 6*8+2*6 = 60 multiplications and 2*1 =  2 divisions.
+	 * @param _mat The current ModelView matrix.
+	 * @param eye A reference to the container where the eye-position will be stored.
+	 * @note This code is a modified version from the source of the Doom3-Engine, which has been released under the GPL. (http://www.iddevnet.com/doom3)
+	 */
+	static bool calcEyePosFast( float* _mat, V3f& eye );
+
+	/**
+	 * @brief Calculates absolute value of given float.
+	 * @note This code was taken from the source of the Doom3-Engine, which has been released under the GPL. (http://www.iddevnet.com/doom3)
+	 */
+	static float Fabs( float f );
 };
 
 } // ooctools

@@ -1,3 +1,11 @@
+/**
+ * @file MersenneTwister.h
+ * @author  rjwagner@writeme.com and Cokus@math.washington.edu
+ * @version 1.0
+ * @date	Created on: 10.05.2009
+ * @brief 	MTRand class declaration.
+ */
+
 // MersenneTwister.h
 // Mersenne Twister random number generator -- a C++ class MTRand
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
@@ -67,6 +75,11 @@
 #include <math.h>
 
 namespace ooctools {
+
+/**
+ * @class MTRand
+ * @brief Implementation of a MersenneTwister pseudo-random-number generator.
+ */
 class MTRand {
 // Data
 public:

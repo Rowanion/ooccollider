@@ -179,6 +179,12 @@ private:
 	void compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap2);
 	void divideIdList();
 
+	/**
+	 * @brief Ensures that the list with OfflineVBOS a.k.a. cache is not larger than MAX_OFFLINE_VBOS.
+	 * @todo Make this method more generic so that different displacement policies (ie. LRU or GreatestDistanceToEye)can be utilized.
+	 */
+	void trimCacheMap();
+
 	void setupTexture();
 	void drawDepthTex();
 };
