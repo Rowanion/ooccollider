@@ -221,7 +221,7 @@ void RenderCoreGlFrame::display()
 	GET_GLERROR(0);
 
 	if (mPriCamHasMoved){
-		if (!ooctools::GeometricOps::calcEyePosition(mPriModelViewMatrix, mPriEyePosition)){
+		if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition)){
 			cout << "----------------------------------------- NO INVERSE!" << endl;
 		}
 	}
@@ -724,11 +724,13 @@ RenderCoreGlFrame::requestMissingVbos()
 	//TODO use cache buffer
 	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
 		mPriObsoleteVbos[i]->second->setOffline();
+		mPriOfflineVbosInFrustum.insert(make_pair(mPriObsoleteVbos[i]->first, mPriObsoleteVbos[i]->second));
 		mPriTriCount -= mPriObsoleteVbos[i]->second->getTriCount();
-		delete mPriObsoleteVbos[i]->second;
+//		delete mPriObsoleteVbos[i]->second;
 		mPriVbosInFrustum.erase(mPriObsoleteVbos[i]);
 	}
 	mPriObsoleteVbos.clear();
+	trimCacheMap();
 
 	//calculate eye distances of missing vbos
 	//TODO use caching
@@ -897,6 +899,31 @@ RenderCoreGlFrame::divideIdList()
 //	}
 //	if (mPriObsoleteVbos.size() > 0)
 //	cout << "number of obs vbos: " << mPriObsoleteVbos.size() << endl;
+}
+
+void RenderCoreGlFrame::trimCacheMap()
+{
+	unsigned cacheSize = mPriOfflineVbosInFrustum.size();
+	if (cacheSize > MAX_OFFLINE_VBOS){
+		unsigned diff = cacheSize - MAX_OFFLINE_VBOS;
+		multimap<float, map<uint64_t, ooctools::IndexedVbo*>::iterator> distMap = multimap<float, map<uint64_t, ooctools::IndexedVbo*>::iterator>();
+		V3f center = V3f();
+		map<uint64_t, ooctools::IndexedVbo*>::iterator mapIt = mPriOfflineVbosInFrustum.begin();
+		for (; mapIt != mPriOfflineVbosInFrustum.end(); ++mapIt){
+			mPriIdLoMap[mapIt->first]->getBb().computeCenter(center);
+			distMap.insert(make_pair(mPriEyePosition.calcDistance(center), mapIt));
+		}
+		unsigned counter = 0;
+		multimap<float, map<uint64_t, ooctools::IndexedVbo*>::iterator>::reverse_iterator rIt = distMap.rbegin();
+		for (; rIt != distMap.rend() && counter < diff; rIt++, counter++){
+			//TODO research why getTriCount() seems to malfunction
+			mPriTriCount -= rIt->second->second->getTriCount();
+			delete rIt->second->second;
+			rIt->second->second = 0;
+			mPriOfflineVbosInFrustum.erase(rIt->second);
+		}
+		distMap.clear();
+	}
 }
 
 void
@@ -1113,6 +1140,7 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << "(" << MpiControl::getSingleton()->getRank() << ") - total requested vbos: " << mPriRequestedVboList.size() << endl;
 		cout << "(" << MpiControl::getSingleton()->getRank() << ") - loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
 		cout << "(" << MpiControl::getSingleton()->getRank() << ") - total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") - VBOs in cache: " << mPriOfflineVbosInFrustum.size() << "/" << MAX_OFFLINE_VBOS<< endl;
 		cout << "---------------------------------------" << endl;
 	}
 

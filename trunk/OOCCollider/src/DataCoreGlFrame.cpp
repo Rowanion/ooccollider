@@ -179,9 +179,6 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				// performing the depthtest
 				std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
 				std::map<float, uint64_t>::iterator distIterator = mPriDistanceMap.begin();
-//				cout << "query results: " << endl;
-				//TODO the following code now performs occlusion queries for each vbo WITHOUT adding
-				// to the depthbuffer on successful test. This only happens after all test have been performed.
 				unsigned queryCount = 0;
 				glDepthMask(GL_FALSE);
 				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -208,7 +205,8 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					if (mPriOccResults[distIterator->second]>4){
 						// add visible VBO to the current DepthBuffer
 						mPriVboMap[distIterator->second]->managedDraw(true);
-						mPriVisibleVbosVector.push_back(mPriVboMap[distIterator->second]);
+						mPriVisibleVbosVec.push_back(mPriVboMap[distIterator->second]);
+						mPriVisibleDistVec.push_back(distIterator->first);
 					}
 					queryCount++;
 				}
@@ -282,7 +280,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 */
 
 	// send the visible object to the requester
-	VboEvent ve = VboEvent(mPriVisibleVbosVector);
+	VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec);
 	Message* msg = new Message(ve, nre.getRecepient());
 	MpiControl::getSingleton()->push(msg);
 //  MpiControl::getSingleton()->isend();
@@ -296,7 +294,8 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	}
 	mPriVboMap.clear();
 	mPriDistanceMap.clear();
-	mPriVisibleVbosVector.clear();
+	mPriVisibleVbosVec.clear();
+	mPriVisibleDistVec.clear();
 
 	mPriOccResults.clear();
 	// draw the result for debugging

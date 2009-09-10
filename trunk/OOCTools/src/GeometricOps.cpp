@@ -15,6 +15,9 @@
 #include "V4f.h"
 namespace ooctools{
 
+#define MATRIX_INVERSE_EPSILON		1e-14f
+#define MATRIX_EPSILON				1e-6f
+
 GeometricOps::GeometricOps() {
 	// TODO Auto-generated constructor stub
 
@@ -181,6 +184,18 @@ long double GeometricOps::calcTriangleArea4(const float* triangle)
 	return area;
 }
 
+float GeometricOps::Fabs( float f ) {
+#ifdef _XENON
+	return __fabs( f );
+#elif 1
+	return fabsf( f );
+#else
+	int tmp = *reinterpret_cast<int *>( &f );
+	tmp &= 0x7FFFFFFF;
+	return *reinterpret_cast<float *>( &tmp );
+#endif
+}
+
 void GeometricOps::transposeMat4( float* _mat ) {
 	float	temp;
 	int		i, j;
@@ -222,10 +237,9 @@ bool GeometricOps::calcEyePosition( float* _mat, V3f& eye )
 
 	det = ( - det3_201_123 * mat[3 + (0 * 4)] + det3_201_023 * mat[3 + (1 * 4)] - det3_201_013 * mat[3 + (2 * 4)] + det3_201_012 * mat[3 + (3 * 4)] );
 
-	if ( fabs(det) < 0.001 ) {
+	if ( GeometricOps::Fabs(det) < MATRIX_INVERSE_EPSILON ) {
 		return false;
 	}
-
 	invDet = 1.0f / det;
 
 	// remaining 2x2 sub-determinants
@@ -282,6 +296,101 @@ bool GeometricOps::calcEyePosition( float* _mat, V3f& eye )
 	eye.setX(mat[3]);
 	eye.setY(mat[7]);
 	eye.setZ(mat[11]);
+	return true;
+}
+
+bool GeometricOps::calcEyePosFast( float* _mat, V3f& eye )
+{
+	//	6*8+2*6 = 60 multiplications
+	//		2*1 =  2 divisions
+//	idMat2 r0, r1, r2, r3;
+	float r0[2][2], r1[2][2], r2[2][2], r3[2][2];
+	float a, det, invDet;
+	float mat[16];
+	memcpy(mat, _mat, 16*sizeof(float));
+	transposeMat4(mat);
+	// r0 = m0.Inverse();
+
+	det = mat[0*4+0] * mat[1*4+1] - mat[0*4+1] * mat[1*4+0];
+
+	if ( GeometricOps::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+		return false;
+	}
+
+	invDet = 1.0f / det;
+
+	r0[0][0] =   mat[1*4+1] * invDet;
+	r0[0][1] = - mat[0*4+1] * invDet;
+	r0[1][0] = - mat[1*4+0] * invDet;
+	r0[1][1] =   mat[0*4+0] * invDet;
+
+	// r1 = r0 * m1;
+	r1[0][0] = r0[0][0] * mat[0*4+2] + r0[0][1] * mat[1*4+2];
+	r1[0][1] = r0[0][0] * mat[0*4+3] + r0[0][1] * mat[1*4+3];
+	r1[1][0] = r0[1][0] * mat[0*4+2] + r0[1][1] * mat[1*4+2];
+	r1[1][1] = r0[1][0] * mat[0*4+3] + r0[1][1] * mat[1*4+3];
+
+	// r2 = m2 * r1;
+	r2[0][0] = mat[2*4+0] * r1[0][0] + mat[2*4+1] * r1[1][0];
+	r2[0][1] = mat[2*4+0] * r1[0][1] + mat[2*4+1] * r1[1][1];
+	r2[1][0] = mat[3*4+0] * r1[0][0] + mat[3*4+1] * r1[1][0];
+	r2[1][1] = mat[3*4+0] * r1[0][1] + mat[3*4+1] * r1[1][1];
+
+	// r3 = r2 - m3;
+	r3[0][0] = r2[0][0] - mat[2*4+2];
+	r3[0][1] = r2[0][1] - mat[2*4+3];
+	r3[1][0] = r2[1][0] - mat[3*4+2];
+	r3[1][1] = r2[1][1] - mat[3*4+3];
+
+	// r3.InverseSelf();
+	det = r3[0][0] * r3[1][1] - r3[0][1] * r3[1][0];
+
+	if ( GeometricOps::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+		return false;
+	}
+
+	invDet = 1.0f / det;
+
+	a = r3[0][0];
+	r3[0][0] =   r3[1][1] * invDet;
+	r3[0][1] = - r3[0][1] * invDet;
+	r3[1][0] = - r3[1][0] * invDet;
+	r3[1][1] =   a * invDet;
+
+	// r2 = m2 * r0;
+	r2[0][0] = mat[2*4+0] * r0[0][0] + mat[2*4+1] * r0[1][0];
+	r2[0][1] = mat[2*4+0] * r0[0][1] + mat[2*4+1] * r0[1][1];
+	r2[1][0] = mat[3*4+0] * r0[0][0] + mat[3*4+1] * r0[1][0];
+	r2[1][1] = mat[3*4+0] * r0[0][1] + mat[3*4+1] * r0[1][1];
+
+	// m2 = r3 * r2;
+	mat[2*4+0] = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0];
+	mat[2*4+1] = r3[0][0] * r2[0][1] + r3[0][1] * r2[1][1];
+	mat[3*4+0] = r3[1][0] * r2[0][0] + r3[1][1] * r2[1][0];
+	mat[3*4+1] = r3[1][0] * r2[0][1] + r3[1][1] * r2[1][1];
+
+	// m0 = r0 - r1 * m2;
+	mat[0*4+0] = r0[0][0] - r1[0][0] * mat[2*4+0] - r1[0][1] * mat[3*4+0];
+	mat[0*4+1] = r0[0][1] - r1[0][0] * mat[2*4+1] - r1[0][1] * mat[3*4+1];
+	mat[1*4+0] = r0[1][0] - r1[1][0] * mat[2*4+0] - r1[1][1] * mat[3*4+0];
+	mat[1*4+1] = r0[1][1] - r1[1][0] * mat[2*4+1] - r1[1][1] * mat[3*4+1];
+
+	// m1 = r1 * r3;
+	mat[0*4+2] = r1[0][0] * r3[0][0] + r1[0][1] * r3[1][0];
+	mat[0*4+3] = r1[0][0] * r3[0][1] + r1[0][1] * r3[1][1];
+	mat[1*4+2] = r1[1][0] * r3[0][0] + r1[1][1] * r3[1][0];
+	mat[1*4+3] = r1[1][0] * r3[0][1] + r1[1][1] * r3[1][1];
+
+	// m3 = -r3;
+	mat[2*4+2] = -r3[0][0];
+	mat[2*4+3] = -r3[0][1];
+	mat[3*4+2] = -r3[1][0];
+	mat[3*4+3] = -r3[1][1];
+
+	eye.setX(mat[3]);
+	eye.setY(mat[7]);
+	eye.setZ(mat[11]);
+
 	return true;
 }
 
