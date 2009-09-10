@@ -184,6 +184,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				// to the depthbuffer on successful test. This only happens after all test have been performed.
 				unsigned queryCount = 0;
 				glDepthMask(GL_FALSE);
+				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
 				for(distIterator = mPriDistanceMap.begin(); distIterator != mPriDistanceMap.end(); ++distIterator){
 //				for(vboIterator = mPriVboMap.begin(); vboIterator != mPriVboMap.end(); ++vboIterator){
@@ -192,6 +193,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					glEndQuery(GL_SAMPLES_PASSED);
 					queryCount++;
 				}
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 				glDepthMask(GL_TRUE);
 
 				// handle query-results
@@ -518,7 +520,7 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 //		glClear(GL_COLOR_BUFFER_BIT);
 		mPriFbo->clearDepth();
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glDepthFunc(GL_ALWAYS);
+			glDisable(GL_DEPTH_TEST);
 			FboFactory::getSingleton()->drawDepthToFb(dbe.getDepth(), dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
 		glPopAttrib();
 //		setupTexture();

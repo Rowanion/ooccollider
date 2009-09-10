@@ -89,6 +89,7 @@ IndexedVbo::IndexedVbo(fs::path path, uint64_t id, bool initiateOnline) :
 }
 
 IndexedVbo::~IndexedVbo() {
+	setOffline();
 	delete[] mPriVertexData;
 	mPriVertexData = 0;
 	delete[] mPriIndexData;
