@@ -427,7 +427,7 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 		delete[] mPriPixelBuffer;
 		mPriPixelBuffer = new GLubyte[width*height*4];
 	}
-	if (mPriDepthBuffer==0|| mPriWindowWidth != width || mPriWindowHeight != height){
+	if (mPriDepthBuffer==0 || mPriWindowWidth != width || mPriWindowHeight != height){
 		delete[] mPriDepthBuffer;
 		mPriDepthBuffer = new GLfloat[width*height];
 	}
@@ -456,10 +456,10 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	//gluPerspective(45,ratio,1,1000);
 	//gluPerspective(20.0,1.0,0.5,50.0);
 	if (farPlane == -1.0f){
-		gluPerspective(45.0f, mPriAspectRatio, 0.2f, mPriFarClippingPlane);
+		gluPerspective(45.0f, mPriAspectRatio, 0.1f, mPriFarClippingPlane);
 	}
 	else{
-		gluPerspective(45.0f, mPriAspectRatio, 0.2f, farPlane);
+		gluPerspective(45.0f, mPriAspectRatio, 0.1f, farPlane);
 	}
 //	gluPerspective(45.0f, ratio, 0.01f, 4000.0f);
 
@@ -1036,7 +1036,15 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			break;
 			case 'B': {// manually resend depth-buffer
 				mPriCamHasMoved = true;
+				bool bound = false;
+				bound = mPriFbo->isBound();
+				if (!bound){
+					mPriFbo->bind();
+				}
 				FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+				if (!bound){
+					mPriFbo->unbind();
+				}
 				DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriDepthBuffer);
 				MpiControl::getSingleton()->push(new Message(dbe, 2));
 				mPriRequestedVboList.clear();
@@ -1055,15 +1063,23 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 				map<uint64_t, ooctools::IndexedVbo*>::iterator mapIt = mPriVbosInFrustum.begin();
 				for (; mapIt != mPriVbosInFrustum.end(); mapIt++){
 					mapIt->second->setOffline();
-					mapIt->second->setOnline();
 					delete mapIt->second;
 				}
 				mPriVbosInFrustum.clear();
 				mPriTriCount = 0;
 				mPriCamHasMoved = true;
+				bool bound = false;
+				bound = mPriFbo->isBound();
+				if (!bound){
+					mPriFbo->bind();
+				}
 				FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+				if (!bound){
+					mPriFbo->unbind();
+				}
 				DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriDepthBuffer);
 				MpiControl::getSingleton()->push(new Message(dbe, 2));
+
 			break;}
 			case 'O': // switch BoundingBoxMode
 				mPriBBMode++;
