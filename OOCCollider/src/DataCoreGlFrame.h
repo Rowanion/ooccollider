@@ -95,7 +95,6 @@ private:
 	float myGlobalAmbient[3]; /* Dim */
 	float myLightColor[3];  /* White */
 
-	ooctools::IndexedVbo* mPriIVbo;
 	ooctools::Camera camObj;
 
 

@@ -14,6 +14,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstring>
+#include <sstream>
 
 #include <X11/Xlib.h>
 #include <spnav.h>
@@ -141,8 +142,19 @@ void SimpleGlFrame::display()
 		FboFactory::getSingleton()->drawColorToFb(mPriColorBuffer, mPriCBufX, mPriCBufY, mPriCBufWidth, mPriCBufHeight);
 		GET_GLERROR(0);
 	}
+	double t = glfwGetTime();  // Time (in seconds)
+
 	pollSpaceNav();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
+
+	double diff = t-time;
+	fps[frame%10] = 1.0/diff;
+	time = t;
+	++frame;
+	if (frame>=25){
+		frame = 0;
+	}
+	calcFPS();
 
 }
 
@@ -174,6 +186,15 @@ void SimpleGlFrame::reshape(int width, int height) {
 	gluLookAt(0.0,0.0,5.0,
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
+}
+
+void SimpleGlFrame::calcFPS() {
+	avgFps = 0.0f;
+	for (unsigned i = 0; i < 10; ++i) {
+		avgFps += fps[i];
+	}
+	avgFps /= 10.0f;
+
 }
 
 /* CAMERAPART BEGIN */
@@ -611,7 +632,9 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		memcpy(mPriColorBuffer, cbe.getPixel(), cbe.getHeight()*cbe.getWidth()*sizeof(GLubyte)*4);
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - INFO" << endl;
+		stringstream headerS;
+		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
+		cout << headerS << "INFO" << endl;
 		cout << "---------------------------------------" << endl;
 	}
 

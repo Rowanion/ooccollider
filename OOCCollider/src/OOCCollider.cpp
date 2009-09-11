@@ -143,6 +143,7 @@ void setupWindow(const char* title)
 
 int main(int argc, char *argv[]) {
 	MpiControl* mpic = MpiControl::getSingleton();
+	mpic->init();
 
 	cout << "entering depending part" << endl;
 	if (mpic->getRank() == 0) {

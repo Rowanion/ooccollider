@@ -22,7 +22,15 @@
 
 class MpiControl {
 public:
+
+	enum Group{
+		DEFAULT = -1,
+		ALL = 0,
+		RENDERER = 1,
+		DATA = 2
+	};
 	virtual ~MpiControl();
+	void init();
 
 	int getRank() const {return mRank;};
 	int getSize() const {return mSize;};
@@ -50,14 +58,23 @@ public:
 	void clearOutQueue(int dst = -1);
 	void clearInQueue(int src = -1);
 
+	inline MPI::Group& getGlobalGrp() {return mOrigGroup;};
+	inline MPI::Group& getRenderGrp() {return mRenderGroup;};
+	inline MPI::Group& getDataGrp() {return mDataGroup;};
+
 
 private:
 	MpiControl();
 
 	int mRank;
 	int mSize;
+	int mGrpRank;
+	int mGrpSize;
 	MPI::Group mOrigGroup, mRenderGroup, mDataGroup;
 	MPI::Intracomm mRenderComm, mDataComm;
+
+	std::vector<int> mPriRenderNodes;
+	std::vector<int> mPriDataNodes;
 
 	std::queue<Message*> mInQueue;
 	std::queue<Message*> mOutQueue;

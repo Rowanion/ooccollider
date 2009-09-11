@@ -50,6 +50,31 @@ MpiControl::~MpiControl()
 	mDataGroup.Free();
 }
 
+void MpiControl::init()
+{
+	if (mSize == 2) { // project start - one master & one renderer
+		mPriRenderNodes.push_back(1);
+	}
+	if (mSize == 3) { // one master & one renderer & data
+		mPriRenderNodes.push_back(1);
+		mPriDataNodes.push_back(2);
+	}
+	else if (mSize == 4){ // first split - one master & two renderer & data
+		mPriRenderNodes.push_back(1);
+		mPriRenderNodes.push_back(2);
+		mPriDataNodes.push_back(3);
+	}
+	else if (mSize > 5){ // final - one master & four renderer & rest -> data
+		mPriRenderNodes.push_back(1);
+		mPriRenderNodes.push_back(2);
+		mPriRenderNodes.push_back(3);
+		mPriRenderNodes.push_back(4);
+		for (int i=5; i< mSize; ++i){
+			mPriDataNodes.push_back(i);
+		}
+	}
+}
+
 void MpiControl::receive(int src)
 {
 //	cout << mRank << " is receiving from " << src << "..." << endl;
@@ -232,7 +257,38 @@ Message* MpiControl::pop()
 
 void MpiControl::push(Message* msg)
 {
-	mOutQueue.push(msg);
+	switch (msg->getGroup()){
+	case DEFAULT:
+		mOutQueue.push(msg);
+		break;
+	case ALL:{
+		for (int i=0; i< mSize; ++i){
+			if (i != mRank){
+				msg->setDst(i);
+				mOutQueue.push(new Message(*msg));
+			}
+			delete msg;
+		}
+		break;}
+	case RENDERER:{
+		for (unsigned i=0; i< mPriRenderNodes.size(); ++i){
+			if (mPriRenderNodes[i] != mRank){
+				msg->setDst(mPriRenderNodes[i]);
+				mOutQueue.push(new Message(*msg));
+			}
+			delete msg;
+		}
+		break;}
+	case DATA:{
+		for (unsigned i=0; i< mPriDataNodes.size(); ++i){
+			if (mPriDataNodes[i] != mRank){
+				msg->setDst(mPriDataNodes[i]);
+				mOutQueue.push(new Message(*msg));
+			}
+			delete msg;
+		}
+		break;}
+	}
 }
 
 void MpiControl::finalize()
@@ -242,16 +298,18 @@ void MpiControl::finalize()
 
 void MpiControl::makeRenderGroup(int size, const int* ranks)
 {
-	mRenderGroup.Incl(size,ranks);
-	mRenderComm.Create(mRenderGroup);
+
+	mRenderGroup = mOrigGroup.Incl(size,ranks);
+	mRenderComm = MPI::COMM_WORLD.Create(mRenderGroup);
+
 
 }
 
 void
 MpiControl::makeDataGroup(int size, const int* ranks)
 {
-	mDataGroup.Incl(size,ranks);
-	mDataComm.Create(mDataGroup);
+	mDataGroup = mOrigGroup.Incl(size,ranks);
+	mDataComm = MPI::COMM_WORLD.Create(mDataGroup);
 }
 
 void

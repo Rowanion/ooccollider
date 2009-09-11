@@ -43,7 +43,6 @@ public:
 	virtual void display();
 	virtual void reshape(int width, int height);
 	virtual void reshape(int width, int height, float farPlane);
-	virtual void setVbo(ooctools::IndexedVbo* iVbo);
 	virtual void resizeWindow();
 	virtual void resizeWindow(unsigned _height, unsigned _width);
 	virtual void resizeWindow(unsigned topLine, unsigned tilesheight,
@@ -91,7 +90,6 @@ private:
 	float* mPriModelViewProjMatrix;
 	ooctools::V3f mPriEyePosition;
 	bool mPriCamHasMoved;
-	bool mPriLoadLocal;
 	unsigned mPriBBMode;
 
 	float mPriAspectRatio;
@@ -99,7 +97,6 @@ private:
 	float myGlobalAmbient[3]; /* Dim */
 	float myLightColor[3];  /* White */
 
-	ooctools::IndexedVbo* mPriIVbo;
 	ooctools::Camera camObj;
 
 	ooctools::ColorTable mPriColorTable;
@@ -171,12 +168,24 @@ private:
 	CGprogram cgFragDepthTex;
 	CGparameter cgDepthTex;
 
-	typedef std::map<uint64_t, ooctools::IndexedVbo*>::iterator VboMapIter;
+	typedef std::map<uint64_t, ooctools::IndexedVbo*>::iterator IdVboMapIter;
+	typedef std::map<uint64_t, ooctools::IndexedVbo*>::const_iterator CIdVboMapIter;
+	typedef std::map<uint64_t, ooctools::IndexedVbo*>::reverse_iterator RIdVboMapIter;
+	typedef std::multimap<float, uint64_t>::iterator FloatIdMMapIter;
+	typedef std::multimap<float, uint64_t>::const_iterator CFloatIdMMapIter;
+	typedef std::multimap<float, uint64_t>::reverse_iterator RFloatIdMMapIter;
+	typedef std::set<uint64_t>::iterator IdSetIter;
+	typedef std::set<uint64_t>::const_iterator CIdSetIter;
+	typedef std::set<uint64_t>::reverse_iterator RIdSetIter;
 
 	void calcFPS();
 	void requestMissingVbos();
-	void loadMissingVbosFromDisk();
 	void compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap2);
+
+	/**
+	 * @brief Divides the set of nodes in frustum into a set of obsoleteVbos (ie. not anymore in frustum) and newVbos (ie. not
+	 * currently online).
+	 */
 	void divideIdList();
 
 	/**

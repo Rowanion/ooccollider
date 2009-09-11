@@ -75,10 +75,7 @@ LooseOctree::~LooseOctree()
 	mTriList.clear();
 
 	std::vector<ProcessingObject*> mObjectList;
-	if (isLeaf()){
-
-	}
-	else {
+	if (!isLeaf()){
 		for (unsigned i=0; i<8; ++i){
 			delete mChildren[i];
 			mChildren[i] = 0;
