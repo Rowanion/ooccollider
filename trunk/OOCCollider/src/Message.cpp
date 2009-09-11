@@ -17,18 +17,31 @@ Message::Message() :
 	// TODO Auto-generated constructor stub
 }
 
-Message::Message(int _type, unsigned int _length, int _dst, const char* _data) :
+Message::Message(int _type, unsigned int _length, int _dst, const char* _data, MpiControl::Group _group) :
 	mType(_type), mLength(_length), mDst(_dst), mData(new char[_length]) {
 	memcpy(mData, _data, _length);
 	mSrc = MpiControl::getSingleton()->getRank();
+
 }
-Message::Message(oocframework::IEvent& event, int _dst) :
+Message::Message(oocframework::IEvent& event, int _dst, MpiControl::Group _group) :
 	mType(event.getClassId()->getShortId()), mLength(event.getByteSize()), mDst(_dst), mData(0)
 {
 	mData = new char[event.getByteSize()];
 	memcpy(mData, event.getData(), mLength);
 	mSrc = MpiControl::getSingleton()->getRank();
 }
+
+Message::Message(const Message& _msg)
+{
+	mLength = _msg.getLength();
+	mData = new char[mLength];
+	memcpy(mData, _msg.getData(), mLength);
+	mSrc = _msg.getSrc();
+	mDst = _msg.getDst();
+	mGroup = _msg.getGroup();
+	mType = _msg.getType();
+}
+
 Message::~Message()
 {
 	delete[] mData;

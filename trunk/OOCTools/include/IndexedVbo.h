@@ -34,7 +34,7 @@ public:
 	inline const V4N4* getVertexData() const {return (const V4N4*)mPriVertexData;};
 	inline const unsigned* getIndexData() const {return (const unsigned*)mPriIndexData;};
 	inline unsigned getVertexCount() const {return mPriVertexCount;};
-	inline unsigned getTriCount() const {return mPriVertexCount/3;};
+	inline unsigned getTriCount() const {return mPriIndexCount/3;};
 	inline unsigned getIndexCount() const {return mPriIndexCount;};
 	inline uint64_t getId() const {return mPriId;};
 

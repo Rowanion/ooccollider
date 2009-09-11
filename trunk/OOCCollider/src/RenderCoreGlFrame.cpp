@@ -16,6 +16,7 @@
 #include <cstring>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 
 #include "GeometricOps.h"
 #include "V3f.h"
@@ -37,7 +38,7 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-#define MAX_OFFLINE_VBOS 1000
+#define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 80
 #define DEPTHBUFFER_INTERVAL 50
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
@@ -61,11 +62,11 @@ using namespace oocframework;
 RenderCoreGlFrame::RenderCoreGlFrame() :
 	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0),
 			frame(0), mPriVboMan(0), mPriCgt(0), mPriEyePosition(ooctools::V3f()),
-			mPriCamHasMoved(false), mPriLoadLocal(false), mPriBBMode(0), mPriAspectRatio(0.0f), mPriIVbo(0), mPriFbo(0),
+			mPriCamHasMoved(false), mPriBBMode(0), mPriAspectRatio(0.0f), mPriFbo(0),
 			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0),
 			mPriDepthBuffer(0), mPriTriCount(0), priFrustum(0), mPriIdPathMap(
 					std::map<uint64_t, std::string>()), mPriMissingIdsInFrustum(std::set<uint64_t>()),
-					mPriObsoleteVbos(std::vector< std::map<uint64_t, ooctools::IndexedVbo*>::iterator >()),
+					mPriObsoleteVbos(std::vector< IdVboMapIter >()),
 			mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
 					100.0f) {
@@ -114,13 +115,22 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	mPriPixelBuffer = 0;
 	delete[] mPriDepthBuffer;
 	mPriDepthBuffer = 0;
-	map<uint64_t, ooctools::IndexedVbo*>::iterator mapIt = mPriVbosInFrustum.begin();
+	IdVboMapIter mapIt = mPriVbosInFrustum.begin();
 	for (; mapIt != mPriVbosInFrustum.end(); ++mapIt){
-		mapIt->second->setOffline();
+		delete mapIt->second;
+		mapIt->second = 0;
+	}
+	mapIt = mPriOfflineVbosInFrustum.begin();
+	for (; mapIt != mPriVbosInFrustum.end(); ++mapIt){
 		delete mapIt->second;
 		mapIt->second = 0;
 	}
 	mPriVbosInFrustum.clear();
+
+	delete mPriLo;
+	mPriLo = 0;
+	delete mPriFbo;
+	mPriFbo = 0;
 }
 
 void RenderCoreGlFrame::init() {
@@ -236,12 +246,7 @@ void RenderCoreGlFrame::display()
 //		cout << *it << endl;
 //	}
 	divideIdList();
-	if (mPriLoadLocal){
-		loadMissingVbosFromDisk();
-	}
-	else {
-		requestMissingVbos();
-	}
+	requestMissingVbos();
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum);
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum2);
 //	compareVbos(&mPriVbosInFrustum, &mPriVbosInFrustum2);
@@ -281,7 +286,7 @@ void RenderCoreGlFrame::display()
 
 				GET_GLERROR(0);
 
-				for (std::map<uint64_t, ooctools::IndexedVbo*>::iterator it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
+				for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
 					if (mPriBBMode == 0){
 						mPriColorTable.bindTex();
 						cgGLEnableTextureParameter(cgFragLUT);
@@ -469,11 +474,6 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	gluLookAt(0.0,0.0,5.0,
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
-}
-
-void RenderCoreGlFrame::setVbo(IndexedVbo* iVbo)
-{
-	mPriIVbo = iVbo;
 }
 
 void RenderCoreGlFrame::resizeWindow() {
@@ -725,23 +725,37 @@ RenderCoreGlFrame::requestMissingVbos()
 	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
 		mPriObsoleteVbos[i]->second->setOffline();
 		mPriOfflineVbosInFrustum.insert(make_pair(mPriObsoleteVbos[i]->first, mPriObsoleteVbos[i]->second));
+		//TODO research why getTriCount() seems to malfunction
 		mPriTriCount -= mPriObsoleteVbos[i]->second->getTriCount();
+
 //		delete mPriObsoleteVbos[i]->second;
 		mPriVbosInFrustum.erase(mPriObsoleteVbos[i]);
 	}
 	mPriObsoleteVbos.clear();
 	trimCacheMap();
 
-	//calculate eye distances of missing vbos
-	//TODO use caching
+	// check if any of the new VBOs is already in the cache
 	multimap<float, uint64_t> missingIdDistances = multimap<float, uint64_t>();
-	set<uint64_t>::iterator setIt = mPriMissingIdsInFrustum.begin();
-	for (; setIt != mPriMissingIdsInFrustum.end(); ++setIt){
-		// compute eye distance
-		ooctools::V3f center = ooctools::V3f();
-		mPriIdLoMap[*setIt]->getBb().computeCenter(center);
-		missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
+	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
+	IdVboMapIter offIt;
+	ooctools::V3f center = ooctools::V3f();
+	for (; setIt!=mPriMissingIdsInFrustum.end(); ++setIt){
+		offIt = mPriOfflineVbosInFrustum.find(*setIt);
+		if (offIt == mPriOfflineVbosInFrustum.end()){ // not in cache -> needs to be requested
+			//calculate eye distances of missing vbos
+			ooctools::V3f center = ooctools::V3f();
+			mPriIdLoMap[*setIt]->getBb().computeCenter(center);
+			missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
+		}
+		else { // VBO is in cache -> flip
+			//TODO cacheflipping happens here
+			offIt->second->setOnline();
+			mPriTriCount += offIt->second->getTriCount();
+			mPriVbosInFrustum.insert(make_pair(offIt->first, offIt->second));
+			mPriOfflineVbosInFrustum.erase(offIt);
+		}
 	}
+
 
 	// add MAX_LOADS_PER_FRAME of missingIdDistances to requestedList and request them
 //	cout << "-------------------- still missing VBOs: " << mPriMissingIdsInFrustum.size() << endl;
@@ -749,7 +763,7 @@ RenderCoreGlFrame::requestMissingVbos()
 //	cout << "-------------------- total VBOs in frustum: " << mPriIdsInFrustum.size() << endl;
 //	cout << "-------------------- requesting VBOs : " << std::min((int)mPriMissingIdsInFrustum.size(), MAX_LOADS_PER_FRAME) << endl;
 	if (missingIdDistances.size() > 0){
-		multimap<float, uint64_t>::iterator multiIt = missingIdDistances.begin();
+		FloatIdMMapIter multiIt = missingIdDistances.begin();
 		unsigned reqCount = 0;
 		for (; (multiIt != missingIdDistances.end() && reqCount < MAX_LOADS_PER_FRAME); ++multiIt){
 			mPriRequestedVboList.insert(multiIt->second);
@@ -763,116 +777,12 @@ RenderCoreGlFrame::requestMissingVbos()
 }
 
 void
-RenderCoreGlFrame::loadMissingVbosFromDisk()
-{
-
-	// deleting obsolete vbos
-	//TODO use cache buffer
-	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
-		mPriObsoleteVbos[i]->second->setOffline();
-		mPriTriCount -= mPriObsoleteVbos[i]->second->getTriCount();
-		delete mPriObsoleteVbos[i]->second;
-		mPriVbosInFrustum.erase(mPriObsoleteVbos[i]);
-	}
-	mPriObsoleteVbos.clear();
-
-	//calculate eye distances of missing vbos
-	//TODO use caching
-	multimap<float, uint64_t> missingIdDistances = multimap<float, uint64_t>();
-	set<uint64_t>::iterator setIt = mPriMissingIdsInFrustum.begin();
-	for (; setIt != mPriMissingIdsInFrustum.end(); ++setIt){
-		// compute eye distance
-		ooctools::V3f center = ooctools::V3f();
-		mPriIdLoMap[*setIt]->getBb().computeCenter(center);
-		missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
-	}
-
-	// add MAX_LOADS_PER_FRAME of missingIdDistances to requestedList and request them
-//	cout << "-------------------- still missing VBOs: " << mPriMissingIdsInFrustum.size() << endl;
-//	cout << "-------------------- invisible VBOs: " << mPriIdsInFrustum.size() - mPriMissingIdsInFrustum.size() - mPriVbosInFrustum.size() << endl;
-//	cout << "-------------------- total VBOs in frustum: " << mPriIdsInFrustum.size() << endl;
-//	cout << "-------------------- requesting VBOs : " << std::min((int)mPriMissingIdsInFrustum.size(), MAX_LOADS_PER_FRAME) << endl;
-	multimap<float, uint64_t>::iterator multiIt = missingIdDistances.begin();
-	if (missingIdDistances.size() > 0){
-		unsigned reqCount = 0;
-		for (; (multiIt != missingIdDistances.end() && reqCount < MAX_LOADS_PER_FRAME); ++multiIt){
-			mPriRequestedVboList.insert(multiIt->second);
-			reqCount++;
-		}
-	}
-
-	for (multiIt = missingIdDistances.begin(); (multiIt != missingIdDistances.end()); ++multiIt){
-		mPriVbosInFrustum.insert(make_pair(multiIt->second, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[multiIt->second]+".idx"), multiIt->second)));
-	}
-
-}
-
-//void
-//RenderCoreGlFrame::loadMissingVbosFromDisk(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap)
-//{
-//	// change list to set - auto-sorted
-//	// we look for two cases:
-//		// nodes we haven't loaded yet
-//		// nodes we don't need anymore
-////	cout << "ids in frustum: " << idList->size() << endl;
-////	cout << "vbos already in map: " << vboMap->size() << endl;
-//	std::set<uint64_t>::iterator setIt = idList->begin();
-//	VboMapIter mapIt = vboMap->begin();
-//	VboMapIter eraseIt;
-//	unsigned loadCount = 0;
-//	cout << "list of nodes LOADED by RenderCore: " << endl;
-//	for(; setIt!=idList->end(); ++setIt){
-//		while(mapIt != vboMap->end() && *setIt > mapIt->first){
-//			eraseIt = mapIt; // needs to be erased
-//			mapIt++;
-////			cout << "deleting " << "/media/ClemensHDD/Sampletree/data/"+mPriIdPathMap[eraseIt->first]+".idx" << endl;
-////			cout << "because " << *setIt << " > " << eraseIt->first << endl;
-//			eraseIt->second->setOffline();
-//			VboMapIter eraseIt2 = eraseIt++;
-//			mPriOfflineVbosInFrustum.insert(eraseIt2, eraseIt);
-////			delete eraseIt->second;
-//			vboMap->erase(eraseIt2);
-//			if (mPriOfflineVbosInFrustum.size()>MAX_OFFLINE_VBOS){
-//				delete mPriOfflineVbosInFrustum.begin()->second;
-//				mPriOfflineVbosInFrustum.erase(mPriOfflineVbosInFrustum.begin());
-//			}
-//		}
-//		if (mapIt == vboMap->end() || *setIt < mapIt->first){
-//			// needs to be inserted
-////			cout << "adding " << "/media/ClemensHDD/Sampletree/data/"+mPriIdPathMap[*setIt]+".idx" << endl;
-////			vboMap->insert(make_pair(*setIt, new IndexedVbo(fs::path("/media/ClemensHDD/Sampletree/data/1/3/404.idx"))));
-//			VboMapIter offIt = mPriOfflineVbosInFrustum.find(*setIt);
-//			if (offIt != mPriOfflineVbosInFrustum.end()){
-//				offIt->second->setOnline();
-//				VboMapIter offIt2 = offIt++;
-//				vboMap->insert(offIt2, offIt);
-//				mPriOfflineVbosInFrustum.erase(offIt2);
-//			}
-//			else {
-//				if (loadCount < MAX_LOADS_PER_FRAME){
-//					vboMap->insert(make_pair(*setIt, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[*setIt]+".idx"), *setIt)));
-//					cout << *setIt << endl;
-//					loadCount++;
-//				}
-//				else
-//					break;
-//			}
-//		}
-//		else if(*setIt == mapIt->first){
-//			mapIt++;
-//		}
-//	}
-////	if (term )exit(0);
-//}
-
-void
 RenderCoreGlFrame::divideIdList()
 {
 	// input: set<uint64_t> idsInFrustum, map<uint64_t, IndexedVbo*> loadedVbos
 	// output set<uint64_t> missingIdsInFrustum, vector<map<uint64_t, IndexedVbo*>::iterator> obsoleteVbos
-	set<uint64_t>::iterator setIt;
-	set<uint64_t>::iterator reqIt;
-	map<uint64_t, IndexedVbo*>::iterator mapIt;
+	IdSetIter setIt, reqIt;
+	IdVboMapIter mapIt;
 
 	// iterator over idList and save every id that is not loaded in a new list
 	for (setIt=mPriIdsInFrustum.begin(); setIt!=mPriIdsInFrustum.end(); ++setIt){
@@ -906,18 +816,17 @@ void RenderCoreGlFrame::trimCacheMap()
 	unsigned cacheSize = mPriOfflineVbosInFrustum.size();
 	if (cacheSize > MAX_OFFLINE_VBOS){
 		unsigned diff = cacheSize - MAX_OFFLINE_VBOS;
-		multimap<float, map<uint64_t, ooctools::IndexedVbo*>::iterator> distMap = multimap<float, map<uint64_t, ooctools::IndexedVbo*>::iterator>();
+		multimap<float, IdVboMapIter> distMap = multimap<float, IdVboMapIter>();
 		V3f center = V3f();
-		map<uint64_t, ooctools::IndexedVbo*>::iterator mapIt = mPriOfflineVbosInFrustum.begin();
+		IdVboMapIter mapIt = mPriOfflineVbosInFrustum.begin();
 		for (; mapIt != mPriOfflineVbosInFrustum.end(); ++mapIt){
 			mPriIdLoMap[mapIt->first]->getBb().computeCenter(center);
 			distMap.insert(make_pair(mPriEyePosition.calcDistance(center), mapIt));
 		}
 		unsigned counter = 0;
-		multimap<float, map<uint64_t, ooctools::IndexedVbo*>::iterator>::reverse_iterator rIt = distMap.rbegin();
+		multimap<float, IdVboMapIter>::reverse_iterator rIt = distMap.rbegin();
 		for (; rIt != distMap.rend() && counter < diff; rIt++, counter++){
-			//TODO research why getTriCount() seems to malfunction
-			mPriTriCount -= rIt->second->second->getTriCount();
+//			mPriTriCount -= rIt->second->second->getTriCount();
 			delete rIt->second->second;
 			rIt->second->second = 0;
 			mPriOfflineVbosInFrustum.erase(rIt->second);
@@ -934,8 +843,8 @@ RenderCoreGlFrame::compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap
 		cout << vboMap->size() << " vs " << vboMap2->size() << endl;
 
 		unsigned exitCount = (vboMap->size() > vboMap2->size()) ? vboMap->size() : vboMap2->size();
-		VboMapIter it1 = vboMap->begin();
-		VboMapIter it2 = vboMap2->begin();
+		IdVboMapIter it1 = vboMap->begin();
+		IdVboMapIter it2 = vboMap2->begin();
 		for (unsigned i=0; i < exitCount; ++i){
 			if (i+1 < vboMap->size()){
 				cout << "ID: " << it1->first;
@@ -957,7 +866,7 @@ RenderCoreGlFrame::compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap
 
 		exit(0);
 	}
-	VboMapIter mapIt = vboMap->begin();
+	IdVboMapIter mapIt = vboMap->begin();
 	for(; mapIt != vboMap->end(); ++mapIt){
 		if (mapIt->second->getIndexCount() != (*vboMap2)[mapIt->first]->getIndexCount()){
 			cout << "Index-Count Miss Match!!!" << endl;
@@ -1087,7 +996,7 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 				mPriRequestedVboList.clear();
 				mPriObsoleteVbos.clear();
 //				mPriMissingIdsInFrustum.clear();
-				map<uint64_t, ooctools::IndexedVbo*>::iterator mapIt = mPriVbosInFrustum.begin();
+				IdVboMapIter mapIt = mPriVbosInFrustum.begin();
 				for (; mapIt != mPriVbosInFrustum.end(); mapIt++){
 					mapIt->second->setOffline();
 					delete mapIt->second;
@@ -1135,12 +1044,31 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		}
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - currently loaded tris: " << mPriTriCount << endl;
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - total requested vbos: " << mPriRequestedVboList.size() << endl;
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - VBOs in cache: " << mPriOfflineVbosInFrustum.size() << "/" << MAX_OFFLINE_VBOS<< endl;
+		stringstream headerS;
+		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
+		cout << headerS << "currently loaded tris: " << mPriTriCount << endl;
+		cout << headerS << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
+		cout << headerS << "total requested vbos: " << mPriRequestedVboList.size() << endl;
+		cout << headerS << "loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
+		cout << headerS << "total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
+		cout << headerS << "VBOs in cache: " << mPriOfflineVbosInFrustum.size() << "/" << MAX_OFFLINE_VBOS<< endl;
+		unsigned tCount = 0;
+		unsigned iCount = 0;
+		IdVboMapIter mIt = mPriVbosInFrustum.begin();
+		for (; mIt!=mPriVbosInFrustum.end(); ++mIt){
+			tCount += mIt->second->getTriCount();
+			iCount += mIt->second->getIndexCount();
+		}
+		cout << headerS << "loaded online tris (counted): " << tCount << endl;
+		cout << headerS << "loaded online indices (counted): " << iCount << endl;
+		tCount = 0;
+		iCount = 0;
+		for (mIt = mPriOfflineVbosInFrustum.begin(); mIt!=mPriOfflineVbosInFrustum.end(); ++mIt){
+			tCount += mIt->second->getTriCount();
+			iCount += mIt->second->getIndexCount();
+		}
+		cout << headerS << "loaded offline tris (counted): " << tCount << endl;
+		cout << headerS << "loaded offline indices (counted): " << iCount << endl;
 		cout << "---------------------------------------" << endl;
 	}
 

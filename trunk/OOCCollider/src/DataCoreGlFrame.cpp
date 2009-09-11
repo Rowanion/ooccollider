@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <sstream>
 
 #include "GeometricOps.h"
 #include "V3f.h"
@@ -49,7 +50,7 @@ using namespace oocframework;
 
 DataCoreGlFrame::DataCoreGlFrame() :
 	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0),
-			frame(0), mPriVboMan(0), mPriCgt(0), mPriIVbo(0), mPriFbo(0),
+			frame(0), mPriVboMan(0), mPriCgt(0), mPriFbo(0),
 			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0), mPriDepthBuffer(0), mPriNewDepthBuf(false),
 			mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()), mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFarClippingPlane(100.0f) {
 
@@ -83,6 +84,7 @@ DataCoreGlFrame::~DataCoreGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, DepthBufferEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
 
+	delete mPriFbo;
 }
 
 void DataCoreGlFrame::init() {
@@ -352,11 +354,6 @@ void DataCoreGlFrame::reshape(int width, int height) {
 			  0.0f,1.0f,0.0f);
 }
 
-void DataCoreGlFrame::setVbo(IndexedVbo* iVbo)
-{
-	mPriIVbo = iVbo;
-}
-
 void DataCoreGlFrame::resizeWindow() {
 	this->resizeWindow(0, height, 0, width);
 }
@@ -530,7 +527,9 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") - INFO" << endl;
+		stringstream headerS;
+		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
+		cout << headerS.str() << "INFO" << endl;
 		cout << "---------------------------------------" << endl;
 	}
 }

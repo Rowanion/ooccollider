@@ -19,8 +19,9 @@ friend class MpiControl;
 
 public:
 	Message();
-	Message(int _type, unsigned int _length, int dst, const char* _data);
-	Message(oocframework::IEvent& event, int _dst);
+	Message(int _type, unsigned int _length, int dst, const char* _data, MpiControl::Group _group = MpiControl::DEFAULT);
+	Message(oocframework::IEvent& event, int _dst, MpiControl::Group _group = MpiControl::DEFAULT);
+	Message(const Message& _msg);
 	virtual ~Message();
 	inline int getType() const {return mType;};
 	inline unsigned getUType() const {return *((unsigned*)&mType);};
@@ -32,7 +33,9 @@ public:
 	inline const char* getData() const {return mData;};
 	inline void setData(char* _data) {mData = _data;};
 	inline void setSrc(int src) {mSrc = src;};
-	inline int getSrc() {return mSrc;};
+	inline int getSrc() const {return mSrc;};
+	inline void setGroup(MpiControl::Group _group) {mGroup = _group;};
+	inline MpiControl::Group getGroup() const {return mGroup;};
 
 private:
 	int mType;
@@ -41,6 +44,7 @@ private:
 	char* mData;
 	int mSrc;
 	MPI::Request request;
+	MpiControl::Group mGroup;
 
 	inline char* getDataHandle() {return mData;};
 };

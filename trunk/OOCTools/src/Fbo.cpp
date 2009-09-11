@@ -22,12 +22,25 @@ Fbo::Fbo(int _width, int _height) : fboIsBound(false)
 	mPriWidth = _width;
 	mPriHeight = _height;
 	glGenFramebuffersEXT(1, &mPriFBO);
-	mPriTestArr = 0;
 }
 
 Fbo::~Fbo()
 {
 	// TODO Auto-generated destructor stub
+
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 0, 0);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
+
+	glDeleteRenderbuffersEXT(1, &mPriDepthBuffer);
+	glDeleteRenderbuffersEXT(1, &mPriColorBuffer);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDeleteTextures(1, &mPriColorTexture);
+	glDeleteTextures(1, &mPriDepthTexture);
+
+	glDeleteFramebuffersEXT(1, &mPriFBO);
+
 }
 
 void
@@ -239,28 +252,6 @@ void Fbo::drawAsQuad()
 		glDisable(GL_TEXTURE_2D);
 	}
 
-}
-
-GLfloat*
-Fbo::mapDepthBuffer(GLenum access)
-{
-	delete[] mPriTestArr;
-	mPriTestArr = new float[mPriWidth * mPriHeight];
-	float* temp;
-	cout << "binding depthbuffer" << endl;
-	glBindBuffer(GL_PIXEL_PACK_BUFFER, mPriDepthBuffer);
-	cout << "mapping depthbuffer" << endl;
-	temp = (GLfloat*)glMapBuffer(GL_PIXEL_PACK_BUFFER, access);
-	memcpy(mPriTestArr, temp, mPriWidth * mPriHeight*sizeof(float));
-	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-	return mPriTestArr;
-}
-
-void
-Fbo::unmapDepthBuffer()
-{
-	glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
 } // end of namespace OOCTools

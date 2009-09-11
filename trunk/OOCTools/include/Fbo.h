@@ -45,8 +45,6 @@ public:
 	GLuint getColorTexId(){return mPriColorTexture;};
 	GLuint getDepthTexId(){return mPriDepthTexture;};
 	inline bool isBound() const {return fboIsBound;};
-	GLfloat* mapDepthBuffer(GLenum access = GL_READ_ONLY);
-	void unmapDepthBuffer();
 
 	int mPriWidth;
 	int mPriHeight;
@@ -58,7 +56,6 @@ private:
 	GLuint mPriDepthTexture;
 	GLuint mPriColorBuffer;
 	bool fboIsBound;
-	float* mPriTestArr;
 
 };
 

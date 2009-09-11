@@ -310,9 +310,7 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 		KeyPressedEvent& kpe = (KeyPressedEvent&)event;
 		switch (kpe.getKey()){
 		case GLFW_KEY_ESC:
-			for (unsigned i=1; i<MpiControl::getSingleton()->getSize(); ++i){
-				MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, i, new char[1]));
-			}
+			MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, new char[1], MpiControl::ALL));
 //			msg = new Message(KillApplicationEvent::classid()->getShortId(), 1, 1, new char[1]);
 //			MpiControl::getSingleton()->push(msg);
 //			cout << "sending KillApp to 1.........." << endl;
@@ -330,6 +328,9 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 			MpiControl::getSingleton()->push(new Message(kpe,2));
 			break;
 		case 'I':{
+			cout << "====================================" << endl;
+			cout << "Requesting Information from Nodes..." << endl;
+			cout << "====================================" << endl;
 			InfoRequestEvent ire = InfoRequestEvent();
 			MpiControl::getSingleton()->push(new Message(ire,1));
 			MpiControl::getSingleton()->push(new Message(ire,2));
