@@ -617,24 +617,13 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		ColorBufferEvent& cbe = (ColorBufferEvent&)event;
 		if (mPriColorBuffer==0){
 			mPriColorBuffer = new GLubyte[cbe.getHeight()*cbe.getWidth()*4];
-			cout << "der Master hat nen colorbuffer initialisiert...." << cbe.getHeight() << " " << cbe.getWidth() << endl;
-			cout << "pre init cbuf: " << (int64_t)mPriColorBuffer << endl;
-//			for (unsigned i=0; i<cbe.getHeight()*cbe.getWidth()*4; i+=4){
-//				mPriColorBuffer[i] = 255;
-//				mPriColorBuffer[i+1] = 0;
-//				mPriColorBuffer[i+2] = 0;
-//				mPriColorBuffer[i+3] = 255;
-
-	//		}
-			cout << "post init cbuf: " << (int64_t)mPriColorBuffer << endl;
 		}
-//		exit(0);
 		memcpy(mPriColorBuffer, cbe.getPixel(), cbe.getHeight()*cbe.getWidth()*sizeof(GLubyte)*4);
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;
 		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
-		cout << headerS << "INFO" << endl;
+		cout << headerS.str() << "INFO" << endl;
 		cout << "---------------------------------------" << endl;
 	}
 

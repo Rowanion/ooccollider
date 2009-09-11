@@ -1046,12 +1046,12 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;
 		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
-		cout << headerS << "currently loaded tris: " << mPriTriCount << endl;
-		cout << headerS << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
-		cout << headerS << "total requested vbos: " << mPriRequestedVboList.size() << endl;
-		cout << headerS << "loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
-		cout << headerS << "total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
-		cout << headerS << "VBOs in cache: " << mPriOfflineVbosInFrustum.size() << "/" << MAX_OFFLINE_VBOS<< endl;
+		cout << headerS.str() << "currently loaded tris: " << mPriTriCount << endl;
+		cout << headerS.str() << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
+		cout << headerS.str() << "total requested vbos: " << mPriRequestedVboList.size() << endl;
+		cout << headerS.str() << "loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
+		cout << headerS.str() << "total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
+		cout << headerS.str() << "VBOs in cache: " << mPriOfflineVbosInFrustum.size() << "/" << MAX_OFFLINE_VBOS<< endl;
 		unsigned tCount = 0;
 		unsigned iCount = 0;
 		IdVboMapIter mIt = mPriVbosInFrustum.begin();
@@ -1059,16 +1059,16 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			tCount += mIt->second->getTriCount();
 			iCount += mIt->second->getIndexCount();
 		}
-		cout << headerS << "loaded online tris (counted): " << tCount << endl;
-		cout << headerS << "loaded online indices (counted): " << iCount << endl;
+		cout << headerS.str() << "loaded online tris (counted): " << tCount << endl;
+		cout << headerS.str() << "loaded online indices (counted): " << iCount << endl;
 		tCount = 0;
 		iCount = 0;
 		for (mIt = mPriOfflineVbosInFrustum.begin(); mIt!=mPriOfflineVbosInFrustum.end(); ++mIt){
 			tCount += mIt->second->getTriCount();
 			iCount += mIt->second->getIndexCount();
 		}
-		cout << headerS << "loaded offline tris (counted): " << tCount << endl;
-		cout << headerS << "loaded offline indices (counted): " << iCount << endl;
+		cout << headerS.str() << "loaded offline tris (counted): " << tCount << endl;
+		cout << headerS.str() << "loaded offline indices (counted): " << iCount << endl;
 		cout << "---------------------------------------" << endl;
 	}
 
