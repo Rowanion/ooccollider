@@ -257,6 +257,7 @@ Message* MpiControl::pop()
 
 void MpiControl::push(Message* msg)
 {
+	//TODO ensure that all groupings work as they should
 	switch (msg->getGroup()){
 	case DEFAULT:
 		mOutQueue.push(msg);
@@ -266,9 +267,10 @@ void MpiControl::push(Message* msg)
 			if (i != mRank){
 				msg->setDst(i);
 				mOutQueue.push(new Message(*msg));
+				cout << "sending msg to " << msg->getDst() << endl;
 			}
-			delete msg;
 		}
+		delete msg;
 		break;}
 	case RENDERER:{
 		for (unsigned i=0; i< mPriRenderNodes.size(); ++i){
@@ -276,8 +278,8 @@ void MpiControl::push(Message* msg)
 				msg->setDst(mPriRenderNodes[i]);
 				mOutQueue.push(new Message(*msg));
 			}
-			delete msg;
 		}
+		delete msg;
 		break;}
 	case DATA:{
 		for (unsigned i=0; i< mPriDataNodes.size(); ++i){
@@ -285,8 +287,8 @@ void MpiControl::push(Message* msg)
 				msg->setDst(mPriDataNodes[i]);
 				mOutQueue.push(new Message(*msg));
 			}
-			delete msg;
 		}
+		delete msg;
 		break;}
 	}
 }

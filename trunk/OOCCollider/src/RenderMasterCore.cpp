@@ -310,13 +310,11 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 		KeyPressedEvent& kpe = (KeyPressedEvent&)event;
 		switch (kpe.getKey()){
 		case GLFW_KEY_ESC:
-			MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, new char[1], MpiControl::ALL));
-//			msg = new Message(KillApplicationEvent::classid()->getShortId(), 1, 1, new char[1]);
-//			MpiControl::getSingleton()->push(msg);
-//			cout << "sending KillApp to 1.........." << endl;
-////			MpiControl::getSingleton()->sendAll();
-//			cout << "........done!" << endl;
-////			mRunning = false;
+			char data;
+//            for (unsigned i=1; i<MpiControl::getSingleton()->getSize(); ++i){
+//                    MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, i, &data));
+//            }
+			MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, &data, MpiControl::ALL));
 			mTerminateApplication = true;
 			break;
 		case 'N':

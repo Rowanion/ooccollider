@@ -13,18 +13,18 @@
 #include <cstring>
 
 Message::Message() :
-	mType(0), mLength(0), mDst(0), mData(0) {
+	mType(0), mLength(0), mDst(0), mData(0), mGroup(MpiControl::DEFAULT) {
 	// TODO Auto-generated constructor stub
 }
 
 Message::Message(int _type, unsigned int _length, int _dst, const char* _data, MpiControl::Group _group) :
-	mType(_type), mLength(_length), mDst(_dst), mData(new char[_length]) {
+	mType(_type), mLength(_length), mDst(_dst), mData(new char[_length]), mGroup(_group) {
 	memcpy(mData, _data, _length);
 	mSrc = MpiControl::getSingleton()->getRank();
 
 }
 Message::Message(oocframework::IEvent& event, int _dst, MpiControl::Group _group) :
-	mType(event.getClassId()->getShortId()), mLength(event.getByteSize()), mDst(_dst), mData(0)
+	mType(event.getClassId()->getShortId()), mLength(event.getByteSize()), mDst(_dst), mData(0), mGroup(_group)
 {
 	mData = new char[event.getByteSize()];
 	memcpy(mData, event.getData(), mLength);

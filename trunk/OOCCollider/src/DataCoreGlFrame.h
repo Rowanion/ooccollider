@@ -44,7 +44,6 @@ public:
 	virtual void display(NodeRequestEvent& nre);
 	virtual void display();
 	virtual void reshape(int width, int height);
-	virtual void setVbo(ooctools::IndexedVbo* iVbo);
 	virtual void resizeWindow();
 	virtual void resizeWindow(unsigned _height, unsigned _width);
 	virtual void resizeWindow(unsigned topLine, unsigned tilesheight,
