@@ -23,7 +23,7 @@ ColorBufferEvent::ColorBufferEvent() {
 
 ColorBufferEvent::ColorBufferEvent(int xPos, int yPos, int width, int height, double renderTime, const GLubyte* pixel)
 {
-	mPriByteSize = sizeof(int)*4 + +sizeof(double) + sizeof(GLubyte)*width*height*4;
+	mPriByteSize = sizeof(int)*4 + sizeof(double) + sizeof(GLubyte)*width*height*4;
 	mProData = new char[mPriByteSize];
 	((int*)mProData)[0] = xPos;
 	((int*)mProData)[1] = yPos;

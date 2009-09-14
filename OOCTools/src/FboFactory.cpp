@@ -130,13 +130,15 @@ FboFactory::drawDepthToFb(const GLfloat* depth, int wPos, int hPos, int width, i
 void
 FboFactory::readColorFromFb(GLubyte *pixels, int wPos, int hPos, int width, int height)
 {
+	glWindowPos2i(wPos,hPos);
 	glReadPixels(wPos,hPos,width,height,GL_BGRA, GL_UNSIGNED_BYTE, pixels);
 }
 
 void
 FboFactory::readDepthFromFb(GLfloat *depth, int wPos, int hPos, int width, int height)
 {
-	glReadPixels(wPos,wPos,width,height,GL_DEPTH_COMPONENT, GL_FLOAT, depth);
+	glWindowPos2i(wPos,hPos);
+	glReadPixels(wPos,hPos,width,height,GL_DEPTH_COMPONENT, GL_FLOAT, depth);
 }
 
 } // end of Namespace OOCTools

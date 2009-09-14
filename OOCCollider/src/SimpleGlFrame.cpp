@@ -81,6 +81,7 @@ SimpleGlFrame::~SimpleGlFrame() {
 
 	delete[] myTranslateMatrix;
 	delete[] myGLRotMatrix;
+	delete mPriFbo;
 
 	oocframework::EventManager::getSingleton()->removeListener(this, ColorBufferEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, MouseDraggedEvent::classid());
@@ -114,8 +115,24 @@ void SimpleGlFrame::init() {
 		mPriUseSpaceNav=true;
 	}
 	loadCameraPositions();
+	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mPriCBufWidth,mPriCBufHeight);
+	mPriCgt = ooctools::CgToolkit::getSingleton();
+	setupCg();
+
 }
 
+void SimpleGlFrame::setupCg()
+{
+	mPriCgt->initCG(true);
+
+//	cgVertPostProc = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/gauss.cg", true, "gaussVP");
+	cgFragPostProc = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/gauss.cg", true, "gaussFP");
+	cgFragPostProc = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_boxcar.cg", true, "");
+	cgTexture = cgGetNamedParameter(cgFragPostProc,  "texture");
+	cgGLSetTextureParameter(cgTexture, mPriFbo->getColorTexId());
+	cgGLEnableTextureParameter(cgTexture);
+
+}
 void SimpleGlFrame::display()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -137,11 +154,19 @@ void SimpleGlFrame::display()
 //		Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),1,data);
 //		MpiControl::getSingleton()->push(msg);
 //	}
-
+	mPriFbo->bind();
 	if (mPriColorBuffer != 0){
 		FboFactory::getSingleton()->drawColorToFb(mPriColorBuffer, mPriCBufX, mPriCBufY, mPriCBufWidth, mPriCBufHeight);
 		GET_GLERROR(0);
 	}
+	mPriFbo->unbind();
+
+//	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertPostProc);
+//	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragPostProc);
+	mPriFbo->drawAsQuad();
+//	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+//	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+
 	double t = glfwGetTime();  // Time (in seconds)
 
 	pollSpaceNav();
@@ -178,7 +203,7 @@ void SimpleGlFrame::reshape(int width, int height) {
 	glViewport(0, 0, (GLint)w, (GLint)h);
 
 	// Set the correct perspective.
-	gluPerspective(45.0f, ratio, 0.01f, 4000.0f);
+	gluPerspective(45.0f, ratio, 0.01f, 100.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

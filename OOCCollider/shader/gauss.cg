@@ -1,0 +1,95 @@
+/* Data passed from application to vertex shader */
+struct vertIn {
+    float4 Position : POSITION;
+	float3 Normal	: NORMAL;
+    float2 TexCoord : TEXCOORD0;
+};
+
+/* Data output from vertex shader */
+struct vertOut {
+    float4 Position   : POSITION;
+    float2 TexCoord    : TEXCOORD0;
+};
+
+/* Data passed from vertex shader to pixel shader */
+struct fragIn {
+    float4 HPosition   : POSITION;
+    float2 TexCoord    : TEXCOORD0;
+};
+
+void gaussVP(vertIn IN,
+			out vertOut OUT)
+{
+	OUT.Position = mul(glstate.matrix.mvp, IN.Position);
+	OUT.TexCoord = IN.TexCoord;
+}
+
+float4 gaussFP(fragIn IN,
+            uniform sampler2D texture) : COLOR
+{
+
+/*
+5x5 Gauss-Filter
+ |1  4 6   4 1|
+ |4 16 24 16 4|
+ |6 24 36 24 6|   * 1/256
+ |4 16 24 16 4|
+ |1  4  6  4 1|
+
+|p0  p1  p2  p3  p4 |
+|p5  p6  p7  p8  p9 |
+|p10 p11 p12 p13 p14|
+|p15 p16 p17 p18 p19|
+|p20 p21 p22 p23 p24|
+
+ |-2o,2o   -o,2o   0,+2o  +o,2o   +2o,+2o|
+ |-2o,o    -o,+o   0,+o   +o,+o   +2o,+o |
+ |-2o,0    -o,0    0,0    +o,0    +2o,0  |
+ |-2o,-o   -o,-o   0,-o   +o,-o   +2o,-o |
+ |-2o,-2o  -o,-2o  0,-2o  +o,-2o  +20,-2o|
+
+*/
+
+	static const float offset = 1.0 / 3000.0;
+	static const float divisor = 1.0 / 256.0;
+	half4 p[25];
+	float4 color;
+    p[0]  = tex2D(texture, IN.TexCoord + half2(-2*offset, 2*offset));
+    p[1]  = tex2D(texture, IN.TexCoord + half2(-offset, 2*offset));
+    p[2]  = tex2D(texture, IN.TexCoord + half2(      0, 2*offset));
+    p[3]  = tex2D(texture, IN.TexCoord + half2(offset, 2*offset));
+    p[4]  = tex2D(texture, IN.TexCoord + half2(2*offset, 2*offset));
+    
+    p[5]  = tex2D(texture, IN.TexCoord + half2(-2*offset, offset));
+    p[6]  = tex2D(texture, IN.TexCoord + half2(-offset,  offset));
+    p[7]  = tex2D(texture, IN.TexCoord + half2(      0,  offset));
+    p[8]  = tex2D(texture, IN.TexCoord + half2( offset,  offset));
+    p[9]  = tex2D(texture, IN.TexCoord + half2(2*offset, offset));
+    
+    p[10] = tex2D(texture, IN.TexCoord + half2(-2*offset, 0));
+    p[11] = tex2D(texture, IN.TexCoord + half2(-offset,       0));
+    p[12] = tex2D(texture, IN.TexCoord);
+    p[13] = tex2D(texture, IN.TexCoord + half2( offset,       0));
+    p[14] = tex2D(texture, IN.TexCoord + half2(2*offset, 0));
+    
+    p[15] = tex2D(texture, IN.TexCoord + half2(-2*offset, -offset));
+    p[16] = tex2D(texture, IN.TexCoord + half2(-offset, -offset));
+    p[17] = tex2D(texture, IN.TexCoord + half2(      0, -offset));
+    p[18] = tex2D(texture, IN.TexCoord + half2( offset, -offset));
+    p[19] = tex2D(texture, IN.TexCoord + half2(2*offset, -offset));
+
+    p[20] = tex2D(texture, IN.TexCoord + half2(-2*offset, -2*offset));
+    p[21] = tex2D(texture, IN.TexCoord + half2(-offset, -2*offset));
+    p[22] = tex2D(texture, IN.TexCoord + half2(0, -2*offset));
+    p[23] = tex2D(texture, IN.TexCoord + half2(offset, -2*offset));
+    p[24] = tex2D(texture, IN.TexCoord + half2(2*offset, -2*offset));
+
+    color =  divisor*((p[0]+p[4]+p[20]+p[24]) + 
+		 	 4*(p[1]+p[3]+p[5]+p[9]+p[15]+p[19]+p[21]+p[23])+
+		 	 6*(p[2]+p[10]+p[14]+p[22])+
+		 	 16*(p[6]+p[8]+p[16]+p[18])+
+		 	 24*(p[7]+p[11]+p[13]+p[17])+
+		 	 36*p[14]);
+    return color;
+	
+}

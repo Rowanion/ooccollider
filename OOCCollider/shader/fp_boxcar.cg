@@ -1,0 +1,35 @@
+/* Data passed from vertex shader to pixel shader */
+struct vertexOutput {
+    float4 HPosition   : POSITION;
+    float2 TexCoord    : TEXCOORD0;
+};
+
+float4 main(vertexOutput IN,
+            uniform sampler2D texture) : COLOR
+{
+
+/*
+3x3 Boxcar-Filter
+|1/9  1/9  1/9|
+|1/9  1/9  1/9|
+|1/9  1/9  1/9|
+
+
+*/
+
+	static const float xOffset = 1.0 / 640.0;
+	static const float yOffset = 1.0 / 400.0;
+	static const float divisor = 1.0 / 9.0;
+	float4 color;
+    half4 c  = tex2D(texture, IN.TexCoord);
+    half4 bl = tex2D(texture, IN.TexCoord + half2(-xOffset, -yOffset));
+    half4 l  = tex2D(texture, IN.TexCoord + half2(-xOffset,       0));
+    half4 tl = tex2D(texture, IN.TexCoord + half2(-xOffset,  yOffset));
+    half4 t  = tex2D(texture, IN.TexCoord + half2(      0,  yOffset));
+    half4 ur = tex2D(texture, IN.TexCoord + half2( xOffset,  yOffset));
+    half4 r  = tex2D(texture, IN.TexCoord + half2( xOffset,       0));
+    half4 br = tex2D(texture, IN.TexCoord + half2( xOffset,  yOffset));
+    half4 b  = tex2D(texture, IN.TexCoord + half2(      0, -yOffset));
+    color =  divisor*(tl+ur+br+bl+l+r+b+t+c);
+    return color;
+}
