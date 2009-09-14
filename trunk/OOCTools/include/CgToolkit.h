@@ -44,7 +44,7 @@ public:
 	void disableCg();
 	void startCgShader(CGprofile profile, CGprogram prog);
 	void stopCgShader(CGprofile profile);
-	CGprogram loadCgShader(CGprofile profile, std::string filename, bool verbose);
+	CGprogram loadCgShader(CGprofile profile, std::string filename, bool verbose, std::string entry);
 	void cgDisableTex(std::string s);
 	void cgEnableTex(std::string s);
 	void cgNewParam(std::string s, CGprogram prog);

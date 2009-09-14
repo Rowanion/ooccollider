@@ -51,8 +51,8 @@ private:
 	static RenderMasterCore* instance;
 
 	MPI::Request sendQueue(int dest);
-	void receiveQueue(int source);
 	void pollSpaceNav();
+	void handleMsg(Message* msg);
 };
 
 #endif /* RENDERMASTERCORE_H_ */

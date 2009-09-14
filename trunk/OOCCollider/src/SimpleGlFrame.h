@@ -112,25 +112,11 @@ private:
 	ooctools::Quaternion localQuat;
 	ooctools::Quaternion totalQuat;
 
+	CGprogram cgVertPostProc;
+	CGprogram cgFragPostProc;
+	CGparameter cgTexture;
 
-
-	CGprogram g_cgVertexProg;
-	CGparameter g_cgGlobalAmbient;
-	CGparameter g_cgLightColor;
-	CGparameter g_cgEyePosition;
-	CGparameter g_cgLightPosition;
-	CGparameter cgColorLut;
-	CGparameter cgNColors;
-
-	CGprogram g_cgFragmentProg;
-	CGparameter g_cgShininess;
-	CGparameter g_cgKs;
-	CGparameter g_cgKd;
-	CGparameter g_cgKa;
-	CGparameter g_cgKe;
-	CGparameter g_cgModelViewInv;
-
-
+	void setupCg();
 
 	void calcFPS();
 	void pollSpaceNav();

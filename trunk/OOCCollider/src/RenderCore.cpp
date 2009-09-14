@@ -55,8 +55,9 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 		while(!mPriGotMatrix && mRunning){
 			MpiControl::getSingleton()->receive(0);
 			handleMsg(MpiControl::getSingleton()->pop());
+//			cout << "matrix arrived at renderer" << endl;
 		}
-		MpiControl::getSingleton()->ireceive(2);
+		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
 		while(!MpiControl::getSingleton()->inQueueEmpty()){
 			handleMsg(MpiControl::getSingleton()->pop());
 		}
@@ -64,6 +65,7 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 //		receiveMethod(0);
 		if (mRunning){
 			glFrame->display();
+//			cout << "sending the outqueue of renderer" << endl;
 			while(!MpiControl::getSingleton()->outQueueEmpty()){
 //				cout << "renderer found that his outqueue is not empty.....sending...." << endl;
 				MpiControl::getSingleton()->send();
@@ -151,6 +153,7 @@ void RenderCore::handleMsg(Message* msg)
 			oocframework::EventManager::getSingleton()->fire(mve);
 		}
 		else if (msg->getType() == VboEvent::classid()->getShortId()){
+//			cout << "rendercore got a vbo from a data node" << endl;
 			VboEvent ve = VboEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(ve);
 		}

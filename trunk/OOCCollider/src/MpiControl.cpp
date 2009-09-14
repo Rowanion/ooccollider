@@ -16,6 +16,7 @@
 #include "Message.h"
 #include "ColorBufferEvent.h"
 #include "DepthBufferEvent.h"
+#include "NodeRequestEvent.h"
 
 using namespace std;
 
@@ -48,6 +49,8 @@ MpiControl::~MpiControl()
 	mDataComm.Free();
 	mRenderGroup.Free();
 	mDataGroup.Free();
+	mPriDataNodes.clear();
+	mPriRenderNodes.clear();
 }
 
 void MpiControl::init()
@@ -83,14 +86,37 @@ void MpiControl::receive(int src)
 	{	}
 	int count = stat.Get_count(MPI_CHAR);
 	int type = stat.Get_tag();
-	char* data = new char[count];
 	int realSrc = stat.Get_source();
-	MPI::COMM_WORLD.Recv(data, count, MPI_CHAR,src, type, stat);
-	Message* msg = new Message(type, count, mRank, data);
+	Message* msg = new Message();
+	msg->setType(type);
+	msg->setLength(count);
 	msg->setSrc(realSrc);
+	msg->mData = new char[count];
+	MPI::COMM_WORLD.Recv(msg->mData, count, MPI_CHAR, src, type, stat);
 //	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
 	mInQueue.push(msg);
-	delete[] data;
+}
+
+//TODO this way is not efficient
+// it waits blocking for a msg from each group member. what happens if node 1 sends twice and 2 never sends?
+void MpiControl::receive(Group _group)
+{
+//	cout << mRank << " is receiving from " << src << "..." << endl;
+	MPI::Status stat;
+	switch (_group){
+	case RENDERER:{
+		for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
+			receive(mPriRenderNodes[i]);
+		}
+		break;}
+	case DATA:{
+		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
+			receive(mPriDataNodes[i]);
+		}
+		break;}
+	default:
+		break;
+	}
 }
 
 Message* MpiControl::directReceive(int src)
@@ -145,6 +171,26 @@ bool MpiControl::ireceive(int src)
 		mPriInRequests.push(msg);
 	}
 	return !mInQueue.empty();
+}
+
+void MpiControl::ireceive(Group _group)
+{
+//	cout << mRank << " is receiving from " << src << "..." << endl;
+	MPI::Status stat;
+	switch (_group){
+	case RENDERER:{
+		for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
+			ireceive(mPriRenderNodes[i]);
+		}
+		break;}
+	case DATA:{
+		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
+			ireceive(mPriDataNodes[i]);
+		}
+		break;}
+	default:
+		break;
+	}
 }
 
 void MpiControl::send(Message* msg)
@@ -239,11 +285,6 @@ void MpiControl::sendAll()
 	}
 }
 
-//void MpiControl::loop(int src, int dst)
-//{
-//	receive(src);
-//	send(dst);
-//}
 
 Message* MpiControl::pop()
 {
@@ -267,7 +308,6 @@ void MpiControl::push(Message* msg)
 			if (i != mRank){
 				msg->setDst(i);
 				mOutQueue.push(new Message(*msg));
-				cout << "sending msg to " << msg->getDst() << endl;
 			}
 		}
 		delete msg;
@@ -300,11 +340,8 @@ void MpiControl::finalize()
 
 void MpiControl::makeRenderGroup(int size, const int* ranks)
 {
-
 	mRenderGroup = mOrigGroup.Incl(size,ranks);
 	mRenderComm = MPI::COMM_WORLD.Create(mRenderGroup);
-
-
 }
 
 void
@@ -339,6 +376,29 @@ MpiControl::clearOutQueue(int dst)
 }
 
 void
+MpiControl::clearOutQueue(Group _group)
+{
+	switch (_group){
+	case ALL:
+		clearOutQueue(-1);
+		break;
+	case RENDERER:
+		for (unsigned i=0; i< mPriRenderNodes.size(); ++i){
+			clearOutQueue(mPriRenderNodes[i]);
+		}
+		break;
+	case DATA:
+		for (unsigned i=0; i< mPriDataNodes.size(); ++i){
+			clearOutQueue(mPriDataNodes[i]);
+		}
+		break;
+	default:
+		return;
+		break;
+	}
+}
+
+void
 MpiControl::clearInQueue(int src)
 {
 	Message* msg = 0;
@@ -360,6 +420,58 @@ MpiControl::clearInQueue(int src)
 			msg = 0;
 		}
 	}
+}
+
+void
+MpiControl::clearInQueue(Group _group)
+{
+	switch (_group){
+	case ALL:
+		clearInQueue(-1);
+		break;
+	case RENDERER:
+		for (unsigned i=0; i< mPriRenderNodes.size(); ++i){
+			clearInQueue(mPriRenderNodes[i]);
+		}
+		break;
+	case DATA:
+		for (unsigned i=0; i< mPriDataNodes.size(); ++i){
+			clearInQueue(mPriDataNodes[i]);
+		}
+		break;
+	default:
+		return;
+		break;
+	}
+}
+
+unsigned
+MpiControl::getGroupSize(Group _group) const
+{
+	switch (_group){
+	case ALL:
+		return mSize;
+		break;
+	case RENDERER:
+		return mPriRenderNodes.size();
+		break;
+	case DATA:
+		return mPriDataNodes.size();
+		break;
+	default:
+		return 0;
+		break;
+	}
+}
+
+const std::vector<int>& MpiControl::getRenderGroup() const
+{
+	return mPriRenderNodes;
+}
+
+const std::vector<int>& MpiControl::getDataGroup() const
+{
+	return mPriDataNodes;
 }
 
 void

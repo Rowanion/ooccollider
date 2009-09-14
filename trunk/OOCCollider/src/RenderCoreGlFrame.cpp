@@ -188,13 +188,13 @@ void RenderCoreGlFrame::setupCg()
 //	glDisable(GL_TEXTURE_2D);
 
 
-	cgVertNoLight = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_NoLightLut.cg", true);
-	cgFragNoLight = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_NoLightLut.cg", true);
+	cgVertNoLight = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_NoLightLut.cg", true, "");
+	cgFragNoLight = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_NoLightLut.cg", true, "");
 	cgNoLightLUT = cgGetNamedParameter(cgFragNoLight,  "colorLut");
 	cgGLSetTextureParameter(cgNoLightLUT, mPriColorTable.getTextureId());
 
-	g_cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_phongDirectional.cg", true);
-	g_cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_phongDirectional.cg", true);
+	g_cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_phongDirectional.cg", true, "");
+	g_cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_phongDirectional.cg", true, "");
 	cgFragLUT = cgGetNamedParameter(g_cgFragmentProg,  "colorLut");
 	cgGLSetTextureParameter(cgFragLUT, mPriColorTable.getTextureId());
 
@@ -286,6 +286,24 @@ void RenderCoreGlFrame::display()
 
 				GET_GLERROR(0);
 
+				mPriColorTable.bindTex();
+				cgGLEnableTextureParameter(cgNoLightLUT);
+				mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+				mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+				glDisable(GL_DEPTH_TEST);
+				mPriSceneBB.draw(mPriColorTable.calculateTexCoord(29));
+				glEnable(GL_DEPTH_TEST);
+
+				glBegin(GL_LINES);
+					glVertex4f(mPriEyePosition.getX()-5.0f, mPriEyePosition.getY(), mPriEyePosition.getZ(), mPriColorTable.calculateTexCoord(21));
+					glVertex4f(mPriSceneCenter.getX(), mPriSceneCenter.getY(), mPriSceneCenter.getZ(), mPriColorTable.calculateTexCoord(22));
+
+				glEnd();
+				mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+				mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+				cgGLDisableTextureParameter(cgNoLightLUT);
+				mPriColorTable.unbindTex();
+
 				for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
 					if (mPriBBMode == 0){
 						mPriColorTable.bindTex();
@@ -345,26 +363,6 @@ void RenderCoreGlFrame::display()
 				}
 				GET_GLERROR(0);
 				// DRAW an orientation line
-				mPriColorTable.bindTex();
-				cgGLEnableTextureParameter(cgNoLightLUT);
-				mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-				mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-				glDisable(GL_DEPTH_TEST);
-				mPriSceneBB.draw(mPriColorTable.calculateTexCoord(29));
-				glEnable(GL_DEPTH_TEST);
-
-				glBegin(GL_LINES);
-					glVertex4f(mPriEyePosition.getX()-5.0f, mPriEyePosition.getY(), mPriEyePosition.getZ(), mPriColorTable.calculateTexCoord(21));
-					glVertex4f(mPriSceneCenter.getX(), mPriSceneCenter.getY(), mPriSceneCenter.getZ(), mPriColorTable.calculateTexCoord(21));
-//					glVertex4f(mPriEyePosition.getX(), mPriEyePosition.getY()+10.0, mPriEyePosition.getZ(), mPriColorTable.calculateTexCoord(21));
-//					glVertex4f(mPriSceneBB.getMin().getX(), mPriSceneBB.getMin().getY(), mPriSceneBB.getMin().getZ(), mPriColorTable.calculateTexCoord(21));
-//					glVertex4f(mPriEyePosition.getX(), mPriEyePosition.getY()+10.0, mPriEyePosition.getZ(), mPriColorTable.calculateTexCoord(21));
-//					glVertex4f(mPriSceneBB.getMax().getX(), mPriSceneBB.getMax().getY(), mPriSceneBB.getMax().getZ(), mPriColorTable.calculateTexCoord(21));
-				glEnd();
-				mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-				mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-				cgGLDisableTextureParameter(cgNoLightLUT);
-				mPriColorTable.unbindTex();
 
 				double t = glfwGetTime();  // Time (in seconds)
 
@@ -383,14 +381,14 @@ void RenderCoreGlFrame::display()
 //							cout << "f: " << mPriDepthBuffer << ", d: " << mPriDepthBufferD << endl;
 //						}
 //					}
-//					cout << "getting depthb...." << endl;
 //					DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriFbo->mapDepthBuffer());
 					GET_GLERROR(0);
 					DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriDepthBuffer);
 //					cout << "original: " << mPriWindowHeight << ", " << mPriWindowWidth << endl;
 //					cout << "in event: " << dbe.getHeight() << ", " << dbe.getWidth() << endl;
-					MpiControl::getSingleton()->clearOutQueue(2);
-					MpiControl::getSingleton()->push(new Message(dbe, 2));
+					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
+					Message* msg = new Message(dbe, 0, MpiControl::DATA);
+					MpiControl::getSingleton()->push(msg);
 					mPriRequestedVboList.clear();
 
 				}
@@ -770,7 +768,7 @@ RenderCoreGlFrame::requestMissingVbos()
 			reqCount++;
 		}
 		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank());
-		MpiControl::getSingleton()->push(new Message(nre, 2));
+		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
 		MpiControl::getSingleton()->isend();
 		mPriMissingIdsInFrustum.clear();
 	}

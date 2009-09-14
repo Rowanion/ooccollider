@@ -141,8 +141,8 @@ void DataCore::receiveMethod(int source)
 //				cout << "yeah depthbuffer dot com kam hier an" << endl;
 				DepthBufferEvent dbe = DepthBufferEvent(msg);
 				oocframework::EventManager::getSingleton()->fire(dbe);
-				MpiControl::getSingleton()->clearOutQueue();
-				MpiControl::getSingleton()->clearInQueue();
+				MpiControl::getSingleton()->clearOutQueue(MpiControl::RENDERER);
+				MpiControl::getSingleton()->clearInQueue(MpiControl::RENDERER);
 			}
 			else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
 				NodeRequestEvent nre = NodeRequestEvent(msg);

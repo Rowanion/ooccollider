@@ -72,7 +72,7 @@ public:
 	 * A pixel consists of 4 GLubytes in the order BGRA.
 	 */
 	inline const GLubyte* getPixel(){
-		return (GLubyte*)(mProData+sizeof(int)*4);
+		return (GLubyte*)(mProData+sizeof(int)*4+sizeof(double));
 	};
 
 protected:

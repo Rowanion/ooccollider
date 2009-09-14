@@ -460,8 +460,8 @@ void DataCoreGlFrame::drawAsQuad()
 void DataCoreGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
-	cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true);
-	cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true);
+	cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true, "");
+	cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true, "");
 
 	cgTexture = cgGetNamedParameter(cgFragmentProg, "depthTex");
 	cgGLSetTextureParameter(cgTexture, mPriTexId);
@@ -516,6 +516,7 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 //		glClear(GL_COLOR_BUFFER_BIT);
 		mPriFbo->clearDepth();
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glDepthFunc(GL_ALWAYS);
 			glDisable(GL_DEPTH_TEST);
 			FboFactory::getSingleton()->drawDepthToFb(dbe.getDepth(), dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
 		glPopAttrib();

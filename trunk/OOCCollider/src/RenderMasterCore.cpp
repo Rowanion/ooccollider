@@ -89,7 +89,8 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 
 			//rcv kacheln from all renderers
 //			cout << "0 waiting for any..." << endl;
-			receiveQueue(MPI_ANY_SOURCE);
+			MpiControl::getSingleton()->receive(MpiControl::RENDERER);
+			handleMsg(MpiControl::getSingleton()->pop());
 
 			glFrame->display();
 //			cout << "end of display 0..." << endl;
@@ -138,7 +139,10 @@ RenderMasterCore::RenderMasterCore() : mWindow(0), mRunning(true), mPriOh(Octree
 	do {
 		// Call our rendering function
 		glFrame->display();
-		receiveQueue(1);
+		cout << "masters waits for image" << endl;
+		MpiControl::getSingleton()->receive(MpiControl::RENDERER);
+		cout << "master has got an image" << endl;
+		handleMsg(MpiControl::getSingleton()->pop());
 		MpiControl::getSingleton()->send();
 //		send(1);
 
@@ -221,16 +225,12 @@ MPI::Request RenderMasterCore::sendQueue(int dest)
 //	cout << "sendThread killed." << endl;
 }
 
-
-//TODO change method that the parameter will represent the rank this thread is listening to
-void RenderMasterCore::receiveQueue(int source)
+void RenderMasterCore::handleMsg(Message* msg)
 {
-	MpiControl::getSingleton()->receive(source);
-	Message* msg = MpiControl::getSingleton()->pop();
 	if (msg != 0){
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
 			mRunning = false;
-			cout << "recveived kill! from 1" << source << endl;
+			cout << "recveived kill! from " << msg->getSrc() << endl;
 		}
 		else if (msg->getType() == ColorBufferEvent::classid()->getShortId()){
 //			cout << "recveived colorbuffer! " << msg->getSrc() << endl;
@@ -249,55 +249,9 @@ void RenderMasterCore::receiveQueue(int source)
 //			cout << "w: " << cbe.getWidth() << ", h: " << cbe.getHeight() << ", x: " << cbe.getX() << ", y: " << cbe.getY() << endl;
 //			mRunning = false;
 		}
-//		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()){
-//			cout << "Master recveived " << KeyPressedEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
-//			cout << "Master recveived " << KeyPressedEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == MouseButtonEvent::classid()->getShortId()){
-//			cout << "Master recveived " << MouseButtonEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == MouseButtonStateChangeEvent::classid()->getShortId()){
-//			cout << "Master recveived " << MouseButtonStateChangeEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == MouseDraggedEvent::classid()->getShortId()){
-//			cout << "Master recveived " << MouseDraggedEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == MouseMovedEvent::classid()->getShortId()){
-//			cout << "Master recveived " << MouseMovedEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == MouseWheelEvent::classid()->getShortId()){
-//			cout << "Master recveived " << MouseWheelEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == WindowClosedEvent::classid()->getShortId()){
-//			cout << "Master recveived " << WindowClosedEvent::classid()->getClassName() << endl;
-//		}
-//		else if (msg->getType() == WindowResizedEvent::classid()->getShortId()){
-//			cout << "Master recveived " << WindowResizedEvent::classid()->getClassName() << endl;
-//		}
-//		else {
-//			cout << "receiving event " << msg->getType() << endl;
-//		}
 		delete msg;
+		msg = 0;
 	}
-
-//
-//
-//
-//	MPI::Status status;
-//	if (MPI::COMM_WORLD.Iprobe(source, 0, status)){
-//		cout << "RenderMasterCore listening....." << endl;
-//		char* msg = new char[100];
-//		int tag = 0;
-//		MPI::COMM_WORLD.Recv(msg, 100, MPI::CHAR, source, tag);
-//		cout << "RenderMasterCore received!!" << endl;
-//		if (msg[0] == 'K' && msg[1] == 'I' && msg[2] == 'L' && msg[3] == 'L') {
-//			mRunning = false;
-//		} else
-//			mInQueue.push(msg);
-//	}
-//	cout << "rcvThread killed." << endl;
 }
 
 void RenderMasterCore::notify(oocframework::IEvent& event)
@@ -311,10 +265,8 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 		switch (kpe.getKey()){
 		case GLFW_KEY_ESC:
 			char data;
-//            for (unsigned i=1; i<MpiControl::getSingleton()->getSize(); ++i){
-//                    MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, i, &data));
-//            }
-			MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, &data, MpiControl::ALL));
+			MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, &data, MpiControl::DATA));
+			MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, &data, MpiControl::RENDERER));
 			mTerminateApplication = true;
 			break;
 		case 'N':
@@ -339,19 +291,11 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 			break;
 		}
 	}
-	else if(event.instanceOf(KillApplicationEvent::classid())){
-		for (unsigned i=1; i<MpiControl::getSingleton()->getSize(); ++i){
-			MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, i, new char[1]));
-		}
-		mTerminateApplication = true;
-	}
 	else if(event.instanceOf(WindowClosedEvent::classid())){
-		Message* msg = new Message(KillApplicationEvent::classid()->getShortId(), 1, 1, new char[1]);
-		MpiControl::getSingleton()->push(msg);
-		cout << "sending KillApp to 1.........." << endl;
-//		MpiControl::getSingleton()->sendAll();
-		cout << "........done!" << endl;
-//		mRunning = false;
+		char data;
+		MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, &data, MpiControl::DATA));
+		MpiControl::getSingleton()->push(new Message(KillApplicationEvent::classid()->getShortId(), 1, 0, &data, MpiControl::RENDERER));
+		mTerminateApplication = true;
 	}
 }
 

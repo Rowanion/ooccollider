@@ -175,9 +175,15 @@ CgToolkit::stopCgShader(CGprofile profile)
 
 
 CGprogram
-CgToolkit::loadCgShader(CGprofile profile, string filename, bool verbose)
+CgToolkit::loadCgShader(CGprofile profile, string filename, bool verbose, std::string entry)
 {
-	CGprogram shaderprog = cgCreateProgramFromFile(cgContext, CG_SOURCE, filename.c_str(), profile, 0,0);
+	CGprogram shaderprog;
+	if (entry.size() == 0){
+		shaderprog = cgCreateProgramFromFile(cgContext, CG_SOURCE, filename.c_str(), profile, 0,0);
+	}
+	else {
+		shaderprog = cgCreateProgramFromFile(cgContext, CG_SOURCE, filename.c_str(), profile, entry.c_str(),0);
+	}
 	cout << shaderprog << "-------------------------" << endl;
 
 	if (verbose && cgGetLastListing(cgContext) != 0) {

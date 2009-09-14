@@ -39,7 +39,9 @@ public:
 
 	static MpiControl* getSingleton();
 	void receive(int src);
+	void receive(Group _group);
 	bool ireceive(int src);
+	void ireceive(Group _group);
 	Message* directReceive(int src);
 	void send(Message* msg = 0);
 	void isend();
@@ -56,7 +58,12 @@ public:
 	void makeDataGroup(int size, const int* ranks);
 	void debug();
 	void clearOutQueue(int dst = -1);
+	void clearOutQueue(Group _group);
 	void clearInQueue(int src = -1);
+	void clearInQueue(Group _group);
+	unsigned getGroupSize(Group _group) const;
+	const std::vector<int>& getRenderGroup() const;
+	const std::vector<int>& getDataGroup() const;
 
 	inline MPI::Group& getGlobalGrp() {return mOrigGroup;};
 	inline MPI::Group& getRenderGrp() {return mRenderGroup;};
