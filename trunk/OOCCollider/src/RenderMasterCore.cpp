@@ -43,7 +43,7 @@ using namespace std;
 
 RenderMasterCore* RenderMasterCore::instance = 0;
 
-RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(true), mTerminateApplication(false), mPriOh(OctreeHandler()), mPriLo(0)
+RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(true), mTerminateApplication(false), mPriOh(OctreeHandler()), mPriLo(0), mPriWindowWidth(_width), mPriWindowHeight(_height)
 {
 
 	RenderMasterCore::instance = this;
@@ -64,6 +64,26 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 
 	glFrame->init();
 
+	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
+		Tile t;
+		t.height=mPriWindowHeight/2;
+		t.width=mPriWindowWidth;
+		t.xPos = 0;
+		t.yPos = 0;
+		t.renderTime = 0.0;
+		mPriTileMap.insert(make_pair(MpiControl::getSingleton()->getRenderGroup()[0], t));
+		t.height=mPriWindowHeight;
+		t.width=mPriWindowWidth/2;
+		t.xPos = mPriWindowWidth/2;
+		t.yPos = 0;
+		t.renderTime = 0.0;
+		mPriTileMap.insert(make_pair(MpiControl::getSingleton()->getRenderGroup()[1], t));
+
+	}
+	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 4){
+		//TODO implement
+	}
+
 //	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path("/media/ClemensHDD/Octree/skeleton.bin"));
 //	glFrame->setVbo(new IndexedVbo(fs::path("/media/ClemensHDD/B3_SampleTree/data/0/1.idx")));
 
@@ -79,7 +99,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 
 		if (!mTerminateApplication){
 			//send matrix/camera to when the out-queue is empty
-//			cout << "master sending matrix..." << endl;
+//			cout << "---master sending matrix" << endl;
 			for (int i=1; i<MpiControl::getSingleton()->getSize(); ++i){
 				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),i,(char*)glFrame->getMvMatrix());
 				MpiControl::getSingleton()->send(msg);
@@ -88,11 +108,15 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 //			cout << "master has sent all matrices" << endl;
 
 			//rcv kacheln from all renderers
-//			cout << "0 waiting for any..." << endl;
+//			cout << "---master wating for tiles" << endl;
 			MpiControl::getSingleton()->receive(MpiControl::RENDERER);
-			handleMsg(MpiControl::getSingleton()->pop());
+			while (!MpiControl::getSingleton()->inQueueEmpty()){
+				handleMsg(MpiControl::getSingleton()->pop());
+			}
 
+//			cout << "---master ENTER display" << endl;
 			glFrame->display();
+//			cout << "---master EXIT display" << endl;
 //			cout << "end of display 0..." << endl;
 		}
 		else{
@@ -110,7 +134,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 		if (frames >= 100){
 			frames = 0;
 			stringstream ss;
-			ss << "Master (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << glFrame->getFrames();
+			ss << "MasterNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << glFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
 
@@ -118,57 +142,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 	cout << "end of display loop." << endl;
 }
 
-RenderMasterCore::RenderMasterCore() : mWindow(0), mRunning(true), mPriOh(OctreeHandler()), mPriLo(0)
-{
-	RenderMasterCore::instance = this;
-
-	//		setupWindow("My rank is NOT 0");
-	mWindow = new OOCWindow(640, 480, 8, false, "MASTER_NODE");
-	mWindow->enableKeyCallback();
-	mWindow->enableMouseCallback();
-	RenderMasterCoreGlFrame* glFrame = new RenderMasterCoreGlFrame();
-	mWindow->attachGlFrame(glFrame);
-	glFrame->init();
-	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path("/media/ClemensHDD/Octree/skeleton.bin"));
-	cout << "OCTREESTATS: " << mPriLo->getSkeletonSize() << endl;
-
-
-
-	// Main rendering loop
-	unsigned frames = 0;
-	do {
-		// Call our rendering function
-		glFrame->display();
-		cout << "masters waits for image" << endl;
-		MpiControl::getSingleton()->receive(MpiControl::RENDERER);
-		cout << "master has got an image" << endl;
-		handleMsg(MpiControl::getSingleton()->pop());
-		MpiControl::getSingleton()->send();
-//		send(1);
-
-		// Swap front and back buffers (we use a double buffered display)
-
-		mWindow->flip();
-//		mWindow->poll();
-
-		//TODO
-		if (!mInQueue.empty()){
-			mRunning = false;
-		}
-		++frames;
-		if (frames >= 300){
-			frames = 0;
-			stringstream ss;
-			ss << "Master (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << glFrame->getFrames();
-			mWindow->setTitle(ss.str());
-		}
-
-	} while (mRunning);
-	cout << "RMC constructor ended" << endl;
-}
-
 RenderMasterCore::~RenderMasterCore() {
-	// TODO Auto-generated destructor stub
 	mPriEventMan->removeListener(this, WindowResizedEvent::classid());
 	mPriEventMan->removeListener(this, KillApplicationEvent::classid());
 	mPriEventMan->removeListener(this, MouseButtonEvent::classid());
@@ -254,6 +228,30 @@ void RenderMasterCore::handleMsg(Message* msg)
 	}
 }
 
+void RenderMasterCore::adjustTileDimensions()
+{
+	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)==2){
+		double	totalTime =
+			mPriTileMap[MpiControl::getSingleton()->getRenderGroup()[0]].renderTime
+			+ mPriTileMap[MpiControl::getSingleton()->getRenderGroup()[1]].renderTime;
+		double halfTime = totalTime/2.0;
+		map<int, Tile>::iterator maxTimeIt = mPriTileMap.begin();
+		map<int, Tile>::iterator it = mPriTileMap.begin();
+		for (; it != mPriTileMap.end(); ++it){
+			if (it->second.renderTime > maxTimeIt->second.renderTime)
+				maxTimeIt = it;
+		}
+		double timeDiff = maxTimeIt->second.renderTime - halfTime;
+		double timeDiffPerc = 100.0/maxTimeIt->second.renderTime*timeDiff;
+		int windowDiff = (int)(maxTimeIt->second.width/100.0*timeDiffPerc);
+		maxTimeIt->second.width -= windowDiff;
+
+	}
+	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)==4){
+		//TODO implement
+	}
+}
+
 void RenderMasterCore::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(WindowResizedEvent::classid())){
@@ -287,7 +285,7 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 			oocframework::EventManager::getSingleton()->fire(ire);
 			break;}
 		default:
-			MpiControl::getSingleton()->push(new Message(kpe,1));
+			MpiControl::getSingleton()->push(new Message(kpe,1, MpiControl::RENDERER));
 			break;
 		}
 	}

@@ -94,7 +94,7 @@ void DataCoreGlFrame::init() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_FLAT);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	GET_GLERROR(0);
 	camObj.positionCamera(0.0,0.0,5.0,
@@ -502,8 +502,8 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 	else if (event.instanceOf(DepthBufferEvent::classid())){
 		DepthBufferEvent& dbe = (DepthBufferEvent&)event;
 		if(mPriDepthBuffer == 0 || dbe.getHeight()!=mPriWindowHeight || dbe.getWidth()!=mPriWindowWidth){
-			cout << "reInitializing the DepthBuffer" << endl;
-			cout << dbe.getWidth() << ", " << dbe.getHeight() << ", " << sizeof(GLfloat) << " vs " << mPriWindowWidth << ", " << mPriWindowHeight << ", " << sizeof(float) << endl;
+//			cout << "reInitializing the DepthBuffer" << endl;
+//			cout << dbe.getWidth() << ", " << dbe.getHeight() << ", " << sizeof(GLfloat) << " vs " << mPriWindowWidth << ", " << mPriWindowHeight << ", " << sizeof(float) << endl;
 			delete[] mPriDepthBuffer;
 			mPriDepthBuffer = new GLfloat[dbe.getWidth()*dbe.getHeight()];
 		}

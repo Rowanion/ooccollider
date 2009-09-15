@@ -60,7 +60,7 @@ using namespace oocframework;
 }
 
 RenderCoreGlFrame::RenderCoreGlFrame() :
-	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0),
+	scale(1.0f), avgFps(0.0f), time(0.0),
 			frame(0), mPriVboMan(0), mPriCgt(0), mPriEyePosition(ooctools::V3f()),
 			mPriCamHasMoved(false), mPriBBMode(0), mPriAspectRatio(0.0f), mPriFbo(0),
 			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0),
@@ -69,7 +69,7 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 					mPriObsoleteVbos(std::vector< IdVboMapIter >()),
 			mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
-					100.0f) {
+					100.0f), mPriNearClippingPlane(0.1f) {
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -99,6 +99,18 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 	this->priFrustum = new float*[6];
 	for (unsigned i = 0; i < 6; ++i) {
 		this->priFrustum[i] = new float[4];
+	}
+	if (MpiControl::getSingleton()->getRank() == 1){
+		mPriTopLine = 0;
+		mPriLeftLine = 0;
+		mPriFrustumWidth = 320;
+		mPriFrustumHeight = 480;
+	}
+	else if (MpiControl::getSingleton()->getRank() == 2){
+		mPriTopLine = 0;
+		mPriLeftLine = 320;
+		mPriFrustumWidth = 320;
+		mPriFrustumHeight = 480;
 	}
 
 }
@@ -216,9 +228,13 @@ void RenderCoreGlFrame::setupCg()
 void RenderCoreGlFrame::display()
 {
 	double f = glfwGetTime();  // Time (in seconds)
-	static GLint T0 = 0;
-	static GLint Frames = 0;
 //	resizeWindow(height, width);
+
+//	resizeFrustum(640, 480);
+	resizeFrustum(mPriLeftLine, mPriTopLine, mPriFrustumWidth, mPriFrustumHeight);
+//	resizeFrustum(0, 320, 640, 480); // right position, or is it?
+//	void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
+//			unsigned leftLine, unsigned tileswidth)
 
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
@@ -245,8 +261,10 @@ void RenderCoreGlFrame::display()
 //	for(set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!=mPriIdsInFrustum.end(); it++){
 //		cout << *it << endl;
 //	}
-	divideIdList();
-	requestMissingVbos();
+//	if (MpiControl::getSingleton()->getRank()==2){
+		divideIdList();
+		requestMissingVbos();
+//	}
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum);
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum2);
 //	compareVbos(&mPriVbosInFrustum, &mPriVbosInFrustum2);
@@ -367,15 +385,16 @@ void RenderCoreGlFrame::display()
 				double t = glfwGetTime();  // Time (in seconds)
 
 
-				FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
-				ColorBufferEvent cbe = ColorBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight,t-f, mPriPixelBuffer);
+				FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriFrustumWidth, mPriFrustumHeight);
+//				ColorBufferEvent cbe = ColorBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight,t-f, mPriPixelBuffer);
+				ColorBufferEvent cbe = ColorBufferEvent(mPriLeftLine, mPriTopLine, mPriFrustumWidth, mPriFrustumHeight,t-f, mPriPixelBuffer);
 
 				// dumping the depth-buffer every 100 frames....
 //				cout << "frame: " << frame << ", camMoved? " << mPriCamHasMoved<< endl;
 				if (frame == (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved){
 					GET_GLERROR(0);
 					mPriCamHasMoved = false;
-					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriFrustumWidth, mPriFrustumHeight);
 //					for (unsigned i=0; i < mPriWindowWidth * mPriWindowHeight; ++i){
 //						if (((GLdouble)mPriDepthBuffer[i]) != mPriDepthBufferD[i]){
 //							cout << "f: " << mPriDepthBuffer << ", d: " << mPriDepthBufferD << endl;
@@ -383,7 +402,7 @@ void RenderCoreGlFrame::display()
 //					}
 //					DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriFbo->mapDepthBuffer());
 					GET_GLERROR(0);
-					DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriDepthBuffer);
+					DepthBufferEvent dbe = DepthBufferEvent(mPriLeftLine,mPriTopLine,mPriFrustumWidth,mPriFrustumHeight, mPriDepthBuffer);
 //					cout << "original: " << mPriWindowHeight << ", " << mPriWindowWidth << endl;
 //					cout << "in event: " << dbe.getHeight() << ", " << dbe.getWidth() << endl;
 					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
@@ -404,6 +423,9 @@ void RenderCoreGlFrame::display()
 		glPopMatrix();
 	glPopMatrix();
 
+	// restore normal frustum before drawing
+	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)
+	reshape(mPriWindowWidth,mPriWindowHeight);
 	mPriFbo->drawAsQuad();
 //	drawDepthTex();
 
@@ -472,26 +494,37 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	gluLookAt(0.0,0.0,5.0,
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
+
+	//resize
+	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
+	screenYMax = tan(45.0 / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenXMax = screenYMax * ratio;
+	screenYMin = -screenYMax;
+
+	screenYMaxH = tan((45.0 * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenXMaxH = screenYMaxH * ratio;
+	screenYMinH = -screenYMaxH;
+
 }
 
-void RenderCoreGlFrame::resizeWindow() {
-	this->resizeWindow(0, height, 0, width);
+void RenderCoreGlFrame::resizeFrustum() {
+	this->resizeFrustum(0, 0, mPriWindowWidth, mPriWindowHeight);
 }
 
-void RenderCoreGlFrame::resizeWindow(unsigned _height, unsigned _width) {
-	this->resizeWindow(0, _height, 0, _width);
+void RenderCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
+	this->resizeFrustum(0, 0, _width, _height);
 }
 
-void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
-		unsigned leftLine, unsigned tileswidth) {
+void RenderCoreGlFrame::resizeFrustum(unsigned leftLine, unsigned topLine, unsigned tileswidth, unsigned tilesheight)
+{
 	if (tilesheight == 0)
 		tilesheight = 1;
 	if (tileswidth == 0)
 		tileswidth = 1;
-	worldTopLine = (GLdouble) topLine / (GLdouble) height;
-	worldBottomLine = (GLdouble) (topLine + tilesheight) / (GLdouble) height;
-	worldLeftLine = (GLdouble) leftLine / (GLdouble) width;
-	worldRightLine = (GLdouble) (leftLine + tileswidth) / (GLdouble) width;
+	worldTopLine = (GLdouble) topLine / (GLdouble) mPriWindowHeight;
+	worldBottomLine = (GLdouble) (topLine + tilesheight) / (GLdouble) mPriWindowHeight;
+	worldLeftLine = (GLdouble) leftLine / (GLdouble) mPriWindowWidth;
+	worldRightLine = (GLdouble) (leftLine + tileswidth) / (GLdouble) mPriWindowWidth;
 
 	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 	glMatrixMode(GL_PROJECTION);
@@ -506,7 +539,7 @@ void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
 			* worldRightLine);
 
 	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
-			nearPlane, farPlane);
+			mPriNearClippingPlane, mPriFarClippingPlane);
 
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -968,6 +1001,12 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	    switch (mde.getKey()) {
 			case GLFW_KEY_PAGEUP: // tilt up
 			break;
+			case GLFW_KEY_KP_SUBTRACT:
+				mPriNearClippingPlane/=2.0f;
+				break;
+			case GLFW_KEY_KP_ADD:
+				mPriNearClippingPlane*=2.0f;
+				break;
 			case 'B': {// manually resend depth-buffer
 				mPriCamHasMoved = true;
 				bool bound = false;

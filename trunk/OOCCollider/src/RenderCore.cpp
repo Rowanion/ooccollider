@@ -80,7 +80,7 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 		if (frames >= 100){
 			frames = 0;
 			stringstream ss;
-			ss << " Slave (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << glFrame->getFrames();
+			ss << "RenderNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << glFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
 	} while (mRunning);

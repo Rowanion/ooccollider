@@ -28,12 +28,18 @@
 
 class RenderMasterCore: oocframework::AbstractEventListener {
 public:
-	RenderMasterCore();
 	RenderMasterCore(unsigned _width = 640, unsigned _height = 480);
 	virtual ~RenderMasterCore();
 	virtual void Event(int event, bool state);
 	virtual void notify(oocframework::IEvent& event);
 
+	struct Tile{
+		int xPos;
+		int yPos;
+		int width;
+		int height;
+		double renderTime;
+	};
 
 private:
 	OOCWindow* mWindow;
@@ -48,11 +54,16 @@ private:
 
 	oocframework::EventManager* mPriEventMan;
 
+	std::map<int, Tile> mPriTileMap;
+	int mPriWindowWidth;
+	int mPriWindowHeight;
+
 	static RenderMasterCore* instance;
 
 	MPI::Request sendQueue(int dest);
 	void pollSpaceNav();
 	void handleMsg(Message* msg);
+	void adjustTileDimensions();
 };
 
 #endif /* RENDERMASTERCORE_H_ */

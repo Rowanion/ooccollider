@@ -23,14 +23,15 @@ ColorBufferEvent::ColorBufferEvent() {
 
 ColorBufferEvent::ColorBufferEvent(int xPos, int yPos, int width, int height, double renderTime, const GLubyte* pixel)
 {
-	mPriByteSize = sizeof(int)*4 + sizeof(double) + sizeof(GLubyte)*width*height*4;
+	mPriByteSize = sizeof(int)*5 + sizeof(double) + sizeof(GLubyte)*width*height*4;
 	mProData = new char[mPriByteSize];
 	((int*)mProData)[0] = xPos;
 	((int*)mProData)[1] = yPos;
 	((int*)mProData)[2] = width;
 	((int*)mProData)[3] = height;
-	((double*)(mProData+4*sizeof(int)))[0] = renderTime;
-	memcpy((mProData+sizeof(int)*4 + sizeof(double)), pixel, sizeof(GLubyte)*width*height*4);
+	((int*)mProData)[4] = MpiControl::getSingleton()->getRank();
+	((double*)(mProData+5*sizeof(int)))[0] = renderTime;
+	memcpy((mProData+sizeof(int)*5 + sizeof(double)), pixel, sizeof(GLubyte)*width*height*4);
 //	std::cout << "Texture: " << std::endl;
 //	for (unsigned i =0; i < sizeof(GLubyte)*width*height*4; i+=4){
 //		if (*(((GLubyte*)(mProData+sizeof(int)*4))+i) != 250){
