@@ -43,36 +43,41 @@ public:
 	/**
 	 * @brief Returns the x-rasterposition of the framebuffer-section.
 	 */
-	inline int getX(){return ((int*)mProData)[0];};
+	inline int getX() const {return ((int*)mProData)[0];};
 
 	/**
 	 * @brief Returns the y-rasterposition of the framebuffer-section.
 	 */
-	inline int getY(){return ((int*)mProData)[1];};
+	inline int getY() const {return ((int*)mProData)[1];};
 
 	/**
 	 * @brief Returns the width of the framebuffer-section.
 	 */
-	inline int getWidth(){return ((int*)mProData)[2];};
+	inline int getWidth() const {return ((int*)mProData)[2];};
 
 	/**
 	 * @brief Returns the heigh of the framebuffer-section.
 	 */
-	inline int getHeight(){return ((int*)mProData)[3];};
+	inline int getHeight() const {return ((int*)mProData)[3];};
 
 	/**
 	 * @brief Returns the time in seconds it took to render this framebuffer segment.
 	 */
-	inline double getRenderTime(){
-		return ((double*)(mProData+4*sizeof(int)))[0];
+	inline int getNodeRank() const{return ((int*)mProData)[4];};
+
+	/**
+	 * @brief Returns the time in seconds it took to render this framebuffer segment.
+	 */
+	inline double getRenderTime() const {
+		return ((double*)(mProData+5*sizeof(int)))[0];
 	};
 
 	/**
 	 * @brief Returns a const pointer to the pixel-data.
 	 * A pixel consists of 4 GLubytes in the order BGRA.
 	 */
-	inline const GLubyte* getPixel(){
-		return (GLubyte*)(mProData+sizeof(int)*4+sizeof(double));
+	inline const GLubyte* getPixel() const {
+		return (GLubyte*)(mProData+sizeof(int)*5+sizeof(double));
 	};
 
 protected:

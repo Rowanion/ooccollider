@@ -9,6 +9,8 @@
 #ifndef GEOMETRICOPS_H_
 #define GEOMETRICOPS_H_
 
+#include <GL/glew.h>
+
 #include "declarations.h"
 
 namespace ooctools{
@@ -21,6 +23,9 @@ class GeometricOps {
 public:
 	GeometricOps();
 	virtual ~GeometricOps();
+
+	static GLdouble PI;
+
 	static void calcTriangleCenter(const V3f& a, const V3f& b, const V3f& c, V3f& center);
 	/**
 	 * @brief Calculates the center of given triangle.

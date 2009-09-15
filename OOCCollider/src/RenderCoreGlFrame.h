@@ -43,10 +43,10 @@ public:
 	virtual void display();
 	virtual void reshape(int width, int height);
 	virtual void reshape(int width, int height, float farPlane);
-	virtual void resizeWindow();
-	virtual void resizeWindow(unsigned _height, unsigned _width);
-	virtual void resizeWindow(unsigned topLine, unsigned tilesheight,
-			unsigned leftLine, unsigned tileswidth);
+	virtual void resizeFrustum();
+	virtual void resizeFrustum(unsigned _width, unsigned _height);
+	virtual void resizeFrustum(unsigned leftLine, unsigned topLine,
+			unsigned tileswidth, unsigned tilesheight);
 	float getFrames() const {
 		return avgFps;
 	}
@@ -71,11 +71,12 @@ protected:
 	float clip[16];
 	float frustTemp;
 	unsigned width, height;
-	float nearPlane, farPlane;
 	GLdouble worldTopLine, worldBottomLine;
 	GLdouble worldLeftLine, worldRightLine;
 	GLdouble screenXMax, screenYMax, screenYMin;
 	GLdouble screenXMaxH, screenYMaxH, screenYMinH;
+	GLfloat ratio;
+	unsigned mPriTopLine, mPriLeftLine, mPriFrustumWidth, mPriFrustumHeight;
 
 private:
 	float scale;
@@ -132,7 +133,7 @@ private:
 
 	std::set<uint64_t> mPriRequestedVboList;
 
-	float mPriFarClippingPlane;
+	float mPriFarClippingPlane, mPriNearClippingPlane;
 
 	ooctools::Quaternion localQuat;
 	ooctools::Quaternion totalQuat;

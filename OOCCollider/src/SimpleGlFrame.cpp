@@ -154,12 +154,6 @@ void SimpleGlFrame::display()
 //		Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),1,data);
 //		MpiControl::getSingleton()->push(msg);
 //	}
-	mPriFbo->bind();
-	if (mPriColorBuffer != 0){
-		FboFactory::getSingleton()->drawColorToFb(mPriColorBuffer, mPriCBufX, mPriCBufY, mPriCBufWidth, mPriCBufHeight);
-		GET_GLERROR(0);
-	}
-	mPriFbo->unbind();
 
 //	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertPostProc);
 //	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragPostProc);
@@ -643,7 +637,16 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		if (mPriColorBuffer==0){
 			mPriColorBuffer = new GLubyte[cbe.getHeight()*cbe.getWidth()*4];
 		}
-		memcpy(mPriColorBuffer, cbe.getPixel(), cbe.getHeight()*cbe.getWidth()*sizeof(GLubyte)*4);
+		bool bound = mPriFbo->isBound();
+		if (!bound){
+			mPriFbo->bind();
+		}
+		ooctools::FboFactory::getSingleton()->drawColorToFb(cbe.getPixel(), cbe.getX(), cbe.getY(), cbe.getWidth(),cbe.getHeight());
+//		memcpy(mPriColorBuffer, cbe.getPixel(), cbe.getHeight()*cbe.getWidth()*sizeof(GLubyte)*4);
+		if (!bound){
+			mPriFbo->unbind();
+		}
+		cout << "rendertime " << cbe.getNodeRank() << ": " << cbe.getRenderTime() << endl;
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;

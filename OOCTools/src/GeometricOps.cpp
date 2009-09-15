@@ -18,6 +18,8 @@ namespace ooctools{
 #define MATRIX_INVERSE_EPSILON		1e-14f
 #define MATRIX_EPSILON				1e-6f
 
+GLdouble GeometricOps::PI = 3.1415926535897932384626433832795;
+
 GeometricOps::GeometricOps() {
 	// TODO Auto-generated constructor stub
 
