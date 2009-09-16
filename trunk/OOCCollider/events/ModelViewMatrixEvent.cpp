@@ -14,7 +14,7 @@
 #include "IEvent.h"
 
 oocframework::ClassId* ModelViewMatrixEvent::mClassId = new oocframework::ClassId("ModelViewMatrixEvent");
-unsigned ModelViewMatrixEvent::mProByteSize = sizeof(float)*16;
+unsigned ModelViewMatrixEvent::mProByteSize = sizeof(float)*16 + sizeof(int)*4;
 
 ModelViewMatrixEvent::ModelViewMatrixEvent(){
 	mProData = new char[ModelViewMatrixEvent::mProByteSize];
@@ -34,12 +34,20 @@ ModelViewMatrixEvent::ModelViewMatrixEvent(){
 	((float*)mProData)[13] = 0;
 	((float*)mProData)[14] = 0;
 	((float*)mProData)[15] = 1;
+	((int*)(mProData + sizeof(float)*16))[0] = 0;
+	((int*)(mProData + sizeof(float)*16))[1] = 0;
+	((int*)(mProData + sizeof(float)*16))[2] = 0;
+	((int*)(mProData + sizeof(float)*16))[3] = 0;
 	init();
 }
 
-ModelViewMatrixEvent::ModelViewMatrixEvent(const float* matrix){
+ModelViewMatrixEvent::ModelViewMatrixEvent(const float* matrix, int xPos, int yPos, int width, int height){
 	mProData = new char[ModelViewMatrixEvent::mProByteSize];
 	memcpy(mProData, matrix, ModelViewMatrixEvent::mProByteSize);
+	((int*)(mProData + sizeof(float)*16))[0] = xPos;
+	((int*)(mProData + sizeof(float)*16))[1] = yPos;
+	((int*)(mProData + sizeof(float)*16))[2] = width;
+	((int*)(mProData + sizeof(float)*16))[3] = height;
 	init();
 }
 

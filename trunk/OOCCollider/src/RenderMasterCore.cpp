@@ -268,12 +268,10 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 			mTerminateApplication = true;
 			break;
 		case 'N':
-			MpiControl::getSingleton()->push(new Message(kpe,1));
-			MpiControl::getSingleton()->push(new Message(kpe,2));
+			MpiControl::getSingleton()->push(new Message(kpe,1, MpiControl::ALL));
 			break;
 		case 'F':
-			MpiControl::getSingleton()->push(new Message(kpe,1));
-			MpiControl::getSingleton()->push(new Message(kpe,2));
+			MpiControl::getSingleton()->push(new Message(kpe,1, MpiControl::ALL));
 			break;
 		case 'I':{
 			cout << "====================================" << endl;

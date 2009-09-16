@@ -646,7 +646,7 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		if (!bound){
 			mPriFbo->unbind();
 		}
-		cout << "rendertime " << cbe.getNodeRank() << ": " << cbe.getRenderTime() << endl;
+//		cout << "rendertime " << cbe.getNodeRank() << ": " << cbe.getRenderTime() << endl;
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;
