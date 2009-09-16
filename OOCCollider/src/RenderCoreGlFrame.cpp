@@ -38,13 +38,15 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-#define MAX_OFFLINE_VBOS 4000
-#define MAX_LOADS_PER_FRAME 80
 #define DEPTHBUFFER_INTERVAL 15
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
 #ifdef OFFICE
+#define MAX_OFFLINE_VBOS 4000
+#define MAX_LOADS_PER_FRAME 80
 #endif
 #ifdef HOME
+#define MAX_OFFLINE_VBOS 1500
+#define MAX_LOADS_PER_FRAME 40
 #endif
 #ifdef CLUSTER
 #endif
