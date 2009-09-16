@@ -200,11 +200,11 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				for(distIterator = mPriDistanceMap.begin(); distIterator != mPriDistanceMap.end(); ++distIterator){
 					GLint queryState = GL_FALSE;
 					while(queryState != GL_TRUE){
-					  glGetQueryObjectiv(mPriOccQueries[0], GL_QUERY_RESULT_AVAILABLE, &queryState);
+					  glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT_AVAILABLE, &queryState);
 					}
 					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[distIterator->second]);
 //					if (true){
-					if (mPriOccResults[distIterator->second]>4){
+					if (mPriOccResults[distIterator->second]>0){
 						// add visible VBO to the current DepthBuffer
 						mPriVboMap[distIterator->second]->managedDraw(true);
 						mPriVisibleVbosVec.push_back(mPriVboMap[distIterator->second]);
@@ -216,6 +216,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 			glPopMatrix();
 		glPopMatrix();
 	glPopMatrix();
+//	cout << "query: " << queryCount << " vs " << mPriVisibleDistVec.size() << endl;
 /*
 	// send all vbos that passed the occlusion-tests to the requester
 	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIt = mPriVbosInFrustum.begin();
@@ -501,29 +502,28 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(DepthBufferEvent::classid())){
 		DepthBufferEvent& dbe = (DepthBufferEvent&)event;
-		if(mPriDepthBuffer == 0 || dbe.getHeight()!=mPriWindowHeight || dbe.getWidth()!=mPriWindowWidth){
-//			cout << "reInitializing the DepthBuffer" << endl;
-//			cout << dbe.getWidth() << ", " << dbe.getHeight() << ", " << sizeof(GLfloat) << " vs " << mPriWindowWidth << ", " << mPriWindowHeight << ", " << sizeof(float) << endl;
-			delete[] mPriDepthBuffer;
-			mPriDepthBuffer = new GLfloat[dbe.getWidth()*dbe.getHeight()];
-		}
 		bool fboOn = mPriFbo->isBound();
 		if (!fboOn){
 			mPriFbo->bind();
 		}
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClearColor(0.0, 1.0, 0.0, 1.0);
 //		glClear(GL_DEPTH_BUFFER_BIT);
 //		glClear(GL_COLOR_BUFFER_BIT);
-		mPriFbo->clearDepth();
-		glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glDepthFunc(GL_ALWAYS);
+//		mPriFbo->clearDepth();
+//		glPushAttrib(GL_ALL_ATTRIB_BITS);
 			glDisable(GL_DEPTH_TEST);
 			FboFactory::getSingleton()->drawDepthToFb(dbe.getDepth(), dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
-		glPopAttrib();
+			glEnable(GL_DEPTH_TEST);
+//		glPopAttrib();
 //		setupTexture();
 
 		if (!fboOn){
 			mPriFbo->unbind();
+		}
+		for (int i=0; i< dbe.getWidth()*dbe.getHeight(); ++i){
+			if (dbe.getDepth()[i]>1.0 || dbe.getDepth()[i]<0.0){
+				cout << "error in depthbuffer: " << dbe.getDepth()[i]<< endl;
+			}
 		}
 
 	}

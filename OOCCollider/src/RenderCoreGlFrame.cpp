@@ -40,7 +40,7 @@ using namespace oocframework;
 
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 80
-#define DEPTHBUFFER_INTERVAL 50
+#define DEPTHBUFFER_INTERVAL 15
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
 #ifdef OFFICE
 #endif
@@ -100,19 +100,20 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 	for (unsigned i = 0; i < 6; ++i) {
 		this->priFrustum[i] = new float[4];
 	}
-	if (MpiControl::getSingleton()->getRank() == 1){
-		mPriTopLine = 0;
-		mPriLeftLine = 0;
-		mPriFrustumWidth = 320;
-		mPriFrustumHeight = 480;
+	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
+		if (MpiControl::getSingleton()->getRank() == 1){
+			mPriTileYPos = 0;
+			mPriTileXPos = 0;
+			mPriTileWidth = 320;
+			mPriTileHeight = 480;
+		}
+		else if (MpiControl::getSingleton()->getRank() == 2){
+			mPriTileYPos = 0;
+			mPriTileXPos = 320;
+			mPriTileWidth = 320;
+			mPriTileHeight = 480;
+		}
 	}
-	else if (MpiControl::getSingleton()->getRank() == 2){
-		mPriTopLine = 0;
-		mPriLeftLine = 320;
-		mPriFrustumWidth = 320;
-		mPriFrustumHeight = 480;
-	}
-
 }
 
 RenderCoreGlFrame::~RenderCoreGlFrame() {
@@ -231,7 +232,7 @@ void RenderCoreGlFrame::display()
 //	resizeWindow(height, width);
 
 //	resizeFrustum(640, 480);
-	resizeFrustum(mPriLeftLine, mPriTopLine, mPriFrustumWidth, mPriFrustumHeight);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 //	resizeFrustum(0, 320, 640, 480); // right position, or is it?
 //	void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
 //			unsigned leftLine, unsigned tileswidth)
@@ -385,24 +386,19 @@ void RenderCoreGlFrame::display()
 				double t = glfwGetTime();  // Time (in seconds)
 
 
-				FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriFrustumWidth, mPriFrustumHeight);
+				FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 //				ColorBufferEvent cbe = ColorBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight,t-f, mPriPixelBuffer);
-				ColorBufferEvent cbe = ColorBufferEvent(mPriLeftLine, mPriTopLine, mPriFrustumWidth, mPriFrustumHeight,t-f, mPriPixelBuffer);
+				ColorBufferEvent cbe = ColorBufferEvent(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight,t-f, mPriPixelBuffer);
 
 				// dumping the depth-buffer every 100 frames....
 //				cout << "frame: " << frame << ", camMoved? " << mPriCamHasMoved<< endl;
 				if (frame == (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved){
 					GET_GLERROR(0);
 					mPriCamHasMoved = false;
-					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriFrustumWidth, mPriFrustumHeight);
-//					for (unsigned i=0; i < mPriWindowWidth * mPriWindowHeight; ++i){
-//						if (((GLdouble)mPriDepthBuffer[i]) != mPriDepthBufferD[i]){
-//							cout << "f: " << mPriDepthBuffer << ", d: " << mPriDepthBufferD << endl;
-//						}
-//					}
+					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 //					DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriFbo->mapDepthBuffer());
 					GET_GLERROR(0);
-					DepthBufferEvent dbe = DepthBufferEvent(mPriLeftLine,mPriTopLine,mPriFrustumWidth,mPriFrustumHeight, mPriDepthBuffer);
+					DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
 //					cout << "original: " << mPriWindowHeight << ", " << mPriWindowWidth << endl;
 //					cout << "in event: " << dbe.getHeight() << ", " << dbe.getWidth() << endl;
 					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
@@ -515,16 +511,16 @@ void RenderCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
 	this->resizeFrustum(0, 0, _width, _height);
 }
 
-void RenderCoreGlFrame::resizeFrustum(unsigned leftLine, unsigned topLine, unsigned tileswidth, unsigned tilesheight)
+void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight)
 {
 	if (tilesheight == 0)
 		tilesheight = 1;
 	if (tileswidth == 0)
 		tileswidth = 1;
-	worldTopLine = (GLdouble) topLine / (GLdouble) mPriWindowHeight;
-	worldBottomLine = (GLdouble) (topLine + tilesheight) / (GLdouble) mPriWindowHeight;
-	worldLeftLine = (GLdouble) leftLine / (GLdouble) mPriWindowWidth;
-	worldRightLine = (GLdouble) (leftLine + tileswidth) / (GLdouble) mPriWindowWidth;
+	worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
+	worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
+	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
+	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
 
 	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 	glMatrixMode(GL_PROJECTION);
@@ -981,6 +977,15 @@ void RenderCoreGlFrame::drawDepthTex()
 
 }
 
+void
+RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
+{
+	mPriTileXPos = xPos;
+	mPriTileYPos = yPos;
+	mPriTileWidth = width;
+	mPriTileHeight = height;
+}
+
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
@@ -1039,6 +1044,12 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 					delete mapIt->second;
 				}
 				mPriVbosInFrustum.clear();
+				mapIt = mPriOfflineVbosInFrustum.begin();
+				for (; mapIt != mPriOfflineVbosInFrustum.end(); mapIt++){
+					mapIt->second->setOffline();
+					delete mapIt->second;
+				}
+				mPriOfflineVbosInFrustum.clear();
 				mPriTriCount = 0;
 				mPriCamHasMoved = true;
 				bool bound = false;
@@ -1046,12 +1057,12 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 				if (!bound){
 					mPriFbo->bind();
 				}
-				FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+				FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 				if (!bound){
 					mPriFbo->unbind();
 				}
-				DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriDepthBuffer);
-				MpiControl::getSingleton()->push(new Message(dbe, 2));
+				DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
+				MpiControl::getSingleton()->push(new Message(dbe, 2, MpiControl::DATA));
 
 			break;}
 			case 'O': // switch BoundingBoxMode

@@ -138,11 +138,12 @@ void DataCore::receiveMethod(int source)
 				oocframework::EventManager::getSingleton()->fire(mve);
 			}
 			else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
-//				cout << "yeah depthbuffer dot com kam hier an" << endl;
+//				cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;
+
 				DepthBufferEvent dbe = DepthBufferEvent(msg);
 				oocframework::EventManager::getSingleton()->fire(dbe);
-				MpiControl::getSingleton()->clearOutQueue(MpiControl::RENDERER);
-				MpiControl::getSingleton()->clearInQueue(MpiControl::RENDERER);
+//				MpiControl::getSingleton()->clearOutQueue(MpiControl::RENDERER);
+//				MpiControl::getSingleton()->clearInQueue(MpiControl::RENDERER);
 			}
 			else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
 				NodeRequestEvent nre = NodeRequestEvent(msg);

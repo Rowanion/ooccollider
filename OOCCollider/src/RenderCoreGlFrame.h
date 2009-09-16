@@ -45,7 +45,7 @@ public:
 	virtual void reshape(int width, int height, float farPlane);
 	virtual void resizeFrustum();
 	virtual void resizeFrustum(unsigned _width, unsigned _height);
-	virtual void resizeFrustum(unsigned leftLine, unsigned topLine,
+	virtual void resizeFrustum(unsigned tileXPos, unsigned tileYPos,
 			unsigned tileswidth, unsigned tilesheight);
 	float getFrames() const {
 		return avgFps;
@@ -54,6 +54,7 @@ public:
 	void debug();
 	void notify(oocframework::IEvent& event);
 	void getFrustum();
+	void setTileDimensions(int xPos, int yPos, int width, int height);
 
 protected:
 	void normalizeFrustum();
@@ -76,7 +77,7 @@ protected:
 	GLdouble screenXMax, screenYMax, screenYMin;
 	GLdouble screenXMaxH, screenYMaxH, screenYMinH;
 	GLfloat ratio;
-	unsigned mPriTopLine, mPriLeftLine, mPriFrustumWidth, mPriFrustumHeight;
+	unsigned mPriTileYPos, mPriTileXPos, mPriTileWidth, mPriTileHeight;
 
 private:
 	float scale;

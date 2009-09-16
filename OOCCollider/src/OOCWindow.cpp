@@ -49,7 +49,7 @@ OOCWindow::OOCWindow(size_t width, size_t height, size_t color_depth,
 	glfwEnable(GLFW_KEY_REPEAT);
 
 	// Open a window with the specified settings. Check for failure.
-//	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,16);
+//	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,4);
 	if (glfwOpenWindow(width, height, bitspercolor, bitspercolor, bitspercolor,
 			0, 0, 0, flags) != GL_TRUE)
 		THROW(std::runtime_error, "Could not create window.");
