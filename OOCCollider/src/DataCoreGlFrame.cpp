@@ -136,9 +136,13 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 //	cout << "starting display of DataCore" << endl;
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT||GL_DEPTH_BUFFER_BIT);
+	GET_GLERROR(0);
+	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	GET_GLERROR(0);
 	glLoadIdentity();
+	GET_GLERROR(0);
 	glMultMatrixf(mPriModelViewMatrix);
+	GET_GLERROR(0);
 
 	// load all requested vbos
 //	cout << "DataCore Loading VBOs:" << endl;
