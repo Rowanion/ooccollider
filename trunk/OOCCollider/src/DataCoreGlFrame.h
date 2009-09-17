@@ -162,7 +162,7 @@ private:
 	void calcFPS();
 	void loadMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
 	void setupTexture();
-	void drawAsQuad();
+	void drawDepthTex();
 	void setupCg();
 };
 

@@ -116,6 +116,8 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 			mPriTileHeight = 480;
 		}
 	}
+	mPriDepthBufferD = 0;
+	mPriDepthTexture = 0;
 }
 
 RenderCoreGlFrame::~RenderCoreGlFrame() {
@@ -192,15 +194,14 @@ void RenderCoreGlFrame::init() {
 void RenderCoreGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
-//	cgVertDepthTex = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true);
-//	cgFragDepthTex = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true);
+	cgVertDepthTex = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true, "");
+	cgFragDepthTex = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true, "");
 //	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
-//	glEnable(GL_TEXTURE_2D);
-//	cgDepthTex = cgGetNamedParameter(cgFragDepthTex, "depthTex");
-//	cgGLSetTextureParameter(cgDepthTex, mPriDepthTexId);
-//	cgGLEnableTextureParameter(cgDepthTex);
-//	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
+	glEnable(GL_TEXTURE_2D);
+	cgDepthTex = cgGetNamedParameter(cgFragDepthTex, "depthTex");
+	cgGLSetTextureParameter(cgDepthTex, mPriDepthTexId);
+	glDisable(GL_TEXTURE_2D);
 
 
 	cgVertNoLight = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_NoLightLut.cg", true, "");
@@ -407,7 +408,7 @@ void RenderCoreGlFrame::display()
 					Message* msg = new Message(dbe, 0, MpiControl::DATA);
 					MpiControl::getSingleton()->push(msg);
 					mPriRequestedVboList.clear();
-
+					setupTexture();
 				}
 
 			//
@@ -424,8 +425,8 @@ void RenderCoreGlFrame::display()
 	// restore normal frustum before drawing
 	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)
 	reshape(mPriWindowWidth,mPriWindowHeight);
-	mPriFbo->drawAsQuad();
-//	drawDepthTex();
+//	mPriFbo->drawAsQuad();
+	drawDepthTex();
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
@@ -925,9 +926,22 @@ RenderCoreGlFrame::compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap
 
 void RenderCoreGlFrame::setupTexture()
 {
+	if (mPriDepthTexture == 0){
+		mPriDepthTexture = new GLfloat[mPriWindowWidth*mPriWindowHeight*4];
+	}
+	if (mPriDepthBufferD == 0){
+		mPriDepthBufferD = new GLfloat[mPriWindowWidth*mPriWindowHeight];
+	}
+	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBufferD, 0, 0, mPriWindowWidth, mPriWindowHeight);
 
+//	for(int i=0; i< mPriWindowWidth*mPriWindowHeight*4; i+=4){
+//		mPriDepthTexture[i] = 1000.0-(mPriDepthBufferD[i/4]*1000.0);
+//		mPriDepthTexture[i+1] = mPriDepthTexture[i];
+//		mPriDepthTexture[i+2] = mPriDepthTexture[i];
+//		mPriDepthTexture[i+3] = 255;
+//	}
 	GET_GLERROR(0);
-	glActiveTexture(GL_TEXTURE0);
+//	glActiveTexture(GL_TEXTURE2);
 	GET_GLERROR(0);
 	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
 	GET_GLERROR(0);
@@ -938,23 +952,27 @@ void RenderCoreGlFrame::setupTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_ALPHA);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+//	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_ALPHA);
+//	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
 	GET_GLERROR(0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWindowWidth, mPriWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBuffer);
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA16, mPriWindowWidth, mPriWindowHeight, 0, GL_ALPHA, GL_FLOAT, mPriDepthBuffer);
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, mPriWindowWidth, mPriWindowHeight, 0, GL_BGRA, GL_FLOAT, mPriDepthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWindowWidth, mPriWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBufferD);
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA16, mPriWindowWidth, mPriWindowHeight, 0, GL_ALPHA, GL_FLOAT, mPriDepthBufferD);
 	GET_GLERROR(0);
-
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_TEXTURE_2D);
 }
 
 void RenderCoreGlFrame::drawDepthTex()
 {
+	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
+	cgGLEnableTextureParameter(cgDepthTex);
+
 	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertDepthTex);
 	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragDepthTex);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
+//	glActiveTexture(GL_TEXTURE2);
 	GET_GLERROR(0);
 	glEnable(GL_TEXTURE_2D);
 
@@ -975,6 +993,7 @@ void RenderCoreGlFrame::drawDepthTex()
 	glPopMatrix ();
 	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
 	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+	cgGLDisableTextureParameter(cgDepthTex);
 	glDisable(GL_TEXTURE_2D);
 
 }

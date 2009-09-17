@@ -1,3 +1,10 @@
+/**
+ * This shader takes a depth-texture with float-values and scales the output to enhance visibility.
+ * Texture has to be declared in application as 
+ * glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuf);
+ * Scaling works but could use a little non-linear nudge.
+**/
+
 // data interpolated from vertex program output
 struct V2FI
 {
@@ -8,9 +15,18 @@ void main(V2FI IN,
 	  out float4 color     : COLOR0,
 		uniform sampler2D depthTex)
 {
+	float4 depth = tex2D(depthTex, IN.texCoord);
+	if (depth.r <= 0.0){
+		color = float4(0.0, 0.0, 0.0, 1.0);
+	}
+	else {
+		color = float4(-log(depth.rrr) * 200.0, 1.0);
+	}
+	//color = float4(200.0-(depth.rrr*200.0), 1.0);
+
 //	color = float4(0.0, 0.0, 1.0, 1.0);
 	//color = sqrt(float4((tex2D(depthTex, IN.texCoord).rgb), 1.0));
-	color = (float4((tex2D(depthTex, IN.texCoord).aaa), 1.0))/5.0;
+	//color = (float4((tex2D(depthTex, IN.texCoord).aaa), 1.0))/5.0;
 	//color = sqrt(float4(tex2Dproj(depthTex, IN.texCoord).rgb, 1.0));
 	//color = sqrt(float4(tex2Dproj(depthTex, IN.texCoord).aaa, 1.0));
 //	if (color.g<0.0 || color.g>1.0){

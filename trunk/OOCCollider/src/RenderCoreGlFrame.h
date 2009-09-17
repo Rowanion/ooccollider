@@ -111,6 +111,8 @@ private:
 
 	GLubyte* mPriPixelBuffer;
 	GLfloat* mPriDepthBuffer;
+	GLfloat* mPriDepthBufferD;
+	GLfloat* mPriDepthTexture;
 	GLuint mPriDepthTexId;
 
 	unsigned mPriTriCount;

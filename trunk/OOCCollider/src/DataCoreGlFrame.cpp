@@ -94,7 +94,7 @@ void DataCoreGlFrame::init() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_FLAT);
+	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	GET_GLERROR(0);
 	camObj.positionCamera(0.0,0.0,5.0,
@@ -109,7 +109,6 @@ void DataCoreGlFrame::init() {
 	glGenQueries(100, mPriOccQueries);
 
 	glGenTextures(1, &mPriTexId);
-	setupTexture();
 	setupCg();
 
 	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mPriWindowWidth,mPriWindowHeight);
@@ -137,7 +136,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 	GET_GLERROR(0);
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	GET_GLERROR(0);
 	glLoadIdentity();
 	GET_GLERROR(0);
@@ -174,7 +173,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 			glPushMatrix();
 				glColor3f(1.0f,0.0f,0.0f);
 				mPriFbo->bind();
-				mPriFbo->clearColor();
+//				mPriFbo->clearColor();
 //				cout << "Number of VBOs: " << mPriVbosInFrustum.size()<< endl;
 //				for (std::set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!= mPriIdsInFrustum.end(); ++it){
 ////					cout << "drawing box with id: " << *it << endl;
@@ -216,6 +215,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					}
 					queryCount++;
 				}
+				setupTexture();
 				mPriFbo->unbind();
 			glPopMatrix();
 		glPopMatrix();
@@ -306,7 +306,8 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 	mPriOccResults.clear();
 	// draw the result for debugging
-	mPriFbo->drawAsQuad();
+//	mPriFbo->drawAsQuad();
+	drawDepthTex();
 
 //	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
 //	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
@@ -417,30 +418,43 @@ void DataCoreGlFrame::setMvMatrix(const float* matrix)
 
 void DataCoreGlFrame::setupTexture()
 {
-
-	glEnable(GL_TEXTURE_2D);
-
-	glActiveTexture(GL_TEXTURE0);
+	if (mPriDepthBuffer == 0){
+		mPriDepthBuffer = new GLfloat[mPriWindowWidth*mPriWindowHeight];
+	}
+	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+	GET_GLERROR(0);
+//	glActiveTexture(GL_TEXTURE2);
+	GET_GLERROR(0);
 	glBindTexture(GL_TEXTURE_2D, mPriTexId);
+	GET_GLERROR(0);
+	glEnable(GL_TEXTURE_2D);
+	GET_GLERROR(0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_ALPHA);
+//	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, mPriWindowWidth, mPriWindowHeight, 0, GL_ALPHA, GL_FLOAT, mPriDepthBuffer);
 	GET_GLERROR(0);
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, mPriWindowWidth, mPriWindowHeight, 0, GL_ALPHA, GL_FLOAT, mPriDepthBuffer);
-//	glBindTexture(GL_TEXTURE_2D, 0);
-
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWindowWidth, mPriWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBuffer);
+	GET_GLERROR(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_TEXTURE_2D);
 }
 
-void DataCoreGlFrame::drawAsQuad()
+void DataCoreGlFrame::drawDepthTex()
 {
-	glEnable(GL_TEXTURE_2D);
-
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mPriTexId);
+	cgGLEnableTextureParameter(cgTexture);
+
+	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
+	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
+
+//	glActiveTexture(GL_TEXTURE2);
+	GET_GLERROR(0);
+	glEnable(GL_TEXTURE_2D);
 
 	glMatrixMode (GL_MODELVIEW);
 	glPushMatrix ();
@@ -457,11 +471,12 @@ void DataCoreGlFrame::drawAsQuad()
 		glPopMatrix ();
 		glMatrixMode (GL_MODELVIEW);
 	glPopMatrix ();
-
+	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+	cgGLDisableTextureParameter(cgTexture);
 	glDisable(GL_TEXTURE_2D);
 
 }
-
 void DataCoreGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
@@ -515,9 +530,11 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 //		glClear(GL_COLOR_BUFFER_BIT);
 //		mPriFbo->clearDepth();
 //		glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glDisable(GL_DEPTH_TEST);
+//			glDisable(GL_DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS);
 			FboFactory::getSingleton()->drawDepthToFb(dbe.getDepth(), dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
-			glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+//			glEnable(GL_DEPTH_TEST);
 //		glPopAttrib();
 //		setupTexture();
 
@@ -533,8 +550,17 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;
-		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
+		for (int i=0; i < MpiControl::getSingleton()->getRank()*2; ++i){
+			headerS << "-";
+		}
+		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
 		cout << headerS.str() << "INFO" << endl;
+		GLfloat mat[16];
+		glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+		ooctools::GeometricOps::transposeMat4(mat);
+		for (unsigned i=0; i< 16; i+=4){
+			cout << headerS.str() << "MVP: " << mat[i] << "\t" << mat[i+1] << "\t" << mat[i+2] << "\t" << mat[i+3] << endl;
+		}
 		cout << "---------------------------------------" << endl;
 	}
 }
