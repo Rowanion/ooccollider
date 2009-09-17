@@ -278,8 +278,7 @@ void RenderMasterCore::notify(oocframework::IEvent& event)
 			cout << "Requesting Information from Nodes..." << endl;
 			cout << "====================================" << endl;
 			InfoRequestEvent ire = InfoRequestEvent();
-			MpiControl::getSingleton()->push(new Message(ire,1));
-			MpiControl::getSingleton()->push(new Message(ire,2));
+			MpiControl::getSingleton()->push(new Message(ire,0, MpiControl::ALL));
 			oocframework::EventManager::getSingleton()->fire(ire);
 			break;}
 		default:
