@@ -49,10 +49,10 @@ using namespace oocframework;
 }
 
 DataCoreGlFrame::DataCoreGlFrame() :
-	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0),
+	scale(1.0f), avgFps(0.0f), time(0.0),
 			frame(0), mPriVboMan(0), mPriCgt(0), mPriFbo(0),
 			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0), mPriDepthBuffer(0), mPriNewDepthBuf(false),
-			mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()), mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFarClippingPlane(100.0f) {
+			mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()), mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFarClippingPlane(100.0f), mPriNearClippingPlane(0.1f) {
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -349,7 +349,7 @@ void DataCoreGlFrame::reshape(int width, int height) {
 	// Set the correct perspective.
 	//gluPerspective(45,ratio,1,1000);
 	//gluPerspective(20.0,1.0,0.5,50.0);
-	gluPerspective(45.0f, ratio, 0.01f, mPriFarClippingPlane);
+	gluPerspective(45.0f, ratio, mPriNearClippingPlane, mPriFarClippingPlane);
 //	gluPerspective(45.0f, ratio, 0.01f, 4000.0f);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -358,43 +358,6 @@ void DataCoreGlFrame::reshape(int width, int height) {
 	gluLookAt(0.0,0.0,5.0,
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
-}
-
-void DataCoreGlFrame::resizeWindow() {
-	this->resizeWindow(0, height, 0, width);
-}
-
-void DataCoreGlFrame::resizeWindow(unsigned _height, unsigned _width) {
-	this->resizeWindow(0, _height, 0, _width);
-}
-
-void DataCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
-		unsigned leftLine, unsigned tileswidth) {
-	if (tilesheight == 0)
-		tilesheight = 1;
-	if (tileswidth == 0)
-		tileswidth = 1;
-	worldTopLine = (GLdouble) topLine / (GLdouble) height;
-	worldBottomLine = (GLdouble) (topLine + tilesheight) / (GLdouble) height;
-	worldLeftLine = (GLdouble) leftLine / (GLdouble) width;
-	worldRightLine = (GLdouble) (leftLine + tileswidth) / (GLdouble) width;
-
-	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
-	worldBottomLine = screenYMin
-			+ ((screenYMax - screenYMin) * worldBottomLine);
-
-	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
-	worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
-			* worldRightLine);
-
-	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
-			nearPlane, farPlane);
-
-	glMatrixMode(GL_MODELVIEW);
 }
 
 void DataCoreGlFrame::debug() {
@@ -422,6 +385,8 @@ void DataCoreGlFrame::setupTexture()
 		mPriDepthBuffer = new GLfloat[mPriWindowWidth*mPriWindowHeight];
 	}
 	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+//	cout << "(data) depth at " << 62981 << ": " << mPriDepthBuffer[62981] << endl;
+
 	GET_GLERROR(0);
 //	glActiveTexture(GL_TEXTURE2);
 	GET_GLERROR(0);
@@ -550,7 +515,7 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;
-		for (int i=0; i < MpiControl::getSingleton()->getRank()*2; ++i){
+		for (int i=0; i < MpiControl::getSingleton()->getRank()*2 + 1; ++i){
 			headerS << "-";
 		}
 		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
@@ -561,6 +526,9 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		for (unsigned i=0; i< 16; i+=4){
 			cout << headerS.str() << "MVP: " << mat[i] << "\t" << mat[i+1] << "\t" << mat[i+2] << "\t" << mat[i+3] << endl;
 		}
+		cout << headerS.str() << "nearPlane: " << mPriNearClippingPlane << endl;
+		cout << headerS.str() << "farPlane: " << mPriFarClippingPlane << endl;
+
 		cout << "---------------------------------------" << endl;
 	}
 }

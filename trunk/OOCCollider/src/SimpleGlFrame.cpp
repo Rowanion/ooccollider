@@ -650,7 +650,10 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;
-		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
+		for (int i=0; i < MpiControl::getSingleton()->getRank()*2 +1 ; ++i){
+			headerS << "-";
+		}
+		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
 		cout << headerS.str() << "INFO" << endl;
 		cout << "---------------------------------------" << endl;
 	}

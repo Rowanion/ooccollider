@@ -62,14 +62,15 @@ using namespace oocframework;
 }
 
 RenderCoreGlFrame::RenderCoreGlFrame() :
-	scale(1.0f), avgFps(0.0f), time(0.0),
-			frame(0), mPriVboMan(0), mPriCgt(0), mPriEyePosition(ooctools::V3f()),
-			mPriCamHasMoved(false), mPriBBMode(0), mPriAspectRatio(0.0f), mPriFbo(0),
-			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0),
-			mPriDepthBuffer(0), mPriTriCount(0), priFrustum(0), mPriIdPathMap(
-					std::map<uint64_t, std::string>()), mPriMissingIdsInFrustum(std::set<uint64_t>()),
-					mPriObsoleteVbos(std::vector< IdVboMapIter >()),
-			mPriUseWireFrame(false),
+	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
+			mPriEyePosition(ooctools::V3f()), mPriCamHasMoved(false),
+			mPriBBMode(0), mPriAspectRatio(0.0f), mPriFbo(0),
+			mPriWindowWidth(0), mPriWindowHeight(0), mPriTileYPos(0),
+			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
+			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),
+			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
+			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
+					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
 					100.0f), mPriNearClippingPlane(0.1f) {
 
@@ -102,20 +103,7 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 	for (unsigned i = 0; i < 6; ++i) {
 		this->priFrustum[i] = new float[4];
 	}
-	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
-		if (MpiControl::getSingleton()->getRank() == 1){
-			mPriTileYPos = 0;
-			mPriTileXPos = 0;
-			mPriTileWidth = 320;
-			mPriTileHeight = 480;
-		}
-		else if (MpiControl::getSingleton()->getRank() == 2){
-			mPriTileYPos = 0;
-			mPriTileXPos = 320;
-			mPriTileWidth = 320;
-			mPriTileHeight = 480;
-		}
-	}
+
 	mPriDepthBufferD = 0;
 	mPriDepthTexture = 0;
 }
@@ -399,16 +387,12 @@ void RenderCoreGlFrame::display()
 					GET_GLERROR(0);
 					mPriCamHasMoved = false;
 					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-//					DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriFbo->mapDepthBuffer());
-					GET_GLERROR(0);
 					DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
-//					cout << "original: " << mPriWindowHeight << ", " << mPriWindowWidth << endl;
-//					cout << "in event: " << dbe.getHeight() << ", " << dbe.getWidth() << endl;
 					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 					Message* msg = new Message(dbe, 0, MpiControl::DATA);
 					MpiControl::getSingleton()->push(msg);
 					mPriRequestedVboList.clear();
-					setupTexture();
+//					setupTexture();
 				}
 
 			//
@@ -425,8 +409,8 @@ void RenderCoreGlFrame::display()
 	// restore normal frustum before drawing
 	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)
 	reshape(mPriWindowWidth,mPriWindowHeight);
-//	mPriFbo->drawAsQuad();
-	drawDepthTex();
+	mPriFbo->drawAsQuad();
+//	drawDepthTex();
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
@@ -503,6 +487,29 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	screenYMaxH = tan((45.0 * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenXMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
+
+	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 1){
+		if (MpiControl::getSingleton()->getRank() == 1){
+			mPriTileYPos = 0;
+			mPriTileXPos = 0;
+			mPriTileWidth = mPriWindowWidth;
+			mPriTileHeight = mPriWindowHeight;
+		}
+	}
+	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
+		if (MpiControl::getSingleton()->getRank() == 1){
+			mPriTileYPos = 0;
+			mPriTileXPos = 0;
+			mPriTileWidth = mPriWindowWidth/2;
+			mPriTileHeight = mPriWindowHeight;
+		}
+		else if (MpiControl::getSingleton()->getRank() == 2){
+			mPriTileYPos = 0;
+			mPriTileXPos = mPriWindowWidth/2;
+			mPriTileWidth = mPriWindowWidth/2;
+			mPriTileHeight = mPriWindowHeight;
+		}
+	}
 
 }
 
@@ -933,6 +940,7 @@ void RenderCoreGlFrame::setupTexture()
 		mPriDepthBufferD = new GLfloat[mPriWindowWidth*mPriWindowHeight];
 	}
 	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBufferD, 0, 0, mPriWindowWidth, mPriWindowHeight);
+//	cout << "(render) depth at " << 62981 << ": " << mPriDepthBufferD[62981] << endl;
 
 //	for(int i=0; i< mPriWindowWidth*mPriWindowHeight*4; i+=4){
 //		mPriDepthTexture[i] = 1000.0-(mPriDepthBufferD[i/4]*1000.0);
@@ -1114,7 +1122,10 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;
-		headerS << "(" << MpiControl::getSingleton()->getRank() << ") - ";
+		for (int i=0; i < MpiControl::getSingleton()->getRank()*2 + 1; ++i){
+			headerS << "-";
+		}
+		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
 		cout << headerS.str() << "currently loaded tris: " << mPriTriCount << endl;
 		cout << headerS.str() << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
 		cout << headerS.str() << "total requested vbos: " << mPriRequestedVboList.size() << endl;
@@ -1138,6 +1149,9 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		}
 		cout << headerS.str() << "loaded offline tris (counted): " << tCount << endl;
 		cout << headerS.str() << "loaded offline indices (counted): " << iCount << endl;
+
+		cout << headerS.str() << "nearPlane: " << mPriNearClippingPlane << endl;
+		cout << headerS.str() << "farPlane: " << mPriFarClippingPlane << endl;
 		cout << "---------------------------------------" << endl;
 	}
 
