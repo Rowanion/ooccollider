@@ -23,4 +23,12 @@ class SimpleGlFrame;
 class TestEventHandler;
 class OOCWindow;
 
+struct Tile{
+	int xPos;
+	int yPos;
+	int width;
+	int height;
+	double renderTime;
+};
+
 #endif /* DECLARATIONS_H_ */

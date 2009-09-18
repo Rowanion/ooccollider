@@ -148,7 +148,7 @@ void RenderCore::handleMsg(Message* msg)
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
 			mPriGotMatrix = true;
 //			cout << "rendercore got a matrix from 0" << endl;
-			ModelViewMatrixEvent mve = ModelViewMatrixEvent(((float*)msg->getData()));
+			ModelViewMatrixEvent mve = ModelViewMatrixEvent(msg);
 //			cout << "rendercore created an event for the matrix" << endl;
 			oocframework::EventManager::getSingleton()->fire(mve);
 		}

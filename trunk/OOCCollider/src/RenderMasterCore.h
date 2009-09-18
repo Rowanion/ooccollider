@@ -33,14 +33,6 @@ public:
 	virtual void Event(int event, bool state);
 	virtual void notify(oocframework::IEvent& event);
 
-	struct Tile{
-		int xPos;
-		int yPos;
-		int width;
-		int height;
-		double renderTime;
-	};
-
 private:
 	OOCWindow* mWindow;
 	bool mRunning;
