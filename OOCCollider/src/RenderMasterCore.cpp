@@ -66,8 +66,8 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 
 	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
 		Tile t;
-		t.height=mPriWindowHeight/2;
-		t.width=mPriWindowWidth;
+		t.height=mPriWindowHeight;
+		t.width=mPriWindowWidth/2;
 		t.xPos = 0;
 		t.yPos = 0;
 		t.renderTime = 0.0;
@@ -100,10 +100,18 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 		if (!mTerminateApplication){
 			//send matrix/camera to when the out-queue is empty
 //			cout << "---master sending matrix" << endl;
-			for (int i=1; i<MpiControl::getSingleton()->getSize(); ++i){
-				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),i,(char*)glFrame->getMvMatrix());
+//			for (int i=1; i<MpiControl::getSingleton()->getSize(); ++i){
+			for (unsigned i=0; i<MpiControl::getSingleton()->getGroupSize(MpiControl::DATA); ++i){
+				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),MpiControl::getSingleton()->getDataGroup()[i],(char*)glFrame->getMvMatrix());
 				MpiControl::getSingleton()->send(msg);
-//				cout << "master sent matrix to " << i << endl;
+			}
+			ModelViewMatrixEvent mve = ModelViewMatrixEvent(glFrame->getMvMatrix());
+			for (unsigned i=0; i<MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER); ++i){
+				Tile t = mPriTileMap[MpiControl::getSingleton()->getRenderGroup()[i]];
+				mve.setTileDimension(t);
+				ModelViewMatrixEvent mve = ModelViewMatrixEvent(glFrame->getMvMatrix(), t);
+				Message* msg = new Message(mve, MpiControl::getSingleton()->getRenderGroup()[i]);
+				MpiControl::getSingleton()->send(msg);
 			}
 //			cout << "master has sent all matrices" << endl;
 
@@ -113,6 +121,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) : mWindow(
 			while (!MpiControl::getSingleton()->inQueueEmpty()){
 				handleMsg(MpiControl::getSingleton()->pop());
 			}
+			adjustTileDimensions();
 
 //			cout << "---master ENTER display" << endl;
 			glFrame->display();
@@ -210,6 +219,7 @@ void RenderMasterCore::handleMsg(Message* msg)
 //			cout << "recveived colorbuffer! " << msg->getSrc() << endl;
 
 			ColorBufferEvent cbe = ColorBufferEvent(msg);
+			mPriTileMap[msg->getSrc()].renderTime = cbe.getRenderTime();
 			oocframework::EventManager::getSingleton()->fire(cbe);
 
 //			const char* dat = msg->getData();
@@ -231,21 +241,44 @@ void RenderMasterCore::handleMsg(Message* msg)
 void RenderMasterCore::adjustTileDimensions()
 {
 	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)==2){
+		int renderer0 = MpiControl::getSingleton()->getRenderGroup()[0];
+		int renderer1 = MpiControl::getSingleton()->getRenderGroup()[1];
 		double	totalTime =
-			mPriTileMap[MpiControl::getSingleton()->getRenderGroup()[0]].renderTime
-			+ mPriTileMap[MpiControl::getSingleton()->getRenderGroup()[1]].renderTime;
+			mPriTileMap[renderer0].renderTime
+			+ mPriTileMap[renderer1].renderTime;
 		double halfTime = totalTime/2.0;
-		map<int, Tile>::iterator maxTimeIt = mPriTileMap.begin();
-		map<int, Tile>::iterator it = mPriTileMap.begin();
-		for (; it != mPriTileMap.end(); ++it){
-			if (it->second.renderTime > maxTimeIt->second.renderTime)
-				maxTimeIt = it;
-		}
-		double timeDiff = maxTimeIt->second.renderTime - halfTime;
-		double timeDiffPerc = 100.0/maxTimeIt->second.renderTime*timeDiff;
-		int windowDiff = (int)(maxTimeIt->second.width/100.0*timeDiffPerc);
-		maxTimeIt->second.width -= windowDiff;
+		if (mPriTileMap[renderer0].renderTime > mPriTileMap[renderer1].renderTime){ // renderer0 is slowest
+			double timeDiff = mPriTileMap[renderer0].renderTime - halfTime; // difference from half-time
+			double timeDiffPerc = (100.0/mPriTileMap[renderer0].renderTime)*timeDiff; // percent of difference from half-time
+			int windowDiff = (int)((mPriTileMap[renderer0].width/100.0)*timeDiffPerc); // difference in width
+			mPriTileMap[renderer0].width -= windowDiff;
+			mPriTileMap[renderer1].xPos -= windowDiff;
+			mPriTileMap[renderer1].width += windowDiff;
 
+			mPriTileMap[renderer0].width = max(mPriTileMap[renderer0].width, 1);
+			mPriTileMap[renderer1].xPos = max(mPriTileMap[renderer1].xPos, 1);
+			mPriTileMap[renderer1].width = min(mPriTileMap[renderer1].width, mPriWindowWidth-1);
+		}
+		else if (mPriTileMap[renderer1].renderTime > mPriTileMap[renderer0].renderTime){  // renderer1 is slowest
+			double timeDiff = mPriTileMap[renderer1].renderTime - halfTime; // difference from half-time
+			double timeDiffPerc = (100.0/mPriTileMap[renderer1].renderTime)*timeDiff; // percent of difference from half-time
+			int windowDiff = (int)((mPriTileMap[renderer1].width/100.0)*timeDiffPerc); // difference in width
+			mPriTileMap[renderer1].width -= windowDiff;
+			mPriTileMap[renderer1].xPos += windowDiff;
+			mPriTileMap[renderer0].width += windowDiff;
+
+			mPriTileMap[renderer1].width = max(mPriTileMap[renderer1].width, 1);
+			mPriTileMap[renderer1].xPos = min(mPriTileMap[renderer1].xPos, mPriWindowWidth-1);
+			mPriTileMap[renderer0].width = min(mPriTileMap[renderer0].width, mPriWindowWidth-1);
+		}
+//		cout << "new Tile-Dimensions for 1:" << endl;
+//		cout << "x, y: " << mPriTileMap[renderer0].xPos << ", " << mPriTileMap[renderer0].yPos << endl;
+//		cout << "width, height: " << mPriTileMap[renderer0].width << ", " << mPriTileMap[renderer0].height << endl;
+//		cout << "render-time: " << mPriTileMap[renderer0].renderTime << endl;
+//		cout << "new Tile-Dimensions for 2:" << endl;
+//		cout << "x, y: " << mPriTileMap[renderer1].xPos << ", " << mPriTileMap[renderer1].yPos << endl;
+//		cout << "width, height: " << mPriTileMap[renderer1].width << ", " << mPriTileMap[renderer1].height << endl;
+//		cout << "render-time: " << mPriTileMap[renderer1].renderTime << endl;
 	}
 	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)==4){
 		//TODO implement

@@ -94,7 +94,7 @@ void DataCoreGlFrame::init() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
-	glShadeModel(GL_SMOOTH);
+	glShadeModel(GL_FLAT);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	GET_GLERROR(0);
 	camObj.positionCamera(0.0,0.0,5.0,
@@ -195,7 +195,6 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					glEndQuery(GL_SAMPLES_PASSED);
 					queryCount++;
 				}
-				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 				glDepthMask(GL_TRUE);
 
 				// handle query-results
@@ -215,6 +214,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					}
 					queryCount++;
 				}
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 				setupTexture();
 				mPriFbo->unbind();
 			glPopMatrix();

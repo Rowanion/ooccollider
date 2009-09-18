@@ -51,8 +51,32 @@ ModelViewMatrixEvent::ModelViewMatrixEvent(const float* matrix, int xPos, int yP
 	init();
 }
 
+ModelViewMatrixEvent::ModelViewMatrixEvent(const float* matrix, Tile& tile){
+	mProData = new char[ModelViewMatrixEvent::mProByteSize];
+	memcpy(mProData, matrix, ModelViewMatrixEvent::mProByteSize);
+	((int*)(mProData + sizeof(float)*16))[0] = tile.xPos;
+	((int*)(mProData + sizeof(float)*16))[1] = tile.yPos;
+	((int*)(mProData + sizeof(float)*16))[2] = tile.width;
+	((int*)(mProData + sizeof(float)*16))[3] = tile.height;
+	init();
+}
+
+ModelViewMatrixEvent::ModelViewMatrixEvent(const Message* msg)
+{
+	mProData = new char[ModelViewMatrixEvent::mProByteSize];
+	memcpy(mProData, msg->getData(),msg->getLength());
+}
+
 ModelViewMatrixEvent::~ModelViewMatrixEvent() {
 	delete[] mProData;
+}
+
+void ModelViewMatrixEvent::setTileDimension(Tile& t)
+{
+	((int*)(mProData + sizeof(float)*16))[0] = t.xPos;
+	((int*)(mProData + sizeof(float)*16))[1] = t.yPos;
+	((int*)(mProData + sizeof(float)*16))[2] = t.width;
+	((int*)(mProData + sizeof(float)*16))[3] = t.height;
 }
 
 const oocframework::ClassId* ModelViewMatrixEvent::classid()

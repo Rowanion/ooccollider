@@ -11,6 +11,9 @@
 
 #include "IEvent.h"
 #include "ClassId.h"
+#include "Message.h"
+
+#include "declarations.h"
 
 
 /**
@@ -31,6 +34,8 @@ class ModelViewMatrixEvent : public oocframework::IEvent{
 public:
 	ModelViewMatrixEvent();
 	ModelViewMatrixEvent(const float* matrix, int xPos=0, int yPos=0, int width=0, int height=0);
+	ModelViewMatrixEvent(const float* matrix, Tile& tile);
+	ModelViewMatrixEvent(const Message* msg);
 	virtual ~ModelViewMatrixEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
@@ -42,6 +47,8 @@ public:
 	inline int getTileYPos() const{return ((int*)(mProData + sizeof(float)*16))[1];};
 	inline int getTileWidth() const{return ((int*)(mProData + sizeof(float)*16))[2];};
 	inline int getTileHeight() const{return ((int*)(mProData + sizeof(float)*16))[3];};
+
+	void setTileDimension(Tile& t);
 
 protected:
 	static oocframework::ClassId* mClassId;

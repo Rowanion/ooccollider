@@ -1013,6 +1013,9 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 	mPriTileYPos = yPos;
 	mPriTileWidth = width;
 	mPriTileHeight = height;
+//	cout << "x, y: " << mPriTileXPos << ", " << mPriTileYPos << endl;
+//	cout << "width, height: " << mPriTileWidth << ", " << mPriTileHeight << endl;
+
 }
 
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)
@@ -1020,6 +1023,8 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
 		ModelViewMatrixEvent& mve = (ModelViewMatrixEvent&)event;
 //		glLoadMatrixf(mve.getMatrix());
+		setTileDimensions(mve.getTileXPos(), mve.getTileYPos(),mve.getTileWidth(), mve.getTileHeight());
+
 		for (unsigned i=0; i<16; ++i){
 			if (mve.getMatrix()[i] != mPriModelViewMatrix[i]){
 //				exit(0);
