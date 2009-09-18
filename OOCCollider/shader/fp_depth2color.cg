@@ -20,7 +20,7 @@ void main(V2FI IN,
 		color = float4(0.0, 0.0, 0.0, 1.0);
 	}
 	else {
-		color = float4(-log(depth.rrr) * 200.0, 1.0);
+		color = float4(-log2(depth.rrr) * 200.0, 1.0);
 	}
 	//color = float4(200.0-(depth.rrr*200.0), 1.0);
 

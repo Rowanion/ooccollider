@@ -44,10 +44,6 @@ public:
 	virtual void display(NodeRequestEvent& nre);
 	virtual void display();
 	virtual void reshape(int width, int height);
-	virtual void resizeWindow();
-	virtual void resizeWindow(unsigned _height, unsigned _width);
-	virtual void resizeWindow(unsigned topLine, unsigned tilesheight,
-			unsigned leftLine, unsigned tileswidth);
 	inline float getFrames() const {
 		return avgFps;
 	}
@@ -58,27 +54,6 @@ public:
 	void notify(oocframework::IEvent& event);
 
 protected:
-	void normalizeFrustum();
-
-	//frustumculling variables
-	std::vector< std::vector<float> > frustum;
-	std::vector<float> frustum1;
-	std::vector<float> frustum2;
-	std::vector<float> frustum3;
-	std::vector<float> frustum4;
-	std::vector<float> frustum5;
-	std::vector<float> frustum6;
-	float proj[16];
-	float modl[16];
-	float clip[16];
-	float frustTemp;
-	unsigned width, height;
-	float nearPlane, farPlane;
-	GLdouble worldTopLine, worldBottomLine;
-	GLdouble worldLeftLine, worldRightLine;
-	GLdouble screenXMax, screenYMax, screenYMin;
-	GLdouble screenXMaxH, screenYMaxH, screenYMinH;
-
 private:
 	float scale;
 	float fps[10];
@@ -130,6 +105,7 @@ private:
 	bool mPriUseWireFrame;
 
 	float mPriFarClippingPlane;
+	float mPriNearClippingPlane;
 
 	ooctools::Quaternion localQuat;
 	ooctools::Quaternion totalQuat;

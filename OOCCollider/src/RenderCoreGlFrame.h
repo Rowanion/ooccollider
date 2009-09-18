@@ -76,8 +76,6 @@ protected:
 	GLdouble worldLeftLine, worldRightLine;
 	GLdouble screenXMax, screenYMax, screenYMin;
 	GLdouble screenXMaxH, screenYMaxH, screenYMinH;
-	GLfloat ratio;
-	unsigned mPriTileYPos, mPriTileXPos, mPriTileWidth, mPriTileHeight;
 
 private:
 	float scale;
@@ -106,6 +104,8 @@ private:
 	ooctools::Fbo* mPriFbo;
 	int mPriWindowWidth;
 	int mPriWindowHeight;
+	GLfloat ratio;
+	unsigned mPriTileYPos, mPriTileXPos, mPriTileWidth, mPriTileHeight;
 
 	int mPriButtonActions[3];
 
