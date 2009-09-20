@@ -37,7 +37,8 @@ public:
 	void createAndAddDepthTex();
 	void createAndAddColorBuf();
 	void setDimensions(int width, int height);
-	void drawAsQuad();
+	void drawColorFSQuad();
+	void drawDepthFSQuad();
 	void unbind();
 	void clear();
 	void clearDepth();

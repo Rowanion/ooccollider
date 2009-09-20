@@ -14,6 +14,7 @@
 #include <GL/glew.h>
 #include <GL/glfw.h>
 
+#include "declarations.h"
 #include "OOCWindow.h"
 #include "AbstractEventHandler.h"
 #include "TestEventHandler.h"
@@ -21,8 +22,6 @@
 #include "RenderCore.h"
 #include "DataCore.h"
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
 using namespace std;
 
 void init()

@@ -9,6 +9,7 @@
 #ifndef MOUSEDRAGGEDEVENT_H_
 #define MOUSEDRAGGEDEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 

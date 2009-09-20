@@ -9,6 +9,7 @@
 #ifndef KILLAPPLICATIONEVENT_H_
 #define KILLAPPLICATIONEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 

@@ -78,8 +78,6 @@ private:
 
 	int mPriButtonActions[3];
 
-	GLuint mPriTexId;
-
 	GLubyte* mPriPixelBuffer;
 	GLfloat* mPriDepthBuffer;
 	bool mPriNewDepthBuf;
@@ -137,8 +135,6 @@ private:
 
 	void calcFPS();
 	void loadMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
-	void setupTexture();
-	void drawDepthTex();
 	void setupCg();
 };
 

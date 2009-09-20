@@ -9,6 +9,7 @@
 #ifndef ENDTRANSMISSIONEVENT_H_
 #define ENDTRANSMISSIONEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 

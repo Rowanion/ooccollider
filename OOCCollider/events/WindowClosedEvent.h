@@ -10,6 +10,7 @@
 #ifndef WINDOWCLOSEDEVENT_H_
 #define WINDOWCLOSEDEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 

@@ -157,7 +157,7 @@ void SimpleGlFrame::display()
 
 //	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertPostProc);
 //	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragPostProc);
-	mPriFbo->drawAsQuad();
+	mPriFbo->drawColorFSQuad();
 //	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
 //	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
 

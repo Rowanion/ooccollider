@@ -9,6 +9,7 @@
 #ifndef MOUSEBUTTONEVENT_H_
 #define MOUSEBUTTONEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 

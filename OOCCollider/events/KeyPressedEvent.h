@@ -9,6 +9,7 @@
 #ifndef KEYPRESSEDEVENT_H_
 #define KEYPRESSEDEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 
