@@ -9,15 +9,7 @@
 #ifndef ABSTRACTGLFRAME_H_
 #define ABSTRACTGLFRAME_H_
 
-#define GET_GLERROR(ret) \
-{ \
-         GLenum err = glGetError(); \
-         if (err != GL_NO_ERROR) { \
-                 fprintf(stderr, "[%s line %d] GL Error: %s\n", \
-                 __FILE__, __LINE__, gluErrorString(err)); \
-                 fflush(stderr); \
-         } \
-}
+#include "declarations.h"
 
 /**
  * @class AbstractGlFrame

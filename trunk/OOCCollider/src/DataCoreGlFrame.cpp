@@ -36,18 +36,6 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
-
-#define GET_GLERROR(ret) \
-{ \
-         GLenum err = glGetError(); \
-         if (err != GL_NO_ERROR) { \
-                 fprintf(stderr, "[%s line %d] GL Error: %s\n", \
-                 __FILE__, __LINE__, gluErrorString(err)); \
-                 fflush(stderr); \
-         } \
-}
-
 DataCoreGlFrame::DataCoreGlFrame() :
 	scale(1.0f), avgFps(0.0f), time(0.0),
 			frame(0), mPriVboMan(0), mPriCgt(0), mPriFbo(0),
@@ -108,10 +96,8 @@ void DataCoreGlFrame::init() {
 
 	glGenQueries(100, mPriOccQueries);
 
-	glGenTextures(1, &mPriTexId);
+	mPriFbo = FboFactory::getSingleton()->createDepthOnlyFbo(mPriWindowWidth,mPriWindowHeight);
 	setupCg();
-
-	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mPriWindowWidth,mPriWindowHeight);
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 
 	mPriFbo->bind();
@@ -121,6 +107,16 @@ void DataCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
+}
+
+void DataCoreGlFrame::setupCg()
+{
+	mPriCgt->initCG(true);
+	cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true, "");
+	cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true, "");
+
+	cgTexture = cgGetNamedParameter(cgFragmentProg, "depthTex");
+	cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
 }
 
 void DataCoreGlFrame::display()
@@ -215,7 +211,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					queryCount++;
 				}
 				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-				setupTexture();
+//				setupTexture();
 				mPriFbo->unbind();
 			glPopMatrix();
 		glPopMatrix();
@@ -305,16 +301,17 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	mPriVisibleDistVec.clear();
 
 	mPriOccResults.clear();
+
 	// draw the result for debugging
-//	mPriFbo->drawAsQuad();
-	drawDepthTex();
+	cgGLEnableTextureParameter(cgTexture);
+	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
+	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
 
-//	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
-//	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
-//	drawAsQuad();
-//	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-//	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+	mPriFbo->drawDepthFSQuad();
 
+	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+	cgGLDisableTextureParameter(cgTexture);
 }
 
 void DataCoreGlFrame::reshape(int width, int height) {
@@ -377,79 +374,6 @@ void DataCoreGlFrame::calcFPS() {
 void DataCoreGlFrame::setMvMatrix(const float* matrix)
 {
 	memcpy(mPriModelViewMatrix, matrix, 16*sizeof(float));
-}
-
-void DataCoreGlFrame::setupTexture()
-{
-	if (mPriDepthBuffer == 0){
-		mPriDepthBuffer = new GLfloat[mPriWindowWidth*mPriWindowHeight];
-	}
-	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
-//	cout << "(data) depth at " << 62981 << ": " << mPriDepthBuffer[62981] << endl;
-
-	GET_GLERROR(0);
-//	glActiveTexture(GL_TEXTURE2);
-	GET_GLERROR(0);
-	glBindTexture(GL_TEXTURE_2D, mPriTexId);
-	GET_GLERROR(0);
-	glEnable(GL_TEXTURE_2D);
-	GET_GLERROR(0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_ALPHA);
-//	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-	GET_GLERROR(0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWindowWidth, mPriWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBuffer);
-	GET_GLERROR(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
-}
-
-void DataCoreGlFrame::drawDepthTex()
-{
-	glBindTexture(GL_TEXTURE_2D, mPriTexId);
-	cgGLEnableTextureParameter(cgTexture);
-
-	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
-	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
-
-//	glActiveTexture(GL_TEXTURE2);
-	GET_GLERROR(0);
-	glEnable(GL_TEXTURE_2D);
-
-	glMatrixMode (GL_MODELVIEW);
-	glPushMatrix ();
-		glLoadIdentity ();
-		glMatrixMode (GL_PROJECTION);
-		glPushMatrix ();
-			glLoadIdentity ();
-			glBegin (GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f); glVertex3i (-1, -1, -1);
-				glTexCoord2f(1.0f, 0.0f); glVertex3i (1, -1, -1);
-				glTexCoord2f(1.0f, 1.0f); glVertex3i (1, 1, -1);
-				glTexCoord2f(0.0f, 1.0f); glVertex3i (-1, 1, -1);
-			glEnd ();
-		glPopMatrix ();
-		glMatrixMode (GL_MODELVIEW);
-	glPopMatrix ();
-	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-	cgGLDisableTextureParameter(cgTexture);
-	glDisable(GL_TEXTURE_2D);
-
-}
-void DataCoreGlFrame::setupCg()
-{
-	mPriCgt->initCG(true);
-	cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true, "");
-	cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true, "");
-
-	cgTexture = cgGetNamedParameter(cgFragmentProg, "depthTex");
-	cgGLSetTextureParameter(cgTexture, mPriTexId);
 }
 
 void DataCoreGlFrame::notify(oocframework::IEvent& event)

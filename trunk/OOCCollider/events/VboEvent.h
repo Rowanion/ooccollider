@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 #include "Message.h"

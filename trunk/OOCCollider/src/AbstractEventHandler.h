@@ -10,6 +10,8 @@
 #ifndef ABSTRACTEVENTHANDLER_H_
 #define ABSTRACTEVENTHANDLER_H_
 
+#include "declarations.h"
+
 // Events can be GLFW key constants, or one of the following. The
 // state argument to the Event function has a straightforward meaning
 // - for keys and mouse buttons it indicates whether the button was

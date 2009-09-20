@@ -11,6 +11,7 @@
 
 #include <GL/gl.h>
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 #include "Message.h"

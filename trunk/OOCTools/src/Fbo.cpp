@@ -190,38 +190,31 @@ Fbo::createAndAddColorTex()
 	unbind();
 }
 
-// did not find a major difference to the renderbuffer
 void
 Fbo::createAndAddDepthTex()
 {
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mPriFBO);
 	glGenTextures(1, &mPriDepthTexture);
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mPriDepthTexture);
-	// neccessary - default will modulate with current set glColor
-	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+	// somehow this little sucker causes the texture still to be valid, eg. it renders
+	// all depth correctly, but it can't be displayed anymore.
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 
-	// reserving space for the depthbuffer
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, mPriWidth, mPriHeight,
-			0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// attaching texture to FBO
-	bind();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWidth, mPriHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mPriDepthTexture, 0);
 	unbind();
 }
 
-void Fbo::drawAsQuad()
+void Fbo::drawColorFSQuad()
 {
 	bool texOn = true;
 	if (!glIsEnabled(GL_TEXTURE_2D)) {
@@ -231,6 +224,37 @@ void Fbo::drawAsQuad()
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mPriColorTexture);
+
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+		glLoadIdentity ();
+		glMatrixMode (GL_PROJECTION);
+		glPushMatrix ();
+			glLoadIdentity ();
+			glBegin (GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f); glVertex3i (-1, -1, -1);
+				glTexCoord2f(1.0f, 0.0f); glVertex3i (1, -1, -1);
+				glTexCoord2f(1.0f, 1.0f); glVertex3i (1, 1, -1);
+				glTexCoord2f(0.0f, 1.0f); glVertex3i (-1, 1, -1);
+			glEnd ();
+		glPopMatrix ();
+		glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
+
+	if (!texOn){
+		glDisable(GL_TEXTURE_2D);
+	}
+}
+
+void Fbo::drawDepthFSQuad(){
+	bool texOn = true;
+	if (!glIsEnabled(GL_TEXTURE_2D)) {
+		glEnable(GL_TEXTURE_2D);
+		texOn = false;
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriDepthTexture);
 
 	glMatrixMode (GL_MODELVIEW);
 	glPushMatrix ();

@@ -79,6 +79,20 @@ FboFactory::createCompleteFbo(int _width, int _height)
 
 	return fbo;
 }
+Fbo*
+FboFactory::createDepthOnlyFbo(int _width, int _height)
+{
+	Fbo *fbo = new Fbo(_width, _height);
+	fbo->createAndAddDepthTex();
+	mPriFboList.insert(make_pair(fbo->getId(), fbo));
+
+	fbo->bind();
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	fbo->unbind();
+	cout << FboFactory::statusToString(status) << endl;
+
+	return fbo;
+}
 
 void
 FboFactory::checkFbo(GLuint id)

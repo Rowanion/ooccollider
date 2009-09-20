@@ -9,11 +9,10 @@
 #ifndef MODELVIEWMATRIXEVENT_H_
 #define MODELVIEWMATRIXEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 #include "Message.h"
-
-#include "declarations.h"
 
 
 /**

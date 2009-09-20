@@ -38,29 +38,6 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-#define DEPTHBUFFER_INTERVAL 15
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
-#ifdef OFFICE
-#define MAX_OFFLINE_VBOS 4000
-#define MAX_LOADS_PER_FRAME 80
-#endif
-#ifdef HOME
-#define MAX_OFFLINE_VBOS 1500
-#define MAX_LOADS_PER_FRAME 40
-#endif
-#ifdef CLUSTER
-#endif
-
-#define GET_GLERROR(ret) \
-{ \
-         GLenum err = glGetError(); \
-         if (err != GL_NO_ERROR) { \
-                 fprintf(stderr, "[%s line %d] GL Error: %s\n", \
-                 __FILE__, __LINE__, gluErrorString(err)); \
-                 fflush(stderr); \
-         } \
-}
-
 RenderCoreGlFrame::RenderCoreGlFrame() :
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriCamHasMoved(false),
@@ -409,7 +386,7 @@ void RenderCoreGlFrame::display()
 	// restore normal frustum before drawing
 	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)
 	reshape(mPriWindowWidth,mPriWindowHeight);
-	mPriFbo->drawAsQuad();
+	mPriFbo->drawColorFSQuad();
 //	drawDepthTex();
 
 	double diff = t-time;

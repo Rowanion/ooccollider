@@ -31,8 +31,9 @@ public:
 	virtual ~FboFactory();
 	static FboFactory* getSingleton();
 	static std::string statusToString(GLenum status);
-	Fbo *createFbo(int _width, int _height);
-	Fbo *createCompleteFbo(int _width, int _height);
+	Fbo* createFbo(int _width, int _height);
+	Fbo* createCompleteFbo(int _width, int _height);
+	Fbo* createDepthOnlyFbo(int _width, int _height);
 	void cleanup();
 	const int getMaxTexSize(){return (const int) mPriMaxTexSize;}; // maximum supported texture size
 	const int getMaxColorAttach(){return (const int) mPriMaxColorAttach;}; //maximum number of color buffers

@@ -9,6 +9,7 @@
 #ifndef INFOREQUESTEVENT_H_
 #define INFOREQUESTEVENT_H_
 
+#include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 
