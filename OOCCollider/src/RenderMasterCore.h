@@ -37,6 +37,9 @@ private:
 	OOCWindow* mWindow;
 	bool mRunning;
 	bool mTerminateApplication;
+	bool mPriCamHasMoved;
+	unsigned mPriFrameCount;
+	unsigned mPriRenderTimeCount;
 	std::queue<char*> mInQueue;
 	std::queue<char*> mOutQueue;
 	GLFWthread mSendThread;

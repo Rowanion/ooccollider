@@ -198,10 +198,26 @@ void MpiControl::send(Message* msg)
 //	cout << mRank << " is sending to " << msg->getDst() << "..." << endl;
 	MPI::Status stat;
 	if (msg != 0){
+		switch (msg->getGroup()){
+		case RENDERER:{
+			for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
+				MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, mPriRenderNodes[i], msg->getType());
+			}
+			delete msg;
+			break;}
+		case DATA:{
+			for(unsigned i=0; i< mPriDataNodes.size(); ++i){
+				MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, mPriDataNodes[i], msg->getType());
+			}
+			delete msg;
+			break;}
+		default:
+			MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, msg->getDst(), msg->getType());
+			delete msg;
+			break;
+		}
 //		cout << "sending immediate msg...." << endl;
 //		cout << mRank << " to " << msg->getDst() << "" << endl;
-		MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, msg->getDst(), msg->getType());
-		delete msg;
 //		cout << "deleted msg!" << endl;
 	}
 	else if (!mOutQueue.empty()){

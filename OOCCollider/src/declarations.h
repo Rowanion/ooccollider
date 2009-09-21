@@ -50,8 +50,11 @@ class RenderMasterCore;
 class SimpleGlFrame;
 
 //events
+class AccumulatedRendertimeEvent;
+class ChangeTileDimensionsEvent;
 class ColorBufferEvent;
 class DepthBufferEvent;
+class DepthBufferRequestEvent;
 class EndTransmissionEvent;
 class InfoRequestEvent;
 class KeyPressedEvent;
