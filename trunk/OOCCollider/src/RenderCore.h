@@ -20,6 +20,7 @@
 #include "OctreeHandler.h"
 #include "LooseOctree.h"
 
+
 class RenderCore {
 public:
 	RenderCore(unsigned _width=640, unsigned _height=480);
@@ -31,6 +32,7 @@ private:
 	bool mPriGotMatrix;
 	std::queue<char*> mInQueue;
 	std::queue<char*> mOutQueue;
+	RenderCoreGlFrame* mPriGlFrame;
 
 	static RenderCore* instance;
 

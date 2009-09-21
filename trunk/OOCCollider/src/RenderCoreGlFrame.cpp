@@ -49,7 +49,7 @@ RenderCoreGlFrame::RenderCoreGlFrame() :
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
-					100.0f), mPriNearClippingPlane(0.1f) {
+					100.0f), mPriNearClippingPlane(0.1f), mPriRenderTimeSum(0.0) {
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -357,20 +357,23 @@ void RenderCoreGlFrame::display()
 				FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 //				ColorBufferEvent cbe = ColorBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight,t-f, mPriPixelBuffer);
 				ColorBufferEvent cbe = ColorBufferEvent(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight,t-f, mPriPixelBuffer);
+				mPriRenderTimeSum += t-f;
 
 				// dumping the depth-buffer every 100 frames....
 //				cout << "frame: " << frame << ", camMoved? " << mPriCamHasMoved<< endl;
-				if (frame == (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved){
-					GET_GLERROR(0);
-					mPriCamHasMoved = false;
-					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-					DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
-					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
-					Message* msg = new Message(dbe, 0, MpiControl::DATA);
-					MpiControl::getSingleton()->push(msg);
-					mPriRequestedVboList.clear();
-//					setupTexture();
-				}
+//				if (frame == (DEPTHBUFFER_INTERVAL - 1)){ // send time
+//				}
+//				if (frame == (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved){
+//					GET_GLERROR(0);
+//					mPriCamHasMoved = false;
+//					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
+//					DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
+//					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
+//					Message* msg = new Message(dbe, 0, MpiControl::DATA);
+//					MpiControl::getSingleton()->push(msg);
+//					mPriRequestedVboList.clear();
+////					setupTexture();
+//				}
 
 			//
 				Message* msg = new Message(cbe, 0);
@@ -993,6 +996,38 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 //	cout << "x, y: " << mPriTileXPos << ", " << mPriTileYPos << endl;
 //	cout << "width, height: " << mPriTileWidth << ", " << mPriTileHeight << endl;
 
+}
+
+void RenderCoreGlFrame::depthPass()
+{
+	GLint polyMode;
+	glGetIntegerv(GL_POLYGON_MODE, &polyMode);
+	glPolygonMode(GL_FRONT, GL_FILL);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+	glLoadIdentity();
+	GET_GLERROR(0);
+	glMultMatrixf(mPriModelViewMatrix);
+	GET_GLERROR(0);
+		glPushMatrix();
+		GET_GLERROR(0);
+		mPriFbo->bind();
+		mPriFbo->clear();
+		GET_GLERROR(0);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
+			it->second->managedDraw(true);
+		}
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		GET_GLERROR(0);
+		FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
+		DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
+		MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
+		Message* msg = new Message(dbe, 0, MpiControl::DATA);
+		MpiControl::getSingleton()->push(msg);
+		mPriRequestedVboList.clear();
+		mPriFbo->unbind();
+		glPopMatrix();
+		glPolygonMode(polyMode, GL_FILL);
 }
 
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)

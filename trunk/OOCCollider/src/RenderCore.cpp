@@ -29,6 +29,9 @@
 #include "DepthBufferEvent.h"
 #include "VboEvent.h"
 #include "InfoRequestEvent.h"
+#include "DepthBufferRequestEvent.h"
+#include "ChangeTileDimensionsEvent.h"
+#include "AccumulatedRendertimeEvent.h"
 
 
 using namespace std;
@@ -44,29 +47,29 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 	title << "RenderNode (" << MpiControl::getSingleton()->getRank() << ")";
 	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
-	RenderCoreGlFrame* glFrame = new RenderCoreGlFrame();
-	mWindow->attachGlFrame(glFrame);
-	glFrame->init();
+	mPriGlFrame = new RenderCoreGlFrame();
+	mWindow->attachGlFrame(mPriGlFrame);
+	mPriGlFrame->init();
 
 	// Main rendering loop
 	unsigned frames = 0;
 	do {
 		mPriGotMatrix = false;
-		while(!mPriGotMatrix && mRunning){
+		while(!mPriGotMatrix && mRunning){ // receive everything from 0 and finally the matrix
 			MpiControl::getSingleton()->receive(0);
 			handleMsg(MpiControl::getSingleton()->pop());
 //			cout << "matrix arrived at renderer" << endl;
 		}
 		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
-		while(!MpiControl::getSingleton()->inQueueEmpty()){
+		while(!MpiControl::getSingleton()->inQueueEmpty()){ // ireceive everything from data-nodes
 			handleMsg(MpiControl::getSingleton()->pop());
 		}
 //		cout << "waiting for matrix from 0..." << endl;
 //		receiveMethod(0);
 		if (mRunning){
-			glFrame->display();
+			mPriGlFrame->display();
 //			cout << "sending the outqueue of renderer" << endl;
-			while(!MpiControl::getSingleton()->outQueueEmpty()){
+			while(!MpiControl::getSingleton()->outQueueEmpty()){ // send everything
 //				cout << "renderer found that his outqueue is not empty.....sending...." << endl;
 				MpiControl::getSingleton()->send();
 			}
@@ -80,7 +83,7 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 		if (frames >= 100){
 			frames = 0;
 			stringstream ss;
-			ss << "RenderNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << glFrame->getFrames();
+			ss << "RenderNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
 	} while (mRunning);
@@ -160,6 +163,18 @@ void RenderCore::handleMsg(Message* msg)
 		else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
 			InfoRequestEvent ire = InfoRequestEvent();
 			oocframework::EventManager::getSingleton()->fire(ire);
+		}
+		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
+			AccumulatedRendertimeEvent arte = AccumulatedRendertimeEvent(mPriGlFrame->getRenderTime());
+			MpiControl::getSingleton()->send(new Message(arte, 0));
+			mPriGlFrame->resetRenderTime();
+			MpiControl::getSingleton()->receive(0); // wait for new tiling-instructions
+			handleMsg(MpiControl::getSingleton()->pop());
+		}
+		else if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
+			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
+			mPriGlFrame->setTileDimensions(ctde.getTileXPos(),ctde.getTileYPos(), ctde.getTileWidth(),ctde.getTileHeight());
+			mPriGlFrame->depthPass();
 		}
 		delete msg;
 	}

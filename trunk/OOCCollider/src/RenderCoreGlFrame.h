@@ -55,6 +55,9 @@ public:
 	void notify(oocframework::IEvent& event);
 	void getFrustum();
 	void setTileDimensions(int xPos, int yPos, int width, int height);
+	inline double getRenderTime()const {return mPriRenderTimeSum;};
+	inline void resetRenderTime() {mPriRenderTimeSum = 0.0;};
+	void depthPass();
 
 protected:
 	void normalizeFrustum();
@@ -146,6 +149,7 @@ private:
 	ooctools::BoundingBox mPriSceneBB;
 	ooctools::V3f mPriSceneCenter;
 
+	double mPriRenderTimeSum;
 
 	CGprogram g_cgVertexProg;
 	CGparameter g_cgGlobalAmbient;
