@@ -36,7 +36,7 @@
  */
 class RenderCoreGlFrame : public AbstractGlFrame, oocframework::AbstractEventListener {
 public:
-	RenderCoreGlFrame();
+	RenderCoreGlFrame(int width, int height);
 	virtual ~RenderCoreGlFrame();
 	virtual void init();
 	virtual void setupCg();

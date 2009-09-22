@@ -38,11 +38,11 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-RenderCoreGlFrame::RenderCoreGlFrame() :
+RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriCamHasMoved(false),
 			mPriBBMode(0), mPriAspectRatio(0.0f), mPriFbo(0),
-			mPriWindowWidth(0), mPriWindowHeight(0), mPriTileYPos(0),
+			mPriWindowWidth(width), mPriWindowHeight(height), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
@@ -488,6 +488,32 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 			mPriTileXPos = mPriWindowWidth/2;
 			mPriTileWidth = mPriWindowWidth/2;
 			mPriTileHeight = mPriWindowHeight;
+		}
+	}
+	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 4){
+		if (MpiControl::getSingleton()->getRank() == 1){
+			mPriTileYPos = mPriWindowHeight/2;
+			mPriTileXPos = 0;
+			mPriTileWidth = mPriWindowWidth/2;
+			mPriTileHeight = mPriWindowHeight/2;
+		}
+		else if (MpiControl::getSingleton()->getRank() == 2){
+			mPriTileYPos = mPriWindowHeight/2;
+			mPriTileXPos = mPriWindowWidth/2;
+			mPriTileWidth = mPriWindowWidth/2;
+			mPriTileHeight = mPriWindowHeight/2;
+		}
+		else if (MpiControl::getSingleton()->getRank() == 3){
+			mPriTileYPos = 0;
+			mPriTileXPos = 0;
+			mPriTileWidth = mPriWindowWidth/2;
+			mPriTileHeight = mPriWindowHeight/2;
+		}
+		else if (MpiControl::getSingleton()->getRank() == 4){
+			mPriTileYPos = 0;
+			mPriTileXPos = mPriWindowWidth/2;
+			mPriTileWidth = mPriWindowWidth/2;
+			mPriTileHeight = mPriWindowHeight/2;
 		}
 	}
 
@@ -1027,7 +1053,9 @@ void RenderCoreGlFrame::depthPass()
 		mPriRequestedVboList.clear();
 		mPriFbo->unbind();
 		glPopMatrix();
-		glPolygonMode(polyMode, GL_FILL);
+		glPolygonMode(GL_FRONT, polyMode);
+		GET_GLERROR(0);
+
 }
 
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)

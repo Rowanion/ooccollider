@@ -47,9 +47,10 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 	title << "RenderNode (" << MpiControl::getSingleton()->getRank() << ")";
 	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
-	mPriGlFrame = new RenderCoreGlFrame();
+	mPriGlFrame = new RenderCoreGlFrame(_width, _height);
 	mWindow->attachGlFrame(mPriGlFrame);
 	mPriGlFrame->init();
+	mPriGlFrame->reshape(_width, _height);
 
 	// Main rendering loop
 	unsigned frames = 0;
@@ -173,7 +174,7 @@ void RenderCore::handleMsg(Message* msg)
 		}
 		else if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
 			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
-			mPriGlFrame->setTileDimensions(ctde.getTileXPos(),ctde.getTileYPos(), ctde.getTileWidth(),ctde.getTileHeight());
+//			mPriGlFrame->setTileDimensions(ctde.getTileXPos(),ctde.getTileYPos(), ctde.getTileWidth(),ctde.getTileHeight());
 			mPriGlFrame->depthPass();
 		}
 		delete msg;
