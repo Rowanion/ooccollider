@@ -154,6 +154,8 @@ void RenderCoreGlFrame::init() {
 
 	mPriSceneBB = mPriLo->getBb();
 	mPriSceneBB.computeCenter(mPriSceneCenter);
+	cout << "(" << MpiControl::getSingleton()->getRank() << ") render window resolution: " << mPriWindowWidth << ", " << mPriWindowHeight << endl;
+	cout << "(" << MpiControl::getSingleton()->getRank() << ") tile: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
 }
 
 void RenderCoreGlFrame::setupCg()

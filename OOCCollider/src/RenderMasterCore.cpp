@@ -49,7 +49,7 @@ RenderMasterCore* RenderMasterCore::instance = 0;
 RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mWindow(0), mRunning(true), mTerminateApplication(false),
 			mPriCamHasMoved(false), mPriFrameCount(0), mPriRenderTimeCount(0), mPriOh(OctreeHandler()),
-			mPriLo(0), mPriWindowWidth(_width), mPriWindowHeight(_height) {
+			mPriLo(0), mPriSTree(0), mPriRenderTimes(vector<double>(MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)), mPriMpiCon(0), mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
@@ -69,27 +69,24 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 	glFrame->init();
 
-	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2) {
-		Tile t;
-		t.height = mPriWindowHeight;
-		t.width = mPriWindowWidth / 2;
-		t.xPos = 0;
-		t.yPos = 0;
-		t.renderTime = 0.0;
-		mPriTileMap.insert(make_pair(
-				MpiControl::getSingleton()->getRenderGroup()[0], t));
-		t.height = mPriWindowHeight;
-		t.width = mPriWindowWidth / 2;
-		t.xPos = mPriWindowWidth / 2;
-		t.yPos = 0;
-		t.renderTime = 0.0;
-		mPriTileMap.insert(make_pair(
-				MpiControl::getSingleton()->getRenderGroup()[1], t));
+	mPriMpiCon = MpiControl::getSingleton();
+	// --------------------------------------------------
+	int id = 0;
+	map<int, Tile> newCoords = map<int, Tile>();
+	mPriRootTile.xPos = mPriRootTile.yPos = 0;
+	mPriRootTile.width = _width;
+	mPriRootTile.height = _height;
+//	mPriSTree = new Splittree(mPriMpiCon->getGroupSize(MpiControl::RENDERER),Splittree::VERTICAL,0,0,_width,_height,id);
+	mPriSTree->split(mPriRenderTimes, mPriRootTile,newCoords);
+	newCoords.clear();
+//	cout << "-----------------------1: " << newCoords[1].xPos << ", " << newCoords[1].yPos << ", " << newCoords[1].width << ", " << newCoords[1].height << endl;
+//	cout << "-----------------------2: " << newCoords[2].xPos << ", " << newCoords[2].yPos << ", " << newCoords[2].width << ", " << newCoords[2].height << endl;
+//	cout << "-----------------------3: " << newCoords[3].xPos << ", " << newCoords[3].yPos << ", " << newCoords[3].width << ", " << newCoords[3].height << endl;
+//	cout << "-----------------------4: " << newCoords[4].xPos << ", " << newCoords[4].yPos << ", " << newCoords[4].width << ", " << newCoords[4].height << endl;
+//	exit(0);
+	// ---------------------------------------------------
 
-	} else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)
-			== 4) {
-		//TODO implement
-	}
+
 
 	//	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path("/media/ClemensHDD/Octree/skeleton.bin"));
 	//	glFrame->setVbo(new IndexedVbo(fs::path("/media/ClemensHDD/B3_SampleTree/data/0/1.idx")));
@@ -98,9 +95,9 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	// Main rendering loop
 	unsigned frames = 0;
 	do {
-		while (!MpiControl::getSingleton()->outQueueEmpty()) {
+		while (!mPriMpiCon->outQueueEmpty()) {
 			//			cout << "master found that his outqueue is not empty.....sending...." << endl;
-			MpiControl::getSingleton()->send();
+			mPriMpiCon->send();
 		}
 
 		if (!mTerminateApplication) {
@@ -108,18 +105,18 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 				mPriCamHasMoved = false;
 				mPriFrameCount = 0;
 				DepthBufferRequestEvent dbre = DepthBufferRequestEvent();
-				MpiControl::getSingleton()->send(new Message(dbre, 0, MpiControl::RENDERER));
+				mPriMpiCon->send(new Message(dbre, 0, MpiControl::RENDERER));
 				// go into listenmode to receive the rendering-times
-				MpiControl::getSingleton()->receive(MpiControl::RENDERER);
-				while (!MpiControl::getSingleton()->inQueueEmpty()) {
-					handleMsg(MpiControl::getSingleton()->pop());
+				mPriMpiCon->receive(MpiControl::RENDERER);
+				while (!mPriMpiCon->inQueueEmpty()) {
+					handleMsg(mPriMpiCon->pop());
 				}
 			}
 
 			//send matrix/camera to when the out-queue is empty
 			//			cout << "---master sending matrix" << endl;
-			//			for (int i=1; i<MpiControl::getSingleton()->getSize(); ++i){
-			for (unsigned i = 0; i < MpiControl::getSingleton()->getGroupSize(
+			//			for (int i=1; i<mPriMpiCon->getSize(); ++i){
+			for (unsigned i = 0; i < mPriMpiCon->getGroupSize(
 					MpiControl::DATA); ++i) { // send the matrix to all data-nodes
 				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),MpiControl::getSingleton()->getDataGroup()[i],(char*)glFrame->getMvMatrix());
 				MpiControl::getSingleton()->send(msg);
@@ -183,6 +180,8 @@ RenderMasterCore::~RenderMasterCore() {
 	mRunning = false;
 	delete mWindow;
 	mWindow = 0;
+	delete mPriSTree;
+	mPriSTree = 0;
 }
 
 void RenderMasterCore::Event(int event, bool state) {
@@ -250,11 +249,14 @@ void RenderMasterCore::handleMsg(Message* msg) {
 			//			mRunning = false;
 		}
 		else if (msg->getType() == AccumulatedRendertimeEvent::classid()->getShortId()) {
-			mPriTileMap[msg->getSrc()].renderTime = ((double*)msg->getData())[0];
+			mPriRenderTimes[msg->getSrc()-1] = ((double*)msg->getData())[0];
+//			mPriTileMap[msg->getSrc()].renderTime = ((double*)msg->getData())[0];
 			mPriRenderTimeCount++;
 			if (mPriRenderTimeCount>= MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)){
 				mPriRenderTimeCount = 0;
-				adjustTileDimensions();
+				mPriTileMap.clear();
+				mPriSTree->split(mPriRenderTimes, mPriRootTile, mPriTileMap);
+//				adjustTileDimensions();
 				ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent();
 				map<int, Tile>::iterator it = mPriTileMap.begin();
 				for(; it != mPriTileMap.end(); ++it){

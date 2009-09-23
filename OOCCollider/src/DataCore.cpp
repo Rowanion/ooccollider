@@ -142,6 +142,8 @@ void DataCore::receiveMethod(int source)
 
 				DepthBufferEvent dbe = DepthBufferEvent(msg);
 				oocframework::EventManager::getSingleton()->fire(dbe);
+				mPriDepthBufferCount++;
+//				MpiControl::getSingleton()->
 //				MpiControl::getSingleton()->clearOutQueue(MpiControl::RENDERER);
 //				MpiControl::getSingleton()->clearInQueue(MpiControl::RENDERER);
 			}

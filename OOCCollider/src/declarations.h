@@ -22,7 +22,7 @@
 }
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
-#define DEPTHBUFFER_INTERVAL 50
+#define DEPTHBUFFER_INTERVAL 15
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
 
 #ifdef OFFICE
@@ -48,6 +48,7 @@ class RenderCore;
 class RenderCoreGlFrame;
 class RenderMasterCore;
 class SimpleGlFrame;
+class Splittree;
 
 //events
 class AccumulatedRendertimeEvent;

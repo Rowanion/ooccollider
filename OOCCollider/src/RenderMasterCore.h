@@ -24,6 +24,7 @@
 #include "AbstractEventListener.h"
 #include "MouseDraggedEvent.h"
 #include "Fbo.h"
+#include "Splittree.h"
 
 
 class RenderMasterCore: oocframework::AbstractEventListener {
@@ -46,6 +47,10 @@ private:
 	GLFWthread mReceiveThread;
 	oocformats::OctreeHandler mPriOh;
 	oocformats::LooseOctree* mPriLo;
+	Splittree* mPriSTree;
+	vector<double> mPriRenderTimes;
+	MpiControl* mPriMpiCon;
+	Tile mPriRootTile;
 
 	oocframework::EventManager* mPriEventMan;
 
