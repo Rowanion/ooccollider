@@ -9,7 +9,11 @@
 #include "Splittree.h"
 #include <iostream>
 
-Splittree::Splittree(unsigned int _numofchildren, SplitAxis _splitLine, unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height, int &_id, map <int, Tile > &_initSize)
+double oldRatioScreen = 0.5, ratioScreen = 0.5;
+double oldRatioTime = 0.5, ratioTime = 0.5;
+unsigned int lowerTile = 0;
+
+Splittree::Splittree(unsigned int _numofchildren, SplitAxis _splitLine, unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height, int &_id)
 {
 	oldx = x = _x;
 	oldy = y = _y;
@@ -27,11 +31,10 @@ Splittree::Splittree(unsigned int _numofchildren, SplitAxis _splitLine, unsigned
 	{
 		children = new Splittree*[2];
 
-		init(_id, _initSize);
+		init(_id);
 	}
 	else
 	{
-//		_id++;
 		myID = ++_id;
 	}
 }
@@ -40,7 +43,7 @@ Splittree::~Splittree()
 {
 }
 
-void Splittree::init(int &_id, map <int, Tile > &_initSize)
+void Splittree::init(int &_id)
 {
 	costPicBeforeFirst = numFirstChildren  = numofchildren / 2;
 	costPicBeforeSecond = numSecondChildren = numofchildren / 2;
@@ -51,8 +54,8 @@ void Splittree::init(int &_id, map <int, Tile > &_initSize)
 		firstHeight  = height/2;
 		secondHeight = height/2;
 
-		children[0] = new Splittree(numFirstChildren,  VERTICAL, x, y,               firstWidth,  firstHeight, _id, _initSize);
-		children[1] = new Splittree(numSecondChildren, VERTICAL, x, y + firstHeight, secondWidth, secondHeight, _id, _initSize);
+		children[0] = new Splittree(numFirstChildren,  VERTICAL, x, y,               firstWidth,  firstHeight, _id);
+		children[1] = new Splittree(numSecondChildren, VERTICAL, x, y + firstHeight, secondWidth, secondHeight, _id);
 	}
 	else
 	{
@@ -60,8 +63,8 @@ void Splittree::init(int &_id, map <int, Tile > &_initSize)
 		secondWidth  = width/2;
 		firstHeight  = height;
 		secondHeight = height;
-		children[0] = new Splittree(numFirstChildren,  HORIZONTAL, x,              y, firstWidth,  firstHeight, _id, _initSize);
-		children[1] = new Splittree(numSecondChildren, HORIZONTAL, x + firstWidth, y, secondWidth, secondHeight, _id, _initSize);
+		children[0] = new Splittree(numFirstChildren,  HORIZONTAL, x,              y, firstWidth,  firstHeight, _id);
+		children[1] = new Splittree(numSecondChildren, HORIZONTAL, x + firstWidth, y, secondWidth, secondHeight, _id);
 	}
 }
 
@@ -127,12 +130,19 @@ void Splittree::splitHor()
 	height = toSplit.height;
 	if(!firstRound)
 	{
-		innerSplitY = (int)(((totalTime-firstChildTime)/totalTime)*(double)height);
+		//ratioScreen = ((double)innerSplitY)/((double)lowerTile);
+		//ratioTime = ((double)secondChildTime)/((double)firstChildTime);
+		//ratio = ratioScreen * ratioTime;
+
+		//innerSplitY = (int)(((double)(totalTime-firstChildTime)/(double)totalTime)*(double)height);
+        ratioTime -= ((firstChildTime)-(secondChildTime))/((totalTime*2.0));
+		innerSplitY = (int)(ratioTime*(double)height);
+		//lowerTile = height - innerSplitY;
 		innerSplitY -= innerSplitY%4;
 	}
 	else
 	{
-		innerSplitY = height / 2;
+		lowerTile = innerSplitY = height / 2;
 		firstRound = false;
 	}
 	if(innerSplitY < (int)numofchildren)
@@ -168,7 +178,11 @@ void Splittree::splitVert()
 	height = toSplit.height;
 	if(!firstRound)
 	{
-		innerSplitX = (int)(((double)(totalTime-firstChildTime)/(double)totalTime)*(double)width);
+		//ratioScreen = ((double)innerSplitX)/((double)lowerTile);
+		ratioTime -= ((firstChildTime)-(secondChildTime))/((totalTime*2.0));
+		innerSplitX = (int)(ratioTime*(double)height);
+		//innerSplitX = (int)(((double)(totalTime-firstChildTime)/(double)totalTime)*(double)width);
+		//lowerTile = width - innerSplitX;
 		innerSplitX -= innerSplitX%4;
 	}
 	else

@@ -1,0 +1,24 @@
+
+
+void main(  float2 TexCoord: TEXCOORD0,
+			float4 color : COLOR,
+
+			uniform sampler2D RT,
+			uniform float edgeThreshold, //Kantenschwellwert
+			
+			out float4 outCol: COLOR)
+{
+
+	float off = 1.0/512.0; //Abstand zu benachbartem Texel
+
+	float4 centerTexel = tex2D(RT, TexCoord);
+	float4 lowLeftTexel = tex2D(RT, TexCoord + float2(-off,off));
+	float4 lowRightTexel = tex2D(RT, TexCoord + float2(off,off));
+	float4 edgeWeight = abs( lowLeftTexel - centerTexel )
+	+ abs( lowRightTexel - centerTexel );
+	float e = edgeWeight.x + edgeWeight.y + edgeWeight.z + edgeWeight.w;
+	float4 edgeColor = 1.0f;
+	if(e>edgeThreshold) edgeColor = 0.0f;
+	outCol = edgeColor;
+//	outCol = tex2D(RT, TexCoord);
+}
