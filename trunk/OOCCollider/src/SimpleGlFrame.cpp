@@ -641,7 +641,7 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		if (!bound){
 			mPriFbo->bind();
 		}
-		cout << cbe.getNodeRank() << ": colorbuffer: " << cbe.getX() << ", " << cbe.getY() << ", " << cbe.getWidth() << ", " << cbe.getHeight()<< endl;
+//		cout << cbe.getNodeRank() << ": colorbuffer: " << cbe.getX() << ", " << cbe.getY() << ", " << cbe.getWidth() << ", " << cbe.getHeight()<< endl;
 		ooctools::FboFactory::getSingleton()->drawColorToFb(cbe.getPixel(), cbe.getX(), cbe.getY(), cbe.getWidth(),cbe.getHeight());
 //		memcpy(mPriColorBuffer, cbe.getPixel(), cbe.getHeight()*cbe.getWidth()*sizeof(GLubyte)*4);
 		if (!bound){
