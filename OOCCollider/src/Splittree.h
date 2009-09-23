@@ -31,7 +31,7 @@ public:
 		HORIZONTAL = 1, // got a horizontal split line
 		VERTICAL = 2 // got a vertical split line
 	};
-	Splittree(unsigned int _numofchildren, SplitAxis _splitLine, unsigned int _x, unsigned int _y, unsigned int _width, unsigned int _height, int &id, map <int, Tile > &_initSize);
+	Splittree(unsigned _numofchildren, SplitAxis _splitLine, unsigned _x, unsigned _y, unsigned _width, unsigned _height, int &id);
 	virtual ~Splittree();
 
 	/**
@@ -43,11 +43,11 @@ public:
 	void split(vector <double> _renderTimes, Tile toSplit, map<int, Tile > &_xywh);
 
 private:
-	void init(int &_id, map <int, Tile > &_initSize);
+	void init(int &_id);
 	void splitHor();
 	void splitVert();
 
-	unsigned int numofchildren;
+	unsigned numofchildren;
 	int x, y, width, height;
 	int oldx, oldy, oldwidth, oldheight;
 	int numFirstChildren, numSecondChildren;

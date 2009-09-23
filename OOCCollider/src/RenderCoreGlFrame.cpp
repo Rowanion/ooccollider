@@ -1017,6 +1017,7 @@ void RenderCoreGlFrame::drawDepthTex()
 void
 RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 {
+	cout << MpiControl::getSingleton()->getRank() << " ---> changing tiledimensions: " << xPos << ", " << yPos << ", " << width << ", " << height << endl;
 	mPriTileXPos = xPos;
 	mPriTileYPos = yPos;
 	mPriTileWidth = width;
@@ -1065,7 +1066,7 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
 		ModelViewMatrixEvent& mve = (ModelViewMatrixEvent&)event;
 //		glLoadMatrixf(mve.getMatrix());
-		setTileDimensions(mve.getTileXPos(), mve.getTileYPos(),mve.getTileWidth(), mve.getTileHeight());
+//		setTileDimensions(mve.getTileXPos(), mve.getTileYPos(),mve.getTileWidth(), mve.getTileHeight());
 
 		for (unsigned i=0; i<16; ++i){
 			if (mve.getMatrix()[i] != mPriModelViewMatrix[i]){
@@ -1199,6 +1200,8 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 
 		cout << headerS.str() << "nearPlane: " << mPriNearClippingPlane << endl;
 		cout << headerS.str() << "farPlane: " << mPriFarClippingPlane << endl;
+
+		cout << headerS.str() << "Tile-Dimensions: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
 		cout << "---------------------------------------" << endl;
 	}
 

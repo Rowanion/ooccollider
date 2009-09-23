@@ -72,13 +72,11 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mPriMpiCon = MpiControl::getSingleton();
 	// --------------------------------------------------
 	int id = 0;
-	map<int, Tile> newCoords = map<int, Tile>();
 	mPriRootTile.xPos = mPriRootTile.yPos = 0;
 	mPriRootTile.width = _width;
 	mPriRootTile.height = _height;
-//	mPriSTree = new Splittree(mPriMpiCon->getGroupSize(MpiControl::RENDERER),Splittree::VERTICAL,0,0,_width,_height,id);
-	mPriSTree->split(mPriRenderTimes, mPriRootTile,newCoords);
-	newCoords.clear();
+	mPriSTree = new Splittree(mPriMpiCon->getGroupSize(MpiControl::RENDERER),Splittree::VERTICAL,0,0,_width,_height,id);
+	mPriSTree->split(mPriRenderTimes, mPriRootTile,mPriTileMap);
 //	cout << "-----------------------1: " << newCoords[1].xPos << ", " << newCoords[1].yPos << ", " << newCoords[1].width << ", " << newCoords[1].height << endl;
 //	cout << "-----------------------2: " << newCoords[2].xPos << ", " << newCoords[2].yPos << ", " << newCoords[2].width << ", " << newCoords[2].height << endl;
 //	cout << "-----------------------3: " << newCoords[3].xPos << ", " << newCoords[3].yPos << ", " << newCoords[3].width << ", " << newCoords[3].height << endl;
