@@ -137,8 +137,13 @@ FboFactory::drawColorToFb(const GLubyte *pixels, int wPos, int hPos, int width, 
 void
 FboFactory::drawDepthToFb(const GLfloat* depth, int wPos, int hPos, int width, int height)
 {
-	glWindowPos2i(wPos, hPos);
-	glDrawPixels(width, height,GL_DEPTH_COMPONENT, GL_FLOAT, depth);
+	// Attention: a glDisable(GL_DEPTH_TEST) causes the depthbuffer not to be written!!!!
+	// Everything but glDepthFunc(GL_ALWAYS); will fail the operation.
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	glDepthFunc(GL_ALWAYS);
+		glWindowPos2i(wPos, hPos);
+		glDrawPixels(width, height,GL_DEPTH_COMPONENT, GL_FLOAT, depth);
+	glPopAttrib();
 }
 
 void

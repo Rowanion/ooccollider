@@ -418,13 +418,7 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 //		glClear(GL_DEPTH_BUFFER_BIT);
 //		glClear(GL_COLOR_BUFFER_BIT);
 //		mPriFbo->clearDepth();
-//		glPushAttrib(GL_ALL_ATTRIB_BITS);
-//			glDisable(GL_DEPTH_TEST);
-		glDepthFunc(GL_ALWAYS);
-			FboFactory::getSingleton()->drawDepthToFb(dbe.getDepth(), dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
-		glDepthFunc(GL_LEQUAL);
-//			glEnable(GL_DEPTH_TEST);
-//		glPopAttrib();
+		FboFactory::getSingleton()->drawDepthToFb(dbe.getDepth(), dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
 //		setupTexture();
 
 		if (!fboOn){
