@@ -119,6 +119,26 @@ void MpiControl::receive(Group _group)
 	}
 }
 
+void MpiControl::receive(oocframework::ClassId* classid)
+{
+	//	cout << mRank << " is receiving from " << src << "..." << endl;
+		MPI::Status stat;
+		while (!MPI::COMM_WORLD.Iprobe(MPI_ANY_SOURCE, classid->getShortId(), stat))
+		{	}
+		int count = stat.Get_count(MPI_CHAR);
+		int type = stat.Get_tag();
+		int realSrc = stat.Get_source();
+		Message* msg = new Message();
+		msg->setType(type);
+		msg->setLength(count);
+		msg->setSrc(realSrc);
+		msg->mData = new char[count];
+		MPI::COMM_WORLD.Recv(msg->mData, count, MPI_CHAR, realSrc, type, stat);
+	//	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
+		mInQueue.push(msg);
+
+}
+
 Message* MpiControl::directReceive(int src)
 {
 //	cout << mRank << " is receiving from " << src << "..." << endl;
@@ -141,6 +161,7 @@ bool MpiControl::ireceive(int src)
 {
 	MPI::Status stat;
 	MPI::Request req;
+	req.Wait(stat);
 	unsigned queueSize = mPriInRequests.size();
 	Message* msg = 0;
 	for (unsigned i=0; i<queueSize; ++i){
@@ -190,6 +211,24 @@ void MpiControl::ireceive(Group _group)
 		break;}
 	default:
 		break;
+	}
+}
+
+void MpiControl::completeWaitingReceives(const oocframework::ClassId* classid)
+{
+	MPI::Status stat;
+	unsigned queueSize = mPriInRequests.size();
+	Message* msg = 0;
+	for (unsigned i=0; i<queueSize; ++i){
+		msg = mPriInRequests.front();
+		mPriInRequests.pop();
+		msg->request.Get_status(stat);
+		if (stat.Get_tag() == classid->getShortId()){
+			msg->request.Wait();
+		}
+		else{
+			mPriInRequests.push(msg);
+		}
 	}
 }
 

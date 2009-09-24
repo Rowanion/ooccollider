@@ -174,6 +174,7 @@ void RenderCore::handleMsg(Message* msg)
 		}
 		else if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
 			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
+
 			mPriGlFrame->setTileDimensions(ctde.getTileXPos(),ctde.getTileYPos(), ctde.getTileWidth(),ctde.getTileHeight());
 			mPriGlFrame->depthPass();
 		}

@@ -14,6 +14,7 @@
 #include <queue>
 
 #include "declarations.h"
+#include "ClassId.h"
 
 #define MSG_KILL 1
 #define MSG_WINDOW_RESIZE 2
@@ -40,9 +41,11 @@ public:
 	static MpiControl* getSingleton();
 	void receive(int src);
 	void receive(Group _group);
+	void receive(oocframework::ClassId* classid);
 	bool ireceive(int src);
 	void ireceive(Group _group);
 	Message* directReceive(int src);
+	void completeWaitingReceives(const oocframework::ClassId* classid);
 	void send(Message* msg = 0);
 	void isend();
 	void sendAll();

@@ -470,54 +470,54 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	screenXMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
 
-	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 1){
-		if (MpiControl::getSingleton()->getRank() == 1){
-			mPriTileYPos = 0;
-			mPriTileXPos = 0;
-			mPriTileWidth = mPriWindowWidth;
-			mPriTileHeight = mPriWindowHeight;
-		}
-	}
-	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
-		if (MpiControl::getSingleton()->getRank() == 1){
-			mPriTileYPos = 0;
-			mPriTileXPos = 0;
-			mPriTileWidth = mPriWindowWidth/2;
-			mPriTileHeight = mPriWindowHeight;
-		}
-		else if (MpiControl::getSingleton()->getRank() == 2){
-			mPriTileYPos = 0;
-			mPriTileXPos = mPriWindowWidth/2;
-			mPriTileWidth = mPriWindowWidth/2;
-			mPriTileHeight = mPriWindowHeight;
-		}
-	}
-	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 4){
-		if (MpiControl::getSingleton()->getRank() == 1){
-			mPriTileYPos = mPriWindowHeight/2;
-			mPriTileXPos = 0;
-			mPriTileWidth = mPriWindowWidth/2;
-			mPriTileHeight = mPriWindowHeight/2;
-		}
-		else if (MpiControl::getSingleton()->getRank() == 2){
-			mPriTileYPos = mPriWindowHeight/2;
-			mPriTileXPos = mPriWindowWidth/2;
-			mPriTileWidth = mPriWindowWidth/2;
-			mPriTileHeight = mPriWindowHeight/2;
-		}
-		else if (MpiControl::getSingleton()->getRank() == 3){
-			mPriTileYPos = 0;
-			mPriTileXPos = 0;
-			mPriTileWidth = mPriWindowWidth/2;
-			mPriTileHeight = mPriWindowHeight/2;
-		}
-		else if (MpiControl::getSingleton()->getRank() == 4){
-			mPriTileYPos = 0;
-			mPriTileXPos = mPriWindowWidth/2;
-			mPriTileWidth = mPriWindowWidth/2;
-			mPriTileHeight = mPriWindowHeight/2;
-		}
-	}
+//	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 1){
+//		if (MpiControl::getSingleton()->getRank() == 1){
+//			mPriTileYPos = 0;
+//			mPriTileXPos = 0;
+//			mPriTileWidth = mPriWindowWidth;
+//			mPriTileHeight = mPriWindowHeight;
+//		}
+//	}
+//	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
+//		if (MpiControl::getSingleton()->getRank() == 1){
+//			mPriTileYPos = 0;
+//			mPriTileXPos = 0;
+//			mPriTileWidth = mPriWindowWidth/2;
+//			mPriTileHeight = mPriWindowHeight;
+//		}
+//		else if (MpiControl::getSingleton()->getRank() == 2){
+//			mPriTileYPos = 0;
+//			mPriTileXPos = mPriWindowWidth/2;
+//			mPriTileWidth = mPriWindowWidth/2;
+//			mPriTileHeight = mPriWindowHeight;
+//		}
+//	}
+//	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 4){
+//		if (MpiControl::getSingleton()->getRank() == 1){
+//			mPriTileYPos = mPriWindowHeight/2;
+//			mPriTileXPos = 0;
+//			mPriTileWidth = mPriWindowWidth/2;
+//			mPriTileHeight = mPriWindowHeight/2;
+//		}
+//		else if (MpiControl::getSingleton()->getRank() == 2){
+//			mPriTileYPos = mPriWindowHeight/2;
+//			mPriTileXPos = mPriWindowWidth/2;
+//			mPriTileWidth = mPriWindowWidth/2;
+//			mPriTileHeight = mPriWindowHeight/2;
+//		}
+//		else if (MpiControl::getSingleton()->getRank() == 3){
+//			mPriTileYPos = 0;
+//			mPriTileXPos = 0;
+//			mPriTileWidth = mPriWindowWidth/2;
+//			mPriTileHeight = mPriWindowHeight/2;
+//		}
+//		else if (MpiControl::getSingleton()->getRank() == 4){
+//			mPriTileYPos = 0;
+//			mPriTileXPos = mPriWindowWidth/2;
+//			mPriTileWidth = mPriWindowWidth/2;
+//			mPriTileHeight = mPriWindowHeight/2;
+//		}
+//	}
 
 }
 

@@ -40,6 +40,7 @@ private:
 
 	void sendMethod(int dest);
 	void receiveMethod(int source);
+	void handleMsg(Message* msg);
 };
 
 #endif /* DATACORE_H_ */
