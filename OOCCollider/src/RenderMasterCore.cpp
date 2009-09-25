@@ -104,6 +104,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 				mPriFrameCount = 0;
 				DepthBufferRequestEvent dbre = DepthBufferRequestEvent();
 				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
+				mPriMpiCon->barrier();
 				// go into listenmode to receive the rendering-times
 				mPriMpiCon->receive(MpiControl::RENDERER);
 				while (!mPriMpiCon->inQueueEmpty()) {
@@ -261,9 +262,10 @@ void RenderMasterCore::handleMsg(Message* msg) {
 					ctde.setTileDimension(it->second);
 					MpiControl::getSingleton()->send(new Message(ctde, it->first));
 				}
-				Message* newMsg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),0,(char*)mPriGlFrame->getMvMatrix());
-				newMsg->setGroup(MpiControl::ALL);
-				MpiControl::getSingleton()->send(newMsg);
+				cout << "Master " << mPriMpiCon->getRank() << " waiting at barrier bevor deptbuffers" << endl;
+				mPriMpiCon->barrier();
+				cout << "Master " << mPriMpiCon->getRank() << " continuing" << endl;
+
 
 			}
 			// store render-time, inc counter

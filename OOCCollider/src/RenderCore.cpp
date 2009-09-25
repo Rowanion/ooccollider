@@ -41,6 +41,7 @@ RenderCore* RenderCore::instance = 0;
 RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(true), mPriGotMatrix(false)
 {
 	RenderCore::instance = this;
+	mPriMpiCon = MpiControl::getSingleton();
 
 	//		setupWindow("My rank is NOT 0");
 	stringstream title;
@@ -59,8 +60,8 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 		while(!mPriGotMatrix && mRunning){ // receive everything from 0 and finally the matrix
 			MpiControl::getSingleton()->receive(0);
 			handleMsg(MpiControl::getSingleton()->pop());
-//			cout << "matrix arrived at renderer" << endl;
 		}
+//		cout << "matrix arrived at renderer" << endl;
 		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
 		while(!MpiControl::getSingleton()->inQueueEmpty()){ // ireceive everything from data-nodes
 			handleMsg(MpiControl::getSingleton()->pop());
@@ -166,17 +167,19 @@ void RenderCore::handleMsg(Message* msg)
 			oocframework::EventManager::getSingleton()->fire(ire);
 		}
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
+			mPriMpiCon->barrier();
 			AccumulatedRendertimeEvent arte = AccumulatedRendertimeEvent(mPriGlFrame->getRenderTime());
-			MpiControl::getSingleton()->send(new Message(arte, 0));
+			mPriMpiCon->send(new Message(arte, 0));
 			mPriGlFrame->resetRenderTime();
-			MpiControl::getSingleton()->receive(0); // wait for new tiling-instructions
+			mPriMpiCon->receive(0); // wait for new tiling-instructions
 			handleMsg(MpiControl::getSingleton()->pop());
 		}
 		else if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
 			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
 			mPriGlFrame->setTileDimensions(ctde.getTileXPos(),ctde.getTileYPos(), ctde.getTileWidth(),ctde.getTileHeight());
-			Message* newMsg = MpiControl::getSingleton()->directReceive(ModelViewMatrixEvent::classid());
-			handleMsg(newMsg);
+			cout << "render " << mPriMpiCon->getRank() << " waiting at barrier bevor deptbuffers" << endl;
+			mPriMpiCon->barrier();
+			cout << "render " << mPriMpiCon->getRank() << " continuing" << endl;
 			mPriGlFrame->depthPass();
 		}
 		delete msg;

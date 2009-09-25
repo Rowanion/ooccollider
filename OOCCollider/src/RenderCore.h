@@ -28,6 +28,7 @@ public:
 
 private:
 	OOCWindow* mWindow;
+	MpiControl* mPriMpiCon;
 	bool mRunning;
 	bool mPriGotMatrix;
 	std::queue<char*> mInQueue;
