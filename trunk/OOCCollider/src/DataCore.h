@@ -30,6 +30,7 @@ public:
 
 private:
 	OOCWindow* mWindow;
+	MpiControl* mPriMpiCon;
 	bool mRunning;
 	std::queue<char*> mInQueue;
 	std::queue<char*> mOutQueue;

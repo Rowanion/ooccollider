@@ -72,6 +72,7 @@ public:
 	inline MPI::Group& getDataGrp() {return mDataGroup;};
 
 	inline Group getGroup() const {return mGroup;};
+	inline void barrier() const {MPI_Barrier(MPI::COMM_WORLD);};
 
 
 private:

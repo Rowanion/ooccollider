@@ -39,6 +39,7 @@ DataCore* DataCore::instance = 0;
 DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(true), mPriDepthBufferCount(0)
 {
 	DataCore::instance = this;
+	mPriMpiCon = MpiControl::getSingleton();
 
 	//		setupWindow("My rank is NOT 0");
 	stringstream title;
@@ -109,7 +110,6 @@ void DataCore::receiveMethod(int source)
 }
 
 void DataCore::handleMsg(Message* msg){
-	cout << "datacore is handling a message from " << msg->getSrc() << endl;
 	if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
 //				msg->setDst(source);
 //				MpiControl::getSingleton()->push(msg);
@@ -165,11 +165,12 @@ void DataCore::handleMsg(Message* msg){
 
 	}
 	else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
-		MpiControl::getSingleton()->clearOutQueue(MpiControl::RENDERER);
-		MpiControl::getSingleton()->completeWaitingReceives(DepthBufferEvent::classid());
+		mPriMpiCon->barrier();
+		mPriMpiCon->clearOutQueue(MpiControl::RENDERER);
+		mPriMpiCon->completeWaitingReceives(DepthBufferEvent::classid());
 		Message* newMsg = 0;
-		while(!MpiControl::getSingleton()->inQueueEmpty()){
-			newMsg = MpiControl::getSingleton()->pop();
+		while(!mPriMpiCon->inQueueEmpty()){
+			newMsg = mPriMpiCon->pop();
 			if (newMsg->getType() == DepthBufferEvent::classid()->getShortId()){
 				handleMsg(newMsg);
 			}
@@ -179,9 +180,12 @@ void DataCore::handleMsg(Message* msg){
 			delete newMsg;
 			newMsg = 0;
 		}
+		cout << "data waiting at barrier bevor deptbuffers" << endl;
+		mPriMpiCon->barrier();
+		cout << "data continuing" << endl;
 
-		while(mPriDepthBufferCount < MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)){
-			newMsg = MpiControl::getSingleton()->directReceive(DepthBufferEvent::classid());
+		while(mPriDepthBufferCount < mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
+			newMsg = mPriMpiCon->directReceive(DepthBufferEvent::classid());
 			handleMsg(newMsg);
 		}
 
