@@ -55,9 +55,9 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
 	mWindow->enableKeyCallback();
 	mWindow->enableMouseCallback();
-	SimpleGlFrame* glFrame = new SimpleGlFrame();
+	mPriGlFrame = new SimpleGlFrame();
 	//	RenderMasterCoreGlFrame* glFrame = new RenderMasterCoreGlFrame();
-	mWindow->attachGlFrame(glFrame);
+	mWindow->attachGlFrame(mPriGlFrame);
 	mPriEventMan = oocframework::EventManager::getSingleton();
 	mPriEventMan->addListener(this, WindowResizedEvent::classid());
 	mPriEventMan->addListener(this, KillApplicationEvent::classid());
@@ -67,7 +67,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mPriEventMan->addListener(this, WindowClosedEvent::classid());
 	mPriEventMan->addListener(this, InfoRequestEvent::classid());
 
-	glFrame->init();
+	mPriGlFrame->init();
 
 	mPriMpiCon = MpiControl::getSingleton();
 	// --------------------------------------------------
@@ -103,7 +103,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 				mPriCamHasMoved = false;
 				mPriFrameCount = 0;
 				DepthBufferRequestEvent dbre = DepthBufferRequestEvent();
-				mPriMpiCon->send(new Message(dbre, 0, MpiControl::RENDERER));
+				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
 				// go into listenmode to receive the rendering-times
 				mPriMpiCon->receive(MpiControl::RENDERER);
 				while (!mPriMpiCon->inQueueEmpty()) {
@@ -116,14 +116,14 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			//			for (int i=1; i<mPriMpiCon->getSize(); ++i){
 			for (unsigned i = 0; i < mPriMpiCon->getGroupSize(
 					MpiControl::DATA); ++i) { // send the matrix to all data-nodes
-				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),MpiControl::getSingleton()->getDataGroup()[i],(char*)glFrame->getMvMatrix());
+				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),MpiControl::getSingleton()->getDataGroup()[i],(char*)mPriGlFrame->getMvMatrix());
 				MpiControl::getSingleton()->send(msg);
 			}
-			ModelViewMatrixEvent mve = ModelViewMatrixEvent(glFrame->getMvMatrix());
+			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix());
 			for (unsigned i=0; i<MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER); ++i) { // send matrix to all renderers
 				Tile t = mPriTileMap[MpiControl::getSingleton()->getRenderGroup()[i]];
 				mve.setTileDimension(t);
-				ModelViewMatrixEvent mve = ModelViewMatrixEvent(glFrame->getMvMatrix(), t);
+				ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix(), t);
 				Message* msg = new Message(mve, MpiControl::getSingleton()->getRenderGroup()[i]);
 				MpiControl::getSingleton()->send(msg);
 			}
@@ -138,7 +138,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 //			adjustTileDimensions();
 
 			//			cout << "---master ENTER display" << endl;
-			glFrame->display();
+			mPriGlFrame->display();
 			mPriFrameCount++;
 			//			cout << "---master EXIT display" << endl;
 			//			cout << "end of display 0..." << endl;
@@ -158,7 +158,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 		if (frames >= 100) {
 			frames = 0;
 			stringstream ss;
-			ss << "MasterNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << glFrame->getFrames();
+			ss << "MasterNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
 
@@ -261,6 +261,10 @@ void RenderMasterCore::handleMsg(Message* msg) {
 					ctde.setTileDimension(it->second);
 					MpiControl::getSingleton()->send(new Message(ctde, it->first));
 				}
+				Message* newMsg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),0,(char*)mPriGlFrame->getMvMatrix());
+				newMsg->setGroup(MpiControl::ALL);
+				MpiControl::getSingleton()->send(newMsg);
+
 			}
 			// store render-time, inc counter
 			// check for counter and if = max recalc tile-dims

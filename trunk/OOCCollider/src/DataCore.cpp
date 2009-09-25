@@ -28,6 +28,7 @@
 #include "DepthBufferEvent.h"
 #include "VboEvent.h"
 #include "InfoRequestEvent.h"
+#include "DepthBufferRequestEvent.h"
 
 #define RENDER_NODES 1
 
@@ -108,12 +109,13 @@ void DataCore::receiveMethod(int source)
 }
 
 void DataCore::handleMsg(Message* msg){
+	cout << "datacore is handling a message from " << msg->getSrc() << endl;
 	if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
 //				msg->setDst(source);
 //				MpiControl::getSingleton()->push(msg);
 //				MpiControl::getSingleton()->sendAll();
 		mRunning = false;
-		cout << "recveived KILL from " << source << endl;
+		cout << "recveived KILL from " << msg->getSrc() << endl;
 	}
 	else if (msg->getType() == WindowResizedEvent::classid()->getShortId()){
 		int w = ((int*)msg->getData())[0];
@@ -147,46 +149,10 @@ void DataCore::handleMsg(Message* msg){
 	}
 	else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
 //				cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;
-
 		DepthBufferEvent dbe = DepthBufferEvent(msg);
 		oocframework::EventManager::getSingleton()->fire(dbe);
 		mPriDepthBufferCount++;
-		// what should happen:
-		// clear outqueue
-		// check inqueue and discard everything from renderers that is not a depthbuffer
-		// receive depthbuffer until all are complete
-//				MpiControl::getSingleton()->
-		MpiControl::getSingleton()->clearOutQueue(MpiControl::RENDERER);
-		MpiControl::getSingleton()->completeWaitingReceives(DepthBufferEvent::classid());
-		Message* newMsg = 0;
-		while(!MpiControl::getSingleton()->inQueueEmpty()){
-			newMsg = MpiControl::getSingleton()->pop();
-			if(newMsg->getGroup() == MpiControl::RENDERER){
-				if (newMsg->getType() == DepthBufferEvent::classid()){
-					DepthBufferEvent dbe = DepthBufferEvent(newMsg);
-					oocframework::EventManager::getSingleton()->fire(dbe);
-					mPriDepthBufferCount++;
-				}
-			}
-			else {
-				handleMsg(newMsg);
-			}
-			delete newMsg;
-			newMsg = 0;
-		}
-		// from here now requestqueue and in queue are empty. now wait for remaining depthbuffers
-
-		MpiControl::getSingleton()->pop(DepthBufferEvent::classid());
-//				MpiControl::getSingleton()->clearInQueue(MpiControl::RENDERER);
-		while(mPriDepthBufferCount < MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)){
-			MpiControl::getSingleton()->receive(DepthBufferEvent::classid());
-			Message* newMsg = MpiControl::getSingleton()->pop();
-			DepthBufferEvent newDbe = DepthBufferEvent(newMsg);
-			oocframework::EventManager::getSingleton()->fire(newDbe);
-			mPriDepthBufferCount++;
-			delete newMsg;
-		}
-		mPriDepthBufferCount = 0;
+		cout << "datacore has now " << mPriDepthBufferCount << " of " << MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)<< endl;
 	}
 	else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
 		NodeRequestEvent nre = NodeRequestEvent(msg);
@@ -197,6 +163,30 @@ void DataCore::handleMsg(Message* msg){
 //				}
 		mGlFrame->display(nre);
 
+	}
+	else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
+		MpiControl::getSingleton()->clearOutQueue(MpiControl::RENDERER);
+		MpiControl::getSingleton()->completeWaitingReceives(DepthBufferEvent::classid());
+		Message* newMsg = 0;
+		while(!MpiControl::getSingleton()->inQueueEmpty()){
+			newMsg = MpiControl::getSingleton()->pop();
+			if (newMsg->getType() == DepthBufferEvent::classid()->getShortId()){
+				handleMsg(newMsg);
+			}
+			else if (newMsg->getSrc() == 0){
+				handleMsg(newMsg);
+			}
+			delete newMsg;
+			newMsg = 0;
+		}
+
+		while(mPriDepthBufferCount < MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)){
+			newMsg = MpiControl::getSingleton()->directReceive(DepthBufferEvent::classid());
+			handleMsg(newMsg);
+		}
+
+		mPriDepthBufferCount = 0;
+		cout << "datacore has received all depthbuffers" << endl;
 	}
 	else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
 		InfoRequestEvent ire = InfoRequestEvent();

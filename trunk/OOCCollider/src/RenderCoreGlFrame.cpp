@@ -1052,7 +1052,8 @@ void RenderCoreGlFrame::depthPass()
 		DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
 		MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 		Message* msg = new Message(dbe, 0, MpiControl::DATA);
-		MpiControl::getSingleton()->push(msg);
+		MpiControl::getSingleton()->send(msg);
+		cout << MpiControl::getSingleton()->getRank() << " has send depthbuffer" << endl;
 		mPriRequestedVboList.clear();
 		mPriFbo->unbind();
 		glPopMatrix();

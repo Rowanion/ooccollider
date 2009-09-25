@@ -41,10 +41,9 @@ public:
 	static MpiControl* getSingleton();
 	void receive(int src);
 	void receive(Group _group);
-	void receive(oocframework::ClassId* classid);
 	bool ireceive(int src);
 	void ireceive(Group _group);
-	Message* directReceive(int src);
+	Message* directReceive(const oocframework::ClassId* classid);
 	void completeWaitingReceives(const oocframework::ClassId* classid);
 	void send(Message* msg = 0);
 	void isend();
@@ -72,12 +71,15 @@ public:
 	inline MPI::Group& getRenderGrp() {return mRenderGroup;};
 	inline MPI::Group& getDataGrp() {return mDataGroup;};
 
+	inline Group getGroup() const {return mGroup;};
+
 
 private:
 	MpiControl();
 
 	int mRank;
 	int mSize;
+	Group mGroup;
 	int mGrpRank;
 	int mGrpSize;
 	MPI::Group mOrigGroup, mRenderGroup, mDataGroup;

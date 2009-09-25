@@ -51,6 +51,7 @@ private:
 	vector<double> mPriRenderTimes;
 	MpiControl* mPriMpiCon;
 	Tile mPriRootTile;
+	SimpleGlFrame* mPriGlFrame;
 
 	oocframework::EventManager* mPriEventMan;
 
