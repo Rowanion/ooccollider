@@ -57,15 +57,25 @@ void MpiControl::init()
 {
 	if (mSize == 2) { // project start - one master & one renderer
 		mPriRenderNodes.push_back(1);
+		if (mRank == 1)
+			mGroup = RENDERER;
 	}
 	if (mSize == 3) { // one master & one renderer & data
 		mPriRenderNodes.push_back(1);
 		mPriDataNodes.push_back(2);
+		if (mRank == 1)
+			mGroup = RENDERER;
+		else if (mRank == 1)
+			mGroup = DATA;
 	}
 	else if (mSize == 4){ // first split - one master & two renderer & data
 		mPriRenderNodes.push_back(1);
 		mPriRenderNodes.push_back(2);
 		mPriDataNodes.push_back(3);
+		if (mRank >= 1 && mRank <= 2)
+			mGroup = RENDERER;
+		else if (mRank >= 3)
+			mGroup = DATA;
 	}
 	else if (mSize > 5){ // final - one master & four renderer & rest -> data
 		mPriRenderNodes.push_back(1);
@@ -75,6 +85,10 @@ void MpiControl::init()
 		for (int i=5; i< mSize; ++i){
 			mPriDataNodes.push_back(i);
 		}
+		if (mRank >= 1 && mRank <= 4)
+			mGroup = RENDERER;
+		else if (mRank >= 5)
+			mGroup = DATA;
 	}
 }
 
@@ -119,12 +133,11 @@ void MpiControl::receive(Group _group)
 	}
 }
 
-void MpiControl::receive(oocframework::ClassId* classid)
+Message* MpiControl::directReceive(const oocframework::ClassId* classid)
 {
-	//	cout << mRank << " is receiving from " << src << "..." << endl;
 		MPI::Status stat;
 		while (!MPI::COMM_WORLD.Iprobe(MPI_ANY_SOURCE, classid->getShortId(), stat))
-		{	}
+		{		}
 		int count = stat.Get_count(MPI_CHAR);
 		int type = stat.Get_tag();
 		int realSrc = stat.Get_source();
@@ -135,27 +148,26 @@ void MpiControl::receive(oocframework::ClassId* classid)
 		msg->mData = new char[count];
 		MPI::COMM_WORLD.Recv(msg->mData, count, MPI_CHAR, realSrc, type, stat);
 	//	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
-		mInQueue.push(msg);
-
+		return msg;
 }
 
-Message* MpiControl::directReceive(int src)
-{
-//	cout << mRank << " is receiving from " << src << "..." << endl;
-	MPI::Status stat;
-	while (!MPI::COMM_WORLD.Iprobe(src, MPI_ANY_TAG, stat)){
-	}
-	int count = stat.Get_count(MPI_CHAR);
-	int type = stat.Get_tag();
-	char* data = new char[count];
-	int realSrc = stat.Get_source();
-	MPI::COMM_WORLD.Recv(data, count, MPI_CHAR,src, type, stat);
-	Message* msg = new Message(type, count, mRank, data);
-	msg->setSrc(realSrc);
-//	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
-	delete[] data;
-	return msg;
-}
+//Message* MpiControl::directReceive(int src)
+//{
+////	cout << mRank << " is receiving from " << src << "..." << endl;
+//	MPI::Status stat;
+//	while (!MPI::COMM_WORLD.Iprobe(src, MPI_ANY_TAG, stat)){
+//	}
+//	int count = stat.Get_count(MPI_CHAR);
+//	int type = stat.Get_tag();
+//	char* data = new char[count];
+//	int realSrc = stat.Get_source();
+//	MPI::COMM_WORLD.Recv(data, count, MPI_CHAR,src, type, stat);
+//	Message* msg = new Message(type, count, mRank, data);
+//	msg->setSrc(realSrc);
+////	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
+//	delete[] data;
+//	return msg;
+//}
 
 bool MpiControl::ireceive(int src)
 {
@@ -225,6 +237,7 @@ void MpiControl::completeWaitingReceives(const oocframework::ClassId* classid)
 		msg->request.Get_status(stat);
 		if (stat.Get_tag() == classid->getShortId()){
 			msg->request.Wait();
+			mInQueue.push(msg);
 		}
 		else{
 			mPriInRequests.push(msg);
@@ -247,6 +260,14 @@ void MpiControl::send(Message* msg)
 		case DATA:{
 			for(unsigned i=0; i< mPriDataNodes.size(); ++i){
 				MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, mPriDataNodes[i], msg->getType());
+			}
+			delete msg;
+			break;}
+		case ALL:{
+			for(unsigned i=0; i< mSize; ++i){
+				if (mRank != i){
+					MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, i, msg->getType());
+				}
 			}
 			delete msg;
 			break;}

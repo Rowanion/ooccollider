@@ -11,6 +11,7 @@
 #include "declarations.h"
 #include <vector>
 #include <map>
+#include <cmath>
 
 using namespace std;
 
@@ -60,6 +61,8 @@ private:
 	bool firstRound;
 	int innerSplitX, innerSplitY;
 	int myID;
+	double optCosts;
+	int summandHor, summandVert;
 	vector <double> timesFirstChildren, timesSecondChildren;
 	Tile toSplit;
 	double heightSplit, widthSplit;
@@ -69,6 +72,7 @@ private:
 	SplitAxis splitLine;
 	SplittreeChilds children;
 	unsigned int costPicBeforeFirst, costPicBeforeSecond;
+	float oldRatio;
 };
 
 #endif /*SPLITTREE_H_*/

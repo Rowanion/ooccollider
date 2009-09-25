@@ -96,6 +96,8 @@ void Splittree::split(vector<double> _renderTimes, Tile _toSplit, map<int, Tile 
 			totalTime += _renderTimes[i];
 		}
 
+		optCosts = totalTime/2.0;
+
 		if(splitLine == HORIZONTAL)
 		{
 			splitHor();
@@ -128,41 +130,63 @@ void Splittree::splitHor()
 	y = toSplit.yPos;
 	width  = toSplit.width;
 	height = toSplit.height;
+
+    int oldH = oldFirstHeight+oldSecondHeight;
+    float rat = ((float)height)/((float)oldH);
+    innerSplitY = (int)(rat*innerSplitY);
+    oldFirstHeight = (int)(rat*oldFirstHeight);
+    oldSecondHeight = (int)(rat*oldSecondHeight);
+
+
 	if(!firstRound)
 	{
-		//ratioScreen = ((double)innerSplitY)/((double)lowerTile);
-		//ratioTime = ((double)secondChildTime)/((double)firstChildTime);
-		//ratio = ratioScreen * ratioTime;
+        if(firstChildTime > secondChildTime)
+        {
+            summandHor = (int)(((float)abs(firstChildTime - optCosts))/((float)totalTime)*((float)oldFirstHeight));
+        }
+        else
+        {
+            summandHor = (int)(((float)abs(secondChildTime - optCosts))/((float)totalTime)*((float)oldSecondHeight));
+        }
 
-		//innerSplitY = (int)(((double)(totalTime-firstChildTime)/(double)totalTime)*(double)height);
-        ratioTime -= ((firstChildTime)-(secondChildTime))/((totalTime*2.0));
-		innerSplitY = (int)(ratioTime*(double)height);
-		//lowerTile = height - innerSplitY;
-		innerSplitY -= innerSplitY%4;
-	}
-	else
-	{
-		lowerTile = innerSplitY = height / 2;
-		firstRound = false;
-	}
-	if(innerSplitY < (int)numofchildren)
-	{
-		innerSplitY = numofchildren;
-	}
-	if((height - innerSplitY) < (int)(numofchildren/2 + 1))
-	{
-		innerSplitY = height - (numofchildren/2 + 1);
-	}
+        if(firstChildTime < optCosts)
+        {
+            innerSplitY += summandHor;//(int)(((double)(totalTime-firstChildTime)/(double)totalTime)*(double)width);
+        }
+        else if(firstChildTime > optCosts)
+        {
+            innerSplitY -= summandHor;
+        }
 
-	firstCoords.xPos = x;
-	firstCoords.yPos = y;
-	firstCoords.width = width;
-	firstCoords.height = innerSplitY;
+        if(innerSplitY%4 != 0)
+            innerSplitY -= innerSplitY%4;
 
-	secondCoords.xPos = x;
-	secondCoords.yPos = y + innerSplitY;
-	secondCoords.width = width;
-	secondCoords.height = height - innerSplitY;
+	}
+    {
+        innerSplitY = height / 2;
+        firstRound = false;
+    }
+    if(innerSplitY < (int)numofchildren )
+    {
+        innerSplitY = numofchildren;
+    }
+    if(height - innerSplitY < (int)numofchildren )
+    {
+        innerSplitY = height - numofchildren;
+    }
+
+    firstCoords.xPos = x;
+    firstCoords.yPos = y;
+    firstCoords.width = width;
+    firstCoords.height = innerSplitY;
+
+    secondCoords.xPos = x;
+    secondCoords.yPos = (y + innerSplitY);
+    secondCoords.width = width;
+    secondCoords.height = (height - innerSplitY);
+
+    oldFirstHeight = innerSplitY;
+    oldSecondHeight = height - innerSplitY;
 }
 
 /*
@@ -176,28 +200,49 @@ void Splittree::splitVert()
 	y = toSplit.yPos;
 	width  = toSplit.width;
 	height = toSplit.height;
+
+    int oldH = oldFirstWidth+oldSecondWidth;
+    float rat = ((float)width)/((float)oldH);
+    innerSplitX = (int)(rat*innerSplitX);
+    oldFirstWidth = (int)(rat*oldFirstWidth);
+    oldSecondWidth = (int)(rat*oldSecondWidth);
+
 	if(!firstRound)
 	{
-		//ratioScreen = ((double)innerSplitX)/((double)lowerTile);
-		ratioTime -= ((firstChildTime)-(secondChildTime))/((totalTime*2.0));
-		innerSplitX = (int)(ratioTime*(double)height);
-		//innerSplitX = (int)(((double)(totalTime-firstChildTime)/(double)totalTime)*(double)width);
-		//lowerTile = width - innerSplitX;
-		innerSplitX -= innerSplitX%4;
+        if(firstChildTime > secondChildTime)
+        {
+            summandVert = (int)(((float)abs(firstChildTime - optCosts))/((float)totalTime)*((float)oldFirstWidth));
+        }
+        else
+        {
+            summandVert = (int)(((float)abs(secondChildTime - optCosts))/((float)totalTime)*((float)oldSecondWidth));
+        }
+
+        if(firstChildTime < optCosts)
+        {
+            innerSplitX += summandVert;
+        }
+        else if(firstChildTime > optCosts)
+        {
+            innerSplitX -= summandVert;
+        }
+
+        if(innerSplitX%4 != 0)
+            innerSplitX -= innerSplitX%4;
 	}
 	else
-	{
-		innerSplitX = width / 2;
-		firstRound = false;
-	}
-	if(innerSplitX < (int)numofchildren)
-	{
-		innerSplitX = numofchildren;
-	}
-	if((width - innerSplitX) < (int)(numofchildren/2 + 1))
-	{
-		innerSplitX = width - (int)(numofchildren/2 + 1);
-	}
+    {
+        innerSplitX = width / 2;
+        firstRound = false;
+    }
+    if(innerSplitX < (int)numofchildren)
+    {
+        innerSplitX = numofchildren;
+    }
+    if((width - innerSplitX) < (int)(numofchildren/2 + 1))
+    {
+        innerSplitX = width - (int)(numofchildren/2 + 1);
+    }
 
 	firstCoords.xPos = x;
 	firstCoords.yPos = y;
@@ -208,4 +253,7 @@ void Splittree::splitVert()
 	secondCoords.yPos = y;
 	secondCoords.width = width - innerSplitX;
 	secondCoords.height = height;
+    oldFirstWidth = innerSplitX;
+    oldSecondWidth = width - innerSplitX;
+
 }
