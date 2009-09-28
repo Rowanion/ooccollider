@@ -33,6 +33,7 @@
 #include "ColorBufferEvent.h"
 #include "KillApplicationEvent.h"
 #include "InfoRequestEvent.h"
+#include "CameraMovedEvent.h"
 
 
 using namespace std;
@@ -40,7 +41,7 @@ using namespace ooctools;
 using namespace oocframework;
 
 SimpleGlFrame::SimpleGlFrame() :
-	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0), mPriIVbo(0), walkingSpeed(0.3f),
+	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0), mPriIVbo(0), mPriCamera(OOCCamera()), walkingSpeed(0.3f),
 	mPriFbo(0), mPriColorBuffer(0), mPriCBufWidth(0), mPriCBufHeight(0), mPriCBufX(0), mPriCBufY(0), mPriUseSpaceNav(false), mPrilockTrans(false), mPrilockRot(false)
 {
 	// TODO Auto-generated constructor stub
@@ -48,26 +49,6 @@ SimpleGlFrame::SimpleGlFrame() :
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
 	}
-
-
-	// cam setup
-	xmove = 0.0;
-	ymove = 0.0;
-	zmove = 0.0;
-
-	myXRot = 0.0f;
-	myYRot = 0.0f;
-	myZRot = 0.0f;
-
-	myTranslateMatrix = new float[16];
-	myGLRotMatrix = new float[16];
-
-	first = true;
-	myQuatRotMat  = new float[16];
-	myTempMat = new float[16];
-	localQuat = Quaternion();
-	totalQuat = Quaternion();
-
 
 	oocframework::EventManager::getSingleton()->addListener(this, ColorBufferEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, MouseDraggedEvent::classid());
@@ -79,8 +60,6 @@ SimpleGlFrame::SimpleGlFrame() :
 
 SimpleGlFrame::~SimpleGlFrame() {
 
-	delete[] myTranslateMatrix;
-	delete[] myGLRotMatrix;
 	delete mPriFbo;
 
 	oocframework::EventManager::getSingleton()->removeListener(this, ColorBufferEvent::classid());
@@ -97,16 +76,16 @@ void SimpleGlFrame::init() {
 	glDisable(GL_DEPTH_TEST);
 	glShadeModel(GL_FLAT);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	camObj.positionCamera(0.0,0.0,5.0,
-			0.0,0.0,-3.0,
-			0,1,0);
+//	camObj.positionCamera(0.0,0.0,5.0,
+//			0.0,0.0,-3.0,
+//			0,1,0);
 
 	GET_GLERROR(0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
-	initMatrices();
+	mPriCamera.initMatrices();
 
 	if(spnav_open()==-1) {
 		fprintf(stderr, "failed to connect to the space navigator daemon\n");
@@ -140,13 +119,13 @@ void SimpleGlFrame::display()
 	glLoadIdentity();
 
 	if (mPriButtonActions[0] == GLFW_PRESS && mPriButtonActions[1] == GLFW_PRESS){
-    	zmove -= (0.1*walkingSpeed);
+    	mPriCamera.decZMove(0.1*walkingSpeed);
 	}
 	else if (mPriButtonActions[1] == GLFW_PRESS){
-    	zmove += (0.1*walkingSpeed);
+		mPriCamera.incZMove(0.1*walkingSpeed);
 	}
-	camObj.applyToGL();
-	calcMatrix();
+//	camObj.applyToGL();
+	mPriCamera.calcMatrix();
 
 //	char* data = new char[16*sizeof(float)];
 //	glGetFloatv(GL_MODELVIEW_MATRIX, (float*)data);
@@ -216,80 +195,6 @@ void SimpleGlFrame::calcFPS() {
 
 }
 
-/* CAMERAPART BEGIN */
-
-void SimpleGlFrame::initMatrices(){
-	myTranslateMatrix[0]  = 1.0f;
-	myTranslateMatrix[1]  = 0;
-	myTranslateMatrix[2]  = 0;
-	myTranslateMatrix[3]  = 0;
-
-	myTranslateMatrix[4]  = 0;
-	myTranslateMatrix[5]  = 1;
-	myTranslateMatrix[6]  = 0;
-	myTranslateMatrix[7]  = 0;
-
-	myTranslateMatrix[8]  = 0;
-	myTranslateMatrix[9]  = 0;
-	myTranslateMatrix[10] = 1;
-	myTranslateMatrix[11] = 0;
-
-	myTranslateMatrix[12] = 0;
-	myTranslateMatrix[13] = 0;
-	myTranslateMatrix[14] = 0;
-	myTranslateMatrix[15] = 1;
-
-	myGLRotMatrix[0]  = 1;
-	myGLRotMatrix[1]  = 0;
-	myGLRotMatrix[2]  = 0;
-	myGLRotMatrix[3]  = 0;
-
-	myGLRotMatrix[4]  = 0;
-	myGLRotMatrix[5]  = 1;
-	myGLRotMatrix[6]  = 0;
-	myGLRotMatrix[7]  = 0;
-
-	myGLRotMatrix[8]  = 0;
-	myGLRotMatrix[9]  = 0;
-	myGLRotMatrix[10] = 1;
-	myGLRotMatrix[11] = 0;
-
-	myGLRotMatrix[12] = 0;
-	myGLRotMatrix[13] = 0;
-	myGLRotMatrix[14] = 0;
-	myGLRotMatrix[15] = 1;
-}
-
-void SimpleGlFrame::calcMatrix(){
-	localQuat.fromEulerAngles(myYRot, myZRot, myXRot);
-	totalQuat.reset();
-	totalQuat = localQuat * totalQuat;
-	totalQuat.getRotationMatrix(myQuatRotMat);
-
-	multMatrix(myQuatRotMat, myGLRotMatrix, myTempMat);
-
-        myTranslateMatrix[12] = xmove;
-        myTranslateMatrix[13] = ymove;
-        myTranslateMatrix[14] = zmove;
-
-	multMatrix(myTranslateMatrix, myTempMat, myGLRotMatrix);
-
-	glMultMatrixf(myGLRotMatrix);
-
-	myXRot = myYRot = myZRot = 0.0f;
-	xmove = ymove = zmove = 0.0f;
-}
-
-void SimpleGlFrame::multMatrix(float *m1, float *m2, float *res){
-	for(int i = 0; i < 4; ++i) {
-		for(int j = 0; j < 4; ++j){
-			res[i*4 + j] = m1[j]*m2[i*4] + m1[j+4]*m2[i*4+1] + m1[j+8]*m2[i*4+2] + m1[j+12]*m2[i*4+3];
-		}
-	}
-}
-
-/* CAMERAPART END */
-
 void SimpleGlFrame::pollSpaceNav()
 {
 	spnav_event sev;
@@ -298,13 +203,17 @@ void SimpleGlFrame::pollSpaceNav()
 			if(sev.type == SPNAV_EVENT_MOTION) {
 //				printf("got motion event: t(%d, %d, %d) ", sev.motion.x, sev.motion.y, sev.motion.z);
 //				printf("r(%d, %d, %d)\n", sev.motion.rx, sev.motion.ry, sev.motion.rz);
-				xmove -= 0.1*sev.motion.x;
-				ymove -= 0.1*sev.motion.y;
-				zmove += 0.1*sev.motion.z;
-				myXRot = 0.005f*sev.motion.rx;
-				myYRot = 0.01f*sev.motion.ry;
-				myZRot = -0.005f*sev.motion.rz;
+				mPriCamera.decXMove(0.1*sev.motion.x);
+				mPriCamera.decYMove(0.1*sev.motion.y);
+				mPriCamera.incZMove(0.1*sev.motion.z);
+				mPriCamera.setXRot(0.005f*sev.motion.rx);
+				mPriCamera.setYRot(0.01f*sev.motion.ry);
+				mPriCamera.setZRot(-0.005f*sev.motion.rz);
+				CameraMovedEvent cme = CameraMovedEvent();
+				oocframework::EventManager::getSingleton()->fire(cme);
 			} else {	/* SPNAV_EVENT_BUTTON */
+				CameraMovedEvent cme = CameraMovedEvent();
+				oocframework::EventManager::getSingleton()->fire(cme);
 //				printf("got button %s event b(%d)\n", sev.button.press ? "press" : "release", sev.button.bnum);
 				// TODO use lock rotation/lock translation function
 			}
@@ -391,8 +300,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 	if (event.instanceOf(MouseDraggedEvent::classid())){
 		MouseDraggedEvent& mde = (MouseDraggedEvent&)event;
 //		cout << "MouseDragged: " << mde.getX() << ", " << mde.getY() << endl;
-		myXRot = (oldPosY - mde.getY());
-		myYRot = (oldPosX - mde.getX());
+		mPriCamera.setXRot(oldPosY - mde.getY());
+		mPriCamera.setYRot(oldPosX - mde.getX());
 
 	    oldPosX = mde.getX();
 	    oldPosY = mde.getY();
@@ -421,45 +330,45 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		KeyPressedEvent& mde = (KeyPressedEvent&)event;
 	    switch (mde.getKey()) {
 			case GLFW_KEY_PAGEUP: // tilt up
-				ymove -= 0.1;
+				mPriCamera.decYMove(0.1);
 				break;
 
 			case GLFW_KEY_PAGEDOWN: // tilt down
-				ymove += 0.1;
+				mPriCamera.incYMove(0.1);
 			break;
 
 			case GLFW_KEY_UP: // walk forward (bob head)
-				myXRot = 1.0;
+				mPriCamera.setXRot(1.0);
 			break;
 
 			case GLFW_KEY_DOWN: // walk back (bob head)
-				myXRot = -1.0;
+				mPriCamera.setXRot(-1.0);
 			break;
 
 			case GLFW_KEY_LEFT: // look left(int)
-				myYRot = 1.0;
+				mPriCamera.setYRot(1.0);
 			break;
 
 			case GLFW_KEY_RIGHT: // look right
-				myYRot = -1.0;
+				mPriCamera.setYRot(-1.0);
 			break;
 		    case (int)'W':
-		    	zmove += (0.1*walkingSpeed);
+		    	mPriCamera.incZMove(0.1*walkingSpeed);
 		    	break;
 		    case (int)'S':
-		    	zmove -= (0.1*walkingSpeed);
+		    	mPriCamera.decZMove(0.1*walkingSpeed);
 		        break;
 		    case (int)'A':
-		    	xmove += (0.1*walkingSpeed);
+		    	mPriCamera.incXMove(0.1*walkingSpeed);
 		        break;
 		    case (int)'D':
-		    	xmove -= (0.1*walkingSpeed);
+		    	mPriCamera.decXMove(0.1*walkingSpeed);
 		        break;
 		    case (int)'Q':
-		    	myZRot = 1.0;
+		    	mPriCamera.setZRot(1.0);
 		        break;
 		    case (int)'E':
-		    	myZRot = -1.0;
+		    	mPriCamera.setZRot(-1.0);
 		        break;
 			case 'C':{ // dump current matrix and exit
 				cout << "dumping current matrix...." << endl;
@@ -498,8 +407,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '1':{
@@ -511,8 +420,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '2':{
@@ -524,8 +433,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '3':{
@@ -537,8 +446,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '4':{
@@ -550,8 +459,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '5':{
@@ -563,8 +472,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '6':{
@@ -576,8 +485,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '7':{
@@ -589,8 +498,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '8':{
@@ -602,8 +511,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			case '9':{
@@ -615,8 +524,8 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				// read camera-position from 'pos', and set it to it.
 				else {
-					initMatrices();
-					memcpy(myGLRotMatrix, mPriSavedPositions[pos], 16*sizeof(float));
+					mPriCamera.initMatrices();
+					mPriCamera.setRotationMatrix(mPriSavedPositions[pos]);
 				}
 				break;}
 			default:
@@ -656,6 +565,7 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		}
 		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
 		cout << headerS.str() << "INFO" << endl;
+		cout << headerS.str() << "Current walkingspeed: " << walkingSpeed << endl;
 		cout << "---------------------------------------" << endl;
 	}
 

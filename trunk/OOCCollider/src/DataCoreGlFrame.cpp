@@ -40,7 +40,8 @@ DataCoreGlFrame::DataCoreGlFrame() :
 	scale(1.0f), avgFps(0.0f), time(0.0),
 			frame(0), mPriVboMan(0), mPriCgt(0), mPriFbo(0),
 			mPriWindowWidth(0), mPriWindowHeight(0), mPriPixelBuffer(0), mPriDepthBuffer(0), mPriNewDepthBuf(false),
-			mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()), mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFarClippingPlane(100.0f), mPriNearClippingPlane(0.1f) {
+			mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()), mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFarClippingPlane(100.0f), mPriNearClippingPlane(0.1f), mPriCamera(OOCCamera())
+			{
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -85,9 +86,6 @@ void DataCoreGlFrame::init() {
 	glShadeModel(GL_FLAT);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	GET_GLERROR(0);
-	camObj.positionCamera(0.0,0.0,5.0,
-			0.0,0.0,-3.0,
-			0,1,0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
@@ -136,7 +134,11 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	GET_GLERROR(0);
 	glLoadIdentity();
 	GET_GLERROR(0);
-	glMultMatrixf(mPriModelViewMatrix);
+//	mPriCamera.initMatrices();
+	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
+	mPriCamera.decZMove(CAMERA_OFFSET);
+	mPriCamera.calcMatrix();
+//	glMultMatrixf(mPriModelViewMatrix);
 	GET_GLERROR(0);
 
 	// load all requested vbos
@@ -438,12 +440,12 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		}
 		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
 		cout << headerS.str() << "INFO" << endl;
-		GLfloat mat[16];
-		glGetFloatv(GL_MODELVIEW_MATRIX, mat);
-		ooctools::GeometricOps::transposeMat4(mat);
-		for (unsigned i=0; i< 16; i+=4){
-			cout << headerS.str() << "MVP: " << mat[i] << "\t" << mat[i+1] << "\t" << mat[i+2] << "\t" << mat[i+3] << endl;
-		}
+//		GLfloat mat[16];
+//		glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+//		ooctools::GeometricOps::transposeMat4(mat);
+//		for (unsigned i=0; i< 16; i+=4){
+//			cout << headerS.str() << "MVP: " << mat[i] << "\t" << mat[i+1] << "\t" << mat[i+2] << "\t" << mat[i+3] << endl;
+//		}
 		cout << headerS.str() << "nearPlane: " << mPriNearClippingPlane << endl;
 		cout << headerS.str() << "farPlane: " << mPriFarClippingPlane << endl;
 

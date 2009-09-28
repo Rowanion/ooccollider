@@ -26,6 +26,7 @@
 #include "IndexedVbo.h"
 #include "AbstractEventListener.h"
 #include "Fbo.h"
+#include "OOCCamera.h"
 
 
 /**
@@ -43,10 +44,6 @@ public:
 		return avgFps;
 	}
 	;
-	virtual void initMatrices();
-	virtual void calcMatrix();
-	virtual void multMatrix(float *m1, float *m2, float *res);
-
 	inline const float* getMvMatrix() const {return mPriModelViewMatrix;};
 	void notify(oocframework::IEvent& event);
 
@@ -78,20 +75,11 @@ private:
 
 	ooctools::IndexedVbo* mPriIVbo;
 	ooctools::Camera camObj;
-	float xmove, ymove, zmove;
-
-	float myXRot;
-	float myYRot;
-	float myZRot;
 
 	int oldPosX;
 	int oldPosY;
-	float *myTranslateMatrix;
-	float *myGLRotMatrix;
-	bool first;
-	float *myQuatRotMat;
-	float *myTempMat;
 
+	OOCCamera mPriCamera;
 	float walkingSpeed;
 
 	int mPriButtonActions[3];
@@ -108,9 +96,6 @@ private:
 	bool mPriUseSpaceNav;
 	bool mPrilockTrans;
 	bool mPrilockRot;
-
-	ooctools::Quaternion localQuat;
-	ooctools::Quaternion totalQuat;
 
 	CGprogram cgVertPostProc;
 	CGprogram cgFragPostProc;

@@ -30,6 +30,7 @@
 #include "OctreeHandler.h"
 #include "V3f.h"
 #include "NodeRequestEvent.h"
+#include "OOCCamera.h"
 
 
 /**
@@ -104,6 +105,8 @@ private:
 
 	float mPriFarClippingPlane;
 	float mPriNearClippingPlane;
+
+	OOCCamera mPriCamera;
 
 	ooctools::Quaternion localQuat;
 	ooctools::Quaternion totalQuat;
