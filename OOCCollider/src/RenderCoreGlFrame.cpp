@@ -49,7 +49,7 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
-					100.0f), mPriNearClippingPlane(0.1f), mPriRenderTimeSum(0.0) {
+					100.0f), mPriNearClippingPlane(0.1f), mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0) {
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -64,6 +64,9 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
 	myLightColor[0] = 0.95f;
 	myLightColor[1] = 0.95f;
 	myLightColor[2] = 0.95f;
+	lightPos[0] = 0.0;
+	lightPos[1] = 0.0;
+	lightPos[2] = 5.0;
 
 	oocframework::EventManager::getSingleton()->addListener(this,
 			KeyPressedEvent::classid());
@@ -83,6 +86,7 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
 
 	mPriDepthBufferD = 0;
 	mPriDepthTexture = 0;
+
 }
 
 RenderCoreGlFrame::~RenderCoreGlFrame() {
@@ -139,14 +143,17 @@ void RenderCoreGlFrame::init() {
 	mPriColorTable.setupTexture();
 	mPriColorTable.debug();
 	setupCg();
-	camObj.positionCamera(0.0,0.0,5.0,
-			0.0,0.0,-3.0,
-			0,1,0);
+//	camObj.positionCamera(0.0,0.0,5.0,
+//			0.0,0.0,-3.0,
+//			0,1,0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
 	mPriVboMan->setCgDiffParam(g_cgKd);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	mPriCamera.initMatrices();
+
 	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mPriWindowWidth,mPriWindowHeight);
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
@@ -214,7 +221,15 @@ void RenderCoreGlFrame::display()
 	GET_GLERROR(0);
 	glLoadIdentity();
 	GET_GLERROR(0);
-	glMultMatrixf(mPriModelViewMatrix);
+//	mPriCamera.initMatrices();
+	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
+	mPriCamera.calcMatrix();
+	glPushMatrix();
+	glLoadIdentity();
+	mPriCamera.decZMove(CAMERA_OFFSET);
+	mPriCamera.calcMatrix();
+
+//	glMultMatrixf(mPriModelViewMatrix);
 	GET_GLERROR(0);
 
 	if (mPriCamHasMoved){
@@ -226,6 +241,7 @@ void RenderCoreGlFrame::display()
 //	setupTexture();
 
 	getFrustum();
+	glPopMatrix();
 	mPriIdsInFrustum.clear();
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
 //	cout << "list of nodes in frustum: " << endl;
@@ -241,8 +257,8 @@ void RenderCoreGlFrame::display()
 //	compareVbos(&mPriVbosInFrustum, &mPriVbosInFrustum2);
 
 
-	cgGLSetParameter3fv(g_cgLightPosition,camObj.getEye().getData());
-	cgGLSetParameter3fv(g_cgEyePosition,camObj.getEye().getData());
+	cgGLSetParameter3fv(g_cgLightPosition,lightPos);
+	cgGLSetParameter3fv(g_cgEyePosition,lightPos);
 
 	//	normalizeFrustum();
 //	glLoadIdentity();
@@ -258,7 +274,7 @@ void RenderCoreGlFrame::display()
 			glPushMatrix();
 				glPushMatrix();
 					glLoadIdentity();
-					glLightfv(GL_LIGHT0, GL_POSITION, camObj.getEye().getData());
+					glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 				glPopMatrix();
 				glColor3f(1.0f,0.0f,0.0f);
 				GET_GLERROR(0);
@@ -469,56 +485,6 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	screenYMaxH = tan((45.0 * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenXMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
-
-//	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 1){
-//		if (MpiControl::getSingleton()->getRank() == 1){
-//			mPriTileYPos = 0;
-//			mPriTileXPos = 0;
-//			mPriTileWidth = mPriWindowWidth;
-//			mPriTileHeight = mPriWindowHeight;
-//		}
-//	}
-//	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2){
-//		if (MpiControl::getSingleton()->getRank() == 1){
-//			mPriTileYPos = 0;
-//			mPriTileXPos = 0;
-//			mPriTileWidth = mPriWindowWidth/2;
-//			mPriTileHeight = mPriWindowHeight;
-//		}
-//		else if (MpiControl::getSingleton()->getRank() == 2){
-//			mPriTileYPos = 0;
-//			mPriTileXPos = mPriWindowWidth/2;
-//			mPriTileWidth = mPriWindowWidth/2;
-//			mPriTileHeight = mPriWindowHeight;
-//		}
-//	}
-//	else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 4){
-//		if (MpiControl::getSingleton()->getRank() == 1){
-//			mPriTileYPos = mPriWindowHeight/2;
-//			mPriTileXPos = 0;
-//			mPriTileWidth = mPriWindowWidth/2;
-//			mPriTileHeight = mPriWindowHeight/2;
-//		}
-//		else if (MpiControl::getSingleton()->getRank() == 2){
-//			mPriTileYPos = mPriWindowHeight/2;
-//			mPriTileXPos = mPriWindowWidth/2;
-//			mPriTileWidth = mPriWindowWidth/2;
-//			mPriTileHeight = mPriWindowHeight/2;
-//		}
-//		else if (MpiControl::getSingleton()->getRank() == 3){
-//			mPriTileYPos = 0;
-//			mPriTileXPos = 0;
-//			mPriTileWidth = mPriWindowWidth/2;
-//			mPriTileHeight = mPriWindowHeight/2;
-//		}
-//		else if (MpiControl::getSingleton()->getRank() == 4){
-//			mPriTileYPos = 0;
-//			mPriTileXPos = mPriWindowWidth/2;
-//			mPriTileWidth = mPriWindowWidth/2;
-//			mPriTileHeight = mPriWindowHeight/2;
-//		}
-//	}
-
 }
 
 void RenderCoreGlFrame::resizeFrustum() {

@@ -28,6 +28,7 @@
 #include "LooseOctree.h"
 #include "OctreeHandler.h"
 #include "V3f.h"
+#include "OOCCamera.h"
 
 
 /**
@@ -86,6 +87,7 @@ private:
 	float avgFps;
 	double time;
 	unsigned frame;
+	float lightPos[3];
 	ooctools::VboManager* mPriVboMan;
 	ooctools::CgToolkit* mPriCgt;
 
@@ -99,8 +101,6 @@ private:
 
 	float myGlobalAmbient[3]; /* Dim */
 	float myLightColor[3];  /* White */
-
-	ooctools::Camera camObj;
 
 	ooctools::ColorTable mPriColorTable;
 
@@ -141,8 +141,8 @@ private:
 
 	float mPriFarClippingPlane, mPriNearClippingPlane;
 
-	ooctools::Quaternion localQuat;
-	ooctools::Quaternion totalQuat;
+	OOCCamera mPriCamera;
+
 
 	oocformats::OctreeHandler mPriOh;
 	oocformats::LooseOctree* mPriLo;

@@ -64,7 +64,6 @@ private:
 	MPI::Request sendQueue(int dest);
 	void pollSpaceNav();
 	void handleMsg(Message* msg);
-	void adjustTileDimensions();
 };
 
 #endif /* RENDERMASTERCORE_H_ */

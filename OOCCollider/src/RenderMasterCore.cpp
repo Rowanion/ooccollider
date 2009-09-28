@@ -38,6 +38,7 @@
 #include "DepthBufferRequestEvent.h"
 #include "AccumulatedRendertimeEvent.h"
 #include "ChangeTileDimensionsEvent.h"
+#include "CameraMovedEvent.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -66,6 +67,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mPriEventMan->addListener(this, KeyPressedEvent::classid());
 	mPriEventMan->addListener(this, WindowClosedEvent::classid());
 	mPriEventMan->addListener(this, InfoRequestEvent::classid());
+	mPriEventMan->addListener(this, CameraMovedEvent::classid());
 
 	mPriGlFrame->init();
 
@@ -175,6 +177,7 @@ RenderMasterCore::~RenderMasterCore() {
 	mPriEventMan->removeListener(this, KeyPressedEvent::classid());
 	mPriEventMan->removeListener(this, WindowClosedEvent::classid());
 	mPriEventMan->removeListener(this, InfoRequestEvent::classid());
+	mPriEventMan->removeListener(this, CameraMovedEvent::classid());
 
 	mRunning = false;
 	delete mWindow;
@@ -277,139 +280,6 @@ void RenderMasterCore::handleMsg(Message* msg) {
 	}
 }
 
-void RenderMasterCore::adjustTileDimensions() {
-	if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 2) {
-		int renderer0 = MpiControl::getSingleton()->getRenderGroup()[0];
-		int renderer1 = MpiControl::getSingleton()->getRenderGroup()[1];
-		double totalTime = mPriTileMap[renderer0].renderTime
-				+ mPriTileMap[renderer1].renderTime;
-		double halfTime = totalTime / 2.0;
-		if (mPriTileMap[renderer0].renderTime
-				> mPriTileMap[renderer1].renderTime) { // renderer0 is slowest
-			double timeDiff = mPriTileMap[renderer0].renderTime - halfTime; // difference from half-time
-			double timeDiffPerc = (100.0 / mPriTileMap[renderer0].renderTime)
-					* timeDiff; // percent of difference from half-time
-			int windowDiff = (int) ((mPriTileMap[renderer0].width / 100.0)
-					* timeDiffPerc); // difference in width
-			mPriTileMap[renderer0].width -= windowDiff;
-			mPriTileMap[renderer1].xPos -= windowDiff;
-			mPriTileMap[renderer1].width += windowDiff;
-
-			mPriTileMap[renderer0].width = max(mPriTileMap[renderer0].width, 1);
-			mPriTileMap[renderer1].xPos = max(mPriTileMap[renderer1].xPos, 1);
-			mPriTileMap[renderer1].width = min(mPriTileMap[renderer1].width,
-					mPriWindowWidth - 1);
-		} else if (mPriTileMap[renderer1].renderTime
-				> mPriTileMap[renderer0].renderTime) { // renderer1 is slowest
-			double timeDiff = mPriTileMap[renderer1].renderTime - halfTime; // difference from half-time
-			double timeDiffPerc = (100.0 / mPriTileMap[renderer1].renderTime)
-					* timeDiff; // percent of difference from half-time
-			int windowDiff = (int) ((mPriTileMap[renderer1].width / 100.0)
-					* timeDiffPerc); // difference in width
-			mPriTileMap[renderer1].width -= windowDiff;
-			mPriTileMap[renderer1].xPos += windowDiff;
-			mPriTileMap[renderer0].width += windowDiff;
-
-			mPriTileMap[renderer1].width = max(mPriTileMap[renderer1].width, 1);
-			mPriTileMap[renderer1].xPos = min(mPriTileMap[renderer1].xPos,
-					mPriWindowWidth - 1);
-			mPriTileMap[renderer0].width = min(mPriTileMap[renderer0].width,
-					mPriWindowWidth - 1);
-		}
-		//		cout << "new Tile-Dimensions for 1:" << endl;
-		//		cout << "x, y: " << mPriTileMap[renderer0].xPos << ", " << mPriTileMap[renderer0].yPos << endl;
-		//		cout << "width, height: " << mPriTileMap[renderer0].width << ", " << mPriTileMap[renderer0].height << endl;
-		//		cout << "render-time: " << mPriTileMap[renderer0].renderTime << endl;
-		//		cout << "new Tile-Dimensions for 2:" << endl;
-		//		cout << "x, y: " << mPriTileMap[renderer1].xPos << ", " << mPriTileMap[renderer1].yPos << endl;
-		//		cout << "width, height: " << mPriTileMap[renderer1].width << ", " << mPriTileMap[renderer1].height << endl;
-		//		cout << "render-time: " << mPriTileMap[renderer1].renderTime << endl;
-	} else if (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER) == 4) {
-		//TODO implement
-		int renderer0 = MpiControl::getSingleton()->getRenderGroup()[0];
-		int renderer1 = MpiControl::getSingleton()->getRenderGroup()[1];
-		int renderer2 = MpiControl::getSingleton()->getRenderGroup()[2];
-		int renderer3 = MpiControl::getSingleton()->getRenderGroup()[3];
-		double totalTime = mPriTileMap[renderer0].renderTime
-				+ mPriTileMap[renderer1].renderTime
-				+ mPriTileMap[renderer2].renderTime
-				+ mPriTileMap[renderer3].renderTime;
-		double totalXLeftTime = mPriTileMap[renderer0].renderTime
-				+ mPriTileMap[renderer2].renderTime;
-		double totalXRightTime = mPriTileMap[renderer1].renderTime
-				+ mPriTileMap[renderer3].renderTime;
-		double halfTime = totalTime / 2.0;
-		double halfXLeftTime = totalXLeftTime / 2.0;
-		double halfXRightTime = totalXRightTime / 2.0;
-
-		 // left side
-		if (mPriTileMap[renderer0].renderTime
-				> mPriTileMap[renderer2].renderTime){ // renderer0 is slowest
-
-		}
-		else if (mPriTileMap[renderer0].renderTime
-				< mPriTileMap[renderer2].renderTime){ // renderer2 is slowest
-
-		}
-		 // right side
-		if (mPriTileMap[renderer1].renderTime
-				> mPriTileMap[renderer3].renderTime){ // renderer1 is slowest
-
-		}
-		else if (mPriTileMap[renderer1].renderTime
-				< mPriTileMap[renderer3].renderTime){ // renderer3 is slowest
-
-		}
-		// the y-border
-		if (totalXLeftTime > totalXRightTime) { // left ist slowest
-			double timeDiff = halfXLeftTime - halfTime; // difference from half-time
-			double timeDiffPerc = (100.0 / totalXLeftTime)
-					* timeDiff; // percent of difference from half-time
-			int windowDiff = (int) ((mPriTileMap[renderer0].width / 100.0)
-					* timeDiffPerc); // difference in width
-			mPriTileMap[renderer0].width -= windowDiff;
-			mPriTileMap[renderer2].width -= windowDiff;
-			mPriTileMap[renderer1].xPos -= windowDiff;
-			mPriTileMap[renderer1].width += windowDiff;
-			mPriTileMap[renderer3].xPos -= windowDiff;
-			mPriTileMap[renderer3].width += windowDiff;
-
-			mPriTileMap[renderer0].width = max(mPriTileMap[renderer0].width, 1);
-			mPriTileMap[renderer2].width = max(mPriTileMap[renderer0].width, 1);
-			mPriTileMap[renderer1].xPos = max(mPriTileMap[renderer1].xPos, 1);
-			mPriTileMap[renderer1].width = min(mPriTileMap[renderer1].width,
-					mPriWindowWidth - 1);
-			mPriTileMap[renderer3].xPos = max(mPriTileMap[renderer1].xPos, 1);
-			mPriTileMap[renderer3].width = min(mPriTileMap[renderer1].width,
-					mPriWindowWidth - 1);
-		} else if (totalXLeftTime < totalXRightTime) { // renderer1 is slowest || right ist slowest
-			double timeDiff = halfXRightTime - halfTime; // difference from half-time
-			double timeDiffPerc = (100.0 / totalXRightTime)
-					* timeDiff; // percent of difference from half-time
-			int windowDiff = (int) ((mPriTileMap[renderer1].width / 100.0)
-					* timeDiffPerc); // difference in width
-			mPriTileMap[renderer1].width -= windowDiff;
-			mPriTileMap[renderer1].xPos += windowDiff;
-			mPriTileMap[renderer3].width -= windowDiff;
-			mPriTileMap[renderer3].xPos += windowDiff;
-			mPriTileMap[renderer0].width += windowDiff;
-			mPriTileMap[renderer2].width += windowDiff;
-
-			mPriTileMap[renderer1].width = max(mPriTileMap[renderer1].width, 1);
-			mPriTileMap[renderer1].xPos = min(mPriTileMap[renderer1].xPos,
-					mPriWindowWidth - 1);
-			mPriTileMap[renderer3].width = max(mPriTileMap[renderer1].width, 1);
-			mPriTileMap[renderer3].xPos = min(mPriTileMap[renderer1].xPos,
-					mPriWindowWidth - 1);
-			mPriTileMap[renderer0].width = min(mPriTileMap[renderer0].width,
-					mPriWindowWidth - 1);
-			mPriTileMap[renderer2].width = min(mPriTileMap[renderer0].width,
-					mPriWindowWidth - 1);
-		}
-
-	}
-}
-
 void RenderMasterCore::notify(oocframework::IEvent& event) {
 	if (event.instanceOf(WindowResizedEvent::classid())) {
 		WindowResizedEvent& rwe = (WindowResizedEvent&) event;
@@ -460,6 +330,9 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 		}
 	}
 	else if (event.instanceOf(MouseDraggedEvent::classid())){
+		mPriCamHasMoved = true;
+	}
+	else if (event.instanceOf(CameraMovedEvent::classid())){
 		mPriCamHasMoved = true;
 	}
 	else if (event.instanceOf(MouseButtonEvent::classid())){

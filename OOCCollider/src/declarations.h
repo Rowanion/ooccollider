@@ -24,6 +24,7 @@
 #define WINDOW_HEIGHT 480
 #define DEPTHBUFFER_INTERVAL 15
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
+#define CAMERA_OFFSET 1.0f
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
@@ -43,6 +44,7 @@ class DataCore;
 class DataCoreGlFrame;
 class Message;
 class MpiControl;
+class OOCCamera;
 class OOCWindow;
 class RenderCore;
 class RenderCoreGlFrame;
