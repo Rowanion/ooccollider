@@ -151,6 +151,8 @@ private:
 
 	double mPriRenderTimeSum;
 
+	bool mPriShowOffset;
+
 	CGprogram g_cgVertexProg;
 	CGparameter g_cgGlobalAmbient;
 	CGparameter g_cgLightColor;

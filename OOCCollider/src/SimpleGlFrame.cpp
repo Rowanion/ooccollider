@@ -41,7 +41,7 @@ using namespace ooctools;
 using namespace oocframework;
 
 SimpleGlFrame::SimpleGlFrame() :
-	nearPlane(0.1f), farPlane(3200.0f), scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0), mPriIVbo(0), mPriCamera(OOCCamera()), walkingSpeed(0.3f),
+	nearPlane(0.1f), farPlane(200.0f), scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0), mPriIVbo(0), mPriCamera(OOCCamera()), walkingSpeed(0.3f),
 	mPriFbo(0), mPriColorBuffer(0), mPriCBufWidth(0), mPriCBufHeight(0), mPriCBufX(0), mPriCBufY(0), mPriUseSpaceNav(false), mPrilockTrans(false), mPrilockRot(false)
 {
 	// TODO Auto-generated constructor stub
