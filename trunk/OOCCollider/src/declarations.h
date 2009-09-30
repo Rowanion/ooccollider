@@ -24,7 +24,8 @@
 #define WINDOW_HEIGHT 480
 #define DEPTHBUFFER_INTERVAL 15
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
-#define CAMERA_OFFSET 1.0f
+#define CAMERA_OFFSET 15.0f
+#define FAR_CLIPPING_PLANE 150.0f
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
@@ -54,6 +55,7 @@ class Splittree;
 
 //events
 class AccumulatedRendertimeEvent;
+class CameraMovedEvent;
 class ChangeTileDimensionsEvent;
 class ColorBufferEvent;
 class DepthBufferEvent;

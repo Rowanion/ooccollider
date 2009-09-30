@@ -49,7 +49,7 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
-					100.0f), mPriNearClippingPlane(0.1f), mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0) {
+					FAR_CLIPPING_PLANE), mPriNearClippingPlane(0.1f), mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false){
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -221,15 +221,17 @@ void RenderCoreGlFrame::display()
 	GET_GLERROR(0);
 	glLoadIdentity();
 	GET_GLERROR(0);
-//	mPriCamera.initMatrices();
+	// setting current matrix, apply to camera and recalc
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
 	mPriCamera.calcMatrix();
-	glPushMatrix();
+	// push matrix for extended frustum
+	if (!mPriShowOffset)
+		glPushMatrix();
 	glLoadIdentity();
+	// calc extended frustum
 	mPriCamera.decZMove(CAMERA_OFFSET);
 	mPriCamera.calcMatrix();
 
-//	glMultMatrixf(mPriModelViewMatrix);
 	GET_GLERROR(0);
 
 	if (mPriCamHasMoved){
@@ -238,10 +240,11 @@ void RenderCoreGlFrame::display()
 		}
 	}
 	GET_GLERROR(0);
-//	setupTexture();
 
 	getFrustum();
-	glPopMatrix();
+	// pop matrix to restore original camera
+	if (!mPriShowOffset)
+		glPopMatrix();
 	mPriIdsInFrustum.clear();
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
 //	cout << "list of nodes in frustum: " << endl;
@@ -407,8 +410,13 @@ void RenderCoreGlFrame::display()
 	// restore normal frustum before drawing
 	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)
 	reshape(mPriWindowWidth,mPriWindowHeight);
+	GLint polyMode;
+	glGetIntegerv(GL_POLYGON_MODE, &polyMode);
+	glPolygonMode(GL_FRONT, GL_FILL);
 	mPriFbo->drawColorFSQuad();
 //	drawDepthTex();
+	glPolygonMode(GL_FRONT, polyMode);
+	GET_GLERROR(0);
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
@@ -505,6 +513,11 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 	worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
 	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
 	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
+
+//	worldTopLine -= 1.0;
+//	worldBottomLine += 1.0;
+////	worldLeftLine -= 1.0;
+//	worldRightLine += 1.0;
 
 	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 	glMatrixMode(GL_PROJECTION);
@@ -995,36 +1008,36 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 
 void RenderCoreGlFrame::depthPass()
 {
+	glLoadIdentity();
+	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
+	mPriCamera.decZMove(CAMERA_OFFSET);
+	mPriCamera.calcMatrix();
+
 	GLint polyMode;
 	glGetIntegerv(GL_POLYGON_MODE, &polyMode);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
-	glLoadIdentity();
 	GET_GLERROR(0);
-	glMultMatrixf(mPriModelViewMatrix);
+	mPriFbo->bind();
+	mPriFbo->clear();
 	GET_GLERROR(0);
-		glPushMatrix();
-		GET_GLERROR(0);
-		mPriFbo->bind();
-		mPriFbo->clear();
-		GET_GLERROR(0);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
-			it->second->managedDraw(true);
-		}
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		GET_GLERROR(0);
-		FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-		DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
-		MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
-		Message* msg = new Message(dbe, 0, MpiControl::DATA);
-		MpiControl::getSingleton()->send(msg);
-		cout << MpiControl::getSingleton()->getRank() << " has send depthbuffer" << endl;
-		mPriRequestedVboList.clear();
-		mPriFbo->unbind();
-		glPopMatrix();
-		glPolygonMode(GL_FRONT, polyMode);
-		GET_GLERROR(0);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
+		it->second->managedDraw(true);
+	}
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	GET_GLERROR(0);
+	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
+	DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
+	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
+	Message* msg = new Message(dbe, 0, MpiControl::DATA);
+	MpiControl::getSingleton()->send(msg);
+	cout << MpiControl::getSingleton()->getRank() << " has sent depthbuffer" << endl;
+	mPriRequestedVboList.clear();
+//	setupTexture();
+	mPriFbo->unbind();
+	glPolygonMode(GL_FRONT, polyMode);
+	GET_GLERROR(0);
 
 }
 
@@ -1051,10 +1064,12 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			case GLFW_KEY_PAGEUP: // tilt up
 			break;
 			case GLFW_KEY_KP_SUBTRACT:
-				mPriNearClippingPlane/=2.0f;
+				mPriNearClippingPlane-=0.1f;
+				mPriFarClippingPlane-=0.1f;
 				break;
 			case GLFW_KEY_KP_ADD:
-				mPriNearClippingPlane*=2.0f;
+				mPriNearClippingPlane+=0.1f;
+				mPriFarClippingPlane+=0.1f;
 				break;
 			case 'B': {// manually resend depth-buffer
 				mPriCamHasMoved = true;
@@ -1078,35 +1093,8 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				mPriUseWireFrame = !mPriUseWireFrame;
 			break;
-			case 'L':{ // reset current screen
-				mPriRequestedVboList.clear();
-				mPriObsoleteVbos.clear();
-//				mPriMissingIdsInFrustum.clear();
-				IdVboMapIter mapIt = mPriVbosInFrustum.begin();
-				for (; mapIt != mPriVbosInFrustum.end(); mapIt++){
-					mapIt->second->setOffline();
-					delete mapIt->second;
-				}
-				mPriVbosInFrustum.clear();
-				mapIt = mPriOfflineVbosInFrustum.begin();
-				for (; mapIt != mPriOfflineVbosInFrustum.end(); mapIt++){
-					mapIt->second->setOffline();
-					delete mapIt->second;
-				}
-				mPriOfflineVbosInFrustum.clear();
-				mPriTriCount = 0;
-				mPriCamHasMoved = true;
-				bool bound = false;
-				bound = mPriFbo->isBound();
-				if (!bound){
-					mPriFbo->bind();
-				}
-				FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-				if (!bound){
-					mPriFbo->unbind();
-				}
-				DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
-				MpiControl::getSingleton()->push(new Message(dbe, 2, MpiControl::DATA));
+			case 'L':{
+				mPriShowOffset = !mPriShowOffset;
 
 			break;}
 			case 'O': // switch BoundingBoxMode

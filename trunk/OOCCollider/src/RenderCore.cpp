@@ -50,8 +50,12 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 //	mWindow->enableKeyCallback();
 	mPriGlFrame = new RenderCoreGlFrame(_width, _height);
 	mWindow->attachGlFrame(mPriGlFrame);
+	GET_GLERROR(0);
+
 	mPriGlFrame->init();
+	GET_GLERROR(0);
 	mPriGlFrame->reshape(_width, _height);
+	GET_GLERROR(0);
 
 	// Main rendering loop
 	unsigned frames = 0;
@@ -69,6 +73,7 @@ RenderCore::RenderCore(unsigned _width, unsigned _height) : mWindow(0), mRunning
 //		cout << "waiting for matrix from 0..." << endl;
 //		receiveMethod(0);
 		if (mRunning){
+			GET_GLERROR(0);
 			mPriGlFrame->display();
 //			cout << "sending the outqueue of renderer" << endl;
 			while(!MpiControl::getSingleton()->outQueueEmpty()){ // send everything

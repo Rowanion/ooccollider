@@ -15,7 +15,7 @@ struct V2FI
   float4 oPosition 		: POSITION;
   float3 oNormal   		: TEXCOORD0;
   float3 oColor			: COLOR0;
-  float texCoord;
+  float texCoord		: TEXCOORD5;
   float4 diffuse		: TEXCOORD1;
   float4 ambient		: TEXCOORD2;
   float3 lightDir		: TEXCOORD3;
@@ -28,6 +28,7 @@ V2FI main(appin IN)
 
   // extract TextureCoordinate from 4th component and access the texture with it
   OUT.texCoord = IN.position.w;
+  OUT.oColor = float3(IN.position.w, IN.position.w, IN.position.w);
 //  OUT.oColor = tex1D(colorLut, 0.20002).rgb;
 
   // restore harmonic component
