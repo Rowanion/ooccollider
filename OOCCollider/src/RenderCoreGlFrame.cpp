@@ -49,7 +49,8 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
-					FAR_CLIPPING_PLANE), mPriNearClippingPlane(0.1f), mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false){
+					FAR_CLIPPING_PLANE), mPriNearClippingPlane(0.1f),
+			mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false){
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -209,6 +210,7 @@ void RenderCoreGlFrame::display()
 //	resizeWindow(height, width);
 
 //	resizeFrustum(640, 480);
+//	initTiles(true);
 	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 //	resizeFrustum(0, 320, 640, 480); // right position, or is it?
 //	void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
@@ -225,26 +227,29 @@ void RenderCoreGlFrame::display()
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
 	mPriCamera.calcMatrix();
 	// push matrix for extended frustum
-	if (!mPriShowOffset)
-		glPushMatrix();
-	glLoadIdentity();
-	// calc extended frustum
-	mPriCamera.decZMove(CAMERA_OFFSET);
-	mPriCamera.calcMatrix();
+//	if (!mPriShowOffset)
+//		glPushMatrix();
+//	glLoadIdentity();
+//	// calc extended frustum
+//	mPriCamera.decZMove(CAMERA_OFFSET);
+//	mPriCamera.calcMatrix();
 
-	GET_GLERROR(0);
+//	GET_GLERROR(0);
 
 	if (mPriCamHasMoved){
 		if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition)){
 			cout << "----------------------------------------- NO INVERSE!" << endl;
 		}
 	}
-	GET_GLERROR(0);
+//	GET_GLERROR(0);
 
 	getFrustum();
+
+
+
 	// pop matrix to restore original camera
-	if (!mPriShowOffset)
-		glPopMatrix();
+//	if (!mPriShowOffset)
+//		glPopMatrix();
 	mPriIdsInFrustum.clear();
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
 //	cout << "list of nodes in frustum: " << endl;
@@ -484,15 +489,23 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
 
+	initTiles(false);
+}
+
+void RenderCoreGlFrame::initTiles(bool extendFrustum)
+{
 	//resize
+	float fovy = 45.0;
+
 	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
-	screenYMax = tan(45.0 / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenXMax = screenYMax * ratio;
 	screenYMin = -screenYMax;
 
-	screenYMaxH = tan((45.0 * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenXMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
+
 }
 
 void RenderCoreGlFrame::resizeFrustum() {
@@ -513,11 +526,6 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 	worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
 	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
 	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
-
-//	worldTopLine -= 1.0;
-//	worldBottomLine += 1.0;
-////	worldLeftLine -= 1.0;
-//	worldRightLine += 1.0;
 
 	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 	glMatrixMode(GL_PROJECTION);
@@ -1008,15 +1016,16 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 
 void RenderCoreGlFrame::depthPass()
 {
+	initTiles(false);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 	glLoadIdentity();
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
-	mPriCamera.decZMove(CAMERA_OFFSET);
 	mPriCamera.calcMatrix();
 
 	GLint polyMode;
 	glGetIntegerv(GL_POLYGON_MODE, &polyMode);
 	glPolygonMode(GL_FRONT, GL_FILL);
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+//	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 	GET_GLERROR(0);
 	mPriFbo->bind();
 	mPriFbo->clear();
@@ -1028,7 +1037,7 @@ void RenderCoreGlFrame::depthPass()
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	GET_GLERROR(0);
 	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-	DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
+	DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
 	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 	Message* msg = new Message(dbe, 0, MpiControl::DATA);
 	MpiControl::getSingleton()->send(msg);
@@ -1064,12 +1073,10 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			case GLFW_KEY_PAGEUP: // tilt up
 			break;
 			case GLFW_KEY_KP_SUBTRACT:
-				mPriNearClippingPlane-=0.1f;
-				mPriFarClippingPlane-=0.1f;
+//				mPriFrustumExtension -= 0.1;
 				break;
 			case GLFW_KEY_KP_ADD:
-				mPriNearClippingPlane+=0.1f;
-				mPriFarClippingPlane+=0.1f;
+//				mPriFrustumExtension += 0.1;
 				break;
 			case 'B': {// manually resend depth-buffer
 				mPriCamHasMoved = true;
@@ -1082,7 +1089,7 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 				if (!bound){
 					mPriFbo->unbind();
 				}
-				DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, mPriDepthBuffer);
+				DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
 				MpiControl::getSingleton()->push(new Message(dbe, 2));
 				mPriRequestedVboList.clear();
 			break;}
@@ -1157,6 +1164,7 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << headerS.str() << "farPlane: " << mPriFarClippingPlane << endl;
 
 		cout << headerS.str() << "Tile-Dimensions: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
+		cout << headerS.str() << "Frustum-Modifier: " << mPriFrustumExtension << endl;
 		cout << "---------------------------------------" << endl;
 	}
 

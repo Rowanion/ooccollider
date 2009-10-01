@@ -48,9 +48,12 @@ using namespace std;
 RenderMasterCore* RenderMasterCore::instance = 0;
 
 RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
-	mWindow(0), mRunning(true), mTerminateApplication(false),
-			mPriCamHasMoved(false), mPriFrameCount(0), mPriRenderTimeCount(0), mPriOh(OctreeHandler()),
-			mPriLo(0), mPriSTree(0), mPriRenderTimes(vector<double>(MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)), mPriMpiCon(0), mPriWindowWidth(_width), mPriWindowHeight(_height) {
+	mWindow(0), mRunning(true), mTerminateApplication(false), mPriCamHasMoved(
+			true), mPriFrameCount(DEPTHBUFFER_INTERVAL), mPriRenderTimeCount(0), mPriOh(
+			OctreeHandler()), mPriLo(0), mPriSTree(0),
+			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
+			mPriMpiCon(0),
+			mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
@@ -296,6 +299,18 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 					KillApplicationEvent::classid()->getShortId(), 1, 0, &data,
 					MpiControl::RENDERER));
 			mTerminateApplication = true;
+			break;
+		case GLFW_KEY_KP_ADD:
+			MpiControl::getSingleton()->push(new Message(kpe, 1,
+					MpiControl::RENDERER));
+			MpiControl::getSingleton()->push(new Message(kpe, 1,
+					MpiControl::DATA));
+			break;
+		case GLFW_KEY_KP_SUBTRACT:
+			MpiControl::getSingleton()->push(new Message(kpe, 1,
+					MpiControl::RENDERER));
+			MpiControl::getSingleton()->push(new Message(kpe, 1,
+					MpiControl::DATA));
 			break;
 		case 'N':
 			MpiControl::getSingleton()->push(new Message(kpe, 1,

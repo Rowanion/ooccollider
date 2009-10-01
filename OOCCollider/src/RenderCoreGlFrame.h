@@ -141,6 +141,8 @@ private:
 
 	float mPriFarClippingPlane, mPriNearClippingPlane;
 
+	float mPriFrustumExtension;
+
 	OOCCamera mPriCamera;
 
 
@@ -206,6 +208,7 @@ private:
 
 	void setupTexture();
 	void drawDepthTex();
+	void initTiles(bool extendFrustum);
 };
 
 #endif /* RENDERCOREGLFRAME_H_ */
