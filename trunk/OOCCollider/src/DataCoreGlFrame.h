@@ -51,6 +51,10 @@ public:
 	;
 	void setMvMatrix(const float* matrix);
 
+	void initTiles();
+	void resizeFrustum();
+	void resizeFrustum(unsigned _width, unsigned _height);
+	void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight);
 	void debug();
 	void notify(oocframework::IEvent& event);
 
@@ -74,12 +78,14 @@ private:
 
 
 	ooctools::Fbo* mPriFbo;
+
+	std::map<int, ooctools::Fbo*> mPriFbos;
+
 	int mPriWindowWidth;
 	int mPriWindowHeight;
 
 	int mPriButtonActions[3];
 
-	GLubyte* mPriPixelBuffer;
 	GLfloat* mPriDepthBuffer;
 	bool mPriNewDepthBuf;
 
@@ -105,6 +111,14 @@ private:
 
 	float mPriFarClippingPlane;
 	float mPriNearClippingPlane;
+
+	GLdouble worldTopLine;
+	GLdouble worldBottomLine;
+	GLdouble worldLeftLine;
+	GLdouble worldRightLine;
+
+	std::map<int, Tile> mPriTileMap;
+	float mPriFrustumExtension;
 
 	OOCCamera mPriCamera;
 
@@ -134,11 +148,22 @@ private:
 //	CGparameter g_cgKe;
 //	CGparameter g_cgModelViewInv;
 
+	// resize
+	GLfloat ratio;
+	double screenXMax;
+	double screenYMax;
+	double screenYMin;
+	double screenXMaxH;
+	double screenYMaxH;
+	double screenYMinH;
+
 	typedef std::map<uint64_t, ooctools::IndexedVbo*>::iterator VboMapIter;
+	typedef std::map<int, ooctools::Fbo*>::iterator IntFboMapIter;
 
 	void calcFPS();
 	void loadMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
 	void setupCg();
+	void initTiles(bool extendFrustum);
 };
 
 #endif /* DATACOREGLFRAME_H_ */

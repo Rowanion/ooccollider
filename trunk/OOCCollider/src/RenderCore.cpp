@@ -182,7 +182,7 @@ void RenderCore::handleMsg(Message* msg)
 		else if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
 			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
 			mPriGlFrame->setTileDimensions(ctde.getTileXPos(),ctde.getTileYPos(), ctde.getTileWidth(),ctde.getTileHeight());
-			cout << "render " << mPriMpiCon->getRank() << " waiting at barrier bevor deptbuffers" << endl;
+			cout << "render " << mPriMpiCon->getRank() << " waiting at barrier before deptbuffers" << endl;
 			mPriMpiCon->barrier();
 			cout << "render " << mPriMpiCon->getRank() << " continuing" << endl;
 			mPriGlFrame->depthPass();

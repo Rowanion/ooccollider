@@ -35,11 +35,11 @@ class NodeRequestEvent : public oocframework::IEvent{
 public:
 	NodeRequestEvent();
 	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int reciepient);
-	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int reciepient);
+	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient);
 	NodeRequestEvent(const Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();
-	inline virtual const oocframework::ClassId* getClassId(){return mClassId;};
+	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 
 	/**
@@ -47,19 +47,19 @@ public:
 	 * The resolution is the key to size determination.
 	 * @return the size in bytes stored in superclass oocframework::IEvent::mProData
 	 */
-	inline virtual unsigned getByteSize(){return mPriByteSize;};
+	virtual unsigned getByteSize(){return mPriByteSize;};
 
 	/**
 	 * @brief Returns the requested distance to the eye of the node at index idx.
 	 */
-	inline float getDistance(unsigned idx) const {
+	float getDistance(unsigned idx) const {
 		return ((float*)(mProData+sizeof(unsigned)+sizeof(int)))[idx];
 	};
 
 	/**
 	 * @brief Returns a const pointer to all distances to the eye.
 	 */
-	inline const float* getDistanceArray() const {
+	const float* getDistanceArray() const {
 		return ((const float*)(mProData+sizeof(unsigned)+sizeof(int)));
 	};
 
@@ -67,28 +67,28 @@ public:
 	 * @brief Returns the requested node-id at index idx.
 	 * @note Not sure if we need this. I was just in completeness-mood....
 	 */
-	inline uint64_t getId(unsigned idx) const {
+	uint64_t getId(unsigned idx) const {
 		return ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*getIdxCount())))[idx];
 	};
 
 	/**
 	 * @brief Returns a const pointer to all requested node-ids.
 	 */
-	inline const uint64_t* getIdArray() const {
+	const uint64_t* getIdArray() const {
 		return ((const uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*getIdxCount())));
 	};
 
 	/**
 	 * @brief Returns the number of nodes contained in this event.
 	 */
-	inline unsigned getIdxCount() const {
+	unsigned getIdxCount() const {
 		return ((unsigned*)mProData)[0];
 	};
 
 	/**
-	 * @brief Returns the number of nodes contained in this event.
+	 * @brief Returns the id of the mpi-node which requested these vbos.
 	 */
-	inline int getRecepient() const {
+	int getRecepient() const {
 		return 	((int*)(mProData+sizeof(unsigned)))[0];
 	};
 
