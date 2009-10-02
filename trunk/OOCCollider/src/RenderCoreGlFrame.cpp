@@ -41,7 +41,7 @@ using namespace oocframework;
 RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriCamHasMoved(false),
-			mPriBBMode(0), mPriAspectRatio(0.0f), mPriFbo(0),
+			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriFbo(0),
 			mPriWindowWidth(width), mPriWindowHeight(height), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),
@@ -210,8 +210,8 @@ void RenderCoreGlFrame::display()
 //	resizeWindow(height, width);
 
 //	resizeFrustum(640, 480);
-//	initTiles(true);
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+	initTiles(true);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
 //	resizeFrustum(0, 320, 640, 480); // right position, or is it?
 //	void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
 //			unsigned leftLine, unsigned tileswidth)
@@ -245,6 +245,8 @@ void RenderCoreGlFrame::display()
 
 	getFrustum();
 
+	initTiles(false);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, false);
 
 
 	// pop matrix to restore original camera
@@ -391,7 +393,7 @@ void RenderCoreGlFrame::display()
 //				}
 //				if (frame == (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved){
 //					GET_GLERROR(0);
-//					mPriCamHasMoved = false;
+//					mPriCamHasMoved = false;mPriExtendedFovy
 //					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 //					DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
 //					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
@@ -492,10 +494,16 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	initTiles(false);
 }
 
-void RenderCoreGlFrame::initTiles(bool extendFrustum)
+void RenderCoreGlFrame::initTiles(bool extendFovy)
 {
 	//resize
-	float fovy = 45.0;
+	float fovy;
+	if (extendFovy){
+		fovy = mPriExtendedFovy;
+	}
+	else {
+		fovy = 45.0;
+	}
 
 	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
 	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
@@ -516,8 +524,27 @@ void RenderCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
 	this->resizeFrustum(0, 0, _width, _height);
 }
 
-void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight)
+void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
 {
+	if (extendFrustum){
+		int xMod = (mPriWindowWidth-tileswidth)/2;
+		int yMod = (mPriWindowHeight-tilesheight)/2;
+		if (tileXPos == 0){
+			tileswidth+=xMod;
+		}
+		else{
+			tileXPos-=xMod;
+			tileswidth+=xMod;
+		}
+		if (tileYPos == 0){
+			tilesheight+=yMod;
+		}
+		else{
+			tileYPos-=yMod;
+			tilesheight+=yMod;
+		}
+	}
+
 	if (tilesheight == 0)
 		tilesheight = 1;
 	if (tileswidth == 0)
@@ -1016,8 +1043,8 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 
 void RenderCoreGlFrame::depthPass()
 {
-	initTiles(false);
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+	initTiles(true);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
 	glLoadIdentity();
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
 	mPriCamera.calcMatrix();
@@ -1073,10 +1100,10 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			case GLFW_KEY_PAGEUP: // tilt up
 			break;
 			case GLFW_KEY_KP_SUBTRACT:
-//				mPriFrustumExtension -= 0.1;
+				mPriFrustumExtension -= 0.1;
 				break;
 			case GLFW_KEY_KP_ADD:
-//				mPriFrustumExtension += 0.1;
+				mPriFrustumExtension += 0.1;
 				break;
 			case 'B': {// manually resend depth-buffer
 				mPriCamHasMoved = true;

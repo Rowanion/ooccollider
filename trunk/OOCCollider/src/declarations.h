@@ -26,6 +26,7 @@
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
 #define CAMERA_OFFSET 15.0f
 #define FAR_CLIPPING_PLANE 100.0f
+#define EXTENDED_FOVY 70.0
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000

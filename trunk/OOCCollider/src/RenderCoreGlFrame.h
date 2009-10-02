@@ -47,7 +47,7 @@ public:
 	virtual void resizeFrustum();
 	virtual void resizeFrustum(unsigned _width, unsigned _height);
 	virtual void resizeFrustum(unsigned tileXPos, unsigned tileYPos,
-			unsigned tileswidth, unsigned tilesheight);
+			unsigned tileswidth, unsigned tilesheight, bool extendFrustum =false);
 	float getFrames() const {
 		return avgFps;
 	}
@@ -96,6 +96,8 @@ private:
 	ooctools::V3f mPriEyePosition;
 	bool mPriCamHasMoved;
 	unsigned mPriBBMode;
+
+	double mPriExtendedFovy;
 
 	float mPriAspectRatio;
 
