@@ -46,10 +46,13 @@ DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(tru
 	title << "DataNode (" << MpiControl::getSingleton()->getRank() << ")";
 	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
+	GET_GLERROR(0);
 	mGlFrame = new DataCoreGlFrame();
+	GET_GLERROR(0);
 	mWindow->attachGlFrame(mGlFrame);
+	GET_GLERROR(0);
 	mGlFrame->init();
-
+	GET_GLERROR(0);
 	// Main rendering loop
 	do {
 //		cout << "2 waiting for any..." << endl;
@@ -161,6 +164,7 @@ void DataCore::handleMsg(Message* msg){
 //				for(unsigned i=0; i< nre.getIdxCount(); ++i){
 //					cout << nre.getId(i) << endl;
 //				}
+		GET_GLERROR(0);
 		mGlFrame->display(nre);
 
 	}

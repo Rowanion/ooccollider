@@ -46,9 +46,13 @@ public:
 	GLuint getColorTexId(){return mPriColorTexture;};
 	GLuint getDepthTexId(){return mPriDepthTexture;};
 	inline bool isBound() const {return fboIsBound;};
+	void setDepthTex(GLuint texId);
+	GLuint createDepthTex();
 
 	int mPriWidth;
 	int mPriHeight;
+
+	static void checkFbo(Fbo* _fbo);
 
 private:
 	GLuint mPriFBO;
