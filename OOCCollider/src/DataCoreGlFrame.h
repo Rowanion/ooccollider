@@ -51,10 +51,10 @@ public:
 	;
 	void setMvMatrix(const float* matrix);
 
-	void initTiles();
+	void initTiles(bool extendFovy);
 	void resizeFrustum();
 	void resizeFrustum(unsigned _width, unsigned _height);
-	void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight);
+	void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum=false);
 	void debug();
 	void notify(oocframework::IEvent& event);
 
@@ -83,7 +83,7 @@ private:
 
 	GLfloat* mPriDepthBuffer;
 	bool mPriNewDepthBuf;
-
+	double mPriExtendedFovy;
 	// Frustum-Culling member
 	float priProj[16];
 	float priModl[16];
@@ -160,7 +160,6 @@ private:
 	void calcFPS();
 	void loadMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
 	void setupCg();
-	void initTiles(bool extendFrustum);
 };
 
 #endif /* DATACOREGLFRAME_H_ */

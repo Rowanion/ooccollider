@@ -39,7 +39,7 @@ using namespace oocframework;
 DataCoreGlFrame::DataCoreGlFrame() :
 	scale(1.0f), avgFps(0.0f), time(0.0),
 			frame(0), mPriVboMan(0), mPriCgt(0),
-			mPriWindowWidth(0), mPriWindowHeight(0), mPriDepthBuffer(0), mPriNewDepthBuf(false),
+			mPriWindowWidth(0), mPriWindowHeight(0), mPriDepthBuffer(0), mPriNewDepthBuf(false), mPriExtendedFovy(EXTENDED_FOVY),
 			mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
 			mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFarClippingPlane(FAR_CLIPPING_PLANE),
 			mPriNearClippingPlane(0.1f), mPriFbo(0), mPriCamera(OOCCamera())
@@ -146,7 +146,7 @@ void DataCoreGlFrame::display()
 void DataCoreGlFrame::display(NodeRequestEvent& nre)
 {
 	GET_GLERROR(0);
-	resizeFrustum(mPriTileMap[nre.getRecepient()].xPos, mPriTileMap[nre.getRecepient()].yPos, mPriTileMap[nre.getRecepient()].width, mPriTileMap[nre.getRecepient()].height);
+	resizeFrustum(mPriTileMap[nre.getRecepient()].xPos, mPriTileMap[nre.getRecepient()].yPos, mPriTileMap[nre.getRecepient()].width, mPriTileMap[nre.getRecepient()].height, true);
 //	resizeWindow(height, width);
 //	cout << "starting display of DataCore" << endl;
 	// light blue
@@ -375,13 +375,19 @@ void DataCoreGlFrame::reshape(int width, int height) {
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
 	//resize
-	initTiles();
+	initTiles(true);
 }
 
-void DataCoreGlFrame::initTiles()
+void DataCoreGlFrame::initTiles(bool extendFovy)
 {
 	//resize
-	float fovy = 45.0;
+	float fovy;
+	if (extendFovy){
+		fovy = mPriExtendedFovy;
+	}
+	else {
+		fovy = 45.0;
+	}
 
 	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
 	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
@@ -401,8 +407,28 @@ void DataCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
 	this->resizeFrustum(0, 0, _width, _height);
 }
 
-void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight)
+void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
 {
+
+	if (extendFrustum){
+		int xMod = (mPriWindowWidth-tileswidth)/2;
+		int yMod = (mPriWindowHeight-tilesheight)/2;
+		if (tileXPos == 0){
+			tileswidth+=xMod;
+		}
+		else{
+			tileXPos-=xMod;
+			tileswidth+=xMod;
+		}
+		if (tileYPos == 0){
+			tilesheight+=yMod;
+		}
+		else{
+			tileYPos-=yMod;
+			tilesheight+=yMod;
+		}
+	}
+
 	if (tilesheight == 0)
 		tilesheight = 1;
 	if (tileswidth == 0)
