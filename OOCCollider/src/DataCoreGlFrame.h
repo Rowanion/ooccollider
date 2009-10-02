@@ -76,11 +76,6 @@ private:
 
 	ooctools::Camera camObj;
 
-
-	ooctools::Fbo* mPriFbo;
-
-	std::map<int, ooctools::Fbo*> mPriFbos;
-
 	int mPriWindowWidth;
 	int mPriWindowHeight;
 
@@ -118,6 +113,8 @@ private:
 	GLdouble worldRightLine;
 
 	std::map<int, Tile> mPriTileMap;
+	std::map<int, GLuint> mPriDepthTextures;
+	ooctools::Fbo* mPriFbo;
 	float mPriFrustumExtension;
 
 	OOCCamera mPriCamera;

@@ -7,11 +7,15 @@
  */
 
 #include "Fbo.h"
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/freeglut.h>
+
 #include <iostream>
 #include <cstring>
+
+#include "FboFactory.h"
 
 using namespace std;
 namespace ooctools {
@@ -214,6 +218,40 @@ Fbo::createAndAddDepthTex()
 	unbind();
 }
 
+void
+Fbo::setDepthTex(GLuint texId)
+{
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mPriFBO);
+	mPriDepthTexture = texId;
+	glBindTexture(GL_TEXTURE_2D, mPriDepthTexture);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, mPriDepthTexture, 0);
+	unbind();
+}
+
+GLuint
+Fbo::createDepthTex()
+{
+	GLuint texId;
+	glGenTextures(1, &texId);
+	glBindTexture(GL_TEXTURE_2D, texId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	// somehow this little sucker causes the texture still to be valid, eg. it renders
+	// all depth correctly, but it can't be displayed anymore.
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWidth, mPriHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return texId;
+}
+
 void Fbo::drawColorFSQuad()
 {
 	bool texOn = true;
@@ -276,6 +314,14 @@ void Fbo::drawDepthFSQuad(){
 		glDisable(GL_TEXTURE_2D);
 	}
 
+}
+
+void Fbo::checkFbo(Fbo* _fbo)
+{
+	_fbo->bind();
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	_fbo->unbind();
+	cout << FboFactory::statusToString(status) << endl;
 }
 
 } // end of namespace OOCTools
