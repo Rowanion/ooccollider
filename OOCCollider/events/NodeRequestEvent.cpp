@@ -24,23 +24,24 @@ NodeRequestEvent::NodeRequestEvent() {
 	init();
 }
 
-NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int recipient) {
+NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int recipient, bool isExtendedFrustum) {
 
 	unsigned mapSize = idMap.size();
 	std::multimap<float, uint64_t>::const_iterator mapIt;
 
 
 
-	mPriByteSize = sizeof(unsigned) + sizeof(int) + (sizeof(float)*mapSize) + (sizeof(uint64_t)*mapSize);
+	mPriByteSize = sizeof(unsigned) + sizeof(int) + sizeof(bool) + (sizeof(float)*mapSize) + (sizeof(uint64_t)*mapSize);
 	mProData = new char[mPriByteSize];
 	((unsigned*)mProData)[0] = mapSize;
 	((int*)(mProData+sizeof(unsigned)))[0] = recipient;
+	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0] = isExtendedFrustum;
 	unsigned elementCount = 0;
 //	std::cout << "list of node-requests inside the Event: " << std::endl;
 	for (mapIt = idMap.begin(); mapIt!= idMap.end(); ++mapIt){
 //		std::cout << mapIt->second << std::endl;
-		((float*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] = mapIt->first;
-		((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*mapSize)))[elementCount] = mapIt->second;
+		((float*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[elementCount] = mapIt->first;
+		((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)+(sizeof(float)*mapSize)))[elementCount] = mapIt->second;
 //		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
 
 		elementCount++;
@@ -48,22 +49,24 @@ NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, 
 	init();
 }
 
-NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient) {
+NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient, bool isExtendedFrustum)
+{
 
 	unsigned mapSize = idMap.size();
 	unsigned minSize = std::min(threshold, mapSize);
 	std::multimap<float, uint64_t>::const_iterator mapIt;
 
-	mPriByteSize = sizeof(unsigned) + sizeof(int) + (sizeof(float)*minSize) + (sizeof(uint64_t)*minSize);
+	mPriByteSize = sizeof(unsigned) + sizeof(int) + sizeof(bool) + (sizeof(float)*minSize) + (sizeof(uint64_t)*minSize);
 	mProData = new char[mPriByteSize];
 	((unsigned*)mProData)[0] = minSize;
 	((int*)(mProData+sizeof(unsigned)))[0] = recipient;
+	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0] = isExtendedFrustum;
 	unsigned elementCount = 0;
 //	std::cout << "list of node-requests inside the Event: " << std::endl;
 	for (mapIt = idMap.begin(); (mapIt!= idMap.end() && elementCount<threshold); ++mapIt){
 //		std::cout << mapIt->second << std::endl;
-		((float*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] = mapIt->first;
-		((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*minSize)))[elementCount] = mapIt->second;
+		((float*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[elementCount] = mapIt->first;
+		((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)+(sizeof(float)*minSize)))[elementCount] = mapIt->second;
 //		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
 
 		elementCount++;

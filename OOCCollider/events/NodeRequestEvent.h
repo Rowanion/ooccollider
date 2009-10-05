@@ -34,8 +34,8 @@
 class NodeRequestEvent : public oocframework::IEvent{
 public:
 	NodeRequestEvent();
-	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int reciepient);
-	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient);
+	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int reciepient, bool isExtendedFrustum);
+	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient, bool isExtendedFrustum);
 	NodeRequestEvent(const Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();
@@ -53,14 +53,14 @@ public:
 	 * @brief Returns the requested distance to the eye of the node at index idx.
 	 */
 	float getDistance(unsigned idx) const {
-		return ((float*)(mProData+sizeof(unsigned)+sizeof(int)))[idx];
+		return ((float*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx];
 	};
 
 	/**
 	 * @brief Returns a const pointer to all distances to the eye.
 	 */
 	const float* getDistanceArray() const {
-		return ((const float*)(mProData+sizeof(unsigned)+sizeof(int)));
+		return ((const float*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
 	};
 
 	/**
@@ -68,14 +68,14 @@ public:
 	 * @note Not sure if we need this. I was just in completeness-mood....
 	 */
 	uint64_t getId(unsigned idx) const {
-		return ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*getIdxCount())))[idx];
+		return ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)+(sizeof(float)*getIdxCount())))[idx];
 	};
 
 	/**
 	 * @brief Returns a const pointer to all requested node-ids.
 	 */
 	const uint64_t* getIdArray() const {
-		return ((const uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+(sizeof(float)*getIdxCount())));
+		return ((const uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)+(sizeof(float)*getIdxCount())));
 	};
 
 	/**
@@ -90,6 +90,13 @@ public:
 	 */
 	int getRecepient() const {
 		return 	((int*)(mProData+sizeof(unsigned)))[0];
+	};
+
+	/**
+	 * @brief Returns whether the NodeRequest is for the extended frustum or not (ie. the original frustum).
+	 */
+	bool isExtendedFrustum() const {
+		return 	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0];
 	};
 
 protected:
