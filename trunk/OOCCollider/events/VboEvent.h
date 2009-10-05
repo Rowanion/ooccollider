@@ -39,7 +39,7 @@ public:
 	VboEvent();
 	VboEvent(const ooctools::IndexedVbo* vbo);
 	VboEvent(std::string path, uint64_t nodeId);
-	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<float>& distVec);
+	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<float>& distVec, bool isExtFrustum);
 	VboEvent(const Message* msg);
 	virtual ~VboEvent();
 	static const oocframework::ClassId* classid();
@@ -95,6 +95,11 @@ public:
 	ooctools::IndexedVbo* createIVbo() const;
 
 	float getDist(unsigned idx) const;
+
+	/**
+	 * @brief Returns whether the included VBOs are from extended frustum or not (ie. the original frustum).
+	 */
+	bool isExtendedFrustum() const;
 
 protected:
 	static oocframework::ClassId* mClassId;

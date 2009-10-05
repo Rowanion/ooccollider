@@ -304,7 +304,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 */
 
 	// send the visible object to the requester
-	VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec);
+	VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec, nre.isExtendedFrustum());
 	Message* msg = new Message(ve, nre.getRecepient());
 	MpiControl::getSingleton()->push(msg);
 //  MpiControl::getSingleton()->isend();

@@ -132,6 +132,7 @@ private:
 	std::map<uint64_t, std::string> mPriIdPathMap;
 	std::map<uint64_t, oocformats::LooseOctree*> mPriIdLoMap;
 	std::set<uint64_t> mPriIdsInFrustum;
+	std::set<uint64_t> mPriIdsInExtFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVbosInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriOfflineVbosInFrustum;
 	std::set<uint64_t> mPriMissingIdsInFrustum;
@@ -211,6 +212,10 @@ private:
 	void setupTexture();
 	void drawDepthTex();
 	void initTiles(bool extendFrustum);
+	void uniqueElements(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
+	void uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
+	void stripDoublesFromRight(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
+	void stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
 };
 
 #endif /* RENDERCOREGLFRAME_H_ */

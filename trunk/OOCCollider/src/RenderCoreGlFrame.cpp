@@ -202,6 +202,26 @@ void RenderCoreGlFrame::setupCg()
 	g_cgShininess = cgGetNamedParameter(g_cgFragmentProg, "shininess");
 	g_cgModelViewInv = cgGetNamedParameter(g_cgFragmentProg, "mvi");
 
+//	set<uint64_t> a;
+//	a.insert(1);
+//	a.insert(3);
+//	a.insert(5);
+//	a.insert(7);
+//	set<uint64_t> b;
+//	b.insert(2);
+//	b.insert(4);
+//	b.insert(5);
+//	b.insert(9);
+//	set<uint64_t> c;
+//	uniqueElements(a,b,c);
+//
+//	IdSetIter it = c.begin();
+//	cout << "unique: " << endl;
+//	for (; it != c.end(); ++it){
+//		cout << *it << endl;
+//	}
+//	cout << sizeof(char) << endl;
+//	exit(0);
 }
 
 void RenderCoreGlFrame::display()
@@ -244,16 +264,19 @@ void RenderCoreGlFrame::display()
 //	GET_GLERROR(0);
 
 	getFrustum();
+	mPriIdsInExtFrustum.clear();
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum);
 
 	initTiles(false);
 	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, false);
 
 
+	getFrustum();
+	mPriIdsInFrustum.clear();
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
 	// pop matrix to restore original camera
 //	if (!mPriShowOffset)
 //		glPopMatrix();
-	mPriIdsInFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
 //	cout << "list of nodes in frustum: " << endl;
 //	for(set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!=mPriIdsInFrustum.end(); it++){
 //		cout << *it << endl;
@@ -793,6 +816,25 @@ RenderCoreGlFrame::requestMissingVbos()
 	mPriObsoleteVbos.clear();
 	trimCacheMap();
 
+	// ----------------------------------------------
+	if (MpiControl::getSingleton()->getRank() == 1){
+		set<uint64_t> newSet;
+		cout << "sizeof idFrustumList " << mPriIdsInFrustum.size() << endl;
+		cout << "sizeof idExtFrustumList " << mPriIdsInExtFrustum.size() << endl;
+		uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, newSet);
+		cout << "sizeof diff " << newSet.size() << endl;
+//		unsigned count = 0;
+//		for(IdSetIter si=mPriIdsInFrustum.begin(); si!=mPriIdsInFrustum.end(); ++si){
+//			cout << "inFrustum " << count << ": " << *si << endl;
+//			count++;
+//		}
+//		count = 0;
+//		for(IdSetIter si=mPriIdsInExtFrustum.begin(); si!=mPriIdsInExtFrustum.end(); ++si){
+//			cout << "inExtFrustum " << count << ": " << *si << endl;
+//			count++;
+//		}
+	}
+	// ----------------------------------------------
 	// check if any of the new VBOs is already in the cache
 	multimap<float, uint64_t> missingIdDistances = multimap<float, uint64_t>();
 	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
@@ -828,7 +870,7 @@ RenderCoreGlFrame::requestMissingVbos()
 			mPriRequestedVboList.insert(multiIt->second);
 			reqCount++;
 		}
-		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank());
+		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), false);
 		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
 		MpiControl::getSingleton()->isend();
 		mPriMissingIdsInFrustum.clear();
@@ -868,6 +910,172 @@ RenderCoreGlFrame::divideIdList()
 //	}
 //	if (mPriObsoleteVbos.size() > 0)
 //	cout << "number of obs vbos: " << mPriObsoleteVbos.size() << endl;
+}
+
+void
+RenderCoreGlFrame::uniqueElements(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
+{
+	CIdSetIter leftIt = leftSet.begin();
+	CIdSetIter rightIt = rightSet.begin();
+	IdSetIter uniqueIt = uniqueSet.begin();
+
+	// 1 2 3
+	// 1 2 3 4
+	bool debug = false;
+//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
+
+	while (leftIt != leftSet.end() && rightIt != rightSet.end()){
+		if (debug) cout << "comparing elements " << (*leftIt) << " and " << (*rightIt) << endl;
+		if (*leftIt < *rightIt){
+			if (debug) cout << *leftIt << " l < r " << *rightIt << endl;
+			uniqueSet.insert(uniqueIt, *leftIt);
+			uniqueIt++;
+			leftIt++;
+		}
+		else if (*leftIt > *rightIt){
+			if (debug) cout << *rightIt << " r < l " << *leftIt << endl;
+			uniqueSet.insert(uniqueIt, *rightIt);
+			uniqueIt++;
+			rightIt++;
+		}
+		else { // elements are equal
+			if (debug) cout << *leftIt << " == " << *rightIt << endl;
+			++rightIt;
+			++leftIt;
+		}
+	}
+	if (leftIt == leftSet.end() && rightIt != rightSet.end()){
+		if (debug) cout << "L-equality insert" << endl;
+		uniqueSet.insert(rightIt, rightSet.end());
+	}
+	else if (rightIt == rightSet.end() && leftIt != leftSet.end()){
+		if (debug) cout << "R-equality insert" << endl;
+		uniqueSet.insert(leftIt, leftSet.end());
+	}
+
+}
+
+void
+RenderCoreGlFrame::uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
+{
+	CIdVboMapIter leftIt = leftMap.begin();
+	CIdSetIter rightIt = rightSet.begin();
+	IdSetIter uniqueIt = uniqueSet.begin();
+
+	// 1 2 3
+	// 1 2 3 4
+	bool debug = false;
+//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
+
+	while (leftIt != leftMap.end() && rightIt != rightSet.end()){
+		if (debug) cout << "comparing elements " << leftIt->first << " and " << (*rightIt) << endl;
+		if (leftIt->first < *rightIt){
+			if (debug) cout << leftIt->first << " l < r " << *rightIt << endl;
+			uniqueSet.insert(uniqueIt, leftIt->first);
+			uniqueIt++;
+			leftIt++;
+		}
+		else if (leftIt->first > *rightIt){
+			if (debug) cout << *rightIt << " r < l " << leftIt->first << endl;
+			uniqueSet.insert(uniqueIt, *rightIt);
+			uniqueIt++;
+			rightIt++;
+		}
+		else { // elements are equal
+			if (debug) cout << leftIt->first << " == " << *rightIt << endl;
+			++rightIt;
+			++leftIt;
+		}
+	}
+	if (leftIt == leftMap.end() && rightIt != rightSet.end()){
+		if (debug) cout << "L-equality insert" << endl;
+		uniqueSet.insert(rightIt, rightSet.end());
+	}
+	else if (rightIt == rightSet.end() && leftIt != leftMap.end()){
+		if (debug) cout << "R-equality insert" << endl;
+		while(leftIt != leftMap.end()){
+			uniqueSet.insert(uniqueIt, leftIt->first);
+			uniqueIt++;
+			leftIt++;
+		}
+	}
+
+}
+
+void
+RenderCoreGlFrame::stripDoublesFromRight(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
+{
+	//TODO test
+	// removes from right side all entries wich are also in the left side
+	CIdSetIter leftIt = leftSet.begin();
+	CIdSetIter rightIt = rightSet.begin();
+	IdSetIter uniqueIt = uniqueSet.begin();
+
+	// 1 2 3
+	// 1 2 3 4
+	bool debug = false;
+//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
+
+	while (leftIt != leftSet.end() && rightIt != rightSet.end()){
+		if (debug) cout << "comparing elements " << (*leftIt) << " and " << (*rightIt) << endl;
+		if (*leftIt < *rightIt){
+			if (debug) cout << *leftIt << " l < r " << *rightIt << endl;
+			leftIt++;
+		}
+		else if (*leftIt > *rightIt){
+			if (debug) cout << *rightIt << " r < l " << *leftIt << endl;
+			uniqueSet.insert(uniqueIt, *rightIt);
+			uniqueIt++;
+			rightIt++;
+		}
+		else { // elements are equal
+			if (debug) cout << *leftIt << " == " << *rightIt << endl;
+			++rightIt;
+			++leftIt;
+		}
+	}
+	if (leftIt == leftSet.end() && rightIt != rightSet.end()){
+		if (debug) cout << "L-equality insert" << endl;
+		uniqueSet.insert(rightIt, rightSet.end());
+	}
+}
+
+void
+RenderCoreGlFrame::stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
+{
+	//TODO
+	// removes from right side all entries wich are also in the left side
+	CIdVboMapIter leftIt = leftMap.begin();
+	CIdSetIter rightIt = rightSet.begin();
+	IdSetIter uniqueIt = uniqueSet.begin();
+
+	// 1 2 3
+	// 1 2 3 4
+	bool debug = false;
+//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
+
+	while (leftIt != leftMap.end() && rightIt != rightSet.end()){
+		if (debug) cout << "comparing elements " << leftIt->first << " and " << (*rightIt) << endl;
+		if (leftIt->first < *rightIt){
+			if (debug) cout << leftIt->first << " l < r " << *rightIt << endl;
+			leftIt++;
+		}
+		else if (leftIt->first > *rightIt){
+			if (debug) cout << *rightIt << " r < l " << leftIt->first << endl;
+			uniqueSet.insert(uniqueIt, *rightIt);
+			uniqueIt++;
+			rightIt++;
+		}
+		else { // elements are equal
+			if (debug) cout << leftIt->first << " == " << *rightIt << endl;
+			++rightIt;
+			++leftIt;
+		}
+	}
+	if (leftIt == leftMap.end() && rightIt != rightSet.end()){
+		if (debug) cout << "L-equality insert" << endl;
+		uniqueSet.insert(rightIt, rightSet.end());
+	}
 }
 
 void RenderCoreGlFrame::trimCacheMap()
