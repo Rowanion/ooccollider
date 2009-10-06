@@ -78,6 +78,8 @@ private:
 
 	int mPriWindowWidth;
 	int mPriWindowHeight;
+	int mPriRenderWidth;
+	int mPriRenderHeight;
 
 	int mPriButtonActions[3];
 
