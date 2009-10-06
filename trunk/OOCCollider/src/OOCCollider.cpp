@@ -154,12 +154,12 @@ int main(int argc, char *argv[]) {
 	}
 	else if ((mpic->getRank() >= 1) && (mpic->getRank() <= 2)) {
 //		setupWindow("slave");
-		RenderCore rc = RenderCore(WINDOW_WIDTH, WINDOW_HEIGHT);
+		RenderCore rc = RenderCore(800, 600, WINDOW_WIDTH, WINDOW_HEIGHT);
 		cout << "End of display loop " << mpic->getRank() << endl;
 	}
 	else {
 //		setupWindow("slave");
-		DataCore dc = DataCore(WINDOW_WIDTH, WINDOW_HEIGHT);
+		DataCore dc = DataCore(800, 600);
 		cout << "End of display loop " << mpic->getRank() << endl;
 	}
 	cout << "leaving depending part: " << mpic->getRank() << endl;

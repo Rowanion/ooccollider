@@ -65,7 +65,7 @@ VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::
 	mProData = new char[mPriByteSize];
 
 	((unsigned*)mProData)[0] = vboCount;
-	((bool*)(mProData + sizeof(unsigned)))[0] = vboCount;
+	((bool*)(mProData + sizeof(unsigned)))[0] = isExtFrustum;
 
 	memcpy(((mProData + sizeof(unsigned) + sizeof(bool))), bytePrefixSums, sizeof(unsigned)*(vboCount+1));
 

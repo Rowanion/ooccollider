@@ -37,7 +37,7 @@
  */
 class RenderCoreGlFrame : public AbstractGlFrame, oocframework::AbstractEventListener {
 public:
-	RenderCoreGlFrame(int width, int height);
+	RenderCoreGlFrame(int width, int height, int finalWidth, int finalHeight);
 	virtual ~RenderCoreGlFrame();
 	virtual void init();
 	virtual void setupCg();
@@ -109,6 +109,8 @@ private:
 	ooctools::Fbo* mPriFbo;
 	int mPriWindowWidth;
 	int mPriWindowHeight;
+	int mPriRenderWidth;
+	int mPriRenderHeight;
 	GLfloat ratio;
 	unsigned mPriTileYPos, mPriTileXPos, mPriTileWidth, mPriTileHeight;
 
@@ -214,8 +216,8 @@ private:
 	void initTiles(bool extendFrustum);
 	void uniqueElements(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
 	void uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
-	void stripDoublesFromRight(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
-	void stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
+	void stripDoublesFromRight(const std::set<uint64_t>& leftSet, std::set<uint64_t>& rightSet);
+	void stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, std::set<uint64_t>& rightSet);
 };
 
 #endif /* RENDERCOREGLFRAME_H_ */

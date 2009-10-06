@@ -125,6 +125,7 @@ void DataCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
+	reshape(mPriWindowWidth, mPriWindowHeight);
 }
 
 void DataCoreGlFrame::setupCg()
@@ -305,6 +306,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 	// send the visible object to the requester
 	VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec, nre.isExtendedFrustum());
+
 	Message* msg = new Message(ve, nre.getRecepient());
 	MpiControl::getSingleton()->push(msg);
 //  MpiControl::getSingleton()->isend();
@@ -323,19 +325,21 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 	mPriOccResults.clear();
 
-	// draw the result for debugging
-	reshape(mPriWindowWidth,mPriWindowHeight);
-	cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
-	cgGLEnableTextureParameter(cgTexture);
-	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
-	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
+	if (nre.getRecepient() == 1){
+		// draw the result for debugging
+		reshape(mPriWindowWidth,mPriWindowHeight);
+		cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
+		cgGLEnableTextureParameter(cgTexture);
+		mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
+		mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
 
-	mPriFbo->drawDepthFSQuad();
+		mPriFbo->drawDepthFSQuad();
 
-	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-	cgGLDisableTextureParameter(cgTexture);
-	GET_GLERROR(0);
+		mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+		mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+		cgGLDisableTextureParameter(cgTexture);
+		GET_GLERROR(0);
+	}
 
 }
 
@@ -375,28 +379,36 @@ void DataCoreGlFrame::reshape(int width, int height) {
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
 	//resize
-	initTiles(true);
+	initTiles(false);
 }
 
 void DataCoreGlFrame::initTiles(bool extendFovy)
 {
 	//resize
-	float fovy;
-	if (extendFovy){
-		fovy = mPriExtendedFovy;
-	}
-	else {
-		fovy = 45.0;
-	}
+	float fovy = 45;
+//	if (extendFovy){
+//		fovy = mPriExtendedFovy;
+//	}
+//	else {
+//		fovy = 45.0;
+//	}
 
-	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
+	GLfloat oppFac = (GLfloat)800 / (GLfloat)640;
 	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenYMax *= oppFac;
+	screenYMaxH *= oppFac;
+
+//	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
+	ratio = (GLfloat)800 / (GLfloat)600;
+
 	screenXMax = screenYMax * ratio;
 	screenYMin = -screenYMax;
 
-	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenXMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
+
+
 }
 
 void DataCoreGlFrame::resizeFrustum() {
@@ -409,25 +421,8 @@ void DataCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
 
 void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
 {
+	GET_GLERROR(0);
 
-	if (extendFrustum){
-		int xMod = (mPriWindowWidth-tileswidth)/2;
-		int yMod = (mPriWindowHeight-tilesheight)/2;
-		if (tileXPos == 0){
-			tileswidth+=xMod;
-		}
-		else{
-			tileXPos-=xMod;
-			tileswidth+=xMod;
-		}
-		if (tileYPos == 0){
-			tilesheight+=yMod;
-		}
-		else{
-			tileYPos-=yMod;
-			tilesheight+=yMod;
-		}
-	}
 
 	if (tilesheight == 0)
 		tilesheight = 1;
@@ -438,9 +433,15 @@ void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsign
 	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
 	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
 
-	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
+	GET_GLERROR(0);
+	glViewport(0, 0, (GLint) 800, (GLint) 600);
+	GET_GLERROR(0);
+//	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
+	GET_GLERROR(0);
 	glMatrixMode(GL_PROJECTION);
+	GET_GLERROR(0);
 	glLoadIdentity();
+	GET_GLERROR(0);
 
 	worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
 	worldBottomLine = screenYMin
@@ -450,10 +451,14 @@ void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsign
 	worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
 			* worldRightLine);
 
+	GET_GLERROR(0);
 	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
 			mPriNearClippingPlane, mPriFarClippingPlane);
 
+	GET_GLERROR(0);
 	glMatrixMode(GL_MODELVIEW);
+	GET_GLERROR(0);
+
 }
 
 void DataCoreGlFrame::debug() {
@@ -527,9 +532,13 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		GET_GLERROR(0);
 		if (!fboOn){
 			mPriFbo->setDepthTex(mPriDepthTextures[dbe.getMpiRank()]);
+			GET_GLERROR(0);
 			mPriFbo->bind();
+			GET_GLERROR(0);
 		}
+		GET_GLERROR(0);
 		glClearColor(0.0, 1.0, 0.0, 1.0);
+		GET_GLERROR(0);
 		resizeFrustum(dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
 		GET_GLERROR(0);
 		mPriFbo->clearDepth();

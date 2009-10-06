@@ -38,11 +38,11 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-RenderCoreGlFrame::RenderCoreGlFrame(int width, int height) :
+RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int finalHeight) :
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriCamHasMoved(false),
 			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriFbo(0),
-			mPriWindowWidth(width), mPriWindowHeight(height), mPriTileYPos(0),
+			mPriWindowWidth(width), mPriWindowHeight(height), mPriRenderWidth(finalWidth), mPriRenderHeight(finalHeight), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
@@ -274,6 +274,12 @@ void RenderCoreGlFrame::display()
 	getFrustum();
 	mPriIdsInFrustum.clear();
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
+
+	if (mPriShowOffset){
+		initTiles(true);
+		resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
+	}
+
 	// pop matrix to restore original camera
 //	if (!mPriShowOffset)
 //		glPopMatrix();
@@ -520,20 +526,32 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 void RenderCoreGlFrame::initTiles(bool extendFovy)
 {
 	//resize
-	float fovy;
+	float fovy = 45.0;
+//	if (extendFovy){
+//		fovy = mPriExtendedFovy;
+//	}
+//	else {
+//		fovy = 45.0;
+//	}
+
+
+	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	if (extendFovy){
-		fovy = mPriExtendedFovy;
+		ratio = (GLfloat)800 / (GLfloat)600;
+		GLfloat oppFac = (GLfloat)800 / (GLfloat)mPriTileWidth;
+		screenYMax *= oppFac;
+		screenYMaxH *= oppFac;
 	}
-	else {
-		fovy = 45.0;
+	else{
+		ratio = (GLfloat)640 / (GLfloat)480;
 	}
 
-	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
-	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+
+//	}
 	screenXMax = screenYMax * ratio;
 	screenYMin = -screenYMax;
 
-	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenXMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
 
@@ -549,24 +567,24 @@ void RenderCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
 
 void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
 {
-	if (extendFrustum){
-		int xMod = (mPriWindowWidth-tileswidth)/2;
-		int yMod = (mPriWindowHeight-tilesheight)/2;
-		if (tileXPos == 0){
-			tileswidth+=xMod;
-		}
-		else{
-			tileXPos-=xMod;
-			tileswidth+=xMod;
-		}
-		if (tileYPos == 0){
-			tilesheight+=yMod;
-		}
-		else{
-			tileYPos-=yMod;
-			tilesheight+=yMod;
-		}
-	}
+//	if (extendFrustum){
+//		int xMod = (mPriWindowWidth-tileswidth)/2;
+//		int yMod = (mPriWindowHeight-tilesheight)/2;
+//		if (tileXPos == 0){
+//			tileswidth+=xMod;
+//		}
+//		else{
+//			tileXPos-=xMod;
+//			tileswidth+=xMod;
+//		}
+//		if (tileYPos == 0){
+//			tilesheight+=yMod;
+//		}
+//		else{
+//			tileYPos-=yMod;
+//			tilesheight+=yMod;
+//		}
+//	}
 
 	if (tilesheight == 0)
 		tilesheight = 1;
@@ -577,7 +595,12 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
 	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
 
-	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
+	if (extendFrustum){
+		glViewport(0, 0, (GLint) 800, (GLint) 600);
+	}
+	else{
+		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
+	}
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
@@ -591,6 +614,7 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 
 	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
 			mPriNearClippingPlane, mPriFarClippingPlane);
+
 
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -817,24 +841,6 @@ RenderCoreGlFrame::requestMissingVbos()
 	trimCacheMap();
 
 	// ----------------------------------------------
-	if (MpiControl::getSingleton()->getRank() == 1){
-		set<uint64_t> newSet;
-		cout << "sizeof idFrustumList " << mPriIdsInFrustum.size() << endl;
-		cout << "sizeof idExtFrustumList " << mPriIdsInExtFrustum.size() << endl;
-		uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, newSet);
-		cout << "sizeof diff " << newSet.size() << endl;
-//		unsigned count = 0;
-//		for(IdSetIter si=mPriIdsInFrustum.begin(); si!=mPriIdsInFrustum.end(); ++si){
-//			cout << "inFrustum " << count << ": " << *si << endl;
-//			count++;
-//		}
-//		count = 0;
-//		for(IdSetIter si=mPriIdsInExtFrustum.begin(); si!=mPriIdsInExtFrustum.end(); ++si){
-//			cout << "inExtFrustum " << count << ": " << *si << endl;
-//			count++;
-//		}
-	}
-	// ----------------------------------------------
 	// check if any of the new VBOs is already in the cache
 	multimap<float, uint64_t> missingIdDistances = multimap<float, uint64_t>();
 	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
@@ -874,7 +880,27 @@ RenderCoreGlFrame::requestMissingVbos()
 		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
 		MpiControl::getSingleton()->isend();
 		mPriMissingIdsInFrustum.clear();
+
 	}
+	// now dealing with extended frustum
+	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
+	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
+	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
+	if (mPriMissingIdsInFrustum.size()>0){
+		// calc exeDistances
+		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end(); ++setIt){
+			ooctools::V3f center = ooctools::V3f();
+			mPriIdLoMap[*setIt]->getBb().computeCenter(center);
+			missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
+			mPriRequestedVboList.insert(*setIt);
+		}
+		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), true);
+		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
+		MpiControl::getSingleton()->isend();
+		missingIdDistances.clear();
+		mPriMissingIdsInFrustum.clear();
+	}
+
 }
 
 void
@@ -1003,78 +1029,34 @@ RenderCoreGlFrame::uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*
 }
 
 void
-RenderCoreGlFrame::stripDoublesFromRight(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
+RenderCoreGlFrame::stripDoublesFromRight(const std::set<uint64_t>& leftSet, std::set<uint64_t>& rightSet)
 {
 	//TODO test
-	// removes from right side all entries wich are also in the left side
+	// removes from right side all entries which are also in the left side
 	CIdSetIter leftIt = leftSet.begin();
 	CIdSetIter rightIt = rightSet.begin();
-	IdSetIter uniqueIt = uniqueSet.begin();
 
-	// 1 2 3
-	// 1 2 3 4
-	bool debug = false;
-//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
-
-	while (leftIt != leftSet.end() && rightIt != rightSet.end()){
-		if (debug) cout << "comparing elements " << (*leftIt) << " and " << (*rightIt) << endl;
-		if (*leftIt < *rightIt){
-			if (debug) cout << *leftIt << " l < r " << *rightIt << endl;
-			leftIt++;
-		}
-		else if (*leftIt > *rightIt){
-			if (debug) cout << *rightIt << " r < l " << *leftIt << endl;
-			uniqueSet.insert(uniqueIt, *rightIt);
-			uniqueIt++;
-			rightIt++;
-		}
-		else { // elements are equal
-			if (debug) cout << *leftIt << " == " << *rightIt << endl;
-			++rightIt;
-			++leftIt;
-		}
-	}
-	if (leftIt == leftSet.end() && rightIt != rightSet.end()){
-		if (debug) cout << "L-equality insert" << endl;
-		uniqueSet.insert(rightIt, rightSet.end());
+	for (; rightIt != rightSet.end();) {
+		leftIt = leftSet.find(*rightIt);
+	  if (leftIt != leftSet.end())
+		  rightSet.erase(rightIt++);
+	  else ++rightIt;
 	}
 }
 
 void
-RenderCoreGlFrame::stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
+RenderCoreGlFrame::stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, std::set<uint64_t>& rightSet)
 {
 	//TODO
-	// removes from right side all entries wich are also in the left side
+	// removes from right side all entries which are also in the left side
 	CIdVboMapIter leftIt = leftMap.begin();
 	CIdSetIter rightIt = rightSet.begin();
-	IdSetIter uniqueIt = uniqueSet.begin();
 
-	// 1 2 3
-	// 1 2 3 4
-	bool debug = false;
-//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
-
-	while (leftIt != leftMap.end() && rightIt != rightSet.end()){
-		if (debug) cout << "comparing elements " << leftIt->first << " and " << (*rightIt) << endl;
-		if (leftIt->first < *rightIt){
-			if (debug) cout << leftIt->first << " l < r " << *rightIt << endl;
-			leftIt++;
-		}
-		else if (leftIt->first > *rightIt){
-			if (debug) cout << *rightIt << " r < l " << leftIt->first << endl;
-			uniqueSet.insert(uniqueIt, *rightIt);
-			uniqueIt++;
-			rightIt++;
-		}
-		else { // elements are equal
-			if (debug) cout << leftIt->first << " == " << *rightIt << endl;
-			++rightIt;
-			++leftIt;
-		}
-	}
-	if (leftIt == leftMap.end() && rightIt != rightSet.end()){
-		if (debug) cout << "L-equality insert" << endl;
-		uniqueSet.insert(rightIt, rightSet.end());
+	for (; rightIt != rightSet.end();) {
+		leftIt = leftMap.find(*rightIt);
+	  if (leftIt != leftMap.end())
+		  rightSet.erase(rightIt++);
+	  else ++rightIt;
 	}
 }
 
@@ -1271,8 +1253,10 @@ void RenderCoreGlFrame::depthPass()
 	}
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	GET_GLERROR(0);
-	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-	DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
+//	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
+//	DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
+	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, 800, 600);
+	DepthBufferEvent dbe = DepthBufferEvent(0,0,800,600, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
 	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 	Message* msg = new Message(dbe, 0, MpiControl::DATA);
 	MpiControl::getSingleton()->send(msg);
@@ -1360,9 +1344,18 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(VboEvent::classid())){
 		VboEvent& ve = (VboEvent&)event;
-		for (unsigned i=0; i< ve.getVboCount(); ++i){
-			mPriTriCount += ve.getIndexCount(i)/3;
-			mPriVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
+
+		if (ve.isExtendedFrustum()){
+			for (unsigned i=0; i< ve.getVboCount(); ++i){
+				mPriOfflineVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
+				trimCacheMap();
+			}
+		}
+		else {
+			for (unsigned i=0; i< ve.getVboCount(); ++i){
+				mPriTriCount += ve.getIndexCount(i)/3;
+				mPriVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
+			}
 		}
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
