@@ -88,6 +88,9 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int 
 	mPriDepthBufferD = 0;
 	mPriDepthTexture = 0;
 
+	mPriPixelBuffer = new GLubyte[mPriWindowWidth*mPriWindowHeight*4];
+	mPriDepthBuffer = new GLfloat[mPriWindowWidth*mPriWindowHeight];
+
 }
 
 RenderCoreGlFrame::~RenderCoreGlFrame() {
@@ -164,6 +167,7 @@ void RenderCoreGlFrame::init() {
 	mPriSceneBB.computeCenter(mPriSceneCenter);
 	cout << "(" << MpiControl::getSingleton()->getRank() << ") render window resolution: " << mPriWindowWidth << ", " << mPriWindowHeight << endl;
 	cout << "(" << MpiControl::getSingleton()->getRank() << ") tile: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
+
 }
 
 void RenderCoreGlFrame::setupCg()
@@ -475,14 +479,6 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 //	cout << "Window resized to: " << width << ", " << height << endl;
 //	cout << "SIZE CHANGED" << endl;
 
-	if (mPriPixelBuffer==0|| mPriWindowWidth != width || mPriWindowHeight != height){
-		delete[] mPriPixelBuffer;
-		mPriPixelBuffer = new GLubyte[width*height*4];
-	}
-	if (mPriDepthBuffer==0 || mPriWindowWidth != width || mPriWindowHeight != height){
-		delete[] mPriDepthBuffer;
-		mPriDepthBuffer = new GLfloat[width*height];
-	}
 
 	mPriWindowWidth = width;
 	mPriWindowHeight = height;
@@ -921,12 +917,12 @@ RenderCoreGlFrame::requestMissingVbos()
 			mPriRequestedVboList.insert(*setIt);
 		}
 		//TODO do something about the loadPerFrame limit
-		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, 1000, MpiControl::getSingleton()->getRank(), true);
+		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), true);
 		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
 		MpiControl::getSingleton()->isend();
 		missingIdDistances.clear();
 		mPriMissingIdsInFrustum.clear();
-		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
+//		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
 
 	}
 
@@ -1377,7 +1373,6 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 
 		if (ve.isExtendedFrustum()){
 			for (unsigned i=0; i< ve.getVboCount(); ++i){
-//				cout << "got CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
 				mPriOfflineVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false)));
 				trimCacheMap();
 			}

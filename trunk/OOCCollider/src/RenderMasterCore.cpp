@@ -137,10 +137,13 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 			//rcv kacheln from all renderers
 			//			cout << "---master wating for tiles" << endl;
+			double newTime = glfwGetTime();
 			MpiControl::getSingleton()->receive(MpiControl::RENDERER); // receive a tile-image from renderer
 			while (!MpiControl::getSingleton()->inQueueEmpty()) {
 				handleMsg(MpiControl::getSingleton()->pop());
 			}
+			double newerTime = glfwGetTime();
+			cout << "time between matrix and image reception: " << newerTime-newTime<< endl;
 //			adjustTileDimensions();
 
 			//			cout << "---master ENTER display" << endl;

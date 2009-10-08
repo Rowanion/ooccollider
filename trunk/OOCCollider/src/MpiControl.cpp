@@ -173,20 +173,10 @@ bool MpiControl::ireceive(int src)
 {
 	MPI::Status stat;
 	MPI::Request req;
-	req.Wait(stat);
-	unsigned queueSize = mPriInRequests.size();
+//	req.Wait(stat);
+
 	Message* msg = 0;
-	for (unsigned i=0; i<queueSize; ++i){
-		msg = mPriInRequests.front();
-		mPriInRequests.pop();
-		if (msg->request.Test()){
-//			cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
-			mInQueue.push(msg);
-		}
-		else{
-			mPriInRequests.push(msg);
-		}
-	}
+	unsigned queueSize = mPriInRequests.size();
 
 	if (MPI::COMM_WORLD.Iprobe(src, MPI_ANY_TAG, stat)){
 		msg = new Message();
@@ -203,6 +193,20 @@ bool MpiControl::ireceive(int src)
 		msg->request = req;
 		mPriInRequests.push(msg);
 	}
+
+
+	for (unsigned i=0; i<queueSize; ++i){
+		msg = mPriInRequests.front();
+		mPriInRequests.pop();
+		if (msg->request.Test()){
+//			cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
+			mInQueue.push(msg);
+		}
+		else{
+			mPriInRequests.push(msg);
+		}
+	}
+
 	return !mInQueue.empty();
 }
 

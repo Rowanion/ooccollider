@@ -74,6 +74,7 @@ public:
 	inline Group getGroup() const {return mGroup;};
 	inline void barrier() const {MPI_Barrier(MPI::COMM_WORLD);};
 
+	std::queue<Message*> mInQueue;
 
 private:
 	MpiControl();
@@ -89,7 +90,6 @@ private:
 	std::vector<int> mPriRenderNodes;
 	std::vector<int> mPriDataNodes;
 
-	std::queue<Message*> mInQueue;
 	std::queue<Message*> mOutQueue;
 
 	std::queue<Message*> mPriInRequests;

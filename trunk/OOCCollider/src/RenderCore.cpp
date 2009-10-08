@@ -68,7 +68,8 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 //		cout << "matrix arrived at renderer" << endl;
 		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
 		while(!MpiControl::getSingleton()->inQueueEmpty()){ // ireceive everything from data-nodes
-			handleMsg(MpiControl::getSingleton()->pop());
+			Message* msg = MpiControl::getSingleton()->pop();
+			handleMsg(msg);
 		}
 //		cout << "waiting for matrix from 0..." << endl;
 //		receiveMethod(0);
@@ -163,7 +164,6 @@ void RenderCore::handleMsg(Message* msg)
 			oocframework::EventManager::getSingleton()->fire(mve);
 		}
 		else if (msg->getType() == VboEvent::classid()->getShortId()){
-//			cout << "rendercore got a vbo from a data node" << endl;
 			VboEvent ve = VboEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(ve);
 		}
@@ -188,5 +188,6 @@ void RenderCore::handleMsg(Message* msg)
 			mPriGlFrame->depthPass();
 		}
 		delete msg;
+		msg = 0;
 	}
 }

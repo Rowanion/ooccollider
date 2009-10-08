@@ -239,77 +239,13 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 			glPopMatrix();
 		glPopMatrix();
 	glPopMatrix();
-//	cout << "query: " << queryCount << " vs " << mPriVisibleDistVec.size() << endl;
-/*
-	// send all vbos that passed the occlusion-tests to the requester
-	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIt = mPriVbosInFrustum.begin();
-	for (; vboIt!= mPriVbosInFrustum.end(); ++vboIt){
-		VboEvent ve = VboEvent(vboIt->second, vboIt->first);
-		for (unsigned j=0; j < ve.getVertexCount(); ++j){
-			for(unsigned i=0; i<4; ++i){
-				if (vboIt->second->getVertexData()[j].v[i] != ve.getVertexArray()[j].v[i]){
-					cout << "LKHG" << endl;
-					exit(0);
-				}
-			}
-		}
-//		if (vboIt->second->getVertexCount() != ve.getVertexCount()){
-//			cout << "missmatch vbo-vertexCount and vboevent-vertex-count!" << endl;
-//			cout << vboIt->second->getVertexCount() << " - " << ve.getVertexCount() << endl;
-//			exit(0);
-//		}
-//		if (vboIt->second->getIndexCount() != ve.getIndexCount()){
-//			cout << "missmatch vbo-IndexCount and vboevent-index-count!" << endl;
-//			cout << vboIt->second->getIndexCount() << " - " << ve.getIndexCount() << endl;
-//			exit(0);
-//		}
-//		for (unsigned i=0; i< vboIt->second->getIndexCount(); ++i){
-//			if (vboIt->second->getIndexData()[i] != ve.getIndexArray()[i]){
-//				cout << "missmatch vbo-indexData and vboevent-indexData! ID: " << vboIt->first << " - " << mPriIdPathMap[vboIt->first] << endl;
-//				cout << vboIt->second->getIndexData()[i] << " - " << ve.getIndexArray()[i] << endl;
-//				exit(0);
-//			}
-//			if (vboIt->second->getVertexData()[i].v[0] != ve.getVertexArray()[i].v[0] || vboIt->second->getVertexData()[i].v[1] != ve.getVertexArray()[i].v[1] || vboIt->second->getVertexData()[i].v[2] != ve.getVertexArray()[i].v[2]){
-//				cout << "missmatch vbo-indexData and vboevent-indexData! ID: " << vboIt->first << " - " << mPriIdPathMap[vboIt->first] << endl;
-//				cout << vboIt->second->getVertexData()[i].v[0] << " - " << ve.getVertexArray()[i].v[0] << endl;
-//				cout << vboIt->second->getVertexData()[i].v[1] << " - " << ve.getVertexArray()[i].v[1] << endl;
-//				cout << vboIt->second->getVertexData()[i].v[2] << " - " << ve.getVertexArray()[i].v[2] << endl;
-//				cout << vboIt->second->getVertexData()[i].v[3] << " - " << ve.getVertexArray()[i].v[3] << endl;
-//				exit(0);
-//			}
-//		}
-//		cout << "first vertex AFTER loading - " << mPriVbosInFrustum.begin()->first << endl;
-//		cout << mPriVbosInFrustum.begin()->second->getVertexData()[0].v[0] << endl;
-//		cout << mPriVbosInFrustum.begin()->second->getVertexData()[0].v[1] << endl;
-//		cout << mPriVbosInFrustum.begin()->second->getVertexData()[0].v[2] << endl;
-//		cout << mPriVbosInFrustum.begin()->second->getVertexData()[0].v[3] << endl;
-//		cout << (int)mPriVbosInFrustum.begin()->second->getVertexData()[0].n[0] << endl;
-//		cout << (int)mPriVbosInFrustum.begin()->second->getVertexData()[0].n[1] << endl;
-//		cout << (int)mPriVbosInFrustum.begin()->second->getVertexData()[0].n[2] << endl;
-//		cout << (int)mPriVbosInFrustum.begin()->second->getVertexData()[0].n[3] << endl;
-//		cout << "first vertex AFTER event - " << mPriVbosInFrustum.begin()->first << endl;
-//		cout << ve.getVertexArray()[0].v[0] << endl;
-//		cout << ve.getVertexArray()[0].v[1] << endl;
-//		cout << ve.getVertexArray()[0].v[2] << endl;
-//		cout << ve.getVertexArray()[0].v[3] << endl;
-//		cout << (int)ve.getVertexArray()[0].n[0] << endl;
-//		cout << (int)ve.getVertexArray()[0].n[1] << endl;
-//		cout << (int)ve.getVertexArray()[0].n[2] << endl;
-//		cout << (int)ve.getVertexArray()[0].n[3] << endl;
-//		exit(0);
-		Message* msg = new Message(ve, nre.getRecepient());
-		MpiControl::getSingleton()->send(msg);
-	}
-	MpiControl::getSingleton()->send(new Message(EndTransmissionEvent::classid()->getShortId(), 0, nre.getRecepient(), 0));
 
-
-*/
 
 	if (mPriVisibleDistVec.size() > 0){
 		// send the visible object to the requester
 		VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec, nre.isExtendedFrustum());
 		if (nre.isExtendedFrustum()){
-			cout << "sending CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
+//			cout << "sending CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
 		}
 
 		Message* msg = new Message(ve, nre.getRecepient());
