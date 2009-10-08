@@ -35,10 +35,10 @@ public:
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 	virtual unsigned getByteSize(){return ChangeTileDimensionsEvent::mProByteSize;};
 
-	inline int getTileXPos() const{return ((int*)(mProData))[0];};
-	inline int getTileYPos() const{return ((int*)(mProData))[1];};
-	inline int getTileWidth() const{return ((int*)(mProData))[2];};
-	inline int getTileHeight() const{return ((int*)(mProData))[3];};
+	int getTileXPos() const{return ((int*)(mProData))[0];};
+	int getTileYPos() const{return ((int*)(mProData))[1];};
+	int getTileWidth() const{return ((int*)(mProData))[2];};
+	int getTileHeight() const{return ((int*)(mProData))[3];};
 
 	void setTileDimension(Tile& t);
 

@@ -43,7 +43,7 @@ public:
 	VboEvent(const Message* msg);
 	virtual ~VboEvent();
 	static const oocframework::ClassId* classid();
-	inline virtual const oocframework::ClassId* getClassId(){return mClassId;};
+	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 
 	/**
@@ -51,7 +51,7 @@ public:
 	 * The resolution is the key to size determination.
 	 * @return the size in bytes stored in this particular events' member mPriData.
 	 */
-	inline virtual unsigned getByteSize(){return mPriByteSize;};
+	virtual unsigned getByteSize(){return mPriByteSize;};
 
 	/**
 	 * @brief Returns the number of VBOs encapsulated in this event.

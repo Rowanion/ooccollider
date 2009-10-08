@@ -30,19 +30,19 @@ public:
 	MouseMovedEvent(int x, int y);
 	virtual ~MouseMovedEvent();
 	static const oocframework::ClassId* classid();
-	inline virtual const oocframework::ClassId* getClassId(){return mClassId;};
+	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
-	inline virtual unsigned getByteSize(){return MouseMovedEvent::mProByteSize;};
+	virtual unsigned getByteSize(){return MouseMovedEvent::mProByteSize;};
 
 	/**
 	 * @brief return the x-position of the mouse-cursor.
 	 */
-	inline unsigned int getX() const {return ((int*)mProData)[0];};
+	unsigned int getX() const {return ((int*)mProData)[0];};
 
 	/**
 	 * @brief return the x-position of the mouse-cursor.
 	 */
-	inline unsigned int getY() const {return ((int*)mProData)[1];};
+	unsigned int getY() const {return ((int*)mProData)[1];};
 
 protected:
 	static oocframework::ClassId* mClassId;

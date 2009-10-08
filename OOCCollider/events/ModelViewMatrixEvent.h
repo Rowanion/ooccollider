@@ -41,11 +41,11 @@ public:
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 	virtual unsigned getByteSize(){return ModelViewMatrixEvent::mProByteSize;};
 
-	inline const float* getMatrix() const {return (float*)mProData;};
-	inline int getTileXPos() const{return ((int*)(mProData + sizeof(float)*16))[0];};
-	inline int getTileYPos() const{return ((int*)(mProData + sizeof(float)*16))[1];};
-	inline int getTileWidth() const{return ((int*)(mProData + sizeof(float)*16))[2];};
-	inline int getTileHeight() const{return ((int*)(mProData + sizeof(float)*16))[3];};
+	const float* getMatrix() const {return (float*)mProData;};
+	int getTileXPos() const{return ((int*)(mProData + sizeof(float)*16))[0];};
+	int getTileYPos() const{return ((int*)(mProData + sizeof(float)*16))[1];};
+	int getTileWidth() const{return ((int*)(mProData + sizeof(float)*16))[2];};
+	int getTileHeight() const{return ((int*)(mProData + sizeof(float)*16))[3];};
 
 	void setTileDimension(Tile& t);
 

@@ -83,9 +83,10 @@ void SimpleGlFrame::init() {
 	GET_GLERROR(0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	mPriCamera.initMatrices();
+	mPriCamera.calcMatrix();
+	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
 
 	if(spnav_open()==-1) {
 		fprintf(stderr, "failed to connect to the space navigator daemon\n");

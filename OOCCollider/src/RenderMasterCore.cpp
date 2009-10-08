@@ -95,6 +95,15 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	//	glFrame->setVbo(new IndexedVbo(fs::path("/media/ClemensHDD/B3_SampleTree/data/0/1.idx")));
 
 
+	// init tile-dimensions
+		ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent();
+		map<int, Tile>::iterator it = mPriTileMap.begin();
+		for(; it != mPriTileMap.end(); ++it){
+			ctde.setTileDimension(it->second);
+			MpiControl::getSingleton()->send(new Message(ctde, it->first));
+		}
+
+
 	// Main rendering loop
 	unsigned frames = 0;
 	do {
