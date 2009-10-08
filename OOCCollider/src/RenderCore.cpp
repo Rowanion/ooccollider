@@ -71,12 +71,14 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 
 	// Main rendering loop
 	unsigned frames = 0;
+	mPriMpiCon->barrier();
 	do {
 		mPriGotMatrix = false;
 		while(!mPriGotMatrix && mRunning){ // receive everything from 0 and finally the matrix
 			MpiControl::getSingleton()->receive(0);
 			handleMsg(MpiControl::getSingleton()->pop());
 		}
+		mPriMpiCon->send(new Message(mPriGlFrame->getColorBufferEvent(), 0));
 //		cout << "matrix arrived at renderer" << endl;
 		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
 		while(!MpiControl::getSingleton()->inQueueEmpty()){ // ireceive everything from data-nodes

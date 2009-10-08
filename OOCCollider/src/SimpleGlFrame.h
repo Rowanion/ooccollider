@@ -46,14 +46,9 @@ public:
 
 
 protected:
-	void normalizeFrustum();
 
 	unsigned width, height;
 	float nearPlane, farPlane;
-	GLdouble worldTopLine, worldBottomLine;
-	GLdouble worldLeftLine, worldRightLine;
-	GLdouble screenXMax, screenYMax, screenYMin;
-	GLdouble screenXMaxH, screenYMaxH, screenYMinH;
 
 private:
 	float scale;

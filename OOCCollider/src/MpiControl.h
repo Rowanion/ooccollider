@@ -42,11 +42,11 @@ public:
 	void receive(int src);
 	void receive(Group _group);
 	bool ireceive(int src);
-	void ireceive(Group _group);
+	bool ireceive(Group _group);
 	Message* directReceive(const oocframework::ClassId* classid);
 	void completeWaitingReceives(const oocframework::ClassId* classid);
 	void send(Message* msg = 0);
-	void isend();
+	void isend(Message* msg = 0);
 	void sendAll();
 //	void sendImmediate(Message* msg);
 //	void sendImmediateToAll(Message* msg);

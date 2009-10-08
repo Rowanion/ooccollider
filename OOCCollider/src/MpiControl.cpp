@@ -17,6 +17,7 @@
 #include "ColorBufferEvent.h"
 #include "DepthBufferEvent.h"
 #include "NodeRequestEvent.h"
+#include "ModelViewMatrixEvent.h"
 
 using namespace std;
 
@@ -210,24 +211,26 @@ bool MpiControl::ireceive(int src)
 	return !mInQueue.empty();
 }
 
-void MpiControl::ireceive(Group _group)
+bool MpiControl::ireceive(Group _group)
 {
 //	cout << mRank << " is receiving from " << src << "..." << endl;
 	MPI::Status stat;
+	bool result = false;
 	switch (_group){
 	case RENDERER:{
 		for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
-			ireceive(mPriRenderNodes[i]);
+			result |= ireceive(mPriRenderNodes[i]);
 		}
 		break;}
 	case DATA:{
 		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
-			ireceive(mPriDataNodes[i]);
+			result |= ireceive(mPriDataNodes[i]);
 		}
 		break;}
 	default:
 		break;
 	}
+	return result;
 }
 
 void MpiControl::completeWaitingReceives(const oocframework::ClassId* classid)
@@ -268,7 +271,7 @@ void MpiControl::send(Message* msg)
 			delete msg;
 			break;}
 		case ALL:{
-			for(unsigned i=0; i< mSize; ++i){
+			for(int i=0; i< mSize; ++i){
 				if (mRank != i){
 					MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR, i, msg->getType());
 				}
@@ -293,14 +296,62 @@ void MpiControl::send(Message* msg)
 	}
 }
 
-void MpiControl::isend()
+void MpiControl::isend(Message* msg)
 {
-//	cout << mRank << " is sending to " << msg->getDst() << "..." << endl;
-	MPI::Status stat;
+	Message* tempMsg = 0;
 
-	Message* msg = 0;
+	if (msg != 0){
+		cout << mRank << " is sending to " << msg->getDst() << "..." << endl;
+		cout << "group: " << msg->getGroup() << endl;
+		switch (msg->getGroup()){
+		case RENDERER:{
+			for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
+				tempMsg = new Message(*msg);
+				tempMsg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, mPriRenderNodes[i], msg->getType());
+				mPriOutRequests.push(tempMsg);
+			}
+			delete msg;
+			msg = 0;
+			break;}
+		case DATA:{
+			for(unsigned i=0; i< mPriDataNodes.size(); ++i){
+				tempMsg = new Message(*msg);
+				tempMsg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, mPriDataNodes[i], msg->getType());
+				mPriOutRequests.push(tempMsg);
+			}
+			delete msg;
+			msg = 0;
+			break;}
+		case ALL:{
+		cout << "sending to all!" << endl;
+			for(int i=0; i< mSize; ++i){
+				if (mRank != i){
+				cout << mRank << ": sending to all.... " << (msg->getType()==ModelViewMatrixEvent::classid()->getShortId())<< endl;
+					tempMsg = new Message(*msg);
+					tempMsg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, i, msg->getType());
+					mPriOutRequests.push(tempMsg);
+				}
+			}
+			delete msg;
+			msg = 0;
+			break;}
+		default:
+			msg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, msg->getDst(), msg->getType());
+			mPriOutRequests.push(msg);
+			break;
+		}
+//		msg = 0;
+	}
+	else if (!mOutQueue.empty()){
+		msg = mOutQueue.front();
+		mOutQueue.pop();
+		msg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, msg->getDst(), msg->getType());
+		mPriOutRequests.push(msg);
+//		msg = 0;
+	}
 
-	if (!mPriOutRequests.empty()){
+	unsigned queueSize = mPriOutRequests.size();
+	for (unsigned i=0; i<queueSize; ++i){
 		msg = mPriOutRequests.front();
 		mPriOutRequests.pop();
 		if (msg->request.Test()){
@@ -311,40 +362,7 @@ void MpiControl::isend()
 			mPriOutRequests.push(msg);
 		}
 	}
-	else if (!mOutQueue.empty()){
-		msg = mOutQueue.front();
-		mOutQueue.pop();
-		msg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR,msg->getDst(), msg->getType());
-		mPriOutRequests.push(msg);
-	}
 
-//	unsigned queueSize = mPriOutRequests.size();
-//	for (unsigned i=0; i<queueSize; ++i){
-//		msg = mPriOutRequests.front();
-//		mPriOutRequests.pop();
-//		if (msg->request.Test()){
-////			cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
-//			mInQueue.push(msg);
-//		}
-//		else{
-//			mPriInRequests.push(msg);
-//		}
-//	}
-//// ------------------------------
-//	if (msg != 0){
-//		cout << "isending immediate msg...." << endl;
-//		cout << mRank << " to " << msg->getDst() << "" << endl;
-//		MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, msg->getDst(), msg->getType());
-//		delete msg;
-//		cout << "deleted msg!" << endl;
-//	}
-//	else if (!mOutQueue.empty()){
-//		Message* msg = mOutQueue.front();
-//		MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR,msg->getDst(), msg->getType());
-//		mOutQueue.pop();
-//		cout << "isend " << msg->getType() << " to " << msg->getDst() << endl;
-//		delete msg;
-//	}
 }
 
 void MpiControl::sendAll()

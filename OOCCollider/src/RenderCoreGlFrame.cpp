@@ -44,7 +44,7 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int 
 			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriFbo(0),
 			mPriWindowWidth(width), mPriWindowHeight(height), mPriRenderWidth(finalWidth), mPriRenderHeight(finalHeight), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
-			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),
+			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriColorBufferEvent(0,0,0,0,0.0,0), mPriTriCount(0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
@@ -267,10 +267,8 @@ void RenderCoreGlFrame::display()
 
 //	GET_GLERROR(0);
 
-	if (mPriCamHasMoved){
-		if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition)){
-			cout << "----------------------------------------- NO INVERSE!" << endl;
-		}
+	if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition)){
+		cout << "----------------------------------------- NO INVERSE!" << endl;
 	}
 //	GET_GLERROR(0);
 
@@ -424,7 +422,7 @@ void RenderCoreGlFrame::display()
 
 				FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 //				ColorBufferEvent cbe = ColorBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight,t-f, mPriPixelBuffer);
-				ColorBufferEvent cbe = ColorBufferEvent(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight,t-f, mPriPixelBuffer);
+				mPriColorBufferEvent.set(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight,t-f, mPriPixelBuffer);
 				mPriRenderTimeSum += t-f;
 
 				// dumping the depth-buffer every 100 frames....
@@ -444,8 +442,8 @@ void RenderCoreGlFrame::display()
 //				}
 
 			//
-				Message* msg = new Message(cbe, 0);
-				MpiControl::getSingleton()->push(msg);
+//				Message* msg = new Message(mPriColorBufferEvent, 0);
+//				MpiControl::getSingleton()->push(msg);
 //				MpiControl::getSingleton()->sendAll();
 //				delete msg;
 
@@ -1304,18 +1302,7 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
 		ModelViewMatrixEvent& mve = (ModelViewMatrixEvent&)event;
-//		glLoadMatrixf(mve.getMatrix());
-//		setTileDimensions(mve.getTileXPos(), mve.getTileYPos(),mve.getTileWidth(), mve.getTileHeight());
-
-		for (unsigned i=0; i<16; ++i){
-			if (mve.getMatrix()[i] != mPriModelViewMatrix[i]){
-//				exit(0);
-				mPriCamHasMoved = true;
-				memcpy(mPriModelViewMatrix, mve.getMatrix(), 16*sizeof(float));
-//				cout << "loaded matrix: " << MpiControl::getSingleton()->getRank() << endl;
-				break;
-			}
-		}
+		memcpy(mPriModelViewMatrix, mve.getMatrix(), sizeof(float)*16);
 	}
 	else if (event.instanceOf(KeyPressedEvent::classid())){
 		KeyPressedEvent& mde = (KeyPressedEvent&)event;

@@ -106,6 +106,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 	// Main rendering loop
 	unsigned frames = 0;
+	mPriMpiCon->barrier();
 	do {
 		while (!mPriMpiCon->outQueueEmpty()) {
 			//			cout << "master found that his outqueue is not empty.....sending...." << endl;
@@ -129,19 +130,11 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			//send matrix/camera to when the out-queue is empty
 			//			cout << "---master sending matrix" << endl;
 			//			for (int i=1; i<mPriMpiCon->getSize(); ++i){
-			for (unsigned i = 0; i < mPriMpiCon->getGroupSize(
-					MpiControl::DATA); ++i) { // send the matrix to all data-nodes
-				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),MpiControl::getSingleton()->getDataGroup()[i],(char*)mPriGlFrame->getMvMatrix());
-				MpiControl::getSingleton()->send(msg);
-			}
+
 			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix());
-			for (unsigned i=0; i<MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER); ++i) { // send matrix to all renderers
-				Tile t = mPriTileMap[MpiControl::getSingleton()->getRenderGroup()[i]];
-				mve.setTileDimension(t);
-				ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix(), t);
-				Message* msg = new Message(mve, MpiControl::getSingleton()->getRenderGroup()[i]);
-				MpiControl::getSingleton()->send(msg);
-			}
+			Message* msg = new Message(mve, 0, MpiControl::ALL);
+			MpiControl::getSingleton()->send(msg);
+
 			//			cout << "master has sent all matrices" << endl;
 
 			//rcv kacheln from all renderers
