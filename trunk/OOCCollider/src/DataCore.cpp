@@ -54,6 +54,8 @@ DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(tru
 	mGlFrame->init();
 	GET_GLERROR(0);
 	// Main rendering loop
+	mPriMpiCon->barrier();
+
 	do {
 //		cout << "2 waiting for any..." << endl;
 		receiveMethod(MPI::ANY_SOURCE);

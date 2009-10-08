@@ -29,6 +29,7 @@
 #include "OctreeHandler.h"
 #include "V3f.h"
 #include "OOCCamera.h"
+#include "ColorBufferEvent.h"
 
 
 /**
@@ -59,6 +60,7 @@ public:
 	inline double getRenderTime()const {return mPriRenderTimeSum;};
 	inline void resetRenderTime() {mPriRenderTimeSum = 0.0;};
 	void depthPass();
+	ColorBufferEvent& getColorBufferEvent() {return mPriColorBufferEvent;};
 
 protected:
 	void normalizeFrustum();
@@ -121,6 +123,7 @@ private:
 	GLfloat* mPriDepthBufferD;
 	GLfloat* mPriDepthTexture;
 	GLuint mPriDepthTexId;
+	ColorBufferEvent mPriColorBufferEvent;
 
 	unsigned mPriTriCount;
 
