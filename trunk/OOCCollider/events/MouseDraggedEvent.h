@@ -28,19 +28,19 @@ public:
 	MouseDraggedEvent(int x, int y);
 	virtual ~MouseDraggedEvent();
 	static const oocframework::ClassId* classid();
-	inline virtual const oocframework::ClassId* getClassId(){return mClassId;};
+	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
-	inline virtual unsigned getByteSize(){return MouseDraggedEvent::mProByteSize;};
+	virtual unsigned getByteSize(){return MouseDraggedEvent::mProByteSize;};
 
 	/**
 	 * @brief Returns the x-position to where the mouse was dragged.
 	 */
-	inline int getX() const {return ((int*)mProData)[0];};
+	int getX() const {return ((int*)mProData)[0];};
 
 	/**
 	 * @brief Returns the y-position to where the mouse was dragged.
 	 */
-	inline int getY() const {return ((int*)mProData)[1];};
+	int getY() const {return ((int*)mProData)[1];};
 
 protected:
 	static oocframework::ClassId* mClassId;

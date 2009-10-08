@@ -154,11 +154,16 @@ void RenderCoreGlFrame::init() {
 	glLoadIdentity();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
 	mPriVboMan->setCgDiffParam(g_cgKd);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 
 	mPriCamera.initMatrices();
-
 	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mPriWindowWidth,mPriWindowHeight);
+	mPriFbo->bind();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	mPriFbo->unbind();
+	ooctools::FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
+	ooctools::FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);

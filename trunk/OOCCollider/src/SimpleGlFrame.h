@@ -40,11 +40,8 @@ public:
 	virtual void init();
 	virtual void display();
 	virtual void reshape(int width, int height);
-	inline float getFrames() const {
-		return avgFps;
-	}
-	;
-	inline const float* getMvMatrix() const {return mPriModelViewMatrix;};
+	float getFrames() const { return avgFps;};
+	const float* getMvMatrix() const {return mPriModelViewMatrix;};
 	void notify(oocframework::IEvent& event);
 
 

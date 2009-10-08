@@ -52,6 +52,18 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 	mWindow->attachGlFrame(mPriGlFrame);
 	GET_GLERROR(0);
 
+	// get the initial tile-dimensions
+	MpiControl::getSingleton()->receive(0);
+	while(!MpiControl::getSingleton()->inQueueEmpty()){ //
+		Message* msg = MpiControl::getSingleton()->pop();
+		if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
+			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
+			mPriGlFrame->setTileDimensions(ctde.getTileXPos(), ctde.getTileYPos(), ctde.getTileWidth(), ctde.getTileWidth());
+		}
+		delete msg;
+		msg = 0;
+	}
+
 	mPriGlFrame->init();
 	GET_GLERROR(0);
 	mPriGlFrame->reshape(_width, _height);

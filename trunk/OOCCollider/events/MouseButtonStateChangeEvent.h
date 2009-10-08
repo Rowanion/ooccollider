@@ -28,24 +28,24 @@ public:
 	MouseButtonStateChangeEvent(int button, int oldState, int newState);
 	virtual ~MouseButtonStateChangeEvent();
 	static const oocframework::ClassId* classid();
-	inline virtual const oocframework::ClassId* getClassId(){return mClassId;};
+	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
-	inline virtual unsigned getByteSize(){return MouseButtonStateChangeEvent::mProByteSize;};
+	virtual unsigned getByteSize(){return MouseButtonStateChangeEvent::mProByteSize;};
 
 	/**
 	 * @brief Returns the button which changed its state.
 	 */
-	inline int getButton() const {return ((int*)mProData)[0];};
+	int getButton() const {return ((int*)mProData)[0];};
 
 	/**
 	 * @brief Returns the new state of the button.
 	 */
-	inline int getNewState() const {return ((int*)mProData)[1];};
+	int getNewState() const {return ((int*)mProData)[1];};
 
 	/**
 	 * @brief Returns the old state of the button, before the change.
 	 */
-	inline int getOldState() const {return ((int*)mProData)[2];};
+	int getOldState() const {return ((int*)mProData)[2];};
 
 protected:
 	static oocframework::ClassId* mClassId;

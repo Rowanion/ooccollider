@@ -33,7 +33,7 @@ public:
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 	virtual unsigned getByteSize(){return AccumulatedRendertimeEvent::mProByteSize;};
 
-	inline double getRenderTime(){return ((double*)mProData)[0];};
+	double getRenderTime(){return ((double*)mProData)[0];};
 
 protected:
 	static oocframework::ClassId* mClassId;
