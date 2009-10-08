@@ -81,6 +81,11 @@ public:
 		return (GLubyte*)(mProData+sizeof(int)*5+sizeof(double));
 	};
 
+	/**
+	 * @brief Shorter alternative to copy constructor.
+	 */
+	void set(int xPos, int yPos, int width, int height, double renderTime, const GLubyte* pixel);
+
 protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();
