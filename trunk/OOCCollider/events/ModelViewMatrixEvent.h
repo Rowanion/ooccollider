@@ -32,8 +32,7 @@
 class ModelViewMatrixEvent : public oocframework::IEvent{
 public:
 	ModelViewMatrixEvent();
-	ModelViewMatrixEvent(const float* matrix, int xPos=0, int yPos=0, int width=0, int height=0);
-	ModelViewMatrixEvent(const float* matrix, Tile& tile);
+	ModelViewMatrixEvent(const float* matrix);
 	ModelViewMatrixEvent(const Message* msg);
 	virtual ~ModelViewMatrixEvent();
 	static const oocframework::ClassId* classid();
@@ -42,12 +41,6 @@ public:
 	virtual unsigned getByteSize(){return ModelViewMatrixEvent::mProByteSize;};
 
 	const float* getMatrix() const {return (float*)mProData;};
-	int getTileXPos() const{return ((int*)(mProData + sizeof(float)*16))[0];};
-	int getTileYPos() const{return ((int*)(mProData + sizeof(float)*16))[1];};
-	int getTileWidth() const{return ((int*)(mProData + sizeof(float)*16))[2];};
-	int getTileHeight() const{return ((int*)(mProData + sizeof(float)*16))[3];};
-
-	void setTileDimension(Tile& t);
 
 protected:
 	static oocframework::ClassId* mClassId;
