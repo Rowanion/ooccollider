@@ -148,6 +148,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 {
 	GET_GLERROR(0);
 	resizeFrustum(mPriTileMap[nre.getRecepient()].xPos, mPriTileMap[nre.getRecepient()].yPos, mPriTileMap[nre.getRecepient()].width, mPriTileMap[nre.getRecepient()].height, true);
+//	cout << "data resizing frustum to " << mPriTileMap[nre.getRecepient()].xPos << ", " << mPriTileMap[nre.getRecepient()].yPos << ", " << mPriTileMap[nre.getRecepient()].width << ", " << mPriTileMap[nre.getRecepient()].height << endl;
 //	resizeWindow(height, width);
 //	cout << "starting display of DataCore" << endl;
 	// light blue
@@ -304,13 +305,17 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 */
 
-	// send the visible object to the requester
-	VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec, nre.isExtendedFrustum());
+	if (mPriVisibleDistVec.size() > 0){
+		// send the visible object to the requester
+		VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec, nre.isExtendedFrustum());
+		if (nre.isExtendedFrustum()){
+			cout << "sending CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
+		}
 
-	Message* msg = new Message(ve, nre.getRecepient());
-	MpiControl::getSingleton()->push(msg);
-//  MpiControl::getSingleton()->isend();
-
+		Message* msg = new Message(ve, nre.getRecepient());
+		MpiControl::getSingleton()->push(msg);
+		//  MpiControl::getSingleton()->isend();
+	}
 	// cleanup
 	unsigned vboMapSize = mPriVboMap.size();
 	for (unsigned i=0; i< vboMapSize; ++i){
@@ -394,13 +399,15 @@ void DataCoreGlFrame::initTiles(bool extendFovy)
 //	}
 
 	GLfloat oppFac = (GLfloat)800 / (GLfloat)640;
+	oppFac *= oppFac;
 	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenYMax *= oppFac;
 	screenYMaxH *= oppFac;
 
 //	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
-	ratio = (GLfloat)800 / (GLfloat)600;
+//	ratio = (GLfloat)800 / (GLfloat)600;
+	ratio = (GLfloat)640 / (GLfloat)480;
 
 	screenXMax = screenYMax * ratio;
 	screenYMin = -screenYMax;
@@ -435,6 +442,7 @@ void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsign
 
 	GET_GLERROR(0);
 	glViewport(0, 0, (GLint) 800, (GLint) 600);
+//	glViewport(0, 0, (GLint) 640, (GLint) 480);
 	GET_GLERROR(0);
 //	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 	GET_GLERROR(0);
