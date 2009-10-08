@@ -231,7 +231,9 @@ void RenderCoreGlFrame::display()
 
 //	resizeFrustum(640, 480);
 	initTiles(true);
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
+	resizeFrustum(0, 0, 800, 600, true);
+//	cout << "renderer resizing frustum to " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
+
 //	resizeFrustum(0, 320, 640, 480); // right position, or is it?
 //	void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
 //			unsigned leftLine, unsigned tileswidth)
@@ -277,7 +279,7 @@ void RenderCoreGlFrame::display()
 
 	if (mPriShowOffset){
 		initTiles(true);
-		resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
+		resizeFrustum(0, 0, 800, 600, true);
 	}
 
 	// pop matrix to restore original camera
@@ -525,6 +527,7 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 
 void RenderCoreGlFrame::initTiles(bool extendFovy)
 {
+//	extendFovy = false;
 	//resize
 	float fovy = 45.0;
 //	if (extendFovy){
@@ -534,17 +537,22 @@ void RenderCoreGlFrame::initTiles(bool extendFovy)
 //		fovy = 45.0;
 //	}
 
+	ratio = (GLfloat)800 / (GLfloat)600;
 
 	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
 	if (extendFovy){
-		ratio = (GLfloat)800 / (GLfloat)600;
 		GLfloat oppFac = (GLfloat)800 / (GLfloat)mPriTileWidth;
+		oppFac *= oppFac;
+//		cout << "oppFac: " << oppFac << endl;
 		screenYMax *= oppFac;
 		screenYMaxH *= oppFac;
 	}
 	else{
-		ratio = (GLfloat)640 / (GLfloat)480;
+		GLfloat oppFac = (GLfloat)800 / (GLfloat)mPriTileWidth;
+//		cout << "oppFac: " << oppFac << endl;
+		screenYMax *= oppFac;
+		screenYMaxH *= oppFac;
 	}
 
 
@@ -567,56 +575,72 @@ void RenderCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
 
 void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
 {
-//	if (extendFrustum){
-//		int xMod = (mPriWindowWidth-tileswidth)/2;
-//		int yMod = (mPriWindowHeight-tilesheight)/2;
-//		if (tileXPos == 0){
-//			tileswidth+=xMod;
-//		}
-//		else{
-//			tileXPos-=xMod;
-//			tileswidth+=xMod;
-//		}
-//		if (tileYPos == 0){
-//			tilesheight+=yMod;
-//		}
-//		else{
-//			tileYPos-=yMod;
-//			tilesheight+=yMod;
-//		}
-//	}
-
 	if (tilesheight == 0)
 		tilesheight = 1;
 	if (tileswidth == 0)
 		tileswidth = 1;
-	worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
-	worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
-	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
-	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
 
 	if (extendFrustum){
-		glViewport(0, 0, (GLint) 800, (GLint) 600);
+		worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
+		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
+		worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
+		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
+
+			glViewport(0, 0, (GLint) 800, (GLint) 600);
+
+	//	if (extendFrustum){
+	//		glViewport(0, 0, (GLint) 800, (GLint) 600);
+	//	}
+	//	else{
+	//		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
+	//	}
+			glViewport(0, 0, (GLint) 800, (GLint) 600);
+	//		glViewport(0, 0, (GLint) 640, (GLint) 480);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
+		worldBottomLine = screenYMin
+				+ ((screenYMax - screenYMin) * worldBottomLine);
+
+		worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
+		worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
+				* worldRightLine);
+
+		glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
+				mPriNearClippingPlane, mPriFarClippingPlane);
+
+
+		glMatrixMode(GL_MODELVIEW);
+
 	}
-	else{
-		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
+	else {
+		worldTopLine = (GLdouble) tileYPos / (GLdouble) 480;
+		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) 480;
+		worldLeftLine = (GLdouble) tileXPos / (GLdouble) 640;
+		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) 640;
+
+		glViewport(0, 0, (GLint) 640, (GLint) 480);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
+		worldBottomLine = screenYMin
+				+ ((screenYMax - screenYMin) * worldBottomLine);
+
+		worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
+		worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
+				* worldRightLine);
+
+		glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
+				mPriNearClippingPlane, mPriFarClippingPlane);
+
+
+		glMatrixMode(GL_MODELVIEW);
+
 	}
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 
-	worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
-	worldBottomLine = screenYMin
-			+ ((screenYMax - screenYMin) * worldBottomLine);
-
-	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
-	worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
-			* worldRightLine);
-
-	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
-			mPriNearClippingPlane, mPriFarClippingPlane);
-
-
-	glMatrixMode(GL_MODELVIEW);
 }
 
 void RenderCoreGlFrame::debug() {
@@ -883,6 +907,8 @@ RenderCoreGlFrame::requestMissingVbos()
 
 	}
 	// now dealing with extended frustum
+	mPriMissingIdsInFrustum.clear();
+	missingIdDistances.clear();
 	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
 	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
 	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
@@ -894,11 +920,14 @@ RenderCoreGlFrame::requestMissingVbos()
 			missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
 			mPriRequestedVboList.insert(*setIt);
 		}
-		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), true);
+		//TODO do something about the loadPerFrame limit
+		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, 1000, MpiControl::getSingleton()->getRank(), true);
 		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
 		MpiControl::getSingleton()->isend();
 		missingIdDistances.clear();
 		mPriMissingIdsInFrustum.clear();
+		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
+
 	}
 
 }
@@ -1234,7 +1263,8 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 void RenderCoreGlFrame::depthPass()
 {
 	initTiles(true);
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
+//	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
+	resizeFrustum(0, 0, 800, 600, true);
 	glLoadIdentity();
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
 	mPriCamera.calcMatrix();
@@ -1347,7 +1377,8 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 
 		if (ve.isExtendedFrustum()){
 			for (unsigned i=0; i< ve.getVboCount(); ++i){
-				mPriOfflineVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
+//				cout << "got CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
+				mPriOfflineVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false)));
 				trimCacheMap();
 			}
 		}
