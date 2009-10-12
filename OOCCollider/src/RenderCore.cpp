@@ -126,12 +126,12 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 			cout << "renderer REPEAT" << endl;
 		}
 
-//		cout << "4 <-- renderer waiting for frameend" << endl;
-//		mPriMpiCon->receive(0, EndOfFrameEvent::classid());
-//		while (!mPriMpiCon->inQueueEmpty()){
-//			handleMsg(mPriMpiCon->pop());
-//		}
-//		cout << "[4] renderer got frameend" << endl;
+		cout << "4 <-- renderer waiting for frameend" << endl;
+		mPriMpiCon->receive(0, EndOfFrameEvent::classid());
+		while (!mPriMpiCon->inQueueEmpty()){
+			handleMsg(mPriMpiCon->pop());
+		}
+		cout << "[4] renderer got frameend" << endl;
 		// Swap front and back buffers (we use a double buffered display)
 		mWindow->flip();
 		mWindow->poll();
@@ -187,6 +187,7 @@ bool RenderCore::ireceiveMethod(int source)
 void RenderCore::handleMsg(Message* msg)
 {
 	if (msg != 0){
+		cout << "renderer got message: " << msg->getType() << endl;
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
 //			msg->setDst(msg->getSrc());
 //			msg->setSrc(MpiControl::getSingleton()->getRank());
@@ -221,7 +222,9 @@ void RenderCore::handleMsg(Message* msg)
 			oocframework::EventManager::getSingleton()->fire(ire);
 		}
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
+			cout << "renderer waiting at barrier bevore depthbufferequest" << endl;
 			mPriMpiCon->barrier();
+			cout << "renderer done waiting" << endl;
 			AccumulatedRendertimeEvent arte = AccumulatedRendertimeEvent(mPriGlFrame->getRenderTime());
 			mPriMpiCon->send(new Message(arte, 0));
 			mPriGlFrame->resetRenderTime();

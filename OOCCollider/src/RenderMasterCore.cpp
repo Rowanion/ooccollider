@@ -163,6 +163,21 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			while(!mPriMpiCon->outQueueEmpty()){ // send all waiting messages out
 				mPriMpiCon->send();
 			}
+
+			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
+				mPriCamHasMoved = false;
+				mPriFrameCount = 0;
+				DepthBufferRequestEvent dbre = DepthBufferRequestEvent();
+				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
+				cout << "master waiting at barreier before depthbufferequest" << endl;
+				mPriMpiCon->barrier();
+				// go into listenmode to receive the rendering-times
+				mPriMpiCon->receive(MpiControl::RENDERER);
+				while (!mPriMpiCon->inQueueEmpty()) {
+					handleMsg(mPriMpiCon->pop());
+				}
+			}
+
 			EndTransmissionEvent ete = EndTransmissionEvent();
 			mPriMpiCon->send(new Message(ete,0, MpiControl::RENDERER));
 			cout << "[3] master REPEAT!" << endl;
@@ -179,10 +194,10 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			}
 			mPriGlFrame->display();
 
-//			cout << "4 --> master sending frameend" << endl;
-//			EndOfFrameEvent eofe = EndOfFrameEvent();
-//			mPriMpiCon->send(new Message(eofe, 0, MpiControl::RENDERER));
-//			cout << "[4] master done sending frameend" << endl;
+			cout << "4 --> master sending frameend" << endl;
+			EndOfFrameEvent eofe = EndOfFrameEvent();
+			mPriMpiCon->send(new Message(eofe, 0, MpiControl::RENDERER));
+			cout << "[4] master done sending frameend" << endl;
 			mPriFrameCount++;
 			//			cout << "---master EXIT display" << endl;
 			//			cout << "end of display 0..." << endl;
