@@ -53,6 +53,8 @@ private:
 	Tile mPriRootTile;
 	SimpleGlFrame* mPriGlFrame;
 
+	unsigned mPriRendererDoneCount;
+	unsigned mPriTileCount;
 	oocframework::EventManager* mPriEventMan;
 
 	std::map<int, Tile> mPriTileMap;
@@ -64,6 +66,7 @@ private:
 	MPI::Request sendQueue(int dest);
 	void pollSpaceNav();
 	void handleMsg(Message* msg);
+	void manageCCollision();
 };
 
 #endif /* RENDERMASTERCORE_H_ */

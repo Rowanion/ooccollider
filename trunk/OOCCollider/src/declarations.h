@@ -62,6 +62,7 @@ class ColorBufferEvent;
 class DepthBufferEvent;
 class DepthBufferRequestEvent;
 class EndTransmissionEvent;
+class EndOfFrameEvent;
 class InfoRequestEvent;
 class KeyPressedEvent;
 class KillApplicationEvent;

@@ -61,6 +61,7 @@ public:
 	inline void resetRenderTime() {mPriRenderTimeSum = 0.0;};
 	void depthPass();
 	ColorBufferEvent& getColorBufferEvent() {return mPriColorBufferEvent;};
+	void cullFrustum();
 
 protected:
 	void normalizeFrustum();

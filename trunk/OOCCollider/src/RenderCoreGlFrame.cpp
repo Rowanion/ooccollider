@@ -239,67 +239,6 @@ void RenderCoreGlFrame::display()
 //	resizeWindow(height, width);
 
 //	resizeFrustum(640, 480);
-	initTiles(true);
-	resizeFrustum(0, 0, 800, 600, true);
-//	cout << "renderer resizing frustum to " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
-
-//	resizeFrustum(0, 320, 640, 480); // right position, or is it?
-//	void RenderCoreGlFrame::resizeWindow(unsigned topLine, unsigned tilesheight,
-//			unsigned leftLine, unsigned tileswidth)
-
-	// light blue
-	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
-	GET_GLERROR(0);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	GET_GLERROR(0);
-	glLoadIdentity();
-	GET_GLERROR(0);
-	// setting current matrix, apply to camera and recalc
-	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
-	mPriCamera.calcMatrix();
-	// push matrix for extended frustum
-//	if (!mPriShowOffset)
-//		glPushMatrix();
-//	glLoadIdentity();
-//	// calc extended frustum
-//	mPriCamera.decZMove(CAMERA_OFFSET);
-//	mPriCamera.calcMatrix();
-
-//	GET_GLERROR(0);
-
-	if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition)){
-		cout << "----------------------------------------- NO INVERSE!" << endl;
-	}
-//	GET_GLERROR(0);
-
-	getFrustum();
-	mPriIdsInExtFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum);
-
-	initTiles(false);
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, false);
-
-
-	getFrustum();
-	mPriIdsInFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
-
-	if (mPriShowOffset){
-		initTiles(true);
-		resizeFrustum(0, 0, 800, 600, true);
-	}
-
-	// pop matrix to restore original camera
-//	if (!mPriShowOffset)
-//		glPopMatrix();
-//	cout << "list of nodes in frustum: " << endl;
-//	for(set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!=mPriIdsInFrustum.end(); it++){
-//		cout << *it << endl;
-//	}
-//	if (MpiControl::getSingleton()->getRank()==2){
-		divideIdList();
-		requestMissingVbos();
-//	}
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum);
 //	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum2);
 //	compareVbos(&mPriVbosInFrustum, &mPriVbosInFrustum2);
@@ -900,7 +839,7 @@ RenderCoreGlFrame::requestMissingVbos()
 			reqCount++;
 		}
 		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), false);
-		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
+		MpiControl::getSingleton()->push(new Message(nre, 0));
 		MpiControl::getSingleton()->isend();
 		mPriMissingIdsInFrustum.clear();
 
@@ -921,13 +860,16 @@ RenderCoreGlFrame::requestMissingVbos()
 		}
 		//TODO do something about the loadPerFrame limit
 		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), true);
-		MpiControl::getSingleton()->push(new Message(nre, 0, MpiControl::DATA));
+		MpiControl::getSingleton()->push(new Message(nre, 0));
 		MpiControl::getSingleton()->isend();
 		missingIdDistances.clear();
 		mPriMissingIdsInFrustum.clear();
 //		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
 
 	}
+	EndTransmissionEvent ete = EndTransmissionEvent();
+	MpiControl::getSingleton()->send(new Message(ete, 0));
+	cout << "renderer finalized nodeRequests" << endl;
 
 }
 
@@ -1296,6 +1238,53 @@ void RenderCoreGlFrame::depthPass()
 	glPolygonMode(GL_FRONT, polyMode);
 	GET_GLERROR(0);
 
+}
+
+void RenderCoreGlFrame::cullFrustum()
+{
+	//extend frustum
+	initTiles(true);
+	resizeFrustum(0, 0, 800, 600, true);
+
+	// light blue
+	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
+	GET_GLERROR(0);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	GET_GLERROR(0);
+	glLoadIdentity();
+	GET_GLERROR(0);
+	// setting current matrix, apply to camera and recalc
+	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
+	mPriCamera.calcMatrix();
+
+//	GET_GLERROR(0);
+
+	if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition)){
+		cout << "----------------------------------------- NO INVERSE!" << endl;
+	}
+//	GET_GLERROR(0);
+
+	getFrustum();
+	mPriIdsInExtFrustum.clear();
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum);
+
+	// original frustum
+	initTiles(false);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, false);
+
+
+	getFrustum();
+	mPriIdsInFrustum.clear();
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
+
+	if (mPriShowOffset){
+		initTiles(true);
+		resizeFrustum(0, 0, 800, 600, true);
+	}
+
+
+	divideIdList();
+	requestMissingVbos();
 }
 
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)
