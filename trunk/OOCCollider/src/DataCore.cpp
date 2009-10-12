@@ -58,7 +58,10 @@ DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(tru
 
 	do {
 //		cout << "2 waiting for any..." << endl;
-		receiveMethod(MPI::ANY_SOURCE);
+		mPriMpiCon->ireceive(MPI::ANY_SOURCE);
+		while (!mPriMpiCon->inQueueEmpty()){
+			handleMsg(mPriMpiCon->pop());
+		}
 		MpiControl::getSingleton()->isend();
 
 
@@ -115,92 +118,97 @@ void DataCore::receiveMethod(int source)
 }
 
 void DataCore::handleMsg(Message* msg){
-	if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
-//				msg->setDst(source);
-//				MpiControl::getSingleton()->push(msg);
-//				MpiControl::getSingleton()->sendAll();
-		mRunning = false;
-		cout << "recveived KILL from " << msg->getSrc() << endl;
-	}
-	else if (msg->getType() == WindowResizedEvent::classid()->getShortId()){
-		int w = ((int*)msg->getData())[0];
-		int h = ((int*)msg->getData())[1];
-		mWindow->resize(w,h);
-	}
-	//		else if (msg->getType() == MouseButtonEvent::classid()->getShortId()){
-	//			int x = ((int*)msg->getData())[0];
-	//			int y = ((int*)msg->getData())[1];
-	//			int state = ((int*)msg->getData())[2];
-	//			MouseButtonEvent mbe = MouseButtonEvent(x,y,state);
-	//			oocframework::EventManager::getSingleton()->fire(mbe);
-	//		}
-	//		else if (msg->getType() == MouseDraggedEvent::classid()->getShortId()){
-	//			int x = ((int*)msg->getData())[0];
-	//			int y = ((int*)msg->getData())[1];
-	//			MouseDraggedEvent mde = MouseDraggedEvent(x,y);
-	//			oocframework::EventManager::getSingleton()->fire(mde);
-	//		}
-	else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
-		int key = ((int*) msg->getData())[0];
-		KeyPressedEvent kpe = KeyPressedEvent(key);
-		oocframework::EventManager::getSingleton()->fire(kpe);
-	}
-	else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
-		ModelViewMatrixEvent mve = ModelViewMatrixEvent(((float*)msg->getData()));
-//				cout << "datacore got a matrix!" << endl;
-//				mGlFrame->setMvMatrix(mve.getMatrix());
-//				cout << "datacore matrix! successfully copied!" << endl;
-		oocframework::EventManager::getSingleton()->fire(mve);
-	}
-	else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
-//				cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;
-		DepthBufferEvent dbe = DepthBufferEvent(msg);
-		oocframework::EventManager::getSingleton()->fire(dbe);
-		mPriDepthBufferCount++;
-		cout << "datacore has now " << mPriDepthBufferCount << " of " << MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)<< endl;
-	}
-	else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
-		NodeRequestEvent nre = NodeRequestEvent(msg);
-		// fetch/reload VBOs and send back
-//				cout << "list of node-requests reached DataCore: " << endl;
-//				for(unsigned i=0; i< nre.getIdxCount(); ++i){
-//					cout << nre.getId(i) << endl;
-//				}
-		GET_GLERROR(0);
-		mGlFrame->display(nre);
+	if (msg != 0){
+		cout << "data got a message: " << msg->getType() << endl;
+		if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
+			//				msg->setDst(source);
+			//				MpiControl::getSingleton()->push(msg);
+			//				MpiControl::getSingleton()->sendAll();
+			mRunning = false;
+			cout << "recveived KILL from " << msg->getSrc() << endl;
+		}
+		else if (msg->getType() == WindowResizedEvent::classid()->getShortId()){
+			int w = ((int*)msg->getData())[0];
+			int h = ((int*)msg->getData())[1];
+			mWindow->resize(w,h);
+		}
+		//		else if (msg->getType() == MouseButtonEvent::classid()->getShortId()){
+		//			int x = ((int*)msg->getData())[0];
+		//			int y = ((int*)msg->getData())[1];
+		//			int state = ((int*)msg->getData())[2];
+		//			MouseButtonEvent mbe = MouseButtonEvent(x,y,state);
+		//			oocframework::EventManager::getSingleton()->fire(mbe);
+		//		}
+		//		else if (msg->getType() == MouseDraggedEvent::classid()->getShortId()){
+		//			int x = ((int*)msg->getData())[0];
+		//			int y = ((int*)msg->getData())[1];
+		//			MouseDraggedEvent mde = MouseDraggedEvent(x,y);
+		//			oocframework::EventManager::getSingleton()->fire(mde);
+		//		}
+		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
+			int key = ((int*) msg->getData())[0];
+			KeyPressedEvent kpe = KeyPressedEvent(key);
+			oocframework::EventManager::getSingleton()->fire(kpe);
+		}
+		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
+			ModelViewMatrixEvent mve = ModelViewMatrixEvent(((float*)msg->getData()));
+			//				cout << "datacore got a matrix!" << endl;
+			//				mGlFrame->setMvMatrix(mve.getMatrix());
+			//				cout << "datacore matrix! successfully copied!" << endl;
+			oocframework::EventManager::getSingleton()->fire(mve);
+		}
+		else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
+			//				cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;
+			DepthBufferEvent dbe = DepthBufferEvent(msg);
+			oocframework::EventManager::getSingleton()->fire(dbe);
+			mPriDepthBufferCount++;
+			cout << "datacore has now " << mPriDepthBufferCount << " of " << MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)<< endl;
+		}
+		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
+			NodeRequestEvent nre = NodeRequestEvent(msg);
+			// fetch/reload VBOs and send back
+			//				cout << "list of node-requests reached DataCore: " << endl;
+			//				for(unsigned i=0; i< nre.getIdxCount(); ++i){
+			//					cout << nre.getId(i) << endl;
+			//				}
+			GET_GLERROR(0);
+			mGlFrame->display(nre);
 
-	}
-	else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
-		mPriMpiCon->barrier();
-		mPriMpiCon->clearOutQueue(MpiControl::RENDERER);
-		mPriMpiCon->completeWaitingReceives(DepthBufferEvent::classid());
-		Message* newMsg = 0;
-		while(!mPriMpiCon->inQueueEmpty()){
-			newMsg = mPriMpiCon->pop();
-			if (newMsg->getType() == DepthBufferEvent::classid()->getShortId()){
+		}
+		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
+			mPriMpiCon->barrier();
+			mPriMpiCon->clearOutQueue(MpiControl::RENDERER);
+			mPriMpiCon->completeWaitingReceives(DepthBufferEvent::classid());
+			Message* newMsg = 0;
+			while(!mPriMpiCon->inQueueEmpty()){
+				newMsg = mPriMpiCon->pop();
+				if (newMsg->getType() == DepthBufferEvent::classid()->getShortId()){
+					handleMsg(newMsg);
+				}
+				else if (newMsg->getSrc() == 0){
+					handleMsg(newMsg);
+				}
+				delete newMsg;
+				newMsg = 0;
+			}
+			cout << "data waiting at barrier bevor deptbuffers" << endl;
+			mPriMpiCon->barrier();
+			cout << "data continuing" << endl;
+
+			while(mPriDepthBufferCount < mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
+				newMsg = mPriMpiCon->directReceive(DepthBufferEvent::classid());
 				handleMsg(newMsg);
 			}
-			else if (newMsg->getSrc() == 0){
-				handleMsg(newMsg);
-			}
-			delete newMsg;
-			newMsg = 0;
-		}
-		cout << "data waiting at barrier bevor deptbuffers" << endl;
-		mPriMpiCon->barrier();
-		cout << "data continuing" << endl;
 
-		while(mPriDepthBufferCount < mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
-			newMsg = mPriMpiCon->directReceive(DepthBufferEvent::classid());
-			handleMsg(newMsg);
+			mPriDepthBufferCount = 0;
+			cout << "datacore has received all depthbuffers" << endl;
 		}
-
-		mPriDepthBufferCount = 0;
-		cout << "datacore has received all depthbuffers" << endl;
-	}
-	else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
-		InfoRequestEvent ire = InfoRequestEvent();
-		oocframework::EventManager::getSingleton()->fire(ire);
+		else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
+			InfoRequestEvent ire = InfoRequestEvent();
+			oocframework::EventManager::getSingleton()->fire(ire);
+		}
+		delete msg;
+		msg = 0;
 	}
 }
 
