@@ -248,8 +248,8 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 //			cout << "sending CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
 		}
 
-		Message* msg = new Message(ve, nre.getRecepient());
-		MpiControl::getSingleton()->push(msg);
+//		Message* msg = new Message(ve, nre.getRecepient());
+//		MpiControl::getSingleton()->push(msg);
 		//  MpiControl::getSingleton()->isend();
 	}
 	// cleanup

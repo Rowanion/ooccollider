@@ -32,6 +32,8 @@
 #include "DepthBufferRequestEvent.h"
 #include "ChangeTileDimensionsEvent.h"
 #include "AccumulatedRendertimeEvent.h"
+#include "EndTransmissionEvent.h"
+#include "EndOfFrameEvent.h"
 
 
 using namespace std;
@@ -40,6 +42,7 @@ RenderCore* RenderCore::instance = 0;
 
 RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, unsigned _finalHeight) : mWindow(0), mRunning(true), mPriGotMatrix(false)
 {
+
 	RenderCore::instance = this;
 	mPriMpiCon = MpiControl::getSingleton();
 
@@ -73,30 +76,62 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 	unsigned frames = 0;
 	mPriMpiCon->barrier();
 	do {
-		mPriGotMatrix = false;
-		while(!mPriGotMatrix && mRunning){ // receive everything from 0 and finally the matrix
-			MpiControl::getSingleton()->receive(0);
+//		mPriGotMatrix = false;
+//		while(mRunning){ // receive the matrix from 0
+		cout << "0 <-- renderer checking for matrix" << endl;
+		while(!mPriMpiCon->probe(0, ModelViewMatrixEvent::classid())){
+		}
+		mPriMpiCon->ireceive(0, ModelViewMatrixEvent::classid());
+		cout << "[0] renderer got matrix" << endl;
+
+		cout << "1 --> renderer sending tile" << endl;
+		mPriMpiCon->isend(new Message(mPriGlFrame->getColorBufferEvent(), 0));
+		cout << "[1] renderer sent tile" << endl;
+		mPriMpiCon->iCheck();
+		while(!mPriMpiCon->inQueueEmpty()){
 			handleMsg(MpiControl::getSingleton()->pop());
 		}
-		mPriMpiCon->send(new Message(mPriGlFrame->getColorBufferEvent(), 0));
-//		cout << "matrix arrived at renderer" << endl;
-		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
-		while(!MpiControl::getSingleton()->inQueueEmpty()){ // ireceive everything from data-nodes
-			Message* msg = MpiControl::getSingleton()->pop();
-			handleMsg(msg);
+
+		cout << "2 --> renderer performing culling" << endl;
+		mPriGlFrame->cullFrustum();
+		cout << "[2] renderer done with culling" << endl;
+
+		mPriMasterDone = false;
+		cout << "3 <-- renderer waiting for any (data and master)" << endl;
+		while(!mPriMasterDone){
+			mPriMpiCon->ireceive(MPI_ANY_SOURCE);
+			if (!mPriMpiCon->inQueueEmpty()){
+				handleMsg(mPriMpiCon->pop());
+			}
 		}
+		cout << "[3] renderer got all from any (data and master)" << endl;
+
+//		cout << "matrix arrived at renderer" << endl;
+//		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
+//		while(!MpiControl::getSingleton()->inQueueEmpty()){ // ireceive everything from data-nodes
+//			Message* msg = MpiControl::getSingleton()->pop();
+//			handleMsg(msg);
+//		}
 //		cout << "waiting for matrix from 0..." << endl;
 //		receiveMethod(0);
 		if (mRunning){
 			GET_GLERROR(0);
 			mPriGlFrame->display();
 //			cout << "sending the outqueue of renderer" << endl;
-			while(!MpiControl::getSingleton()->outQueueEmpty()){ // send everything
-//				cout << "renderer found that his outqueue is not empty.....sending...." << endl;
-				MpiControl::getSingleton()->send();
-			}
+//			cout << "renderer sending non-empty outqueue" << endl;
+//			while(!MpiControl::getSingleton()->outQueueEmpty()){ // send everything
+////				cout << "renderer found that his outqueue is not empty.....sending...." << endl;
+//				MpiControl::getSingleton()->send();
+//			}
+			cout << "renderer REPEAT" << endl;
 		}
 
+//		cout << "4 <-- renderer waiting for frameend" << endl;
+//		mPriMpiCon->receive(0, EndOfFrameEvent::classid());
+//		while (!mPriMpiCon->inQueueEmpty()){
+//			handleMsg(mPriMpiCon->pop());
+//		}
+//		cout << "[4] renderer got frameend" << endl;
 		// Swap front and back buffers (we use a double buffered display)
 		mWindow->flip();
 		mWindow->poll();
@@ -172,7 +207,7 @@ void RenderCore::handleMsg(Message* msg)
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
 			mPriGotMatrix = true;
-//			cout << "rendercore got a matrix from 0" << endl;
+			cout << "rendercore got a matrix from 0" << endl;
 			ModelViewMatrixEvent mve = ModelViewMatrixEvent(msg);
 //			cout << "rendercore created an event for the matrix" << endl;
 			oocframework::EventManager::getSingleton()->fire(mve);
@@ -200,6 +235,10 @@ void RenderCore::handleMsg(Message* msg)
 			mPriMpiCon->barrier();
 			cout << "render " << mPriMpiCon->getRank() << " continuing" << endl;
 			mPriGlFrame->depthPass();
+		}
+		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()){
+			cout << "MASTER DONE EVENT " << EndTransmissionEvent::classid()->getShortId() << endl;
+			mPriMasterDone = true;
 		}
 		delete msg;
 		msg = 0;

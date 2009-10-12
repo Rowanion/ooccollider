@@ -40,10 +40,17 @@ public:
 
 	static MpiControl* getSingleton();
 	void receive(int src);
+	void receive(int src, const oocframework::ClassId* _classid);
+	void receive(Group _group, oocframework::ClassId* _classid);
 	void receive(Group _group);
 	bool ireceive(int src);
+	bool ireceive(int src, const oocframework::ClassId* _classId);
 	bool ireceive(Group _group);
+	bool ireceiveAll(Group _group, const oocframework::ClassId* _classid);
+	void iCheck();
 	Message* directReceive(const oocframework::ClassId* classid);
+	bool probe(int src, const oocframework::ClassId* _classid = 0);
+
 	void completeWaitingReceives(const oocframework::ClassId* classid);
 	void send(Message* msg = 0);
 	void isend(Message* msg = 0);
