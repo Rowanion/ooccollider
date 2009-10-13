@@ -40,18 +40,13 @@ public:
 
 	static MpiControl* getSingleton();
 	void receive(int src);
-	void receive(int src, const oocframework::ClassId* _classid);
-	void receive(Group _group, oocframework::ClassId* _classid);
 	void receive(Group _group);
 	bool ireceive(int src);
-	bool ireceive(int src, const oocframework::ClassId* _classId);
-	bool ireceive(Group _group);
-	bool ireceiveAll(Group _group, const oocframework::ClassId* _classid);
-	void iCheck();
+	void ireceive(Group _group);
 	Message* directReceive(const oocframework::ClassId* classid);
 	bool probe(int src, const oocframework::ClassId* _classid = 0);
 
-	void completeWaitingReceives(const oocframework::ClassId* classid);
+	void completeWaitingReceives(const oocframework::ClassId* classid = 0);
 	void send(Message* msg = 0);
 	void isend(Message* msg = 0);
 	void sendAll();
@@ -74,14 +69,14 @@ public:
 	const std::vector<int>& getRenderGroup() const;
 	const std::vector<int>& getDataGroup() const;
 
-	inline MPI::Group& getGlobalGrp() {return mOrigGroup;};
-	inline MPI::Group& getRenderGrp() {return mRenderGroup;};
-	inline MPI::Group& getDataGrp() {return mDataGroup;};
+	MPI::Group& getGlobalGrp() {return mOrigGroup;};
+	MPI::Group& getRenderGrp() {return mRenderGroup;};
+	MPI::Group& getDataGrp() {return mDataGroup;};
 
-	inline Group getGroup() const {return mGroup;};
-	inline void barrier() const {MPI_Barrier(MPI::COMM_WORLD);};
+	Group getGroup() const {return mGroup;};
+	void barrier() const {MPI_Barrier(MPI::COMM_WORLD);};
+	void iCheck();
 
-	std::queue<Message*> mInQueue;
 
 private:
 	MpiControl();
@@ -97,6 +92,7 @@ private:
 	std::vector<int> mPriRenderNodes;
 	std::vector<int> mPriDataNodes;
 
+	std::queue<Message*> mInQueue;
 	std::queue<Message*> mOutQueue;
 
 	std::queue<Message*> mPriInRequests;

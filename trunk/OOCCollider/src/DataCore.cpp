@@ -105,27 +105,14 @@ void DataCore::renderOneFrame()
 
 }
 
-void DataCore::receiveMethod(int source)
-{
-	if (MpiControl::getSingleton()->ireceive(source)){
-		Message* msg = MpiControl::getSingleton()->pop();
-		if (msg != 0){
-			handleMsg(msg);
-			delete msg;
-		}
-	}
-	else return;
-}
-
 void DataCore::handleMsg(Message* msg){
 	if (msg != 0){
-		cout << "data got a message: " << msg->getType() << endl;
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
 			//				msg->setDst(source);
 			//				MpiControl::getSingleton()->push(msg);
 			//				MpiControl::getSingleton()->sendAll();
 			mRunning = false;
-			cout << "recveived KILL from " << msg->getSrc() << endl;
+			cout << "data recveived KILL from " << msg->getSrc() << endl;
 		}
 		else if (msg->getType() == WindowResizedEvent::classid()->getShortId()){
 			int w = ((int*)msg->getData())[0];
@@ -188,12 +175,10 @@ void DataCore::handleMsg(Message* msg){
 				else if (newMsg->getSrc() == 0){
 					handleMsg(newMsg);
 				}
-				delete newMsg;
-				newMsg = 0;
 			}
-			cout << "data waiting at barrier bevor deptbuffers" << endl;
+//			cout << "data waiting at barrier bevor deptbuffers" << endl;
 			mPriMpiCon->barrier();
-			cout << "data continuing" << endl;
+//			cout << "data continuing" << endl;
 
 			while(mPriDepthBufferCount < mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
 				newMsg = mPriMpiCon->directReceive(DepthBufferEvent::classid());
@@ -201,7 +186,7 @@ void DataCore::handleMsg(Message* msg){
 			}
 
 			mPriDepthBufferCount = 0;
-			cout << "datacore has received all depthbuffers" << endl;
+//			cout << "datacore has received all depthbuffers" << endl;
 		}
 		else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
 			InfoRequestEvent ire = InfoRequestEvent();

@@ -17,7 +17,6 @@
 #include "ColorBufferEvent.h"
 #include "DepthBufferEvent.h"
 #include "NodeRequestEvent.h"
-#include "ModelViewMatrixEvent.h"
 
 using namespace std;
 
@@ -52,6 +51,23 @@ MpiControl::~MpiControl()
 	mDataGroup.Free();
 	mPriDataNodes.clear();
 	mPriRenderNodes.clear();
+
+	while (!mInQueue.empty()){
+		delete mInQueue.front();
+		mInQueue.pop();
+	}
+	while (!mOutQueue.empty()){
+		delete mOutQueue.front();
+		mOutQueue.pop();
+	}
+	while (!mPriInRequests.empty()){
+		delete mPriInRequests.front();
+		mPriInRequests.pop();
+	}
+	while (!mPriOutRequests.empty()){
+		delete mPriOutRequests.front();
+		mPriOutRequests.pop();
+	}
 }
 
 void MpiControl::init()
@@ -112,25 +128,6 @@ void MpiControl::receive(int src)
 	mInQueue.push(msg);
 }
 
-void MpiControl::receive(int src, const oocframework::ClassId* _classid)
-{
-//	cout << mRank << " is receiving from " << src << "..." << endl;
-	MPI::Status stat;
-	while (!MPI::COMM_WORLD.Iprobe(src, _classid->getShortId(), stat))
-	{	}
-	int count = stat.Get_count(MPI_CHAR);
-	int type = stat.Get_tag();
-	int realSrc = stat.Get_source();
-	Message* msg = new Message();
-	msg->setType(type);
-	msg->setLength(count);
-	msg->setSrc(realSrc);
-	msg->mData = new char[count];
-	MPI::COMM_WORLD.Recv(msg->mData, count, MPI_CHAR, src, type, stat);
-//	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
-	mInQueue.push(msg);
-}
-
 //TODO this way is not efficient
 // it waits blocking for a msg from each group member. what happens if node 1 sends twice and 2 never sends?
 void MpiControl::receive(Group _group)
@@ -146,26 +143,6 @@ void MpiControl::receive(Group _group)
 	case DATA:{
 		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
 			receive(mPriDataNodes[i]);
-		}
-		break;}
-	default:
-		break;
-	}
-}
-
-void MpiControl::receive(Group _group, oocframework::ClassId* _classid)
-{
-//	cout << mRank << " is receiving from " << src << "..." << endl;
-	MPI::Status stat;
-	switch (_group){
-	case RENDERER:{
-		for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
-			receive(mPriRenderNodes[i], _classid);
-		}
-		break;}
-	case DATA:{
-		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
-			receive(mPriDataNodes[i], _classid);
 		}
 		break;}
 	default:
@@ -215,12 +192,10 @@ bool MpiControl::ireceive(int src)
 	MPI::Request req;
 //	req.Wait(stat);
 
-	bool result = false;
-
 	Message* msg = 0;
 	unsigned queueSize = mPriInRequests.size();
 
-	if (MPI::COMM_WORLD.Iprobe(src, MPI_ANY_TAG, stat)){
+	while (MPI::COMM_WORLD.Iprobe(src, MPI_ANY_TAG, stat)){
 		msg = new Message();
 		int count = stat.Get_count(MPI_CHAR);
 		int type = stat.Get_tag();
@@ -234,7 +209,6 @@ bool MpiControl::ireceive(int src)
 		msg->setSrc(realSrc);
 		msg->request = req;
 		mPriInRequests.push(msg);
-		result = true;
 	}
 
 
@@ -242,8 +216,6 @@ bool MpiControl::ireceive(int src)
 		msg = mPriInRequests.front();
 		mPriInRequests.pop();
 		if (msg->request.Test()){
-			if (msg->getSrc() == src)
-				result = true;
 //			cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
 			mInQueue.push(msg);
 		}
@@ -252,110 +224,27 @@ bool MpiControl::ireceive(int src)
 		}
 	}
 
-	return result;
+	return !mInQueue.empty();
 }
 
-bool MpiControl::ireceive(int src, const oocframework::ClassId* _classId)
-{
-	MPI::Status stat;
-	MPI::Request req;
-//	req.Wait(stat);
-
-	bool result = false;
-	Message* msg = 0;
-	unsigned queueSize = mPriInRequests.size();
-
-	if (MPI::COMM_WORLD.Iprobe(src, _classId->getShortId(), stat)){
-		msg = new Message();
-		int count = stat.Get_count(MPI_CHAR);
-		int type = stat.Get_tag();
-		msg->mData = new char[count];
-		int realSrc = stat.Get_source();
-//		cout << mRank << " started ireceiving from " << realSrc << endl;
-		req = MPI::COMM_WORLD.Irecv(msg->mData, count, MPI_CHAR, src, type);
-		msg->setType(type);
-		msg->setLength(count);
-		msg->setDst(mRank);
-		msg->setSrc(realSrc);
-		msg->request = req;
-		mPriInRequests.push(msg);
-		result = true;
-	}
-
-
-	for (unsigned i=0; i<queueSize; ++i){
-		msg = mPriInRequests.front();
-		mPriInRequests.pop();
-		if (msg->request.Test()){
-//			if (msg->getSrc() == src && _classId->getShortId() == msg->getType())
-//				result = true;
-//			cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
-			mInQueue.push(msg);
-		}
-		else{
-			mPriInRequests.push(msg);
-		}
-	}
-
-	return result;
-}
-
-bool MpiControl::ireceive(Group _group)
+void MpiControl::ireceive(Group _group)
 {
 //	cout << mRank << " is receiving from " << src << "..." << endl;
 	MPI::Status stat;
-	bool result = false;
 	switch (_group){
 	case RENDERER:{
 		for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
-			result |= ireceive(mPriRenderNodes[i]);
+			ireceive(mPriRenderNodes[i]);
 		}
 		break;}
 	case DATA:{
 		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
-			result |= ireceive(mPriDataNodes[i]);
-		}
-		break;}
-	case ALL:{
-		for(int i=0; i< mSize; ++i){
-			if (i != mRank){
-				result |= ireceive(i);
-			}
+			ireceive(mPriDataNodes[i]);
 		}
 		break;}
 	default:
 		break;
 	}
-	return result;
-}
-
-bool MpiControl::ireceiveAll(Group _group, const oocframework::ClassId* _classid)
-{
-//	cout << mRank << " is receiving from " << src << "..." << endl;
-	MPI::Status stat;
-	bool result = false;
-	switch (_group){
-	case RENDERER:{
-		for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
-			result &= ireceive(mPriRenderNodes[i], _classid);
-		}
-		break;}
-	case DATA:{
-		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
-			result &= ireceive(mPriDataNodes[i], _classid);
-		}
-		break;}
-	case ALL:{
-		for(int i=0; i< mSize; ++i){
-			if (i != mRank){
-				result &= ireceive(i, _classid);
-			}
-		}
-		break;}
-	default:
-		break;
-	}
-	return result;
 }
 
 bool MpiControl::probe(int src, const oocframework::ClassId* _classid)
@@ -378,7 +267,11 @@ void MpiControl::completeWaitingReceives(const oocframework::ClassId* classid)
 		msg = mPriInRequests.front();
 		mPriInRequests.pop();
 		msg->request.Get_status(stat);
-		if (stat.Get_tag() == classid->getShortId()){
+		if (classid != 0 && stat.Get_tag() == classid->getShortId()){
+			msg->request.Wait();
+			mInQueue.push(msg);
+		}
+		else if (classid == 0){
 			msg->request.Wait();
 			mInQueue.push(msg);
 		}
@@ -428,6 +321,10 @@ void MpiControl::send(Message* msg)
 		MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR,msg->getDst(), msg->getType());
 		mOutQueue.pop();
 //		cout << "send " << msg->getType() << " to " << msg->getDst() << endl;
+		if (msg->getType() == 1393812872){
+			cout << mRank << " is sending kill to " << msg->getDst() << endl;
+		}
+
 		delete msg;
 	}
 }
@@ -436,8 +333,6 @@ void MpiControl::isend(Message* msg)
 {
 	Message* tempMsg = 0;
 	if (msg != 0){
-		cout << mRank << " is sending to " << msg->getDst() << "..." << endl;
-		cout << "group: " << msg->getGroup() << endl;
 		switch (msg->getGroup()){
 		case RENDERER:{
 			for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
@@ -461,7 +356,6 @@ void MpiControl::isend(Message* msg)
 		cout << "sending to all!" << endl;
 			for(int i=0; i< mSize; ++i){
 				if (mRank != i){
-				cout << mRank << ": sending to all.... " << (msg->getType()==ModelViewMatrixEvent::classid()->getShortId())<< endl;
 					tempMsg = new Message(*msg);
 					tempMsg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, i, msg->getType());
 					mPriOutRequests.push(tempMsg);
@@ -497,7 +391,6 @@ void MpiControl::isend(Message* msg)
 			mPriOutRequests.push(msg);
 		}
 	}
-
 }
 
 void MpiControl::sendAll()

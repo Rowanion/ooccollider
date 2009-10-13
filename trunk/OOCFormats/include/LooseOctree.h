@@ -39,7 +39,7 @@ class LooseOctree
 
 	public:
 		LooseOctree(LooseOctree* _father, const ooctools::BoundingBox& _bb, int64_t _id = 0);
-		LooseOctree(void* nodeSkel);
+		LooseOctree(const char* nodeSkel);
 		virtual ~LooseOctree();
 
 		/**
@@ -62,14 +62,14 @@ class LooseOctree
 		bool hasData() const;
 
 		bool conditionHolds() const;
-		inline unsigned int getLevel() const {return mPriLevel;};
-		inline const virtual ooctools::BoundingBox& getBb() const {return mBb;};
-		inline const ooctools::BoundingBox& getExtBb() const {return mExtBb;};
-		inline std::list<ooctools::Triangle>& getData() {return mTriList;};
+		unsigned int getLevel() const {return mPriLevel;};
+		const virtual ooctools::BoundingBox& getBb() const {return mBb;};
+		const ooctools::BoundingBox& getExtBb() const {return mExtBb;};
+		std::list<ooctools::Triangle>& getData() {return mTriList;};
 		std::size_t getTriangleCount() const;
-		inline int64_t getId() const {return mPriId;};
+		int64_t getId() const {return mPriId;};
 		std::string getIdString()const;
-		inline float getAreaSum() const {return mPriAreaSum;};
+		float getAreaSum() const {return mPriAreaSum;};
 
 		/**
 		 * @brief Debug-Function to check the correctness of subdivision.
@@ -119,12 +119,12 @@ class LooseOctree
 		 * @param node
 		 */
 		void insertNode(LooseOctree* node);
-		inline void setFather(LooseOctree* father){mFather = father;};
-		inline LooseOctree* getFather() const {return mFather;};
+		void setFather(LooseOctree* father){mFather = father;};
+		LooseOctree* getFather() const {return mFather;};
 		void getNodeSkeleton(void* nodeSkel);
 		static unsigned getSkeletonSize();
-		inline void setLevel(int lvl){mPriLevel = lvl;};
-		inline void setRoot(LooseOctree* _root){mPriRoot = _root;};
+		void setLevel(int lvl){mPriLevel = lvl;};
+		void setRoot(LooseOctree* _root){mPriRoot = _root;};
 		LooseOctree* getChild(unsigned i);
 		const LooseOctree* getChild(unsigned i) const;
 
@@ -138,8 +138,8 @@ class LooseOctree
 		bool makeChild(unsigned int idx);
 		void addTriangleArea(double area);
 		void incTriCount(unsigned count=1);
-		inline void setTriCount(unsigned count) {mPriTriCount = count;};
-		inline void setAreaSum(double area) {mPriAreaSum = area;};
+		void setTriCount(unsigned count) {mPriTriCount = count;};
+		void setAreaSum(double area) {mPriAreaSum = area;};
 		void drawLeafBBs();
 		unsigned findInsertionPoint(const ooctools::Triangle& tri);
 		std::string getDirPrefix(unsigned level = 0) const;
@@ -148,9 +148,9 @@ class LooseOctree
 
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
 		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids);
-		inline void setDataLoaded(){mPriDataLoaded = true;};
-		inline void setDataUnloaded(){mPriDataLoaded = false;};
-		inline bool isDataLoaded() const {return mPriDataLoaded;};
+		void setDataLoaded(){mPriDataLoaded = true;};
+		void setDataUnloaded(){mPriDataLoaded = false;};
+		bool isDataLoaded() const {return mPriDataLoaded;};
 
 		/**
 		 * @brief Counts for the whole tree how many children we have

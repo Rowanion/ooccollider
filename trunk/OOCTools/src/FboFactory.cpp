@@ -72,7 +72,6 @@ FboFactory::createCompleteFbo(int _width, int _height)
 //	fbo->createAndAddColorBuf();
 	fbo->createAndAddColorTex();
 	//fbo->createAndAddDepthTex();
-	mPriFboList.insert(make_pair(fbo->getId(), fbo));
 
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	cout << FboFactory::statusToString(status) << endl;
@@ -84,7 +83,6 @@ FboFactory::createDepthOnlyFbo(int _width, int _height)
 {
 	Fbo *fbo = new Fbo(_width, _height);
 	fbo->createAndAddDepthTex();
-	mPriFboList.insert(make_pair(fbo->getId(), fbo));
 
 	fbo->bind();
 	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);

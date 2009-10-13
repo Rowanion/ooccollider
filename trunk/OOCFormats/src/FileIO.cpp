@@ -442,13 +442,12 @@ FileIO::writeLooseOctreeNodeSkeleton(LooseOctree* _node, fs::ofstream& _of)
 LooseOctree*
 FileIO::readLooseOctreeNodeSkeleton(fs::ifstream& _if)
 {
-	void* nodeSkel = new char[LooseOctree::getSkeletonSize()];
+	char nodeSkel[LooseOctree::getSkeletonSize()];
 	// id, 8 ids, 6 floats, long double area, uint tricount
 	_if.read((char*)nodeSkel, LooseOctree::getSkeletonSize());
 	//TODO
 	LooseOctree* node = new LooseOctree(nodeSkel);
 
-	delete[] (char*)nodeSkel;
 	return node;
 }
 

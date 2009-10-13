@@ -32,8 +32,6 @@
 #include "DepthBufferRequestEvent.h"
 #include "ChangeTileDimensionsEvent.h"
 #include "AccumulatedRendertimeEvent.h"
-#include "EndTransmissionEvent.h"
-#include "EndOfFrameEvent.h"
 
 
 using namespace std;
@@ -42,13 +40,12 @@ RenderCore* RenderCore::instance = 0;
 
 RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, unsigned _finalHeight) : mWindow(0), mRunning(true), mPriGotMatrix(false)
 {
-
 	RenderCore::instance = this;
 	mPriMpiCon = MpiControl::getSingleton();
 
 	//		setupWindow("My rank is NOT 0");
 	stringstream title;
-	title << "RenderNode (" << MpiControl::getSingleton()->getRank() << ")";
+	title << "RenderNode (" << mPriMpiCon->getRank() << ")";
 	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
 	mPriGlFrame = new RenderCoreGlFrame(_width, _height, _finalWidth, _finalHeight);
@@ -56,9 +53,9 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 	GET_GLERROR(0);
 
 	// get the initial tile-dimensions
-	MpiControl::getSingleton()->receive(0);
-	while(!MpiControl::getSingleton()->inQueueEmpty()){ //
-		Message* msg = MpiControl::getSingleton()->pop();
+	mPriMpiCon->receive(0);
+	while(!mPriMpiCon->inQueueEmpty()){ //
+		Message* msg = mPriMpiCon->pop();
 		if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
 			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
 			mPriGlFrame->setTileDimensions(ctde.getTileXPos(), ctde.getTileYPos(), ctde.getTileWidth(), ctde.getTileWidth());
@@ -76,62 +73,38 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 	unsigned frames = 0;
 	mPriMpiCon->barrier();
 	do {
-//		mPriGotMatrix = false;
-//		while(mRunning){ // receive the matrix from 0
-		cout << "0 <-- renderer checking for matrix" << endl;
-		while(!mPriMpiCon->probe(0, ModelViewMatrixEvent::classid())){
-		}
-		mPriMpiCon->ireceive(0, ModelViewMatrixEvent::classid());
-		cout << "[0] renderer got matrix" << endl;
-
-		cout << "1 --> renderer sending tile" << endl;
-		mPriMpiCon->isend(new Message(mPriGlFrame->getColorBufferEvent(), 0));
-		cout << "[1] renderer sent tile" << endl;
-		mPriMpiCon->iCheck();
-		while(!mPriMpiCon->inQueueEmpty()){
-			handleMsg(MpiControl::getSingleton()->pop());
-		}
-
-		cout << "2 --> renderer performing culling" << endl;
-		mPriGlFrame->cullFrustum();
-		cout << "[2] renderer done with culling" << endl;
-
-		mPriMasterDone = false;
-		cout << "3 <-- renderer waiting for any (data and master)" << endl;
-		while(!mPriMasterDone){
-			mPriMpiCon->ireceive(MPI_ANY_SOURCE);
-			if (!mPriMpiCon->inQueueEmpty()){
-				handleMsg(mPriMpiCon->pop());
-			}
-		}
-		cout << "[3] renderer got all from any (data and master)" << endl;
-
-//		cout << "matrix arrived at renderer" << endl;
-//		MpiControl::getSingleton()->ireceive(MpiControl::DATA);
-//		while(!MpiControl::getSingleton()->inQueueEmpty()){ // ireceive everything from data-nodes
-//			Message* msg = MpiControl::getSingleton()->pop();
-//			handleMsg(msg);
-//		}
-//		cout << "waiting for matrix from 0..." << endl;
-//		receiveMethod(0);
-		if (mRunning){
-			GET_GLERROR(0);
-			mPriGlFrame->display();
-//			cout << "sending the outqueue of renderer" << endl;
-//			cout << "renderer sending non-empty outqueue" << endl;
-//			while(!MpiControl::getSingleton()->outQueueEmpty()){ // send everything
-////				cout << "renderer found that his outqueue is not empty.....sending...." << endl;
-//				MpiControl::getSingleton()->send();
-//			}
-			cout << "renderer REPEAT" << endl;
-		}
-
-		cout << "4 <-- renderer waiting for frameend" << endl;
-		mPriMpiCon->receive(0, EndOfFrameEvent::classid());
-		while (!mPriMpiCon->inQueueEmpty()){
+		mPriGotMatrix = false;
+//		cout << "renderer waiting for matrix 'n stuff" << endl;
+		while(!mPriGotMatrix && mRunning){ // receive everything from 0 and finally the matrix
+			mPriMpiCon->receive(0);
 			handleMsg(mPriMpiCon->pop());
 		}
-		cout << "[4] renderer got frameend" << endl;
+//		cout << "renderer got matrix" << endl;
+		if (mRunning){
+
+			//		cout << "renderer sending colorbuffer" << endl;
+			mPriMpiCon->isend(new Message(mPriGlFrame->getColorBufferEvent(), 0));
+			//		cout << "renderer culling and requesting" << endl;
+			mPriGlFrame->cullFrustum();
+
+			//		cout << "renderer checking for data-input" << endl;
+			MpiControl::getSingleton()->ireceive(MpiControl::DATA);
+			while(!mPriMpiCon->inQueueEmpty()){ // ireceive everything from data-nodes
+				Message* msg = mPriMpiCon->pop();
+				handleMsg(msg);
+			}
+			//		cout << "waiting for matrix from 0..." << endl;
+			//		receiveMethod(0);
+			GET_GLERROR(0);
+			mPriGlFrame->display();
+			//			cout << "sending the outqueue of renderer" << endl;
+//			cout << "renderer sending outqueue" << endl;
+			while(!mPriMpiCon->outQueueEmpty()){ // send everything
+//				cout << "renderer found that his outqueue is not empty.....sending...." << endl;
+				mPriMpiCon->send();
+			}
+		}
+
 		// Swap front and back buffers (we use a double buffered display)
 		mWindow->flip();
 		mWindow->poll();
@@ -140,7 +113,7 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 		if (frames >= 100){
 			frames = 0;
 			stringstream ss;
-			ss << "RenderNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
+			ss << "RenderNode (" << mPriMpiCon->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
 	} while (mRunning);
@@ -187,14 +160,13 @@ bool RenderCore::ireceiveMethod(int source)
 void RenderCore::handleMsg(Message* msg)
 {
 	if (msg != 0){
-		cout << "renderer got message: " << msg->getType() << endl;
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()){
 //			msg->setDst(msg->getSrc());
 //			msg->setSrc(MpiControl::getSingleton()->getRank());
 //			MpiControl::getSingleton()->push(msg);
 //			MpiControl::getSingleton()->sendAll();
 			mRunning = false;
-			cout << "recveived KILL from 0! " << msg->getSrc() << endl;
+			cout << "renderer recveived KILL from 0! " << msg->getSrc() << endl;
 		}
 		else if (msg->getType() == WindowResizedEvent::classid()->getShortId()){
 			int w = ((int*)msg->getData())[0];
@@ -208,7 +180,7 @@ void RenderCore::handleMsg(Message* msg)
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
 			mPriGotMatrix = true;
-			cout << "rendercore got a matrix from 0" << endl;
+//			cout << "rendercore got a matrix from 0" << endl;
 			ModelViewMatrixEvent mve = ModelViewMatrixEvent(msg);
 //			cout << "rendercore created an event for the matrix" << endl;
 			oocframework::EventManager::getSingleton()->fire(mve);
@@ -222,9 +194,7 @@ void RenderCore::handleMsg(Message* msg)
 			oocframework::EventManager::getSingleton()->fire(ire);
 		}
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
-			cout << "renderer waiting at barrier bevore depthbufferequest" << endl;
 			mPriMpiCon->barrier();
-			cout << "renderer done waiting" << endl;
 			AccumulatedRendertimeEvent arte = AccumulatedRendertimeEvent(mPriGlFrame->getRenderTime());
 			mPriMpiCon->send(new Message(arte, 0));
 			mPriGlFrame->resetRenderTime();
@@ -234,14 +204,10 @@ void RenderCore::handleMsg(Message* msg)
 		else if (msg->getType() == ChangeTileDimensionsEvent::classid()->getShortId()){
 			ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent(msg);
 			mPriGlFrame->setTileDimensions(ctde.getTileXPos(),ctde.getTileYPos(), ctde.getTileWidth(),ctde.getTileHeight());
-			cout << "render " << mPriMpiCon->getRank() << " waiting at barrier before deptbuffers" << endl;
+//			cout << "render " << mPriMpiCon->getRank() << " waiting at barrier before deptbuffers" << endl;
 			mPriMpiCon->barrier();
-			cout << "render " << mPriMpiCon->getRank() << " continuing" << endl;
+//			cout << "render " << mPriMpiCon->getRank() << " continuing" << endl;
 			mPriGlFrame->depthPass();
-		}
-		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()){
-			cout << "MASTER DONE EVENT " << EndTransmissionEvent::classid()->getShortId() << endl;
-			mPriMasterDone = true;
 		}
 		delete msg;
 		msg = 0;

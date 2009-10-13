@@ -95,7 +95,6 @@ private:
 	ooctools::CgToolkit* mPriCgt;
 
 	float mPriModelViewMatrix[16];
-	float* mPriModelViewProjMatrix;
 	ooctools::V3f mPriEyePosition;
 	bool mPriCamHasMoved;
 	unsigned mPriBBMode;
@@ -124,9 +123,9 @@ private:
 	GLfloat* mPriDepthBufferD;
 	GLfloat* mPriDepthTexture;
 	GLuint mPriDepthTexId;
-	ColorBufferEvent mPriColorBufferEvent;
 
 	unsigned mPriTriCount;
+	ColorBufferEvent mPriColorBufferEvent;
 
 	// Frustum-Culling member
 	float priProj[16];

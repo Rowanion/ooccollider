@@ -41,7 +41,6 @@
 #include "CameraMovedEvent.h"
 #include "NodeRequestEvent.h"
 #include "EndTransmissionEvent.h"
-#include "EndOfFrameEvent.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -106,99 +105,74 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			MpiControl::getSingleton()->send(new Message(ctde, it->first));
 		}
 
+
 	// Main rendering loop
 	unsigned frames = 0;
 	mPriMpiCon->barrier();
+	double newTime = 0.0;
+	double newerTime = 0.0;
+
+
 	do {
-//		while (!mPriMpiCon->outQueueEmpty()) {
-//			//			cout << "master found that his outqueue is not empty.....sending...." << endl;
-//			mPriMpiCon->send();
-//		}
+//		cout << "master sends outQueue and matrix" << endl;
+		while (!mPriMpiCon->outQueueEmpty()) {
+			//			cout << "master found that his outqueue is not empty.....sending...." << endl;
+			mPriMpiCon->send();
+		}
 
 		if (!mTerminateApplication) {
-//			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
-//				mPriCamHasMoved = false;
-//				mPriFrameCount = 0;
-//				DepthBufferRequestEvent dbre = DepthBufferRequestEvent();
-//				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
-//				mPriMpiCon->barrier();
-//				// go into listenmode to receive the rendering-times
-//				mPriMpiCon->receive(MpiControl::RENDERER);
-//				while (!mPriMpiCon->inQueueEmpty()) {
-//					handleMsg(mPriMpiCon->pop());
-//				}
-//			}
-
-			//send matrix/camera to when the out-queue is empty
-			//			cout << "---master sending matrix" << endl;
-			//			for (int i=1; i<mPriMpiCon->getSize(); ++i){
-
-			cout << "0 --> master sending matrices" << endl;
-			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix());
-			Message* msg = new Message(mve, 0, MpiControl::ALL);
-			MpiControl::getSingleton()->isend(msg);
-			cout << "[0] master done with matrices" << endl;
-
-			//			cout << "master has sent all matrices" << endl;
-
-			//rcv kacheln from all renderers
-			//			cout << "---master wating for tiles" << endl;
-			double newTime = glfwGetTime();
-			mPriTileCount = 0;
-			cout << "1 <-- master waiting for all tiles" << endl;
-			while (mPriTileCount<mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
-				if (mPriMpiCon->probe(MPI_ANY_SOURCE, ColorBufferEvent::classid())){
-					mPriMpiCon->ireceive(MPI_ANY_SOURCE, ColorBufferEvent::classid());
-					mPriTileCount++;
-				}
-			}
-
-			cout << "[1] master got all tiles" << endl;
-
-			cout << "2 <-- master starting c-collision" << endl;
-			manageCCollision(); // wait for incoming node-requests
-			cout << "[2] master done with c-collision" << endl;
-
-			cout << "3 --> master sending non empty outQueue" << endl;
-			while(!mPriMpiCon->outQueueEmpty()){ // send all waiting messages out
-				mPriMpiCon->send();
-			}
-
 			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
+				newTime = glfwGetTime();
 				mPriCamHasMoved = false;
 				mPriFrameCount = 0;
 				DepthBufferRequestEvent dbre = DepthBufferRequestEvent();
 				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
-				cout << "master waiting at barreier before depthbufferequest" << endl;
 				mPriMpiCon->barrier();
 				// go into listenmode to receive the rendering-times
 				mPriMpiCon->receive(MpiControl::RENDERER);
 				while (!mPriMpiCon->inQueueEmpty()) {
 					handleMsg(mPriMpiCon->pop());
 				}
+				newerTime = glfwGetTime();
+//				cout << "[0] time between depthbuffer renewal: " << newerTime-newTime<< endl;
 			}
 
-			EndTransmissionEvent ete = EndTransmissionEvent();
-			mPriMpiCon->send(new Message(ete,0, MpiControl::RENDERER));
-			cout << "[3] master REPEAT!" << endl;
+			//send matrix/camera to when the out-queue is empty
+			//			cout << "---master sending matrix" << endl;
+			//			for (int i=1; i<mPriMpiCon->getSize(); ++i){
+			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix());
+			mPriMpiCon->send(new Message(mve, 0, MpiControl::ALL));
+//			for (unsigned i = 0; i < mPriMpiCon->getGroupSize(
+//					MpiControl::DATA); ++i) { // send the matrix to all data-nodes
+//				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),MpiControl::getSingleton()->getDataGroup()[i],(char*)mPriGlFrame->getMvMatrix());
+//				MpiControl::getSingleton()->send(msg);
+//			}
+//			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix());
+//			for (unsigned i=0; i<MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER); ++i) { // send matrix to all renderers
+//				Message* msg = new Message(mve, MpiControl::getSingleton()->getRenderGroup()[i]);
+//				MpiControl::getSingleton()->send(msg);
+//			}
+			//			cout << "master has sent all matrices" << endl;
 
-			double newerTime = glfwGetTime();
-			cout << "time between matrix and image reception: " << newerTime-newTime<< endl;
+			//rcv kacheln from all renderers
+			//			cout << "---master wating for tiles" << endl;
+
+//			MpiControl::getSingleton()->receive(MpiControl::RENDERER); // receive a tile-image from renderer
+//			while (!MpiControl::getSingleton()->inQueueEmpty()) {
+//				handleMsg(MpiControl::getSingleton()->pop());
+//			}
+			newTime = glfwGetTime();
+			manageCCollision(); // takes also care of tiles
+			newerTime = glfwGetTime();
+//			cout << "[0] time for tile-sending and c-collision: " << newerTime-newTime<< endl;
+
 //			adjustTileDimensions();
 
 			//			cout << "---master ENTER display" << endl;
-
-			mPriMpiCon->iCheck();
-			while(!mPriMpiCon->inQueueEmpty()){
-				handleMsg(mPriMpiCon->pop());
-			}
 			mPriGlFrame->display();
-
-			cout << "4 --> master sending frameend" << endl;
-			EndOfFrameEvent eofe = EndOfFrameEvent();
-			mPriMpiCon->send(new Message(eofe, 0, MpiControl::RENDERER));
-			cout << "[4] master done sending frameend" << endl;
 			mPriFrameCount++;
+
+
 			//			cout << "---master EXIT display" << endl;
 			//			cout << "end of display 0..." << endl;
 		}
@@ -285,13 +259,10 @@ MPI::Request RenderMasterCore::sendQueue(int dest) {
 
 void RenderMasterCore::handleMsg(Message* msg) {
 	if (msg != 0) {
-		cout << "master got msg-type: " << msg->getType() << endl;
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()) {
-			cout << "KillApplication" << endl;
 			mRunning = false;
 			cout << "recveived kill! from " << msg->getSrc() << endl;
 		} else if (msg->getType() == ColorBufferEvent::classid()->getShortId()) {
-			mPriTileCount++;
 			//			cout << "recveived colorbuffer! " << msg->getSrc() << endl;
 
 			ColorBufferEvent cbe = ColorBufferEvent(msg);
@@ -310,7 +281,6 @@ void RenderMasterCore::handleMsg(Message* msg) {
 			//			mRunning = false;
 		}
 		else if (msg->getType() == AccumulatedRendertimeEvent::classid()->getShortId()) {
-			cout << "Accumulatedrendertime" << endl;
 			mPriRenderTimes[msg->getSrc()-1] = ((double*)msg->getData())[0];
 //			mPriTileMap[msg->getSrc()].renderTime = ((double*)msg->getData())[0];
 			mPriRenderTimeCount++;
@@ -325,9 +295,9 @@ void RenderMasterCore::handleMsg(Message* msg) {
 					ctde.setTileDimension(it->second);
 					MpiControl::getSingleton()->send(new Message(ctde, it->first));
 				}
-				cout << "Master " << mPriMpiCon->getRank() << " waiting at barrier bevor deptbuffers" << endl;
+//				cout << "Master " << mPriMpiCon->getRank() << " waiting at barrier bevor deptbuffers" << endl;
 				mPriMpiCon->barrier();
-				cout << "Master " << mPriMpiCon->getRank() << " continuing" << endl;
+//				cout << "Master " << mPriMpiCon->getRank() << " continuing" << endl;
 
 
 			}
@@ -335,18 +305,15 @@ void RenderMasterCore::handleMsg(Message* msg) {
 			// check for counter and if = max recalc tile-dims
 		}
 		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()) {
-			cout << "NodeRequest" << endl;
+//			cout << "NodeRequest" << endl;
 			//TODO implement c-Collision
 			// at the moment it just passes the request to the only datanode
-			cout << "master got noderequest from " << msg->getSrc() << endl;
 			msg->setDst(mPriMpiCon->getDataGroup()[0]);
 			Message* newMsg = new Message(*msg);
-			cout << "master changed destination of noderequest" << endl;
 			mPriMpiCon->isend(newMsg);
-			cout << "master executed isend of noderequest" << endl;
 		}
 		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()) {
-			cout << "EndTransmission" << endl;
+//			cout << "EndTransmission" << endl;
 			mPriRendererDoneCount++;
 		}
 		else{
@@ -362,16 +329,14 @@ void RenderMasterCore::manageCCollision()
 {
 	mPriRendererDoneCount = 0;
 	while (mPriRendererDoneCount<mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
-		if (mPriMpiCon->probe(MPI_ANY_SOURCE, EndTransmissionEvent::classid())){
-			mPriMpiCon->receive(MPI_ANY_SOURCE, EndTransmissionEvent::classid());
-		}
-		else if (mPriMpiCon->probe(MPI_ANY_SOURCE, NodeRequestEvent::classid())){
-			mPriMpiCon->receive(MPI_ANY_SOURCE, NodeRequestEvent::classid());
-		}
-
-		if(!mPriMpiCon->inQueueEmpty()){
+		mPriMpiCon->ireceive(MpiControl::RENDERER);
+		while(!mPriMpiCon->inQueueEmpty()){
 			handleMsg(mPriMpiCon->pop());
 		}
+	}
+	mPriMpiCon->completeWaitingReceives();
+	while(!mPriMpiCon->inQueueEmpty()){
+		handleMsg(mPriMpiCon->pop());
 	}
 }
 
@@ -382,16 +347,12 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 	} else if (event.instanceOf(KeyPressedEvent::classid())) {
 		KeyPressedEvent& kpe = (KeyPressedEvent&) event;
 		switch (kpe.getKey()) {
-		case GLFW_KEY_ESC:
-			char data;
-			MpiControl::getSingleton()->push(new Message(
-					KillApplicationEvent::classid()->getShortId(), 1, 0, &data,
-					MpiControl::DATA));
-			MpiControl::getSingleton()->push(new Message(
-					KillApplicationEvent::classid()->getShortId(), 1, 0, &data,
-					MpiControl::RENDERER));
+		case GLFW_KEY_ESC:{
+			KillApplicationEvent kae = KillApplicationEvent();
+			MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::DATA));
+			MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::RENDERER));
 			mTerminateApplication = true;
-			break;
+			break;}
 		case GLFW_KEY_KP_ADD:
 			MpiControl::getSingleton()->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
@@ -446,13 +407,9 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 		mPriCamHasMoved = true;
 	}
 	else if (event.instanceOf(WindowClosedEvent::classid())) {
-		char data;
-		MpiControl::getSingleton()->push(new Message(
-				KillApplicationEvent::classid()->getShortId(), 1, 0, &data,
-				MpiControl::DATA));
-		MpiControl::getSingleton()->push(new Message(
-				KillApplicationEvent::classid()->getShortId(), 1, 0, &data,
-				MpiControl::RENDERER));
+		KillApplicationEvent kae = KillApplicationEvent();
+		MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::DATA));
+		MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::RENDERER));
 		mTerminateApplication = true;
 	}
 }

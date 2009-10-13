@@ -1,0 +1,3 @@
+#!/bin/sh
+mpirun --prefix /opt/OpenMPI64 -n $1 valgrind --leak-check=full --show-reachable=yes Debug/OOCCollider
+
