@@ -42,10 +42,10 @@ LooseOctree::LooseOctree(LooseOctree* _father, const BoundingBox& _bb, int64_t _
 
 }
 
-LooseOctree::LooseOctree(void* nodeSkel) :
+LooseOctree::LooseOctree(const char* nodeSkel) :
 	mTriList(std::list<Triangle>()), mPriLevel(0), mPriId(0), mPriTriCount(0), mPriAreaSum(0.0), mFather(0)
 {
-	char* count = (char*)nodeSkel;
+	const char* count = nodeSkel;
 	mPriId = *((int64_t*)count);
 	count += sizeof(int64_t);
 	V3f min((float*)count);

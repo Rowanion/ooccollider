@@ -909,7 +909,9 @@ OctreeHandler::generateIdPathMap(const LooseOctree* lo, std::map<uint64_t, std::
 {
 	// if node has triangles, grab the reference
 	if (lo->hasData()){
-		idPathMap.insert(make_pair(lo->getId(), lo->getDirPrefix()+lo->getIdString()));
+		std::string s = string(lo->getDirPrefix());
+		s.append(lo->getIdString());
+		idPathMap.insert(make_pair(lo->getId(), s));
 	}
 	// process children
 	for (unsigned i=0; i<8; ++i){

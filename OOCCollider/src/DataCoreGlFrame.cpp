@@ -250,7 +250,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 		Message* msg = new Message(ve, nre.getRecepient());
 		MpiControl::getSingleton()->push(msg);
-//		  MpiControl::getSingleton()->isend();
+		//  MpiControl::getSingleton()->isend();
 	}
 	// cleanup
 	unsigned vboMapSize = mPriVboMap.size();

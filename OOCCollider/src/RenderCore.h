@@ -31,7 +31,6 @@ private:
 	MpiControl* mPriMpiCon;
 	bool mRunning;
 	bool mPriGotMatrix;
-	bool mPriMasterDone;
 	std::queue<char*> mInQueue;
 	std::queue<char*> mOutQueue;
 	RenderCoreGlFrame* mPriGlFrame;

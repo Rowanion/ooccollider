@@ -31,7 +31,9 @@ ColorBufferEvent::ColorBufferEvent(int xPos, int yPos, int width, int height, do
 	((int*)mProData)[3] = height;
 	((int*)mProData)[4] = MpiControl::getSingleton()->getRank();
 	((double*)(mProData+5*sizeof(int)))[0] = renderTime;
-	memcpy((mProData+sizeof(int)*5 + sizeof(double)), pixel, sizeof(GLubyte)*width*height*4);
+	if (pixel != 0){
+		memcpy((mProData+sizeof(int)*5 + sizeof(double)), pixel, sizeof(GLubyte)*width*height*4);
+	}
 //	std::cout << "Texture: " << std::endl;
 //	for (unsigned i =0; i < sizeof(GLubyte)*width*height*4; i+=4){
 //		if (*(((GLubyte*)(mProData+sizeof(int)*4))+i) != 250){
@@ -71,8 +73,8 @@ void ColorBufferEvent::set(int xPos, int yPos, int width, int height, double ren
 	if (newSize != mPriByteSize){
 		delete[] mProData;
 		mPriByteSize = newSize;
+		mProData = new char[mPriByteSize];
 	}
-	mProData = new char[mPriByteSize];
 	((int*)mProData)[0] = xPos;
 	((int*)mProData)[1] = yPos;
 	((int*)mProData)[2] = width;

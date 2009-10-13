@@ -40,7 +40,6 @@ private:
 	static DataCore* instance;
 
 	void sendMethod(int dest);
-	void receiveMethod(int source);
 	void handleMsg(Message* msg);
 };
 

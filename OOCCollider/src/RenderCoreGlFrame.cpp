@@ -44,7 +44,7 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int 
 			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriFbo(0),
 			mPriWindowWidth(width), mPriWindowHeight(height), mPriRenderWidth(finalWidth), mPriRenderHeight(finalHeight), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
-			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriColorBufferEvent(0,0,0,0,0.0,0), mPriTriCount(0),
+			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
@@ -72,13 +72,12 @@ RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int 
 	oocframework::EventManager::getSingleton()->addListener(this,
 			KeyPressedEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this,
-			ModelViewMatrixEvent::classid());
+			ModelViewMatrixEvent::classid() );
 	oocframework::EventManager::getSingleton()->addListener(this,
 			VboEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, InfoRequestEvent::classid());
 
 
-	mPriModelViewProjMatrix = new float[16];
 
 	this->priFrustum = new float*[6];
 	for (unsigned i = 0; i < 6; ++i) {
@@ -99,8 +98,6 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, VboEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
 
-	delete[] mPriModelViewProjMatrix;
-	mPriModelViewProjMatrix = 0;
 	delete[] mPriPixelBuffer;
 	mPriPixelBuffer = 0;
 	delete[] mPriDepthBuffer;
@@ -236,13 +233,6 @@ void RenderCoreGlFrame::setupCg()
 void RenderCoreGlFrame::display()
 {
 	double f = glfwGetTime();  // Time (in seconds)
-//	resizeWindow(height, width);
-
-//	resizeFrustum(640, 480);
-//	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum);
-//	loadMissingVbosFromDisk(&mPriIdsInFrustum, &mPriVbosInFrustum2);
-//	compareVbos(&mPriVbosInFrustum, &mPriVbosInFrustum2);
-
 
 	cgGLSetParameter3fv(g_cgLightPosition,lightPos);
 	cgGLSetParameter3fv(g_cgEyePosition,lightPos);
@@ -257,7 +247,6 @@ void RenderCoreGlFrame::display()
 	glPushMatrix();
 		glPushMatrix();
 			cgGLSetStateMatrixParameter(g_cgModelViewInv,CG_GL_MODELVIEW_PROJECTION_MATRIX,CG_GL_MATRIX_IDENTITY);
-			cgGLGetMatrixParameterfr(g_cgModelViewInv,mPriModelViewProjMatrix);
 			glPushMatrix();
 				glPushMatrix();
 					glLoadIdentity();
@@ -869,7 +858,7 @@ RenderCoreGlFrame::requestMissingVbos()
 	}
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));
-	cout << "renderer finalized nodeRequests" << endl;
+//	cout << "renderer finalized nodeRequests" << endl;
 
 }
 
@@ -1230,7 +1219,7 @@ void RenderCoreGlFrame::depthPass()
 	DepthBufferEvent dbe = DepthBufferEvent(0,0,800,600, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
 	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 	Message* msg = new Message(dbe, 0, MpiControl::DATA);
-	MpiControl::getSingleton()->send(msg);
+	MpiControl::getSingleton()->isend(msg);
 	cout << MpiControl::getSingleton()->getRank() << " has sent depthbuffer" << endl;
 	mPriRequestedVboList.clear();
 //	setupTexture();
