@@ -49,7 +49,7 @@ private:
 	oocformats::LooseOctree* mPriLo;
 	Splittree* mPriSTree;
 	vector<double> mPriRenderTimes;
-	MpiControl* mPriMpiCon;
+	oocframework::MpiControl* mPriMpiCon;
 	Tile mPriRootTile;
 	SimpleGlFrame* mPriGlFrame;
 
@@ -65,7 +65,7 @@ private:
 
 	MPI::Request sendQueue(int dest);
 	void pollSpaceNav();
-	void handleMsg(Message* msg);
+	void handleMsg(oocframework::Message* msg);
 	void manageCCollision();
 };
 

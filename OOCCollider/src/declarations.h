@@ -44,8 +44,6 @@ class AbstractEventHandler;
 class AbstractGlFrame;
 class DataCore;
 class DataCoreGlFrame;
-class Message;
-class MpiControl;
 class OOCCamera;
 class OOCWindow;
 class RenderCore;

@@ -33,7 +33,7 @@ class ModelViewMatrixEvent : public oocframework::IEvent{
 public:
 	ModelViewMatrixEvent();
 	ModelViewMatrixEvent(const float* matrix);
-	ModelViewMatrixEvent(const Message* msg);
+	ModelViewMatrixEvent(const oocframework::Message* msg);
 	virtual ~ModelViewMatrixEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};

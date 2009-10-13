@@ -28,7 +28,7 @@ class ColorBufferEvent : public oocframework::IEvent{
 public:
 	ColorBufferEvent();
 	ColorBufferEvent(int xPos, int yPos, int width, int height, double renderTime, const GLubyte* pixel);
-	ColorBufferEvent(const Message* msg);
+	ColorBufferEvent(const oocframework::Message* msg);
 	virtual ~ColorBufferEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};

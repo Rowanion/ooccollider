@@ -28,7 +28,7 @@ public:
 	ChangeTileDimensionsEvent();
 	ChangeTileDimensionsEvent(int xPos, int yPos, int width, int height);
 	ChangeTileDimensionsEvent(Tile& t);
-	ChangeTileDimensionsEvent(const Message* msg);
+	ChangeTileDimensionsEvent(const oocframework::Message* msg);
 	virtual ~ChangeTileDimensionsEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};

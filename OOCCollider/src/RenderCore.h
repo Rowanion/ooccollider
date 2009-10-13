@@ -19,6 +19,7 @@
 #include "AbstractEventHandler.h"
 #include "OctreeHandler.h"
 #include "LooseOctree.h"
+#include "MpiControl.h"
 
 
 class RenderCore {
@@ -28,7 +29,7 @@ public:
 
 private:
 	OOCWindow* mWindow;
-	MpiControl* mPriMpiCon;
+	oocframework::MpiControl* mPriMpiCon;
 	bool mRunning;
 	bool mPriGotMatrix;
 	std::queue<char*> mInQueue;
@@ -40,7 +41,7 @@ private:
 	void sendMethod(int dest);
 	void receiveMethod(int source);
 	bool ireceiveMethod(int source);
-	void handleMsg(Message* msg);
+	void handleMsg(oocframework::Message* msg);
 };
 
 #endif /* RENDERCORE_H_ */

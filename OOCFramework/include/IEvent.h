@@ -12,6 +12,7 @@
 #include <string>
 
 #include "declarations.h"
+#include "MpiControl.h"
 #include "ClassId.h"
 
 namespace oocframework {
@@ -64,6 +65,7 @@ public:
 	 * @return a const pointer to all data field of the particular event.
 	 */
 	const char* getData() const;
+
 protected:
 	/**
 	 * @brief Static field that holds the ClassId of this object.
@@ -81,8 +83,34 @@ protected:
 	char* mProData;
 	static unsigned mProByteSize;
 
+	//TODO make iEvent Message-Compatible
+	// remove obsolete fields/methods
+	// fields from Message class
+	int mType;
+	unsigned int mLength;
+	int mDst;
+	char* mData;
+	int mSrc;
+	MPI::Request request;
+	MpiControl::Group mGroup;
+
+	// getter & setter from message class
+	int getType() const {return mType;};
+	unsigned getUType() const {return *((unsigned*)&mType);};
+	void setType(int _type) {mType = _type;};
+	unsigned int getLength() const {return mLength;};
+	void setLength(unsigned int _length) {mLength = _length;};
+	int getDst() const {return mDst;};
+	void setDst(int _dst) {mDst = _dst;};
+	void setData(char* _data) {mData = _data;};
+	void setSrc(int src) {mSrc = src;};
+	int getSrc() const {return mSrc;};
+	void setGroup(MpiControl::Group _group) {mGroup = _group;};
+	MpiControl::Group getGroup() const {return mGroup;};
+
+
 };
 
-}
+} // oocframework
 
 #endif /* IEVENT_H_ */

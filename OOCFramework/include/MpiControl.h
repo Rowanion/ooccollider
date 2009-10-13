@@ -20,6 +20,7 @@
 #define MSG_WINDOW_RESIZE 2
 #define MSG_FRUSTUM_RESIZE 3
 
+namespace oocframework{
 
 class MpiControl {
 public:
@@ -101,5 +102,7 @@ private:
 	static MpiControl* instance;
 
 };
+
+} // oocframework
 
 #endif /* MPICONTROL_H_ */

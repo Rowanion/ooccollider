@@ -14,11 +14,10 @@
 
 
 #include "Message.h"
-#include "ColorBufferEvent.h"
-#include "DepthBufferEvent.h"
-#include "NodeRequestEvent.h"
 
 using namespace std;
+
+namespace oocframework{
 
 MpiControl*
 MpiControl::instance = 0;
@@ -646,4 +645,4 @@ MpiControl::debug()
 //		}
 //	}
 //}
-
+} //oocframework

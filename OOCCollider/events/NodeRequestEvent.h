@@ -36,7 +36,7 @@ public:
 	NodeRequestEvent();
 	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int reciepient, bool isExtendedFrustum);
 	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient, bool isExtendedFrustum);
-	NodeRequestEvent(const Message* msg);
+	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};

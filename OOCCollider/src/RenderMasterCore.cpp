@@ -45,6 +45,7 @@
 namespace fs = boost::filesystem;
 using namespace ooctools;
 using namespace oocformats;
+using namespace oocframework;
 using namespace std;
 
 RenderMasterCore* RenderMasterCore::instance = 0;
@@ -257,7 +258,7 @@ MPI::Request RenderMasterCore::sendQueue(int dest) {
 	//	cout << "sendThread killed." << endl;
 }
 
-void RenderMasterCore::handleMsg(Message* msg) {
+void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 	if (msg != 0) {
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()) {
 			mRunning = false;
