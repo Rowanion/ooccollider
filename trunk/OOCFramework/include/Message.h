@@ -13,6 +13,8 @@
 #include "MpiControl.h"
 #include "IEvent.h"
 
+namespace oocframework{
+
 class Message {
 
 friend class MpiControl;
@@ -23,19 +25,19 @@ public:
 	Message(oocframework::IEvent& event, int _dst, MpiControl::Group _group = MpiControl::DEFAULT);
 	Message(const Message& _msg);
 	virtual ~Message();
-	inline int getType() const {return mType;};
-	inline unsigned getUType() const {return *((unsigned*)&mType);};
-	inline void setType(int _type) {mType = _type;};
-	inline unsigned int getLength() const {return mLength;};
-	inline void setLength(unsigned int _length) {mLength = _length;};
-	inline int getDst() const {return mDst;};
-	inline void setDst(int _dst) {mDst = _dst;};
-	inline const char* getData() const {return mData;};
-	inline void setData(char* _data) {mData = _data;};
-	inline void setSrc(int src) {mSrc = src;};
-	inline int getSrc() const {return mSrc;};
-	inline void setGroup(MpiControl::Group _group) {mGroup = _group;};
-	inline MpiControl::Group getGroup() const {return mGroup;};
+	int getType() const {return mType;};
+	unsigned getUType() const {return *((unsigned*)&mType);};
+	void setType(int _type) {mType = _type;};
+	unsigned int getLength() const {return mLength;};
+	void setLength(unsigned int _length) {mLength = _length;};
+	int getDst() const {return mDst;};
+	void setDst(int _dst) {mDst = _dst;};
+	const char* getData() const {return mData;};
+	void setData(char* _data) {mData = _data;};
+	void setSrc(int src) {mSrc = src;};
+	int getSrc() const {return mSrc;};
+	void setGroup(MpiControl::Group _group) {mGroup = _group;};
+	MpiControl::Group getGroup() const {return mGroup;};
 
 private:
 	int mType;
@@ -49,4 +51,5 @@ private:
 	inline char* getDataHandle() {return mData;};
 };
 
+} // oocframework
 #endif /* MESSAGE_H_ */

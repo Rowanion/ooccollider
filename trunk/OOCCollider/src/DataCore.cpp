@@ -33,17 +33,18 @@
 #define RENDER_NODES 1
 
 using namespace std;
+using namespace oocframework;
 
 DataCore* DataCore::instance = 0;
 
 DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(true), mPriDepthBufferCount(0)
 {
 	DataCore::instance = this;
-	mPriMpiCon = MpiControl::getSingleton();
+	mPriMpiCon = oocframework::MpiControl::getSingleton();
 
 	//		setupWindow("My rank is NOT 0");
 	stringstream title;
-	title << "DataNode (" << MpiControl::getSingleton()->getRank() << ")";
+	title << "DataNode (" << mPriMpiCon->getRank() << ")";
 	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
 	GET_GLERROR(0);

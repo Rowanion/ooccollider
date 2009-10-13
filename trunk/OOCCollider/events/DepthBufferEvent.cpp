@@ -42,7 +42,7 @@ DepthBufferEvent::DepthBufferEvent(int xPos, int yPos, int width, int height, in
 //	}
 }
 
-DepthBufferEvent::DepthBufferEvent(const Message* msg)
+DepthBufferEvent::DepthBufferEvent(const oocframework::Message* msg)
 {
 	mPriByteSize = msg->getLength();
 //	const char* dat = msg->getData();

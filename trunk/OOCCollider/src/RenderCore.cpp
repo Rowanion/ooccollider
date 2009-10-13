@@ -35,6 +35,7 @@
 
 
 using namespace std;
+using namespace oocframework;
 
 RenderCore* RenderCore::instance = 0;
 
@@ -157,7 +158,7 @@ bool RenderCore::ireceiveMethod(int source)
 
 }
 
-void RenderCore::handleMsg(Message* msg)
+void RenderCore::handleMsg(oocframework::Message* msg)
 {
 	if (msg != 0){
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()){

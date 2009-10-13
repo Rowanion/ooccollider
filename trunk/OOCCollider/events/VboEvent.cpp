@@ -155,7 +155,7 @@ VboEvent::VboEvent(std::string path, uint64_t nodeId) // single vbo
 
 }
 
-VboEvent::VboEvent(const Message* msg){
+VboEvent::VboEvent(const oocframework::Message* msg){
 	mPriByteSize = msg->getLength();
 //	const char* dat = msg->getData();
 	mProData = new char[mPriByteSize];

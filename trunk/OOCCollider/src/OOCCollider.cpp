@@ -141,7 +141,7 @@ void setupWindow(const char* title)
 }
 
 int main(int argc, char *argv[]) {
-	MpiControl* mpic = MpiControl::getSingleton();
+	oocframework::MpiControl* mpic = oocframework::MpiControl::getSingleton();
 	mpic->init();
 
 	cout << "entering depending part" << endl;

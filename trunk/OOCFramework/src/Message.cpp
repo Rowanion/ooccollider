@@ -12,6 +12,8 @@
 #include <iostream>
 #include <cstring>
 
+namespace oocframework{
+
 Message::Message() :
 	mType(0), mLength(0), mDst(0), mData(0), mGroup(MpiControl::DEFAULT) {
 	// TODO Auto-generated constructor stub
@@ -47,3 +49,4 @@ Message::~Message()
 	delete[] mData;
 	// TODO Auto-generated destructor stub
 }
+} // oocframework

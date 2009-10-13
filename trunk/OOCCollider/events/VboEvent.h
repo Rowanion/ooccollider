@@ -40,7 +40,7 @@ public:
 	VboEvent(const ooctools::IndexedVbo* vbo);
 	VboEvent(std::string path, uint64_t nodeId);
 	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<float>& distVec, bool isExtFrustum);
-	VboEvent(const Message* msg);
+	VboEvent(const oocframework::Message* msg);
 	virtual ~VboEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};

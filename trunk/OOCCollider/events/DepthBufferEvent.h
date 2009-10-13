@@ -29,7 +29,7 @@ class DepthBufferEvent : public oocframework::IEvent{
 public:
 	DepthBufferEvent();
 	DepthBufferEvent(int xPos, int yPos, int width, int height, int mpiRank, const GLfloat* depth);
-	DepthBufferEvent(const Message* msg);
+	DepthBufferEvent(const oocframework::Message* msg);
 	virtual ~DepthBufferEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};

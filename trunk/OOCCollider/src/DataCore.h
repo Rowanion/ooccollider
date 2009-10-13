@@ -20,6 +20,7 @@
 #include "AbstractEventHandler.h"
 #include "OctreeHandler.h"
 #include "LooseOctree.h"
+#include "MpiControl.h"
 
 class DataCore {
 public:
@@ -30,7 +31,7 @@ public:
 
 private:
 	OOCWindow* mWindow;
-	MpiControl* mPriMpiCon;
+	oocframework::MpiControl* mPriMpiCon;
 	bool mRunning;
 	std::queue<char*> mInQueue;
 	std::queue<char*> mOutQueue;
@@ -40,7 +41,7 @@ private:
 	static DataCore* instance;
 
 	void sendMethod(int dest);
-	void handleMsg(Message* msg);
+	void handleMsg(oocframework::Message* msg);
 };
 
 #endif /* DATACORE_H_ */

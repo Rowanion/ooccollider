@@ -43,7 +43,7 @@ ModelViewMatrixEvent::ModelViewMatrixEvent(const float* matrix){
 	init();
 }
 
-ModelViewMatrixEvent::ModelViewMatrixEvent(const Message* msg)
+ModelViewMatrixEvent::ModelViewMatrixEvent(const oocframework::Message* msg)
 {
 	mProData = new char[ModelViewMatrixEvent::mProByteSize];
 	memcpy(mProData, msg->getData(),msg->getLength());

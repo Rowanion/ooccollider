@@ -32,6 +32,8 @@ namespace oocframework{
 	class AbstractEventListener;
 	class ClassId;
 	class EventManager;
+	class Message;
+	class MpiControl;
 
 
 } // end of namespace oocframework

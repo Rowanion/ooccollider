@@ -74,7 +74,7 @@ NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, 
 	init();
 }
 
-NodeRequestEvent::NodeRequestEvent(const Message* msg){
+NodeRequestEvent::NodeRequestEvent(const oocframework::Message* msg){
 	mPriByteSize = msg->getLength();
 //	const char* dat = msg->getData();
 	mProData = new char[mPriByteSize];

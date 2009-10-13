@@ -43,7 +43,7 @@ ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(Tile& t)
 	((int*)(mProData))[3] = t.height;
 }
 
-ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(const Message* msg)
+ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(const oocframework::Message* msg)
 {
 	mProData = new char[mProByteSize];
 	memcpy(mProData, msg->getData(),msg->getLength());
