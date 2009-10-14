@@ -146,11 +146,11 @@ void DataCore::handleMsg(Message* msg){
 			oocframework::EventManager::getSingleton()->fire(mve);
 		}
 		else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
-			//				cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;
+//							cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;
 			DepthBufferEvent dbe = DepthBufferEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(dbe);
 			mPriDepthBufferCount++;
-			cout << "datacore has now " << mPriDepthBufferCount << " of " << MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)<< endl;
+//			cout << "datacore has now " << mPriDepthBufferCount << " of " << MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)<< endl;
 		}
 		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
 			NodeRequestEvent nre = NodeRequestEvent(msg);
@@ -166,6 +166,7 @@ void DataCore::handleMsg(Message* msg){
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
 			mPriMpiCon->barrier();
 			mPriMpiCon->clearOutQueue(MpiControl::RENDERER);
+
 			mPriMpiCon->completeWaitingReceives(DepthBufferEvent::classid());
 			Message* newMsg = 0;
 			while(!mPriMpiCon->inQueueEmpty()){
@@ -176,14 +177,20 @@ void DataCore::handleMsg(Message* msg){
 				else if (newMsg->getSrc() == 0){
 					handleMsg(newMsg);
 				}
+				else {
+					delete newMsg;
+					newMsg = 0;
+				}
 			}
-//			cout << "data waiting at barrier bevor deptbuffers" << endl;
+//			cout << "data waiting at barrier before depthbuffers" << endl;
 			mPriMpiCon->barrier();
 //			cout << "data continuing" << endl;
 
 			while(mPriDepthBufferCount < mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
-				newMsg = mPriMpiCon->directReceive(DepthBufferEvent::classid());
-				handleMsg(newMsg);
+				mPriMpiCon->ireceive(MpiControl::RENDERER);
+				while(!mPriMpiCon->inQueueEmpty()){
+					handleMsg(mPriMpiCon->pop());
+				}
 			}
 
 			mPriDepthBufferCount = 0;

@@ -59,6 +59,8 @@ public:
 	bool hasSharedComponent(const BoundingBox& _bb) const;
 	void drawSolid() const;
 	void drawSolid(float texCoord) const;
+	void drawSolidTriFan() const;
+	void drawSolidTriFan(float texCoord) const;
 	void saveToFile(fs::path bbFile);
 	void saveToFile(std::string bbFile) const;
 	static BoundingBox fromFile(fs::path bbFile);

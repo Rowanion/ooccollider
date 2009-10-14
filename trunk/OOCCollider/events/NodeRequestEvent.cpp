@@ -74,6 +74,30 @@ NodeRequestEvent::NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, 
 	init();
 }
 
+NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, unsigned threshold, int recipient, bool isExtendedFrustum)
+{
+	unsigned setSize = tripleSet.size();
+	unsigned minSize = std::min(threshold, setSize);
+	std::set<ooctools::Triple>::const_iterator tripIt;
+
+	mPriByteSize = sizeof(unsigned) + sizeof(int) + sizeof(bool) + (sizeof(float)*minSize) + (sizeof(uint64_t)*minSize);
+	mProData = new char[mPriByteSize];
+	((unsigned*)mProData)[0] = minSize;
+	((int*)(mProData+sizeof(unsigned)))[0] = recipient;
+	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0] = isExtendedFrustum;
+	unsigned elementCount = 0;
+//	std::cout << "list of node-requests inside the Event: " << std::endl;
+	for (tripIt = tripleSet.begin(); (tripIt!= tripleSet.end() && elementCount<threshold); ++tripIt){
+//		std::cout << mapIt->second << std::endl;
+		((float*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[elementCount] = tripIt->dist;
+		((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)+(sizeof(float)*minSize)))[elementCount] = tripIt->id;
+//		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
+
+		elementCount++;
+	}
+	init();
+}
+
 NodeRequestEvent::NodeRequestEvent(const oocframework::Message* msg){
 	mPriByteSize = msg->getLength();
 //	const char* dat = msg->getData();

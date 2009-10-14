@@ -171,7 +171,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 		}
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
-		mPriVboMap.insert(make_pair(nre.getId(i), new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[nre.getId(i)]+".idx"), nre.getId(i))));
+		mPriVboMap.insert(make_pair(nre.getId(i), new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[nre.getId(i)]+".idx"), nre.getId(i), false)));
 		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
 //		cout << nre.getDistance(i) << endl;
 //		exit(0);
@@ -210,7 +210,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				for(distIterator = mPriDistanceMap.begin(); distIterator != mPriDistanceMap.end(); ++distIterator){
 //				for(vboIterator = mPriVboMap.begin(); vboIterator != mPriVboMap.end(); ++vboIterator){
 					glBeginQuery(GL_SAMPLES_PASSED, mPriOccQueries[queryCount]);
-						mPriVboMap[distIterator->second]->managedDraw(true);
+						mPriIdLoMap[distIterator->second]->getBb().drawSolidTriFan();
 					glEndQuery(GL_SAMPLES_PASSED);
 					queryCount++;
 				}
@@ -227,6 +227,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 //					if (true){
 					if (mPriOccResults[distIterator->second]>0){
 						// add visible VBO to the current DepthBuffer
+						mPriVboMap[distIterator->second]->setOnline();
 						mPriVboMap[distIterator->second]->managedDraw(true);
 						mPriVisibleVbosVec.push_back(mPriVboMap[distIterator->second]);
 						mPriVisibleDistVec.push_back(distIterator->first);

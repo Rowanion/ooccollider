@@ -332,7 +332,7 @@ void RenderCoreGlFrame::display()
 						cgGLEnableTextureParameter(cgNoLightLUT);
 						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
 						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-						mPriIdLoMap[it->first]->getBb().drawSolid(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+						mPriIdLoMap[it->first]->getBb().drawSolidTriFan(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
 						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
 						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
 						cgGLDisableTextureParameter(cgNoLightLUT);
@@ -777,6 +777,7 @@ this->priFrustum[i][0] + this->priFrustum[i][1] * this->priFrustum[i][1]
 void
 RenderCoreGlFrame::requestMissingVbos()
 {
+	oocformats::LooseOctree* currentNode = 0;
 	// deleting obsolete vbos
 	//TODO use cache buffer
 	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
@@ -794,6 +795,8 @@ RenderCoreGlFrame::requestMissingVbos()
 	// ----------------------------------------------
 	// check if any of the new VBOs is already in the cache
 	multimap<float, uint64_t> missingIdDistances = multimap<float, uint64_t>();
+	//TODO the missingTriple shall replace missingIdDistances someday.....
+	set<ooctools::Triple> missingTriple = set<ooctools::Triple>();
 	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
 	IdVboMapIter offIt;
 	ooctools::V3f center = ooctools::V3f();
@@ -802,8 +805,10 @@ RenderCoreGlFrame::requestMissingVbos()
 		if (offIt == mPriOfflineVbosInFrustum.end()){ // not in cache -> needs to be requested
 			//calculate eye distances of missing vbos
 			ooctools::V3f center = ooctools::V3f();
-			mPriIdLoMap[*setIt]->getBb().computeCenter(center);
+			currentNode = mPriIdLoMap[*setIt];
+			currentNode->getBb().computeCenter(center);
 			missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
+			missingTriple.insert(Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
 		}
 		else { // VBO is in cache -> flip
 			//TODO cacheflipping happens here
@@ -843,7 +848,8 @@ RenderCoreGlFrame::requestMissingVbos()
 		// calc exeDistances
 		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end(); ++setIt){
 			ooctools::V3f center = ooctools::V3f();
-			mPriIdLoMap[*setIt]->getBb().computeCenter(center);
+			currentNode = mPriIdLoMap[*setIt];
+			currentNode->getBb().computeCenter(center);
 			missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
 			mPriRequestedVboList.insert(*setIt);
 		}
@@ -1219,7 +1225,7 @@ void RenderCoreGlFrame::depthPass()
 	DepthBufferEvent dbe = DepthBufferEvent(0,0,800,600, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
 	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 	Message* msg = new Message(dbe, 0, MpiControl::DATA);
-	MpiControl::getSingleton()->isend(msg);
+	MpiControl::getSingleton()->send(msg);
 	cout << MpiControl::getSingleton()->getRank() << " has sent depthbuffer" << endl;
 	mPriRequestedVboList.clear();
 //	setupTexture();

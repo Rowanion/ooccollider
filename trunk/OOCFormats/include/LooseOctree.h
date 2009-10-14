@@ -17,6 +17,7 @@
 
 
 #include "declarations.h"
+#include "StructDefs.h"
 #include "BoundingBox.h"
 
 #define MAX_OCTREE_LEVEL 14
@@ -148,6 +149,7 @@ class LooseOctree
 
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
 		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids);
+		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids);
 		void setDataLoaded(){mPriDataLoaded = true;};
 		void setDataUnloaded(){mPriDataLoaded = false;};
 		bool isDataLoaded() const {return mPriDataLoaded;};

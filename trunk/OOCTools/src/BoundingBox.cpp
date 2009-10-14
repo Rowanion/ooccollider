@@ -402,6 +402,84 @@ BoundingBox::drawSolid(float texCoord) const
 	glEnd();
 }
 
+void
+BoundingBox::drawSolidTriFan() const
+{
+	// center vertex at min,min,min
+	glBegin(GL_TRIANGLE_FAN);
+		//left
+		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
+		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
+		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
+
+		//front
+		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+
+		//bottom
+		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+	glEnd();
+
+	// center vertex at max,max,max
+	glBegin(GL_TRIANGLE_FAN);
+		//top
+		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
+		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
+
+		//back
+		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
+
+		//right
+		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+	glEnd();
+
+}
+
+void
+BoundingBox::drawSolidTriFan(float texCoord) const
+{
+	// center vertex at min,min,min
+	glBegin(GL_TRIANGLE_FAN);
+		//left
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+
+		//front
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+
+		//bottom
+		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+	glEnd();
+
+	// center vertex at max,max,max
+	glBegin(GL_TRIANGLE_FAN);
+		//top
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+
+		//back
+		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
+
+		//right
+		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+	glEnd();
+
+}
+
 //TODO
 void saveToFile(fs::path bbFile);
 void saveToFile(std::string bbFile);
