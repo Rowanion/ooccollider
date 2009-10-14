@@ -137,6 +137,7 @@ private:
 	std::map<uint64_t, std::string> mPriIdPathMap;
 	std::map<uint64_t, oocformats::LooseOctree*> mPriIdLoMap;
 	std::set<uint64_t> mPriIdsInFrustum;
+	std::map<uint64_t, int> mPriIdLvlInFrustum;
 	std::set<uint64_t> mPriIdsInExtFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVbosInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriOfflineVbosInFrustum;
@@ -197,6 +198,12 @@ private:
 	typedef std::set<uint64_t>::iterator IdSetIter;
 	typedef std::set<uint64_t>::const_iterator CIdSetIter;
 	typedef std::set<uint64_t>::reverse_iterator RIdSetIter;
+	typedef std::set<ooctools::Triple>::iterator TripleSetIter;
+	typedef std::set<ooctools::Triple>::const_iterator CTripleSetIter;
+	typedef std::set<ooctools::Triple>::reverse_iterator RTripleSetIter;
+	typedef std::map<uint64_t, int>::iterator IdLvlMapIter;
+	typedef std::map<uint64_t, int>::const_iterator CIdLvlSetIter;
+	typedef std::map<uint64_t, int>::reverse_iterator RIdLvlSetIter;
 
 	void calcFPS();
 	void requestMissingVbos();

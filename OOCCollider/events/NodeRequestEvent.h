@@ -11,11 +11,13 @@
 
 #include <vector>
 #include <map>
+#include <set>
 
 #include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
 #include "Message.h"
+#include "StructDefs.h"
 
 /**
  * @class NodeRequestEvent
@@ -36,6 +38,7 @@ public:
 	NodeRequestEvent();
 	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int reciepient, bool isExtendedFrustum);
 	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient, bool isExtendedFrustum);
+	NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, unsigned threshold, int recipient, bool isExtendedFrustum);
 	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();

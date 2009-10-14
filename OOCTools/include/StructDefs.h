@@ -79,5 +79,22 @@ struct StatisticalData{
 
 };
 
+struct Triple{
+	Triple();
+	Triple(int _lvl, float _dist, uint64_t _id);
+	int lvl;
+	float dist;
+	uint64_t id;
+	bool operator<(const Triple& rhs) const;
+};
+
+struct Tuple{
+	Tuple();
+	Tuple(int _lvl, float _dist);
+	int lvl;
+	float dist;
+	bool operator<(const Tuple& rhs) const;
+};
+
 } // end of namespace OOCTools
 #endif /* STRUCTDEFS_H_ */
