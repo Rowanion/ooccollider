@@ -30,7 +30,8 @@
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
-#define MAX_LOADS_PER_FRAME 80
+// strangely this is the maximum -> investigate!
+#define MAX_LOADS_PER_FRAME 103
 #endif
 #ifdef HOME
 #define MAX_OFFLINE_VBOS 1500

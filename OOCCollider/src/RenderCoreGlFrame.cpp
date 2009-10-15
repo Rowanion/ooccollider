@@ -777,6 +777,7 @@ this->priFrustum[i][0] + this->priFrustum[i][1] * this->priFrustum[i][1]
 void
 RenderCoreGlFrame::requestMissingVbos()
 {
+	cout << "entering REQUEST MSSING" << endl;
 	oocformats::LooseOctree* currentNode = 0;
 	// deleting obsolete vbos
 	//TODO use cache buffer
@@ -794,8 +795,6 @@ RenderCoreGlFrame::requestMissingVbos()
 
 	// ----------------------------------------------
 	// check if any of the new VBOs is already in the cache
-	multimap<float, uint64_t> missingIdDistances = multimap<float, uint64_t>();
-	//TODO the missingTriple shall replace missingIdDistances someday.....
 	set<ooctools::Triple> missingTriple = set<ooctools::Triple>();
 	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
 	IdVboMapIter offIt;
@@ -807,7 +806,6 @@ RenderCoreGlFrame::requestMissingVbos()
 			ooctools::V3f center = ooctools::V3f();
 			currentNode = mPriIdLoMap[*setIt];
 			currentNode->getBb().computeCenter(center);
-			missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
 			missingTriple.insert(Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
 		}
 		else { // VBO is in cache -> flip
@@ -825,46 +823,51 @@ RenderCoreGlFrame::requestMissingVbos()
 //	cout << "-------------------- invisible VBOs: " << mPriIdsInFrustum.size() - mPriMissingIdsInFrustum.size() - mPriVbosInFrustum.size() << endl;
 //	cout << "-------------------- total VBOs in frustum: " << mPriIdsInFrustum.size() << endl;
 //	cout << "-------------------- requesting VBOs : " << std::min((int)mPriMissingIdsInFrustum.size(), MAX_LOADS_PER_FRAME) << endl;
-	if (missingIdDistances.size() > 0){
-		FloatIdMMapIter multiIt = missingIdDistances.begin();
+	if (missingTriple.size() > 0){
+		TripleSetIter triSetIt = missingTriple.begin();
 		unsigned reqCount = 0;
-		for (; (multiIt != missingIdDistances.end() && reqCount < MAX_LOADS_PER_FRAME); ++multiIt){
-			mPriRequestedVboList.insert(multiIt->second);
+		for (; (triSetIt != missingTriple.end() && reqCount < MAX_LOADS_PER_FRAME); ++triSetIt){
+			mPriRequestedVboList.insert(triSetIt->id);
 			reqCount++;
 		}
-		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), false);
+		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), false);
 		MpiControl::getSingleton()->push(new Message(nre, 0));
 		MpiControl::getSingleton()->isend();
 		mPriMissingIdsInFrustum.clear();
 
 	}
+
 	// now dealing with extended frustum
 	mPriMissingIdsInFrustum.clear();
-	missingIdDistances.clear();
+	missingTriple.clear();
 	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
 	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
 	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
+
 	if (mPriMissingIdsInFrustum.size()>0){
 		// calc exeDistances
 		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end(); ++setIt){
 			ooctools::V3f center = ooctools::V3f();
 			currentNode = mPriIdLoMap[*setIt];
 			currentNode->getBb().computeCenter(center);
-			missingIdDistances.insert(make_pair(mPriEyePosition.calcDistance(center), *setIt));
+			missingTriple.insert(ooctools::Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
 			mPriRequestedVboList.insert(*setIt);
 		}
+
 		//TODO do something about the loadPerFrame limit
-		NodeRequestEvent nre = NodeRequestEvent(missingIdDistances, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), true);
+		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), true);
 		MpiControl::getSingleton()->push(new Message(nre, 0));
 		MpiControl::getSingleton()->isend();
-		missingIdDistances.clear();
+		missingTriple.clear();
 		mPriMissingIdsInFrustum.clear();
 //		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
 
 	}
+
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));
 //	cout << "renderer finalized nodeRequests" << endl;
+	cout << "leaving REQUEST MSSING" << endl;
 
 }
 

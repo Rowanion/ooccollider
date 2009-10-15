@@ -164,6 +164,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 //			}
 			newTime = glfwGetTime();
 			manageCCollision(); // takes also care of tiles
+			cout << "done c-collision" << endl;
 			newerTime = glfwGetTime();
 //			cout << "[0] time for tile-sending and c-collision: " << newerTime-newTime<< endl;
 
