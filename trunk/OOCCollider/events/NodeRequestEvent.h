@@ -36,8 +36,6 @@
 class NodeRequestEvent : public oocframework::IEvent{
 public:
 	NodeRequestEvent();
-	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, int reciepient, bool isExtendedFrustum);
-	NodeRequestEvent(const std::multimap<float, uint64_t>& idMap, unsigned threshold, int recipient, bool isExtendedFrustum);
 	NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, unsigned threshold, int recipient, bool isExtendedFrustum);
 	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
@@ -53,32 +51,17 @@ public:
 	virtual unsigned getByteSize(){return mPriByteSize;};
 
 	/**
-	 * @brief Returns the requested distance to the eye of the node at index idx.
+	 * @brief Returns a const pointer to the requested Triple at index idx.
 	 */
-	float getDistance(unsigned idx) const {
-		return ((float*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx];
+	ooctools::Triple* getTriple(unsigned idx) const {
+		return &(((ooctools::Triple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx]);
 	};
 
 	/**
-	 * @brief Returns a const pointer to all distances to the eye.
+	 * @brief Returns a const pointer to all Triples.
 	 */
-	const float* getDistanceArray() const {
-		return ((const float*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
-	};
-
-	/**
-	 * @brief Returns the requested node-id at index idx.
-	 * @note Not sure if we need this. I was just in completeness-mood....
-	 */
-	uint64_t getId(unsigned idx) const {
-		return ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)+(sizeof(float)*getIdxCount())))[idx];
-	};
-
-	/**
-	 * @brief Returns a const pointer to all requested node-ids.
-	 */
-	const uint64_t* getIdArray() const {
-		return ((const uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)+(sizeof(float)*getIdxCount())));
+	const ooctools::Triple* getTripleArray() const {
+		return ((const ooctools::Triple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
 	};
 
 	/**

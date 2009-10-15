@@ -19,6 +19,27 @@ Triple::Triple(){
 Triple::Triple(int _lvl, float _dist, uint64_t _id) : lvl(_lvl), dist(_dist), id(_id){
 }
 
+void Triple::set(int _lvl, float _dist, uint64_t _id)
+{
+	lvl = _lvl;
+	dist = _dist;
+	id = _id;
+}
+
+void Triple::set(Triple rhs)
+{
+	lvl = rhs.lvl;
+	dist = rhs.dist;
+	id = rhs.id;
+}
+
+void Triple::set(const Triple* rhs)
+{
+	lvl = rhs->lvl;
+	dist = rhs->dist;
+	id = rhs->id;
+}
+
 bool Triple::operator<(const Triple& rhs) const {
 	if (lvl == rhs.lvl){
 		if (dist == rhs.dist){

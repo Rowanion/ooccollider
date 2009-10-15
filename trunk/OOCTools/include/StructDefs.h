@@ -82,6 +82,9 @@ struct StatisticalData{
 struct Triple{
 	Triple();
 	Triple(int _lvl, float _dist, uint64_t _id);
+	void set(int _lvl, float _dist, uint64_t _id);
+	void set(Triple rhs);
+	void set(const Triple* rhs);
 	int lvl;
 	float dist;
 	uint64_t id;
