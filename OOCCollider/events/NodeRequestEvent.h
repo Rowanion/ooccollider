@@ -36,7 +36,7 @@
 class NodeRequestEvent : public oocframework::IEvent{
 public:
 	NodeRequestEvent();
-	NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, unsigned threshold, int recipient, bool isExtendedFrustum);
+	NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, int recipient, bool isExtendedFrustum);
 	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();

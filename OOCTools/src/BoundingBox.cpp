@@ -328,31 +328,37 @@ void
 BoundingBox::drawSolid() const
 {
 	glBegin(GL_QUADS);
+		//backface
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
 
+		//top
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
 
+		//right
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
 
+		//left
 		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
 
+		//front
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
 
+		//bottom
 		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
 		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
