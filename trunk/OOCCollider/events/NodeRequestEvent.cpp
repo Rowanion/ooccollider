@@ -26,10 +26,10 @@ NodeRequestEvent::NodeRequestEvent() {
 	init();
 }
 
-NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, unsigned threshold, int recipient, bool isExtendedFrustum)
+NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, int recipient, bool isExtendedFrustum)
 {
 	unsigned setSize = tripleSet.size();
-	unsigned minSize = std::min(threshold, setSize);
+	unsigned minSize = setSize;
 	std::set<ooctools::Triple>::const_iterator tripIt;
 
 	// #of nodes, recipientId, isExtFrus, distance of each node, id of each node
@@ -40,7 +40,7 @@ NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, 
 	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0] = isExtendedFrustum;
 	unsigned elementCount = 0;
 //	std::cout << "list of node-requests inside the Event: " << std::endl;
-	for (tripIt = tripleSet.begin(); (tripIt!= tripleSet.end() && elementCount<threshold); ++tripIt){
+	for (tripIt = tripleSet.begin(); tripIt!= tripleSet.end(); ++tripIt){
 //		std::cout << mapIt->second << std::endl;
 		((ooctools::Triple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[elementCount] = *tripIt;
 //		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;

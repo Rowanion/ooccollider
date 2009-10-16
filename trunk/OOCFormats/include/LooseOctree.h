@@ -72,6 +72,8 @@ class LooseOctree
 		std::string getIdString()const;
 		float getAreaSum() const {return mPriAreaSum;};
 
+		void getAllSubtreeIds(std::set<uint64_t>* _ids);
+
 		/**
 		 * @brief Debug-Function to check the correctness of subdivision.
 		 * @param maxLevel

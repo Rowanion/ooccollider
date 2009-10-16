@@ -777,7 +777,8 @@ this->priFrustum[i][0] + this->priFrustum[i][1] * this->priFrustum[i][1]
 void
 RenderCoreGlFrame::requestMissingVbos()
 {
-	cout << "entering REQUEST MSSING" << endl;
+	unsigned frustReq =0;
+	unsigned extFrustReq = 0;
 	oocformats::LooseOctree* currentNode = 0;
 	// deleting obsolete vbos
 	//TODO use cache buffer
@@ -799,7 +800,8 @@ RenderCoreGlFrame::requestMissingVbos()
 	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
 	IdVboMapIter offIt;
 	ooctools::V3f center = ooctools::V3f();
-	for (; setIt!=mPriMissingIdsInFrustum.end(); ++setIt){
+	unsigned reqCount = 0;
+	for (; setIt!=mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
 		offIt = mPriOfflineVbosInFrustum.find(*setIt);
 		if (offIt == mPriOfflineVbosInFrustum.end()){ // not in cache -> needs to be requested
 			//calculate eye distances of missing vbos
@@ -807,6 +809,8 @@ RenderCoreGlFrame::requestMissingVbos()
 			currentNode = mPriIdLoMap[*setIt];
 			currentNode->getBb().computeCenter(center);
 			missingTriple.insert(Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
+			mPriRequestedVboList.insert(*setIt);
+			reqCount++;
 		}
 		else { // VBO is in cache -> flip
 			//TODO cacheflipping happens here
@@ -817,57 +821,49 @@ RenderCoreGlFrame::requestMissingVbos()
 		}
 	}
 
-
-	// add MAX_LOADS_PER_FRAME of missingIdDistances to requestedList and request them
-//	cout << "-------------------- still missing VBOs: " << mPriMissingIdsInFrustum.size() << endl;
-//	cout << "-------------------- invisible VBOs: " << mPriIdsInFrustum.size() - mPriMissingIdsInFrustum.size() - mPriVbosInFrustum.size() << endl;
-//	cout << "-------------------- total VBOs in frustum: " << mPriIdsInFrustum.size() << endl;
-//	cout << "-------------------- requesting VBOs : " << std::min((int)mPriMissingIdsInFrustum.size(), MAX_LOADS_PER_FRAME) << endl;
 	if (missingTriple.size() > 0){
-		TripleSetIter triSetIt = missingTriple.begin();
-		unsigned reqCount = 0;
-		for (; (triSetIt != missingTriple.end() && reqCount < MAX_LOADS_PER_FRAME); ++triSetIt){
-			mPriRequestedVboList.insert(triSetIt->id);
-			reqCount++;
-		}
-		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), false);
-		MpiControl::getSingleton()->push(new Message(nre, 0));
-		MpiControl::getSingleton()->isend();
+		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MpiControl::getSingleton()->getRank(), false);
+		MpiControl::getSingleton()->isend(new Message(nre, 0));
 		mPriMissingIdsInFrustum.clear();
-
+//		frustReq = missingTriple.size();
+		frustReq = nre.getIdxCount();
 	}
 
 	// now dealing with extended frustum
 	mPriMissingIdsInFrustum.clear();
 	missingTriple.clear();
-	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
-	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
-	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
-
-	if (mPriMissingIdsInFrustum.size()>0){
-		// calc exeDistances
-		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end(); ++setIt){
-			ooctools::V3f center = ooctools::V3f();
-			currentNode = mPriIdLoMap[*setIt];
-			currentNode->getBb().computeCenter(center);
-			missingTriple.insert(ooctools::Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
-			mPriRequestedVboList.insert(*setIt);
-		}
-
-		//TODO do something about the loadPerFrame limit
-		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MAX_LOADS_PER_FRAME, MpiControl::getSingleton()->getRank(), true);
-		MpiControl::getSingleton()->push(new Message(nre, 0));
-		MpiControl::getSingleton()->isend();
-		missingTriple.clear();
-		mPriMissingIdsInFrustum.clear();
-//		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
-
-	}
+//	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
+//	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
+//	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
+//
+//	if (mPriMissingIdsInFrustum.size()>0){
+//		// calc exeDistances
+//		reqCount = 0;
+//		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
+//			ooctools::V3f center = ooctools::V3f();
+//			currentNode = mPriIdLoMap[*setIt];
+//			currentNode->getBb().computeCenter(center);
+//			missingTriple.insert(ooctools::Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
+//			mPriRequestedVboList.insert(*setIt);
+//			reqCount++;
+//		}
+//
+//		//TODO do something about the loadPerFrame limit
+//		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MpiControl::getSingleton()->getRank(), true);
+//		MpiControl::getSingleton()->isend(new Message(nre, 0));
+////		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
+////		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
+//		extFrustReq = nre.getIdxCount();
+////		extFrustReq = missingTriple.size();
+//		cout << "missingVbos vs requested - " << frustReq << " vs " << extFrustReq << endl;
+//		missingTriple.clear();
+//		mPriMissingIdsInFrustum.clear();
+//
+//	}
 
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));
 //	cout << "renderer finalized nodeRequests" << endl;
-	cout << "leaving REQUEST MSSING" << endl;
 
 }
 
@@ -1240,6 +1236,30 @@ void RenderCoreGlFrame::depthPass()
 
 void RenderCoreGlFrame::cullFrustum()
 {
+	//TODO create lookuptable
+	/*
+	 * for each vector and face of the 1st boundingbox
+	 *   calc the normalized Normal vectors
+	 *   dot-product with view-vector
+	 *   estimate the smallest (closest to -1) dot-product of them
+	 *   then estimate the drawing order of the children
+	 *   +-------------+
+	 *   |  nw  |  ne  |
+	 *   +------+------+
+	 *   |  sw  |  se  |         \
+	 *   +-------------+          o
+	 *                           /
+	 * Order would be in this case se,ne,sw,nw
+	 * Need to estimate nw(etc.)-names to child-ids
+	 * Need to find relation between BB min/max and child-ids
+	 * normalize: v/sqrt(x^2+y^2+z^2)
+	 * v1=B-A
+	 * v2=C-A
+	 * n = norm(v1,v2)
+	 * vertexNormal = sum(adjacentFaceNormals)
+	 * normalize
+	 */
+
 	//extend frustum
 	initTiles(true);
 	resizeFrustum(0, 0, 800, 600, true);

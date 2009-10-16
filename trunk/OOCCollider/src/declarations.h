@@ -23,15 +23,14 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 #define DEPTHBUFFER_INTERVAL 15
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
 #define CAMERA_OFFSET 15.0f
 #define FAR_CLIPPING_PLANE 100.0f
 #define EXTENDED_FOVY 70.0
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
-// strangely this is the maximum -> investigate!
-#define MAX_LOADS_PER_FRAME 103
+#define MAX_LOADS_PER_FRAME 1923
 #endif
 #ifdef HOME
 #define MAX_OFFLINE_VBOS 1500

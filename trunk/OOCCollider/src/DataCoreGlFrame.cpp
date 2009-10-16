@@ -102,7 +102,7 @@ void DataCoreGlFrame::init() {
 
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 
-	glGenQueries(100, mPriOccQueries);
+	glGenQueries(MAX_LOADS_PER_FRAME, mPriOccQueries);
 	GET_GLERROR(0);
 
 	mPriFbo = new Fbo(mPriWindowWidth,mPriWindowHeight);
@@ -172,6 +172,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 			cerr << "ID " << currTriple.id << " not in pathmap!" << endl;
 			exit(0);
 		}
+
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
 		mPriVboMap.insert(make_pair(currTriple.id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currTriple.id]+".idx"), currTriple.id, false)));
@@ -208,6 +209,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
 				std::map<float, uint64_t>::iterator distIterator = mPriDistanceMap.begin();
 				std::set<ooctools::Triple>::iterator tripIterator = mPriTriSet.begin();
+
 				unsigned queryCount = 0;
 				glDepthMask(GL_FALSE);
 				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -229,8 +231,10 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 					while(queryState != GL_TRUE){
 					  glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT_AVAILABLE, &queryState);
 					}
+
 					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[tripIterator->id]);
 //					if (true){
+
 					if (mPriOccResults[tripIterator->id]>0){
 						// add visible VBO to the current DepthBuffer
 						mPriVboMap[tripIterator->id]->setOnline();
@@ -250,7 +254,6 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 	glPopMatrix();
 
 	mPriByteSize = max(mPriByteSize, byteSize);
-	cout << "Max Size of NodeBunch: " << mPriByteSize << endl;
 
 	if (mPriVisibleDistVec.size() > 0){
 		// send the visible object to the requester

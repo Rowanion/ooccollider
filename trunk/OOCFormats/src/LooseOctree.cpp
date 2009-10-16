@@ -725,12 +725,30 @@ void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids) {
 
 	if (aTotalIn == 6) { //include
 		//vollständig drin
+		for (unsigned i = 0; i < 8; i++) {  //intersect
+			if (this->mChildren[i] != 0) {
+				this->mChildren[i]->getAllSubtreeIds(_ids);
+			}
+		}
+		return;
 	}
 	// kinder weiter testen
 
 	for (unsigned i = 0; i < 8; i++) {  //intersect
 		if (this->mChildren[i] != 0) {
 			(this->mChildren[i])->isInFrustum_orig(_frustum, _ids);
+		}
+	}
+}
+
+void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
+	if (this->hasData()) {
+		_ids->insert(this->mPriId);
+	}
+
+	for (unsigned i = 0; i < 8; i++) {
+		if (this->mChildren[i] != 0) {
+			(this->mChildren[i])->getAllSubtreeIds(_ids);
 		}
 	}
 }
