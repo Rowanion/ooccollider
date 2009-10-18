@@ -27,6 +27,13 @@ unsigned LooseOctree::descendantCount[8] = {0,0,0,0,0,0,0,0};
 unsigned LooseOctree::maxTriCount = 0;
 unsigned LooseOctree::totalTriCount = 0;
 unsigned LooseOctree::maxLevel = 0;
+unsigned LooseOctree::orderLUT[22][8] = {{0, 1, 2, 3, 4, 5, 6, 7}, {4, 5, 6, 7, 0, 1, 2, 3}, {0, 1, 4, 5, 2, 3, 6, 7},
+		{2, 3, 6, 7, 0, 1, 4, 5}, {1, 3, 5, 7, 0, 2, 4, 6}, {0, 2, 4, 6, 1, 3, 5, 7}, {3, 7, 2, 1, 6, 5, 0, 4},
+		{2, 3, 6, 0, 7, 1, 4, 5}, {0, 4, 1, 2, 5, 6, 3, 7}, {1, 0, 5, 3, 4, 2, 7, 6}, {4, 5, 0, 6, 1, 7, 2, 3},
+		{5, 1, 4, 7, 0, 3, 6, 2}, {7, 6, 3, 5, 2, 4, 1, 0}, {6, 2, 7, 4, 3, 0, 5, 1}, {2, 3, 0, 1, 6, 7, 4, 5},
+		{0, 2, 1, 3, 4, 6, 5, 7}, {0, 1, 4, 5, 2, 3, 6, 7}, {1, 3, 0, 2, 5, 7, 4, 6}, {4, 5, 0, 1, 6, 7, 2, 3},
+		{5, 7, 1, 3, 4, 6, 0, 2}, {6, 7, 2, 3, 4, 5, 0, 1}, {4, 6, 5, 7, 0, 2, 1, 3}};
+
 
 LooseOctree::LooseOctree(LooseOctree* _father, const BoundingBox& _bb, int64_t _id) :
 	mTriList(std::list<Triangle>()), mBb(_bb), mExtBb(extendBb(_bb)), mPriRoot(this),
@@ -658,7 +665,7 @@ void LooseOctree::printNodePath(int64_t id) const
 
 
 
-void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids) {
+void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 
 	for (unsigned int p = 0; p < 6; ++p) {
@@ -736,7 +743,7 @@ void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids) {
 
 	for (unsigned i = 0; i < 8; i++) {  //intersect
 		if (this->mChildren[i] != 0) {
-			(this->mChildren[i])->isInFrustum_orig(_frustum, _ids);
+			(this->mChildren[i])->isInFrustum_orig(_frustum, _ids, orderIdx);
 		}
 	}
 }
@@ -753,7 +760,7 @@ void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
 	}
 }
 
-void LooseOctree::isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids) {
+void LooseOctree::isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids, unsigned orderIdx) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 
 	for (unsigned int p = 0; p < 6; ++p) {
@@ -824,8 +831,8 @@ void LooseOctree::isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _i
 	// kinder weiter testen
 
 	for (unsigned i = 0; i < 8; i++) {  //intersect
-		if (this->mChildren[i] != 0) {
-			(this->mChildren[i])->isInFrustum_orig(_frustum, _ids);
+		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+			(this->mChildren[LooseOctree::orderLUT[orderIdx][i]])->isInFrustum_orig(_frustum, _ids, orderIdx);
 		}
 	}
 }

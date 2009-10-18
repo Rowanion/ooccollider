@@ -474,4 +474,18 @@ V3f::calcSimpleDistance(const V3f& p1, const V3f& p2)
 	return pow((p2.getX() - p1.getX()), 2.0) + pow((p2.getY() - p1.getY()), 2.0) + pow((p2.getZ() - p1.getZ()), 2.0);
 }
 
+V3f
+V3f::lerp(V3f& v2, float factor)
+{
+	V3f temp = V3f(v2.getX()-*x, v2.getY()-*y, v2.getZ()-*z);
+	V3f temp2 = V3f();
+	temp*=factor;
+
+	temp += *this;
+//	reurn temp;
+//	V3f_class *temp = V3f_class::mul(this, 1.0f-factor);
+//	temp->add(V3f_class::mul(v2, factor));
+	return temp;
+}
+
 } // Namespace OOCTools

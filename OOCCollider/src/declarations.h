@@ -23,7 +23,6 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 #define DEPTHBUFFER_INTERVAL 15
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
 #define CAMERA_OFFSET 15.0f
 #define FAR_CLIPPING_PLANE 100.0f
 #define EXTENDED_FOVY 70.0
@@ -31,10 +30,12 @@
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 1923
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
 #endif
 #ifdef HOME
 #define MAX_OFFLINE_VBOS 1500
 #define MAX_LOADS_PER_FRAME 40
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
 #endif
 #ifdef CLUSTER
 #endif

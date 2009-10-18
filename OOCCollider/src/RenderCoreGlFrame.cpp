@@ -40,7 +40,7 @@ using namespace oocframework;
 
 RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int finalHeight) :
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
-			mPriEyePosition(ooctools::V3f()), mPriCamHasMoved(false),
+			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()), mPriCamHasMoved(false),
 			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriFbo(0),
 			mPriWindowWidth(width), mPriWindowHeight(height), mPriRenderWidth(finalWidth), mPriRenderHeight(finalHeight), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
@@ -1277,14 +1277,14 @@ void RenderCoreGlFrame::cullFrustum()
 
 //	GET_GLERROR(0);
 
-	if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition)){
+	if (!ooctools::GeometricOps::calcEyePosFast(mPriModelViewMatrix, mPriEyePosition, mPriViewVector)){
 		cout << "----------------------------------------- NO INVERSE!" << endl;
 	}
 //	GET_GLERROR(0);
 
 	getFrustum();
 	mPriIdsInExtFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, 0);
 
 	// original frustum
 	initTiles(false);
@@ -1293,7 +1293,7 @@ void RenderCoreGlFrame::cullFrustum()
 
 	getFrustum();
 	mPriIdsInFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, 0);
 
 	if (mPriShowOffset){
 		initTiles(true);

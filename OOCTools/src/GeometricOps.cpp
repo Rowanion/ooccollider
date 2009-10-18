@@ -211,7 +211,7 @@ void GeometricOps::transposeMat4( float* _mat ) {
 	}
 }
 
-bool GeometricOps::calcEyePosition( float* _mat, V3f& eye )
+bool GeometricOps::calcEyePosition( float* _mat, V3f& eye , V3f& view)
 {
 	float mat[16];
 	memcpy(mat, _mat, 16*sizeof(float));
@@ -298,10 +298,15 @@ bool GeometricOps::calcEyePosition( float* _mat, V3f& eye )
 	eye.setX(mat[3]);
 	eye.setY(mat[7]);
 	eye.setZ(mat[11]);
+
+	view.setX(mat[8]);
+	view.setY(mat[9]);
+	view.setZ(mat[10]);
+
 	return true;
 }
 
-bool GeometricOps::calcEyePosFast( float* _mat, V3f& eye )
+bool GeometricOps::calcEyePosFast( float* _mat, V3f& eye, V3f& view)
 {
 	//	6*8+2*6 = 60 multiplications
 	//		2*1 =  2 divisions
@@ -392,6 +397,10 @@ bool GeometricOps::calcEyePosFast( float* _mat, V3f& eye )
 	eye.setX(mat[3]);
 	eye.setY(mat[7]);
 	eye.setZ(mat[11]);
+
+	view.setX(mat[8]);
+	view.setY(mat[9]);
+	view.setZ(mat[10]);
 
 	return true;
 }

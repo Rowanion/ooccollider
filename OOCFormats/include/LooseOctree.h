@@ -150,8 +150,8 @@ class LooseOctree
 		void printNodePath(int64_t id) const;
 
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
-		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids);
-		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids);
+		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx);
+		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids, unsigned orderIdx);
 		void setDataLoaded(){mPriDataLoaded = true;};
 		void setDataUnloaded(){mPriDataLoaded = false;};
 		bool isDataLoaded() const {return mPriDataLoaded;};
@@ -169,6 +169,8 @@ class LooseOctree
 
 		static unsigned totalTriCount;
 		static unsigned maxLevel;
+
+		static unsigned orderLUT[22][8];
 
 	private:
 		typedef std::list<ooctools::Triangle>::const_iterator CTriIter;
