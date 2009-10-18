@@ -32,6 +32,34 @@ using namespace std;
 
 namespace ooctools {
 
+bool BoundingBox::initialized = false;
+
+V3f BoundingBox::frontNorm = V3f(0.0,0.0,-1.0);
+V3f BoundingBox::backNorm = V3f(0.0,0.0,1.0);
+V3f BoundingBox::topNorm = V3f(0.0,1.0,0.0);
+V3f BoundingBox::bottomNorm = V3f(0.,-1.0,0.0);
+V3f BoundingBox::leftNorm = V3f(-1.0,0.0,0.0);
+V3f BoundingBox::rightNorm = V3f(1.0,0.0,0.0);
+
+V3f BoundingBox::frontCenter = V3f(0.0,0.0,-1.0);
+V3f BoundingBox::backCenter = V3f(0.0,0.0,1.0);
+V3f BoundingBox::topCenter = V3f(0.0,1.0,0.0);
+V3f BoundingBox::bottomCenter = V3f(0.0,-1.0,0.0);
+V3f BoundingBox::leftCenter = V3f(-1.0,0.0,0.0);
+V3f BoundingBox::rightCenter = V3f(1.0,0.0,0.0);
+
+V3f BoundingBox::fblNorm = V3f(BoundingBox::frontNorm + BoundingBox::bottomNorm + BoundingBox::leftNorm).normalize();
+V3f BoundingBox::fbrNorm = V3f(BoundingBox::frontNorm + BoundingBox::bottomNorm + BoundingBox::rightNorm).normalize();
+V3f BoundingBox::ftrNorm = V3f(BoundingBox::frontNorm + BoundingBox::topNorm + BoundingBox::rightNorm).normalize();
+V3f BoundingBox::ftlNorm = V3f(BoundingBox::frontNorm + BoundingBox::topNorm + BoundingBox::leftNorm).normalize();
+
+V3f BoundingBox::btrNorm = V3f(BoundingBox::backNorm + BoundingBox::topNorm + BoundingBox::rightNorm).normalize();
+V3f BoundingBox::btlNorm = V3f(BoundingBox::backNorm + BoundingBox::topNorm + BoundingBox::leftNorm).normalize();
+V3f BoundingBox::bblNorm = V3f(BoundingBox::backNorm + BoundingBox::bottomNorm + BoundingBox::leftNorm).normalize();
+V3f BoundingBox::bbrNorm = V3f(BoundingBox::backNorm + BoundingBox::bottomNorm + BoundingBox::rightNorm).normalize();
+
+std::vector<V3f> BoundingBox::normals = std::vector<V3f>();
+
 
 bool
 BoundingBox::hasSharedComponent(const BoundingBox &_bb1, const BoundingBox &_bb2)
@@ -44,6 +72,9 @@ BoundingBox::BoundingBox() :
 //	mPrivMin(3.0f), mPrivMax(3.0f),
 	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 {
+	if (!BoundingBox::initialized){
+		init();
+	}
 	// note the minus sign on the following line
 	// ::min() would return the positive value of the smallest magnitude,
 	// not the negative value of the largest magnitude
@@ -52,6 +83,9 @@ BoundingBox::BoundingBox() :
 BoundingBox::BoundingBox(float _value) : mPrivMin(_value), mPrivMax(_value),
 mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 {
+	if (!BoundingBox::initialized){
+		init();
+	}
 }
 
 BoundingBox::BoundingBox(float _valA, float _valB) :
@@ -66,6 +100,9 @@ BoundingBox::BoundingBox(float _valA, float _valB) :
 	else {
 		mPrivMin = V3f(_valB);
 		mPrivMax = V3f(_valA);
+	}
+	if (!BoundingBox::initialized){
+		init();
 	}
 }
 
@@ -112,6 +149,10 @@ BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 			*mPrivMax.z = _vB.getZ();
 		}
 	}
+	computeCenter(mPrivCenter);
+	if (!BoundingBox::initialized){
+		init();
+	}
 }
 
 BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
@@ -129,6 +170,9 @@ BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 		mPrivMin = vB;
 		mPrivMax = vA;
 	}
+	if (!BoundingBox::initialized){
+		init();
+	}
 }
 /**
  * Copy Constructor
@@ -137,23 +181,67 @@ BoundingBox::BoundingBox(const BoundingBox& _bb) : mTriBoxTest()
 {
 	mPrivMax = _bb.getMax();
 	mPrivMin = _bb.getMin();
+	if (!BoundingBox::initialized){
+		init();
+	}
 }
 
 // TODO
 BoundingBox::BoundingBox(fs::path bbFile) : mTriBoxTest()
 {
 
+	if (!BoundingBox::initialized){
+		init();
+	}
 }
 
 // TODO
 BoundingBox::BoundingBox(std::string bbFile) : mTriBoxTest()
 {
 
+	if (!BoundingBox::initialized){
+		init();
+	}
 }
 
 BoundingBox::~BoundingBox()
 {
 //	cout << "BoundingBox..." << endl;
+}
+
+void BoundingBox::init()
+{
+	// face-normals
+	BoundingBox::normals.push_back(V3f( 0.0, 0.0,-1.0)); //front 0 1 2 3 4 5 6 7
+	BoundingBox::normals.push_back(V3f( 0.0, 0.0, 1.0)); //back 4 5 6 7 0 1 2 3
+	BoundingBox::normals.push_back(V3f( 0.0, 1.0, 0.0)); //top 0 1 4 5 2 3 6 7
+	BoundingBox::normals.push_back(V3f( 0.0,-1.0, 0.0)); //bottom 2 3 6 7 0 1 4 5
+	BoundingBox::normals.push_back(V3f(-1.0, 0.0, 0.0)); //left 1 3 5 7 0 2 4 6
+	BoundingBox::normals.push_back(V3f( 1.0, 0.0, 0.0)); //right 0 2 4 6 1 3 5 7
+
+	// vertex-normals
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[0] + BoundingBox::normals[3] + BoundingBox::normals[4]).normalize()); //fbl 3 7 2 1 6 5 0 4
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[0] + BoundingBox::normals[3] + BoundingBox::normals[5]).normalize()); //fbr 2 3 6 0 7 1 4 5
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[0] + BoundingBox::normals[2] + BoundingBox::normals[5]).normalize()); //ftr 0 4 1 2 5 6 3 7
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[0] + BoundingBox::normals[2] + BoundingBox::normals[4]).normalize()); //ftl 1 0 5 3 4 2 7 6
+
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[1] + BoundingBox::normals[2] + BoundingBox::normals[5]).normalize()); //btr 4 5 0 6 1 7 2 3
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[1] + BoundingBox::normals[2] + BoundingBox::normals[4]).normalize()); //btl 5 1 4 7 0 3 6 2
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[1] + BoundingBox::normals[3] + BoundingBox::normals[4]).normalize()); //bbl 7 6 3 5 2 4 1 0
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[1] + BoundingBox::normals[3] + BoundingBox::normals[5]).normalize()); //bbr 6 2 7 4 3 0 5 1
+
+	// Edge-normals
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[6] + BoundingBox::normals[7]).normalize()); //fb 2 3 0 1 6 7 4 5
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[7] + BoundingBox::normals[8]).normalize()); //fr 0 2 1 3 4 6 5 7
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[8] + BoundingBox::normals[9]).normalize()); //ft 0 1 4 5 2 3 6 7
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[9] + BoundingBox::normals[6]).normalize()); //fl 1 3 0 2 5 7 4 6
+
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[10] + BoundingBox::normals[11]).normalize()); //bt 4 5 0 1 6 7 2 3
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[11] + BoundingBox::normals[12]).normalize()); //bl 5 7 1 3 4 6 0 2
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[12] + BoundingBox::normals[13]).normalize()); //bb 6 7 2 3 4 5 0 1
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[10] + BoundingBox::normals[13]).normalize()); //br 4 6 5 7 0 2 1 3
+
+	BoundingBox::initialized = true;
 }
 
 void
@@ -727,6 +815,39 @@ BoundingBox::fromFile(fs::path bbFile)
 	input.close();
 	BoundingBox bb(min, max);
 	return bb;
+}
+
+void BoundingBox::calcNormals()
+{
+	V3f v1 = V3f(mPrivMin);
+	V3f v2 = V3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+	V3f v3 = V3f(mPrivMin.getY(), mPrivMax.getX(), mPrivMin.getZ());
+	V3f v4 = V3f(mPrivMax.getY(), mPrivMax.getX(), mPrivMin.getZ());
+	BoundingBox::frontCenter = v4.lerp(v1, 0.5);
+	v2 -= v1;
+	v3 -= v1;
+	v1 = V3f::cross(v3, v2);
+	v1.normalize();
+	BoundingBox::frontNorm = v1;
+
+
+//	BoundingBox::frontCenter
+}
+
+const unsigned getMinDotIdx(const V3f& view)
+{
+	unsigned minIdx = 0;
+	float minDot = 2.0f;
+	for (unsigned i=0; i< 14; ++i){
+		float temp = BoundingBox::normals[i].dot(view);
+		if (temp < minDot){
+			minIdx = i;
+			minDot = temp;
+		}
+//		temp = normal[i]
+	}
+	return minIdx;
+//	V3f temp
 }
 
 } // end of Namespace OOCTools

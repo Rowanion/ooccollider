@@ -109,7 +109,7 @@ public:
 	 * @param eye A reference to the container where the eye-position will be stored.
 	 * @note This code is a modified version from the source of the Doom3-Engine, which has been released under the GPL. (http://www.iddevnet.com/doom3)
 	 */
-	static bool calcEyePosition( float* _mat , V3f& eye);
+	static bool calcEyePosition( float* _mat , V3f& eye, V3f& view);
 
 	/**
 	 * @brief Calculates current eye-position by transposing and fast-inverting the given ModelView matrix.
@@ -119,7 +119,7 @@ public:
 	 * @param eye A reference to the container where the eye-position will be stored.
 	 * @note This code is a modified version from the source of the Doom3-Engine, which has been released under the GPL. (http://www.iddevnet.com/doom3)
 	 */
-	static bool calcEyePosFast( float* _mat, V3f& eye );
+	static bool calcEyePosFast( float* _mat, V3f& eye, V3f& view );
 
 	/**
 	 * @brief Calculates absolute value of given float.

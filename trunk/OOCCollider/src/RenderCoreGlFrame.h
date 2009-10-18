@@ -96,6 +96,7 @@ private:
 
 	float mPriModelViewMatrix[16];
 	ooctools::V3f mPriEyePosition;
+	ooctools::V3f mPriViewVector;
 	bool mPriCamHasMoved;
 	unsigned mPriBBMode;
 

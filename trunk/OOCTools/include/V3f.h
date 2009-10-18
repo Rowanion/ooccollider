@@ -127,6 +127,7 @@ public:
 	float calcDistance(const V3f& point) const;
 	float calcSimpleDistance(const V3f& point) const;
 	static float calcSimpleDistance(const V3f& p1, const V3f& p2);
+	V3f lerp(V3f& v2, float factor);
 
 	// back-reference for vertex-normal-calculation. DO NOT DELETE, DUH!
 	std::vector<Face*> *mPriFaceList;

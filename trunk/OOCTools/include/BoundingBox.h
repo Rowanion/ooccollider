@@ -185,7 +185,38 @@ public:
 	bool operator==(const BoundingBox& _bb);
 	bool operator!=(const BoundingBox& _bb);
 
+	void calcNormals();
+
 	static bool hasSharedComponent(const BoundingBox& _bb1, const BoundingBox& _bb2);
+
+	const V3f& getCenter() const{return mPrivCenter;};
+
+	const unsigned getMinDotIdx(const V3f& view);
+
+	static V3f frontNorm;
+	static V3f backNorm;
+	static V3f topNorm;
+	static V3f bottomNorm;
+	static V3f leftNorm;
+	static V3f rightNorm;
+
+	static V3f frontCenter;
+	static V3f backCenter;
+	static V3f topCenter;
+	static V3f bottomCenter;
+	static V3f leftCenter;
+	static V3f rightCenter;
+
+	static V3f fblNorm; //front bottom left aka. min
+	static V3f fbrNorm; //front bottom right
+	static V3f ftrNorm; //front top right
+	static V3f ftlNorm; //front top left
+	static V3f bblNorm; //back bottom left
+	static V3f bbrNorm; //back bottom right
+	static V3f btrNorm; //back top right aka. max
+	static V3f btlNorm; //back top left
+
+	static std::vector<V3f> normals;
 
 private:
 	// member variables
@@ -199,7 +230,9 @@ private:
 	void drawImmediate() const;
 	void drawLineStrip() const;
 	void drawLineStrip(float texCoord) const;
+	void init();
 
+	static bool initialized;
 };
 
 } // end of Namespace OOCTools
