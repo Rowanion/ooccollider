@@ -34,30 +34,6 @@ namespace ooctools {
 
 bool BoundingBox::initialized = false;
 
-V3f BoundingBox::frontNorm = V3f(0.0,0.0,-1.0);
-V3f BoundingBox::backNorm = V3f(0.0,0.0,1.0);
-V3f BoundingBox::topNorm = V3f(0.0,1.0,0.0);
-V3f BoundingBox::bottomNorm = V3f(0.,-1.0,0.0);
-V3f BoundingBox::leftNorm = V3f(-1.0,0.0,0.0);
-V3f BoundingBox::rightNorm = V3f(1.0,0.0,0.0);
-
-V3f BoundingBox::frontCenter = V3f(0.0,0.0,-1.0);
-V3f BoundingBox::backCenter = V3f(0.0,0.0,1.0);
-V3f BoundingBox::topCenter = V3f(0.0,1.0,0.0);
-V3f BoundingBox::bottomCenter = V3f(0.0,-1.0,0.0);
-V3f BoundingBox::leftCenter = V3f(-1.0,0.0,0.0);
-V3f BoundingBox::rightCenter = V3f(1.0,0.0,0.0);
-
-V3f BoundingBox::fblNorm = V3f(BoundingBox::frontNorm + BoundingBox::bottomNorm + BoundingBox::leftNorm).normalize();
-V3f BoundingBox::fbrNorm = V3f(BoundingBox::frontNorm + BoundingBox::bottomNorm + BoundingBox::rightNorm).normalize();
-V3f BoundingBox::ftrNorm = V3f(BoundingBox::frontNorm + BoundingBox::topNorm + BoundingBox::rightNorm).normalize();
-V3f BoundingBox::ftlNorm = V3f(BoundingBox::frontNorm + BoundingBox::topNorm + BoundingBox::leftNorm).normalize();
-
-V3f BoundingBox::btrNorm = V3f(BoundingBox::backNorm + BoundingBox::topNorm + BoundingBox::rightNorm).normalize();
-V3f BoundingBox::btlNorm = V3f(BoundingBox::backNorm + BoundingBox::topNorm + BoundingBox::leftNorm).normalize();
-V3f BoundingBox::bblNorm = V3f(BoundingBox::backNorm + BoundingBox::bottomNorm + BoundingBox::leftNorm).normalize();
-V3f BoundingBox::bbrNorm = V3f(BoundingBox::backNorm + BoundingBox::bottomNorm + BoundingBox::rightNorm).normalize();
-
 std::vector<V3f> BoundingBox::normals = std::vector<V3f>();
 
 
@@ -68,10 +44,11 @@ BoundingBox::hasSharedComponent(const BoundingBox &_bb1, const BoundingBox &_bb2
 }
 
 BoundingBox::BoundingBox() :
-	mPrivMin((float)numeric_limits<float>::max()), mPrivMax((float)-numeric_limits<float>::max()),
+	mPriMin((float)numeric_limits<float>::max()), mPriMax((float)-numeric_limits<float>::max()),
 //	mPrivMin(3.0f), mPrivMax(3.0f),
-	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
+	mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
 {
+	computeCenter(mPriCenter);
 	if (!BoundingBox::initialized){
 		init();
 	}
@@ -80,8 +57,8 @@ BoundingBox::BoundingBox() :
 	// not the negative value of the largest magnitude
 }
 
-BoundingBox::BoundingBox(float _value) : mPrivMin(_value), mPrivMax(_value),
-mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
+BoundingBox::BoundingBox(float _value) : mPriMin(_value), mPriMax(_value),
+mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
 {
 	if (!BoundingBox::initialized){
 		init();
@@ -89,18 +66,19 @@ mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
 }
 
 BoundingBox::BoundingBox(float _valA, float _valB) :
-		mPrivMin(numeric_limits<float>::max()), mPrivMax(-numeric_limits<float>::max()),
+		mPriMin(numeric_limits<float>::max()), mPriMax(-numeric_limits<float>::max()),
 //		mPrivMin(2.0f), mPrivMax(2.0f),
-		mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
+		mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
 {
 	if (_valA<_valB) {
-		mPrivMin = V3f(_valA);
-		mPrivMax = V3f(_valB);
+		mPriMin = V3f(_valA);
+		mPriMax = V3f(_valB);
 	}
 	else {
-		mPrivMin = V3f(_valB);
-		mPrivMax = V3f(_valA);
+		mPriMin = V3f(_valB);
+		mPriMax = V3f(_valA);
 	}
+	computeCenter(mPriCenter);
 	if (!BoundingBox::initialized){
 		init();
 	}
@@ -108,48 +86,48 @@ BoundingBox::BoundingBox(float _valA, float _valB) :
 
 BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 //	mPrivMin(1.0f), mPrivMax(1.0f),
-	mPrivMin(numeric_limits<float>::max()), mPrivMax(-numeric_limits<float>::max()),
-	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
+	mPriMin(numeric_limits<float>::max()), mPriMax(-numeric_limits<float>::max()),
+	mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
 {
 	if (_vA < _vB) {
-		mPrivMin = V3f(_vA);
-		mPrivMax = V3f(_vB);
+		mPriMin = V3f(_vA);
+		mPriMax = V3f(_vB);
 	}
 	else if (_vA > _vB){
-		mPrivMin = V3f(_vB);
-		mPrivMax = V3f(_vA);
+		mPriMin = V3f(_vB);
+		mPriMax = V3f(_vA);
 	}
 	else {
-		mPrivMin = V3f();
-		mPrivMax = V3f();
+		mPriMin = V3f();
+		mPriMax = V3f();
 		if (_vA.getX() > _vB.getX()){
-			*mPrivMin.x = _vB.getX();
-			*mPrivMax.x = _vA.getX();
+			*mPriMin.x = _vB.getX();
+			*mPriMax.x = _vA.getX();
 		}
 		else {
-			*mPrivMin.x = _vA.getX();
-			*mPrivMax.x = _vB.getX();
+			*mPriMin.x = _vA.getX();
+			*mPriMax.x = _vB.getX();
 		}
 
 		if (_vA.getY() > _vB.getY()){
-			*mPrivMin.y = _vB.getY();
-			*mPrivMax.y = _vA.getY();
+			*mPriMin.y = _vB.getY();
+			*mPriMax.y = _vA.getY();
 		}
 		else {
-			*mPrivMin.y = _vA.getY();
-			*mPrivMax.y = _vB.getY();
+			*mPriMin.y = _vA.getY();
+			*mPriMax.y = _vB.getY();
 		}
 
 		if (_vA.getZ() > _vB.getZ()){
-			*mPrivMin.z = _vB.getZ();
-			*mPrivMax.z = _vA.getZ();
+			*mPriMin.z = _vB.getZ();
+			*mPriMax.z = _vA.getZ();
 		}
 		else {
-			*mPrivMin.z = _vA.getZ();
-			*mPrivMax.z = _vB.getZ();
+			*mPriMin.z = _vA.getZ();
+			*mPriMax.z = _vB.getZ();
 		}
 	}
-	computeCenter(mPrivCenter);
+	computeCenter(mPriCenter);
 	if (!BoundingBox::initialized){
 		init();
 	}
@@ -157,18 +135,18 @@ BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 
 BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 //	mPrivMin(1.0f), mPrivMax(1.0f),
-	mPrivMin(numeric_limits<float>::max()), mPrivMax(-numeric_limits<float>::max()),
-	mPrivEdgeSizes(0.0f), mPrivCenter(0.0f), mTriBoxTest()
+	mPriMin(numeric_limits<float>::max()), mPriMax(-numeric_limits<float>::max()),
+	mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
 {
 	V3f vA (_vA);
 	V3f vB (_vB);
 	if (vA < vB) {
-		mPrivMin = vA;
-		mPrivMax = vB;
+		mPriMin = vA;
+		mPriMax = vB;
 	}
 	else {
-		mPrivMin = vB;
-		mPrivMax = vA;
+		mPriMin = vB;
+		mPriMax = vA;
 	}
 	if (!BoundingBox::initialized){
 		init();
@@ -179,11 +157,12 @@ BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
  */
 BoundingBox::BoundingBox(const BoundingBox& _bb) : mTriBoxTest()
 {
-	mPrivMax = _bb.getMax();
-	mPrivMin = _bb.getMin();
+	mPriMax = _bb.getMax();
+	mPriMin = _bb.getMin();
 	if (!BoundingBox::initialized){
 		init();
 	}
+	computeCenter(mPriCenter);
 }
 
 // TODO
@@ -193,6 +172,7 @@ BoundingBox::BoundingBox(fs::path bbFile) : mTriBoxTest()
 	if (!BoundingBox::initialized){
 		init();
 	}
+	computeCenter(mPriCenter);
 }
 
 // TODO
@@ -202,6 +182,7 @@ BoundingBox::BoundingBox(std::string bbFile) : mTriBoxTest()
 	if (!BoundingBox::initialized){
 		init();
 	}
+	computeCenter(mPriCenter);
 }
 
 BoundingBox::~BoundingBox()
@@ -241,6 +222,11 @@ void BoundingBox::init()
 	BoundingBox::normals.push_back(V3f(BoundingBox::normals[12] + BoundingBox::normals[13]).normalize()); //bb 6 7 2 3 4 5 0 1
 	BoundingBox::normals.push_back(V3f(BoundingBox::normals[10] + BoundingBox::normals[13]).normalize()); //br 4 6 5 7 0 2 1 3
 
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[9] + BoundingBox::normals[11]).normalize()); //tl 1 5 0 4 3 7 2 6
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[6] + BoundingBox::normals[12]).normalize()); //bl 3 7 1 5 2 6 0 4
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[8] + BoundingBox::normals[10]).normalize()); //tr 0 4 1 5 2 6 3 7
+	BoundingBox::normals.push_back(V3f(BoundingBox::normals[7] + BoundingBox::normals[13]).normalize()); //br 2 6 0 4 3 7 1 5
+
 	BoundingBox::initialized = true;
 }
 
@@ -274,34 +260,34 @@ void
 BoundingBox::drawImmediate() const
 {
 	glBegin(GL_LINES);
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
 
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
 
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
 
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
 
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
 	glEnd();
 }
 
@@ -309,26 +295,26 @@ void
 BoundingBox::drawLineStrip() const
 {
 	glBegin(GL_LINE_LOOP);
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
 	glEnd();
 
 	glBegin(GL_LINES);
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
 
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
 	glEnd();
 }
 
@@ -336,55 +322,60 @@ void
 BoundingBox::drawLineStrip(float texCoord) const
 {
 	glBegin(GL_LINE_LOOP);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
 	glEnd();
 
 	glBegin(GL_LINES);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
 
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
 	glEnd();
 }
 
 void
 BoundingBox::expand(const V3f &_v)
 {
-	mPrivMax.maxMe(_v);
-	mPrivMin.minMe(_v);
+	mPriMax.maxMe(_v);
+	mPriMin.minMe(_v);
+	computeCenter(mPriCenter);
 }
 
 void
 BoundingBox::expand(const V4f &_v)
 {
 	V3f v(_v);
-	mPrivMax.maxMe(v);
-	mPrivMin.minMe(v);
+	mPriMax.maxMe(v);
+	mPriMin.minMe(v);
+	computeCenter(mPriCenter);
 }
+
 
 void
 BoundingBox::expand(const float *_v)
 {
 	expand(_v[0], _v[1], _v[2]);
+	computeCenter(mPriCenter);
 }
 
 void
 BoundingBox::expand(float _x, float _y, float _z)
 {
-	mPrivMax.maxMe(_x, _y, _z);
-	mPrivMin.minMe(_x, _y, _z);
+	mPriMax.maxMe(_x, _y, _z);
+	mPriMin.minMe(_x, _y, _z);
+	computeCenter(mPriCenter);
 }
 
 void
@@ -392,6 +383,7 @@ BoundingBox::expand(const BoundingBox &_bb)
 {
 	expand(_bb.getMin());
 	expand(_bb.getMax());
+	computeCenter(mPriCenter);
 }
 
 bool
@@ -408,7 +400,7 @@ BoundingBox::toString() const
 {
 	std::string s;
 	std::stringstream ss;
-	ss << mPrivMin.toString() << " - " << mPrivMax.toString();
+	ss << mPriMin.toString() << " - " << mPriMax.toString();
 	return ss.str();
 }
 
@@ -417,40 +409,40 @@ BoundingBox::drawSolid() const
 {
 	glBegin(GL_QUADS);
 		//backface
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
 
 		//top
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
 
 		//right
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
 
 		//left
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
 
 		//front
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
 
 		//bottom
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
 
 
 
@@ -461,35 +453,35 @@ void
 BoundingBox::drawSolid(float texCoord) const
 {
 	glBegin(GL_QUADS);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
 
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
 
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
 
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
 
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
 
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
 
 
 
@@ -502,35 +494,35 @@ BoundingBox::drawSolidTriFan() const
 	// center vertex at min,min,min
 	glBegin(GL_TRIANGLE_FAN);
 		//left
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
 
 		//front
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
 
 		//bottom
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
 	glEnd();
 
 	// center vertex at max,max,max
 	glBegin(GL_TRIANGLE_FAN);
 		//top
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ());
+		glVertex3f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ());
 
 		//back
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
 
 		//right
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
 	glEnd();
 
 }
@@ -541,35 +533,35 @@ BoundingBox::drawSolidTriFan(float texCoord) const
 	// center vertex at min,min,min
 	glBegin(GL_TRIANGLE_FAN);
 		//left
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
 
 		//front
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
 
 		//bottom
-		glVertex4f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ(), texCoord);
 	glEnd();
 
 	// center vertex at max,max,max
 	glBegin(GL_TRIANGLE_FAN);
 		//top
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
-		glVertex4f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMin.getZ(), texCoord);
-		glVertex4f(mPrivMin.getX(), mPrivMax.getY(), mPrivMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMin.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
 
 		//back
-		glVertex3f(mPrivMin.getX(), mPrivMin.getY(), mPrivMax.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMax.getZ());
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMax.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMax.getZ());
 
 		//right
-		glVertex3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-		glVertex3f(mPrivMax.getX(), mPrivMax.getY(), mPrivMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMin.getZ());
 	glEnd();
 
 }
@@ -585,7 +577,7 @@ BoundingBox::computeCenter(V3f &_center) const
 	computeEdgeSizes(edges);
 //	V3f step = (mPrivMin.getAbs() + mPrivMax.getAbs()) *0.5f;
 //	_center = (mPrivMin + step);
-	_center = mPrivMin + (edges*0.5f);
+	_center = mPriMin + (edges*0.5f);
 }
 
 bool
@@ -728,7 +720,7 @@ BoundingBox::hasInside(const V4f& _v1, const V4f& _v2, const V4f& _v3) const
 bool
 BoundingBox::hasInside(const V3f& _v) const
 {
-	if (_v >= mPrivMin && _v < mPrivMax) return true;
+	if (_v >= mPriMin && _v < mPriMax) return true;
 	else return false;
 }
 
@@ -736,7 +728,7 @@ bool
 BoundingBox::hasInside(const V4f& _v) const
 {
 	V3f temp(_v);
-	if (temp > mPrivMin && temp < mPrivMax) return true;
+	if (temp > mPriMin && temp < mPriMax) return true;
 	else return false;
 }
 
@@ -751,22 +743,22 @@ BoundingBox::hasInside(const BoundingBox& _b) const
 void
 BoundingBox::computeEdgeSizes(V3f &_sizes) const
 {
-	V3f e = (mPrivMax-mPrivMin);
+	V3f e = (mPriMax-mPriMin);
 	_sizes = e.getAbs();
 }
 
 float
 BoundingBox::computeDiameter() const
 {
-	return (mPrivMax-mPrivMin).getAbs().calculateMagnitude();
+	return (mPriMax-mPriMin).getAbs().calculateMagnitude();
 }
 
 BoundingBox&
 BoundingBox::operator=(const BoundingBox& _bb)
 {
 	if (*this != _bb){
-		mPrivMax = _bb.getMax();
-		mPrivMin = _bb.getMin();
+		mPriMax = _bb.getMax();
+		mPriMin = _bb.getMin();
 	}
 	return *this;
 }
@@ -774,7 +766,7 @@ BoundingBox::operator=(const BoundingBox& _bb)
 bool
 BoundingBox::operator==(const BoundingBox& _bb)
 {
-	if (mPrivMax==_bb.getMax() && mPrivMin==_bb.getMin())
+	if (mPriMax==_bb.getMax() && mPriMin==_bb.getMin())
 		return true;
 	else return false;
 }
@@ -790,12 +782,12 @@ BoundingBox::saveToFile(fs::path bbFile){
 	fs::ofstream of;
 	of.open(bbFile, ios::binary | ios::out);
 	of.seekp(0, ios::beg);
-	of.write((char*) mPrivMin.x, sizeof(float));
-	of.write((char*) mPrivMin.y, sizeof(float));
-	of.write((char*) mPrivMin.z, sizeof(float));
-	of.write((char*) mPrivMax.x, sizeof(float));
-	of.write((char*) mPrivMax.y, sizeof(float));
-	of.write((char*) mPrivMax.z, sizeof(float));
+	of.write((char*) mPriMin.x, sizeof(float));
+	of.write((char*) mPriMin.y, sizeof(float));
+	of.write((char*) mPriMin.z, sizeof(float));
+	of.write((char*) mPriMax.x, sizeof(float));
+	of.write((char*) mPriMax.y, sizeof(float));
+	of.write((char*) mPriMax.z, sizeof(float));
 	of.close();
 }
 
@@ -817,24 +809,7 @@ BoundingBox::fromFile(fs::path bbFile)
 	return bb;
 }
 
-void BoundingBox::calcNormals()
-{
-	V3f v1 = V3f(mPrivMin);
-	V3f v2 = V3f(mPrivMax.getX(), mPrivMin.getY(), mPrivMin.getZ());
-	V3f v3 = V3f(mPrivMin.getY(), mPrivMax.getX(), mPrivMin.getZ());
-	V3f v4 = V3f(mPrivMax.getY(), mPrivMax.getX(), mPrivMin.getZ());
-	BoundingBox::frontCenter = v4.lerp(v1, 0.5);
-	v2 -= v1;
-	v3 -= v1;
-	v1 = V3f::cross(v3, v2);
-	v1.normalize();
-	BoundingBox::frontNorm = v1;
-
-
-//	BoundingBox::frontCenter
-}
-
-const unsigned getMinDotIdx(const V3f& view)
+const unsigned BoundingBox::getMinDotIdx(const V3f& view)
 {
 	unsigned minIdx = 0;
 	float minDot = 2.0f;
@@ -848,6 +823,219 @@ const unsigned getMinDotIdx(const V3f& view)
 	}
 	return minIdx;
 //	V3f temp
+}
+
+V3f
+BoundingBox::getCenterLeft() const
+{
+	V3f temp = mPriCenter;
+	temp.setX(mPriMin.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterRight() const
+{
+	V3f temp = mPriCenter;
+	temp.setX(mPriMax.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterTop() const
+{
+	V3f temp = mPriCenter;
+	temp.setY(mPriMax.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBottom() const
+{
+	V3f temp = mPriCenter;
+	temp.setY(mPriMin.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterFront() const
+{
+	V3f temp = mPriCenter;
+	temp.setZ(mPriMin.getZ());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBack() const
+{
+	V3f temp = mPriCenter;
+	temp.setZ(mPriMax.getZ());
+	return temp;
+}
+
+V3f
+BoundingBox::getFrontTopLeft() const
+{
+	V3f temp = mPriMin;
+	temp.setY(mPriMax.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getFrontTopRight() const
+{
+	V3f temp = mPriMax;
+	temp.setZ(mPriMin.getZ());
+	return temp;
+}
+
+V3f
+BoundingBox::getFrontBottomLeft() const
+{
+	V3f temp = mPriMin;
+	return temp;
+}
+
+V3f
+BoundingBox::getFrontBottomRight() const
+{
+	V3f temp = mPriMin;
+	temp.setX(mPriMax.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getBackTopLeft() const
+{
+	V3f temp = mPriMax;
+	temp.setX(mPriMin.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getBackTopRight() const
+{
+	V3f temp = mPriMax;
+	return temp;
+}
+
+V3f
+BoundingBox::getBackBottomLeft() const
+{
+	V3f temp = mPriMin;
+	temp.setZ(mPriMax.getZ());
+	return temp;
+}
+
+V3f
+BoundingBox::getBackBottomRight() const
+{
+	V3f temp = mPriMax;
+	temp.setY(mPriMin.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterTopLeft() const
+{
+	V3f temp = mPriMin;
+	temp.setZ(mPriCenter.getZ());
+	temp.setY(mPriMax.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterTopRight() const
+{
+	V3f temp = mPriMax;
+	temp.setZ(mPriCenter.getZ());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBottomLeft() const
+{
+	V3f temp = mPriMin;
+	temp.setZ(mPriCenter.getZ());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBottomRight() const
+{
+	V3f temp = mPriMin;
+	temp.setZ(mPriCenter.getZ());
+	temp.setX(mPriMax.getX());
+	return temp;
+}
+
+
+V3f
+BoundingBox::getCenterFrontRight() const
+{
+	V3f temp = mPriMin;
+	temp.setY(mPriCenter.getY());
+	temp.setX(mPriMax.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterFrontLeft() const
+{
+	V3f temp = mPriMin;
+	temp.setY(mPriCenter.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterFrontTop() const
+{
+	V3f temp = mPriMin;
+	temp.setX(mPriCenter.getX());
+	temp.setY(mPriMax.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterFrontBottom() const
+{
+	V3f temp = mPriMin;
+	temp.setX(mPriCenter.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBackRight() const
+{
+	V3f temp = mPriMax;
+	temp.setY(mPriCenter.getY());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBackLeft() const
+{
+	V3f temp = mPriMax;
+	temp.setY(mPriCenter.getY());
+	temp.setX(mPriMin.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBackTop() const
+{
+	V3f temp = mPriMax;
+	temp.setX(mPriCenter.getX());
+	return temp;
+}
+
+V3f
+BoundingBox::getCenterBackBottom() const
+{
+	V3f temp = mPriMax;
+	temp.setX(mPriCenter.getX());
+	temp.setY(mPriMin.getY());
+	return temp;
 }
 
 } // end of Namespace OOCTools
