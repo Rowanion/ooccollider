@@ -53,8 +53,8 @@ public:
 	void expand(const float* _v);
 	void expand(const float _x, float _y, float _z);
 	void expand(const BoundingBox& _bb);
-	const V3f& getMin() const {return mPrivMin;};
-	const V3f& getMax() const {return mPrivMax;};
+	const V3f& getMin() const {return mPriMin;};
+	const V3f& getMax() const {return mPriMax;};
 	std::string toString() const;
 	bool hasSharedComponent(const BoundingBox& _bb) const;
 	void drawSolid() const;
@@ -64,6 +64,34 @@ public:
 	void saveToFile(fs::path bbFile);
 	void saveToFile(std::string bbFile) const;
 	static BoundingBox fromFile(fs::path bbFile);
+	V3f getCenterLeft() const;
+	V3f getCenterRight() const;
+	V3f getCenterTop() const;
+	V3f getCenterBottom() const;
+	V3f getCenterFront() const;
+	V3f getCenterBack() const;
+
+	V3f getFrontTopLeft() const;
+	V3f getFrontTopRight() const;
+	V3f getFrontBottomLeft() const;
+	V3f getFrontBottomRight() const;
+	V3f getBackTopLeft() const;
+	V3f getBackTopRight() const;
+	V3f getBackBottomLeft() const;
+	V3f getBackBottomRight() const;
+
+	V3f getCenterTopLeft() const;
+	V3f getCenterTopRight() const;
+	V3f getCenterBottomLeft() const;
+	V3f getCenterBottomRight() const;
+	V3f getCenterFrontRight() const;
+	V3f getCenterFrontLeft() const;
+	V3f getCenterFrontTop() const;
+	V3f getCenterFrontBottom() const;
+	V3f getCenterBackRight() const;
+	V3f getCenterBackLeft() const;
+	V3f getCenterBackTop() const;
+	V3f getCenterBackBottom() const;
 
 	/**
 	 * @brief Resets the BB to it's initial values.
@@ -185,45 +213,26 @@ public:
 	bool operator==(const BoundingBox& _bb);
 	bool operator!=(const BoundingBox& _bb);
 
-	void calcNormals();
-
 	static bool hasSharedComponent(const BoundingBox& _bb1, const BoundingBox& _bb2);
 
-	const V3f& getCenter() const{return mPrivCenter;};
+	const V3f& getCenter() const{return mPriCenter;};
 
 	const unsigned getMinDotIdx(const V3f& view);
-
-	static V3f frontNorm;
-	static V3f backNorm;
-	static V3f topNorm;
-	static V3f bottomNorm;
-	static V3f leftNorm;
-	static V3f rightNorm;
-
-	static V3f frontCenter;
-	static V3f backCenter;
-	static V3f topCenter;
-	static V3f bottomCenter;
-	static V3f leftCenter;
-	static V3f rightCenter;
-
-	static V3f fblNorm; //front bottom left aka. min
-	static V3f fbrNorm; //front bottom right
-	static V3f ftrNorm; //front top right
-	static V3f ftlNorm; //front top left
-	static V3f bblNorm; //back bottom left
-	static V3f bbrNorm; //back bottom right
-	static V3f btrNorm; //back top right aka. max
-	static V3f btlNorm; //back top left
 
 	static std::vector<V3f> normals;
 
 private:
 	// member variables
-	V3f mPrivMin;
-	V3f mPrivMax;
-	V3f mPrivEdgeSizes;
-	V3f mPrivCenter;
+	V3f mPriMin;
+	V3f mPriMax;
+	V3f mPriEdgeSizes;
+	V3f mPriCenter;
+	V3f mPriCenterLeft;
+	V3f mPriCenterRight;
+	V3f mPriCenterTop;
+	V3f mPriCenterBottom;
+	V3f mPriCenterFront;
+	V3f mPriCenterBack;
 	TriBoxTest mTriBoxTest;
 
 	// member methods
