@@ -663,10 +663,101 @@ void LooseOctree::printNodePath(int64_t id) const
 	}
 }
 
+void
+LooseOctree::isInFrustum_bfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, unsigned _limit)
+{
+	// should be called in root only, or at least from subroot
+	std::queue<LooseOctree*> toDoQueue = std::queue<LooseOctree*>();
+	frustumSelfTest(_frustum, _ids, toDoQueue, orderIdx);
+	unsigned iterCount = 0;
+	bool state;
+	while(!toDoQueue.empty() && iterCount<_limit){
+		state = toDoQueue.front()->frustumSelfTest(_frustum, _ids, toDoQueue, orderIdx);
+		toDoQueue.pop();
+		if (state)
+			iterCount++;
+	}
+}
 
+bool
+LooseOctree::frustumSelfTest(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx)
+{
+	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
+	bool added = false;
 
+	for (unsigned int p = 0; p < 6; ++p) {
+		aPosCounter = 8;
+		aIPtIn = 1;
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (aPosCounter == 0) //exclude
+		return false;
+		else
+			aTotalIn += aIPtIn;
+	}
 
-void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx) {
+	if (this->hasData()) {
+		_ids->insert(this->mPriId);
+		added = true;
+	}
+
+	// insert non-null children into queue
+	for (unsigned i = 0; i < 8; i++) {
+		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+			_toDoQueue.push(this->mChildren[LooseOctree::orderLUT[orderIdx][i]]);
+		}
+	}
+	return added;
+}
+
+void
+LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 
 	for (unsigned int p = 0; p < 6; ++p) {
@@ -734,8 +825,8 @@ void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, u
 	if (aTotalIn == 6) { //include
 		//vollständig drin
 		for (unsigned i = 0; i < 8; i++) {  //intersect
-			if (this->mChildren[i] != 0) {
-				this->mChildren[i]->getAllSubtreeIds(_ids);
+			if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+				this->mChildren[LooseOctree::orderLUT[orderIdx][i]]->getAllSubtreeIds(_ids);
 			}
 		}
 		return;
@@ -743,8 +834,8 @@ void LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, u
 	// kinder weiter testen
 
 	for (unsigned i = 0; i < 8; i++) {  //intersect
-		if (this->mChildren[i] != 0) {
-			(this->mChildren[i])->isInFrustum_orig(_frustum, _ids, orderIdx);
+		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+			(this->mChildren[LooseOctree::orderLUT[orderIdx][i]])->isInFrustum_orig(_frustum, _ids, orderIdx);
 		}
 	}
 }

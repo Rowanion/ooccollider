@@ -14,6 +14,7 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <queue>
 
 
 #include "declarations.h"
@@ -149,6 +150,8 @@ class LooseOctree
 		std::string getChildType() const;
 		void printNodePath(int64_t id) const;
 
+		void isInFrustum_bfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, unsigned _limit);
+		bool frustumSelfTest(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx);
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
 		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx);
 		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids, unsigned orderIdx);

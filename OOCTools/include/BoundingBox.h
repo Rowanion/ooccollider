@@ -217,7 +217,7 @@ public:
 
 	const V3f& getCenter() const{return mPriCenter;};
 
-	const unsigned getMinDotIdx(const V3f& view);
+	static unsigned getMinDotIdx(const V3f& view);
 
 	static std::vector<V3f> normals;
 

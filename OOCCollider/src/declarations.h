@@ -26,6 +26,7 @@
 #define CAMERA_OFFSET 15.0f
 #define FAR_CLIPPING_PLANE 100.0f
 #define EXTENDED_FOVY 70.0
+#define MAX_TREE_ITERATIONS 3000
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
@@ -35,7 +36,7 @@
 #ifdef HOME
 #define MAX_OFFLINE_VBOS 1500
 #define MAX_LOADS_PER_FRAME 40
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
 #endif
 #ifdef CLUSTER
 #endif
