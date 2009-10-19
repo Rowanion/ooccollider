@@ -170,7 +170,7 @@ class LooseOctree
 		static unsigned totalTriCount;
 		static unsigned maxLevel;
 
-		static unsigned orderLUT[22][8];
+		static unsigned orderLUT[26][8];
 
 	private:
 		typedef std::list<ooctools::Triangle>::const_iterator CTriIter;
