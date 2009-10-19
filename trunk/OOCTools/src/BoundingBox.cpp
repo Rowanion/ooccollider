@@ -809,11 +809,11 @@ BoundingBox::fromFile(fs::path bbFile)
 	return bb;
 }
 
-const unsigned BoundingBox::getMinDotIdx(const V3f& view)
+unsigned BoundingBox::getMinDotIdx(const V3f& view)
 {
 	unsigned minIdx = 0;
 	float minDot = 2.0f;
-	for (unsigned i=0; i< 14; ++i){
+	for (unsigned i=0; i< 26; ++i){
 		float temp = BoundingBox::normals[i].dot(view);
 		if (temp < minDot){
 			minIdx = i;
