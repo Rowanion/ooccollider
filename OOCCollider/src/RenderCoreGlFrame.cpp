@@ -456,7 +456,7 @@ void RenderCoreGlFrame::initTiles(bool extendFovy)
 {
 //	extendFovy = false;
 	//resize
-	float fovy = 45.0;
+	float fovy = 60.0;
 //	if (extendFovy){
 //		fovy = mPriExtendedFovy;
 //	}
@@ -464,19 +464,20 @@ void RenderCoreGlFrame::initTiles(bool extendFovy)
 //		fovy = 45.0;
 //	}
 
-	ratio = (GLfloat)800 / (GLfloat)600;
+	ratio = (GLfloat)mPriWindowHeight / (GLfloat)mPriWindowWidth;
 
-	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
-	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+	screenYMax = tan(fovy * ooctools::GeometricOps::PI / 360.0) * mPriNearClippingPlane;
+	screenYMaxH = tan(fovy * ooctools::GeometricOps::PI / 360.0) * mPriNearClippingPlane;
 	if (extendFovy){
-		GLfloat oppFac = (GLfloat)800 / (GLfloat)mPriTileWidth;
-		oppFac *= oppFac;
+		//GLfloat oppFac = (GLfloat)800 / (GLfloat)640; //(GLfloat)mPriTileWidth;
+		GLfloat oppFac = 1.0;
+//		oppFac *= oppFac;
 //		cout << "oppFac: " << oppFac << endl;
 		screenYMax *= oppFac;
 		screenYMaxH *= oppFac;
 	}
 	else{
-		GLfloat oppFac = (GLfloat)800 / (GLfloat)mPriTileWidth;
+		GLfloat oppFac = (GLfloat)640 / (GLfloat)640; //(GLfloat)mPriTileWidth;
 //		cout << "oppFac: " << oppFac << endl;
 		screenYMax *= oppFac;
 		screenYMaxH *= oppFac;
@@ -484,10 +485,10 @@ void RenderCoreGlFrame::initTiles(bool extendFovy)
 
 
 //	}
-	screenXMax = screenYMax * ratio;
+	screenYMax = screenYMax * ratio;
 	screenYMin = -screenYMax;
 
-	screenXMaxH = screenYMaxH * ratio;
+//	screenYMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
 
 }
@@ -507,11 +508,13 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 	if (tileswidth == 0)
 		tileswidth = 1;
 
+	float aFac = 400/320;
+
 	if (extendFrustum){
-		worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
-		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
-		worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
-		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
+		worldTopLine = ((GLdouble) tileYPos / (GLdouble) mPriWindowHeight );
+		worldBottomLine = ((GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight);
+		worldLeftLine = ((GLdouble) tileXPos / (GLdouble) mPriWindowWidth );
+		worldRightLine = ((GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth );
 
 			glViewport(0, 0, (GLint) 800, (GLint) 600);
 
@@ -521,7 +524,7 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 	//	else{
 	//		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 	//	}
-			glViewport(0, 0, (GLint) 800, (GLint) 600);
+//			glViewport(0, 0, (GLint) 800, (GLint) 600);
 	//		glViewport(0, 0, (GLint) 640, (GLint) 480);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -534,20 +537,28 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 		worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
 				* worldRightLine);
 
-		glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
+		GET_GLERROR(0);
+		glFrustum(worldLeftLine  * aFac, worldRightLine  * aFac, worldTopLine  * aFac, worldBottomLine  * aFac,
 				mPriNearClippingPlane, mPriFarClippingPlane);
+		GET_GLERROR(0);
 
 
 		glMatrixMode(GL_MODELVIEW);
 
 	}
 	else {
-		worldTopLine = (GLdouble) tileYPos / (GLdouble) 480;
-		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) 480;
-		worldLeftLine = (GLdouble) tileXPos / (GLdouble) 640;
-		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) 640;
+//		worldTopLine = (GLdouble) tileYPos / (GLdouble) 480;
+//		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) 480;
+//		worldLeftLine = (GLdouble) tileXPos / (GLdouble) 640;
+//		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) 640;
+//
+//		glViewport(0, 0, (GLint) 640, (GLint) 480);
+		worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
+		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
+		worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
+		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
 
-		glViewport(0, 0, (GLint) 640, (GLint) 480);
+		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -582,131 +593,6 @@ void RenderCoreGlFrame::calcFPS() {
 	}
 	avgFps /= 10.0f;
 
-}
-
-void RenderCoreGlFrame::normalizeFrustum() {
-   frustum.clear();
-   frustum1.clear();
-   frustum2.clear();
-   frustum3.clear();
-   frustum4.clear();
-   frustum5.clear();
-   frustum6.clear();
-   frustTemp = 0.0;
-
-   glGetFloatv(GL_PROJECTION_MATRIX, proj);
-   glGetFloatv(GL_MODELVIEW_MATRIX, modl);
-
-   clip[0]  = modl[0]  * proj[0] + modl[1]  * proj[4] + modl[2]  * proj[8]  + modl[3]  * proj[12];
-   clip[1]  = modl[0]  * proj[1] + modl[1]  * proj[5] + modl[2]  * proj[9]  + modl[3]  * proj[13];
-   clip[2]  = modl[0]  * proj[2] + modl[1]  * proj[6] + modl[2]  * proj[10] + modl[3]  * proj[14];
-   clip[3]  = modl[0]  * proj[3] + modl[1]  * proj[7] + modl[2]  * proj[11] + modl[3]  * proj[15];
-
-   clip[4]  = modl[4]  * proj[0] + modl[5]  * proj[4] + modl[6]  * proj[8]  + modl[7]  * proj[12];
-   clip[5]  = modl[4]  * proj[1] + modl[5]  * proj[5] + modl[6]  * proj[9]  + modl[7]  * proj[13];
-   clip[6]  = modl[4]  * proj[2] + modl[5]  * proj[6] + modl[6]  * proj[10] + modl[7]  * proj[14];
-   clip[7]  = modl[4]  * proj[3] + modl[5]  * proj[7] + modl[6]  * proj[11] + modl[7]  * proj[15];
-
-   clip[8]  = modl[8]  * proj[0] + modl[9]  * proj[4] + modl[10] * proj[8]  + modl[11] * proj[12];
-   clip[9]  = modl[8]  * proj[1] + modl[9]  * proj[5] + modl[10] * proj[9]  + modl[11] * proj[13];
-   clip[10] = modl[8]  * proj[2] + modl[9]  * proj[6] + modl[10] * proj[10] + modl[11] * proj[14];
-   clip[11] = modl[8]  * proj[3] + modl[9]  * proj[7] + modl[10] * proj[11] + modl[11] * proj[15];
-
-   clip[12] = modl[12] * proj[0] + modl[13] * proj[4] + modl[14] * proj[8]  + modl[15] * proj[12];
-   clip[13] = modl[12] * proj[1] + modl[13] * proj[5] + modl[14] * proj[9]  + modl[15] * proj[13];
-   clip[14] = modl[12] * proj[2] + modl[13] * proj[6] + modl[14] * proj[10] + modl[15] * proj[14];
-   clip[15] = modl[12] * proj[3] + modl[13] * proj[7] + modl[14] * proj[11] + modl[15] * proj[15];
-
-   /* Extract the RIGHT plane */
-   frustum1.push_back(clip[3]  - clip[0]);
-   frustum1.push_back(clip[7]  - clip[4]);
-   frustum1.push_back(clip[11] - clip[8]);
-   frustum1.push_back(clip[15] - clip[12]);
-   frustum.push_back(frustum1);
-
-   /* Normalize the result */
-   frustTemp = (float) sqrt((frustum.at(0))[0] * (frustum.at(0))[0] + (frustum.at(0))[1] * (frustum.at(0))[1] + (frustum.at(0))[2] * (frustum.at(0))[2]);
-   if(frustTemp != 0){
-      (frustum.at(0))[0] /= frustTemp;
-      (frustum.at(0))[1] /= frustTemp;
-      (frustum.at(0))[2] /= frustTemp;
-      (frustum.at(0))[3] /= frustTemp;
-   }
-   /* Extract the numbers for the LEFT plane */
-   frustum2.push_back(clip[3]  + clip[0]);
-   frustum2.push_back(clip[7]  + clip[4]);
-   frustum2.push_back(clip[11] + clip[8]);
-   frustum2.push_back(clip[15] + clip[12]);
-   frustum.push_back(frustum2);
-
-   /* Normalize the result */
-   frustTemp = (float) sqrt((frustum.at(1))[0] * (frustum.at(1))[0] + (frustum.at(1))[1] * (frustum.at(1))[1] + (frustum.at(1))[2] * (frustum.at(1))[2]);
-   if(frustTemp != 0){
-      (frustum.at(1))[0] /= frustTemp;
-      (frustum.at(1))[1] /= frustTemp;
-      (frustum.at(1))[2] /= frustTemp;
-      (frustum.at(1))[3] /= frustTemp;
-   }
-   /* Extract the BOTTOM plane */
-   frustum3.push_back((clip[3]  + clip[1]) );
-   frustum3.push_back((clip[7]  + clip[5]) );
-   frustum3.push_back((clip[11] + clip[9]) );
-   frustum3.push_back((clip[15] + clip[13]));
-   frustum.push_back(frustum3);
-
-   /* Normalize the result */
-   frustTemp = (float) sqrt((frustum.at(2))[0] * (frustum.at(2))[0] + (frustum.at(2))[1] * (frustum.at(2))[1] + (frustum.at(2))[2] * (frustum.at(2))[2]);
-   if(frustTemp != 0){
-      (frustum.at(2))[0] /= frustTemp;
-      (frustum.at(2))[1] /= frustTemp;
-      (frustum.at(2))[2] /= frustTemp;
-      (frustum.at(2))[3] /= frustTemp;
-   }
-   /* Extract the TOP plane */
-   frustum4.push_back(clip[3]  - clip[1]);
-   frustum4.push_back(clip[7]  - clip[5]);
-   frustum4.push_back(clip[11] - clip[9]);
-   frustum4.push_back(clip[15] - clip[13]);
-   frustum.push_back(frustum4);
-
-   /* Normalize the result */
-   frustTemp = (float) sqrt((frustum.at(3))[0] * (frustum.at(3))[0] + (frustum.at(3))[1] * (frustum.at(3))[1] + (frustum.at(3))[2] * (frustum.at(3))[2]);
-   if(frustTemp != 0){
-      (frustum.at(3))[0] /= frustTemp;
-      (frustum.at(3))[1] /= frustTemp;
-      (frustum.at(3))[2] /= frustTemp;
-      (frustum.at(3))[3] /= frustTemp;
-   }
-
-   /* Extract the BACK plane */
-   frustum5.push_back(clip[3]  - clip[2]);
-   frustum5.push_back(clip[7]  - clip[6]);
-   frustum5.push_back(clip[11] - clip[10]);
-   frustum5.push_back(clip[15] - clip[14]);
-   frustum.push_back(frustum5);
-
-   /* Normalize the result */
-   frustTemp = (float) sqrt((frustum.at(4))[0] * (frustum.at(4))[0] + (frustum.at(4))[1] * (frustum.at(4))[1] + (frustum.at(4))[2] * (frustum.at(4))[2]);
-   if(frustTemp != 0){
-      (frustum.at(4))[0] /= frustTemp;
-      (frustum.at(4))[1] /= frustTemp;
-      (frustum.at(4))[2] /= frustTemp;
-      (frustum.at(4))[3] /= frustTemp;
-   }
-   /* Extract the FRONT plane */
-   frustum6.push_back(clip[3]  + clip[2]);
-   frustum6.push_back(clip[7]  + clip[6]);
-   frustum6.push_back(clip[11] + clip[10]);
-   frustum6.push_back(clip[15] + clip[14]);
-   frustum.push_back(frustum6);
-
-   frustTemp = (float) sqrt((frustum.at(5))[0] * (frustum.at(5))[0] + (frustum.at(5))[1] * (frustum.at(5))[1] + (frustum.at(5))[2] * (frustum.at(5))[2]);
-   if(frustTemp != 0){
-      (frustum.at(5))[0] /= frustTemp;
-      (frustum.at(5))[1] /= frustTemp;
-      (frustum.at(5))[2] /= frustTemp;
-      (frustum.at(5))[3] /= frustTemp;
-   }
 }
 
 void RenderCoreGlFrame::getFrustum() {
