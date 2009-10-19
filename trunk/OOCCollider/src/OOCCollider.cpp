@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
 		cout << "End of display loop " << mpic->getRank()  << endl;
 //		setupWindow("My rank is 0");
 	}
-	else if ((mpic->getRank() >= 1) && (mpic->getRank() <= 1)) {
+	else if ((mpic->getRank() >= 1) && (mpic->getRank() <= 2)) {
 //		setupWindow("slave");
 		RenderCore rc = RenderCore(800, 600, WINDOW_WIDTH, WINDOW_HEIGHT);
 		cout << "End of display loop " << mpic->getRank() << endl;

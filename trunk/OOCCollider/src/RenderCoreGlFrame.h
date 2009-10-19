@@ -64,7 +64,6 @@ public:
 	void cullFrustum();
 
 protected:
-	void normalizeFrustum();
 
 	//frustumculling variables
 	std::vector< std::vector<float> > frustum;
