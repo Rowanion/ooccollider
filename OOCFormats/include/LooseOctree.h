@@ -151,7 +151,9 @@ class LooseOctree
 		void printNodePath(int64_t id) const;
 
 		void isInFrustum_bfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, unsigned _limit);
-		bool frustumSelfTest(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx);
+		void isInFrustum_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, unsigned _limit);
+		bool frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx);
+		bool frustumSelfTest_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx);
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
 		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx);
 		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids, unsigned orderIdx);
@@ -174,6 +176,7 @@ class LooseOctree
 		static unsigned maxLevel;
 
 		static unsigned orderLUT[26][8];
+		static unsigned detailLUT[26][8];
 
 	private:
 		typedef std::list<ooctools::Triangle>::const_iterator CTriIter;
