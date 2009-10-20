@@ -48,10 +48,10 @@ BoundingBox::BoundingBox() :
 //	mPrivMin(3.0f), mPrivMax(3.0f),
 	mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
 {
-	computeCenter(mPriCenter);
 	if (!BoundingBox::initialized){
 		init();
 	}
+	computeCenter(mPriCenter);
 	// note the minus sign on the following line
 	// ::min() would return the positive value of the smallest magnitude,
 	// not the negative value of the largest magnitude
@@ -63,6 +63,7 @@ mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
 	if (!BoundingBox::initialized){
 		init();
 	}
+	computeCenter(mPriCenter);
 }
 
 BoundingBox::BoundingBox(float _valA, float _valB) :
@@ -78,10 +79,16 @@ BoundingBox::BoundingBox(float _valA, float _valB) :
 		mPriMin = V3f(_valB);
 		mPriMax = V3f(_valA);
 	}
-	computeCenter(mPriCenter);
 	if (!BoundingBox::initialized){
 		init();
 	}
+
+	if (!(mPriMin.getX() <= numeric_limits<float>::max()) || !(mPriMax.getX() >= -numeric_limits<float>::max())){
+		cerr << "NO VALUE PASSED IN V3F CONSTRUCTOR!" << endl;
+		exit(0);
+	}
+
+	computeCenter(mPriCenter);
 }
 
 BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
@@ -127,10 +134,10 @@ BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 			*mPriMax.z = _vB.getZ();
 		}
 	}
-	computeCenter(mPriCenter);
 	if (!BoundingBox::initialized){
 		init();
 	}
+	computeCenter(mPriCenter);
 }
 
 BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
@@ -151,11 +158,12 @@ BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 	if (!BoundingBox::initialized){
 		init();
 	}
+	computeCenter(mPriCenter);
 }
 /**
  * Copy Constructor
  */
-BoundingBox::BoundingBox(const BoundingBox& _bb) : mTriBoxTest()
+BoundingBox::BoundingBox(const BoundingBox& _bb) : mPriCenter(0.0f), mTriBoxTest()
 {
 	mPriMax = _bb.getMax();
 	mPriMin = _bb.getMin();
@@ -166,7 +174,7 @@ BoundingBox::BoundingBox(const BoundingBox& _bb) : mTriBoxTest()
 }
 
 // TODO
-BoundingBox::BoundingBox(fs::path bbFile) : mTriBoxTest()
+BoundingBox::BoundingBox(fs::path bbFile) : mPriCenter(0.0f), mTriBoxTest()
 {
 
 	if (!BoundingBox::initialized){
@@ -176,7 +184,7 @@ BoundingBox::BoundingBox(fs::path bbFile) : mTriBoxTest()
 }
 
 // TODO
-BoundingBox::BoundingBox(std::string bbFile) : mTriBoxTest()
+BoundingBox::BoundingBox(std::string bbFile) : mPriCenter(0.0f), mTriBoxTest()
 {
 
 	if (!BoundingBox::initialized){

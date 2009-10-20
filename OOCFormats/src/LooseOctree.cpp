@@ -784,97 +784,97 @@ LooseOctree::frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std
 	return added;
 }
 
-bool
-LooseOctree::frustumSelfTest_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx)
-{
-	bool added = false;
-
-	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
-
-	for (unsigned int p = 0; p < 6; ++p) {
-		aPosCounter = 8;
-		aIPtIn = 1;
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (aPosCounter == 0) //exclude
-		return added;
-		else
-			aTotalIn += aIPtIn;
-	}
-
-	if (this->hasData()) {
-		_ids->insert(this->mPriId);
-		added = true;
-	}
-
-
-	if (aTotalIn == 6) { //include
-		//vollständig drin
-		for (unsigned i = 0; i < 8; i++) {  //intersect
-			if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
-				this->mChildren[LooseOctree::orderLUT[orderIdx][i]]->getAllSubtreeIds(_ids);
-			}
-		}
-		return added;
-	}
-	// kinder weiter testen
-
-	for (unsigned i = 0; i < 8; i++) {  //intersect
-		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
-			(this->mChildren[LooseOctree::orderLUT[orderIdx][i]])->isInFrustum_orig(_frustum, _ids, orderIdx);
-		}
-	}
-	return added;
-}
+//bool
+//LooseOctree::frustumSelfTest_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx)
+//{
+//	bool added = false;
+//
+//	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
+//
+//	for (unsigned int p = 0; p < 6; ++p) {
+//		aPosCounter = 8;
+//		aIPtIn = 1;
+//		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+//				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+//				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+//				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+//				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+//				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+//				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+//				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+//				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+//				_frustum[p][3] < -0) {
+//			aPosCounter--;
+//			aIPtIn = 0;
+//		}
+//		if (aPosCounter == 0) //exclude
+//		return added;
+//		else
+//			aTotalIn += aIPtIn;
+//	}
+//
+//	if (this->hasData()) {
+//		_ids->insert(this->mPriId);
+//		added = true;
+//	}
+//
+//
+//	if (aTotalIn == 6) { //include
+//		//vollständig drin
+//		for (unsigned i = 0; i < 8; i++) {  //intersect
+//			if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+//				this->mChildren[LooseOctree::orderLUT[orderIdx][i]]->getAllSubtreeIds(_ids);
+//			}
+//		}
+//		return added;
+//	}
+//	// kinder weiter testen
+//
+//	for (unsigned i = 0; i < 8; i++) {  //intersect
+//		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+//			(this->mChildren[LooseOctree::orderLUT[orderIdx][i]])->isInFrustum_orig(_frustum, _ids, orderIdx);
+//		}
+//	}
+//	return added;
+//}
 
 void
-LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx) {
+LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyeDist, const float* distArray) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 
 	for (unsigned int p = 0; p < 6; ++p) {
@@ -938,23 +938,58 @@ LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsign
 		_ids->insert(this->mPriId);
 	}
 
+	cout << "2.1" << endl;
 
 	if (aTotalIn == 6) { //include
 		//vollständig drin
 		for (unsigned i = 0; i < 8; i++) {  //intersect
-			if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
-				this->mChildren[LooseOctree::orderLUT[orderIdx][i]]->getAllSubtreeIds(_ids);
+			cout << "2.2" << endl;
+			LooseOctree* child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
+			if (child != 0) {
+				cout << "2.3" << endl;
+				if (eyeDist.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
+					cout << "2.4" << endl;
+					child->getAllSubtreeIds(_ids, orderIdx, eyeDist, distArray);
+				}
+				else{
+					return;
+				}
 			}
 		}
 		return;
 	}
 	// kinder weiter testen
+	cout << "2.5" << endl;
 
 	for (unsigned i = 0; i < 8; i++) {  //intersect
-		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
-			(this->mChildren[LooseOctree::orderLUT[orderIdx][i]])->isInFrustum_orig(_frustum, _ids, orderIdx);
+		LooseOctree* child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
+		cout << "2.6" << endl;
+		if (child != 0) {
+			cout << "2.7" << endl;
+			cout << "center " << child->getBb().getCenter().toString()<< endl;
+			cout << "centerLeft " << child->getBb().getCenterLeft().toString()<< endl;
+			cout << "centerTop " << child->getBb().getCenterTop().toString()<< endl;
+			V3f edgeSizes = V3f();
+			child->getBb().computeEdgeSizes(edgeSizes);
+			cout << "edgeSizes " << edgeSizes.toString()<< endl;
+			V3f bla = V3f();
+			bla = child->getBb().getMin() + (edgeSizes*0.5f);
+			cout << "bla " << edgeSizes.toString()<< endl;
+			cout << "simpledist ";
+			cout << child->getBb().getCenter().calcSimpleDistance(eyeDist) << endl;
+			cout << "leveldist ";
+			cout << distArray[child->getLevel()] << endl;
+			if (eyeDist.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
+				cout << "2.8" << endl;
+				child->isInFrustum_orig(_frustum, _ids, orderIdx, eyeDist, distArray);
+			}
+			else{
+				return;
+			}
 		}
 	}
+	cout << "2.9" << endl;
+
 }
 
 void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
@@ -965,6 +1000,24 @@ void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
 	for (unsigned i = 0; i < 8; i++) {
 		if (this->mChildren[i] != 0) {
 			(this->mChildren[i])->getAllSubtreeIds(_ids);
+		}
+	}
+}
+
+void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyeDist, const float* distArray){
+	if (this->hasData()) {
+		_ids->insert(this->mPriId);
+	}
+
+	for (unsigned i = 0; i < 8; i++) {
+		LooseOctree* child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
+		if (child != 0) {
+			if (eyeDist.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
+				child->getAllSubtreeIds(_ids);
+			}
+			else{
+				return;
+			}
 		}
 	}
 }
