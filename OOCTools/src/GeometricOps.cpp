@@ -198,6 +198,26 @@ float GeometricOps::Fabs( float f ) {
 #endif
 }
 
+// row
+V3f GeometricOps::mul_row(const float* mat, const V3f& vec)
+{
+	V3f temp = V3f();
+	temp.setX(mat[0]*vec.getX()+mat[1]*vec.getY()+mat[2]*vec.getZ() + mat[3]);
+	temp.setY(mat[4]*vec.getX()+mat[5]*vec.getY()+mat[6]*vec.getZ() + mat[7]);
+	temp.setZ(mat[8]*vec.getX()+mat[9]*vec.getY()+mat[10]*vec.getZ() + mat[11]);
+	return temp;
+}
+
+// column
+V3f GeometricOps::mul_column(const float* mat, const V3f& vec)
+{
+	V3f temp = V3f();
+	temp.setX(mat[0]*vec.getX()+mat[4]*vec.getY()+mat[8]*vec.getZ() + mat[12]);
+	temp.setY(mat[1]*vec.getX()+mat[5]*vec.getY()+mat[9]*vec.getZ() + mat[13]);
+	temp.setZ(mat[2]*vec.getX()+mat[6]*vec.getY()+mat[10]*vec.getZ() + mat[14]);
+	return temp;
+}
+
 void GeometricOps::transposeMat4( float* _mat ) {
 	float	temp;
 	int		i, j;
