@@ -28,13 +28,24 @@ unsigned LooseOctree::maxTriCount = 0;
 unsigned LooseOctree::totalTriCount = 0;
 unsigned LooseOctree::maxLevel = 0;
 unsigned LooseOctree::orderLUT[26][8] = {{0, 1, 2, 3, 4, 5, 6, 7}, {4, 5, 6, 7, 0, 1, 2, 3}, {0, 1, 4, 5, 2, 3, 6, 7},
-		{2, 3, 6, 7, 0, 1, 4, 5}, {1, 3, 5, 7, 0, 2, 4, 6}, {0, 2, 4, 6, 1, 3, 5, 7}, {3, 7, 2, 1, 6, 5, 0, 4},
-		{2, 3, 6, 0, 7, 1, 4, 5}, {0, 4, 1, 2, 5, 6, 3, 7}, {1, 0, 5, 3, 4, 2, 7, 6}, {4, 5, 0, 6, 1, 7, 2, 3},
-		{5, 1, 4, 7, 0, 3, 6, 2}, {7, 6, 3, 5, 2, 4, 1, 0}, {6, 2, 7, 4, 3, 0, 5, 1}, {2, 3, 0, 1, 6, 7, 4, 5},
-		{0, 2, 1, 3, 4, 6, 5, 7}, {0, 1, 4, 5, 2, 3, 6, 7}, {1, 3, 0, 2, 5, 7, 4, 6}, {4, 5, 0, 1, 6, 7, 2, 3},
-		{5, 7, 1, 3, 4, 6, 0, 2}, {6, 7, 2, 3, 4, 5, 0, 1}, {4, 6, 5, 7, 0, 2, 1, 3}, {1, 5, 0, 4, 3, 7, 2, 6},
-		{3, 7, 1, 5, 2, 6, 0, 4}, {0, 4, 1, 5, 2, 6, 3, 7}, {2, 6, 0, 4, 3, 7, 1, 5}};
+		{2, 3, 6, 7, 0, 1, 4, 5}, {1, 3, 5, 7, 0, 2, 4, 6}, {0, 2, 4, 6, 1, 3, 5, 7},
 
+		{3, 7, 2, 1, 6, 5, 0, 4}, {2, 3, 6, 0, 7, 1, 4, 5}, {0, 4, 1, 2, 5, 6, 3, 7}, {1, 0, 5, 3, 4, 2, 7, 6},
+		{4, 5, 0, 6, 1, 7, 2, 3}, {5, 1, 4, 7, 0, 3, 6, 2}, {7, 6, 3, 5, 2, 4, 1, 0}, {6, 2, 7, 4, 3, 0, 5, 1},
+
+		{2, 3, 0, 1, 6, 7, 4, 5}, {0, 2, 1, 3, 4, 6, 5, 7}, {0, 1, 4, 5, 2, 3, 6, 7}, {1, 3, 0, 2, 5, 7, 4, 6},
+		{4, 5, 0, 1, 6, 7, 2, 3}, {5, 7, 1, 3, 4, 6, 0, 2}, {6, 7, 2, 3, 4, 5, 0, 1}, {4, 6, 5, 7, 0, 2, 1, 3},
+		{1, 5, 0, 4, 3, 7, 2, 6}, {3, 7, 1, 5, 2, 6, 0, 4}, {0, 4, 1, 5, 2, 6, 3, 7}, {2, 6, 0, 4, 3, 7, 1, 5}};
+
+unsigned LooseOctree::detailLUT[26][8] = {{14, 14, 14, 14, 7, 7, 7, 7}, {14, 14, 14, 14, 7, 7, 7, 7}, {14, 14, 14, 14, 7, 7, 7, 7},
+		{14, 14, 14, 14, 7, 7, 7, 7}, {14, 14, 14, 14, 7, 7, 7, 7}, {14, 14, 14, 14, 7, 7, 7, 7},
+
+		{14, 10, 10, 10, 7, 7, 7, 5}, {14, 10, 10, 10, 7, 7, 7, 5}, {14, 10, 10, 10, 7, 7, 7, 5}, {14, 10, 10, 10, 7, 7, 7, 5},
+		{14, 10, 10, 10, 7, 7, 7, 5}, {14, 10, 10, 10, 7, 7, 7, 5}, {14, 10, 10, 10, 7, 7, 7, 5}, {14, 10, 10, 10, 7, 7, 7, 5},
+
+		{14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5},
+		{14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5},
+		{14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}};
 
 LooseOctree::LooseOctree(LooseOctree* _father, const BoundingBox& _bb, int64_t _id) :
 	mTriList(std::list<Triangle>()), mBb(_bb), mExtBb(extendBb(_bb)), mPriRoot(this),
@@ -668,11 +679,28 @@ LooseOctree::isInFrustum_bfs(float** _frustum, std::set<uint64_t>* _ids, unsigne
 {
 	// should be called in root only, or at least from subroot
 	std::queue<LooseOctree*> toDoQueue = std::queue<LooseOctree*>();
-	frustumSelfTest(_frustum, _ids, toDoQueue, orderIdx);
+	frustumSelfTest_bfs(_frustum, _ids, toDoQueue, orderIdx);
 	unsigned iterCount = 0;
 	bool state;
 	while(!toDoQueue.empty() && iterCount<_limit){
-		state = toDoQueue.front()->frustumSelfTest(_frustum, _ids, toDoQueue, orderIdx);
+		state = toDoQueue.front()->frustumSelfTest_bfs(_frustum, _ids, toDoQueue, orderIdx);
+		toDoQueue.pop();
+		if (state)
+			iterCount++;
+	}
+}
+
+void
+LooseOctree::isInFrustum_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, unsigned _limit)
+{
+	// should be called in root only, or at least from subroot
+	std::queue<LooseOctree*> toDoQueue = std::queue<LooseOctree*>();
+	frustumSelfTest_bfs(_frustum, _ids, toDoQueue, orderIdx);
+	unsigned iterCount = 0;
+	bool state;
+
+	while(!toDoQueue.empty() && iterCount<_limit){
+		state = toDoQueue.front()->frustumSelfTest_bfs(_frustum, _ids, toDoQueue, orderIdx);
 		toDoQueue.pop();
 		if (state)
 			iterCount++;
@@ -680,7 +708,7 @@ LooseOctree::isInFrustum_bfs(float** _frustum, std::set<uint64_t>* _ids, unsigne
 }
 
 bool
-LooseOctree::frustumSelfTest(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx)
+LooseOctree::frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx)
 {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 	bool added = false;
@@ -751,6 +779,95 @@ LooseOctree::frustumSelfTest(float** _frustum, std::set<uint64_t>* _ids, std::qu
 	for (unsigned i = 0; i < 8; i++) {
 		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
 			_toDoQueue.push(this->mChildren[LooseOctree::orderLUT[orderIdx][i]]);
+		}
+	}
+	return added;
+}
+
+bool
+LooseOctree::frustumSelfTest_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx)
+{
+	bool added = false;
+
+	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
+
+	for (unsigned int p = 0; p < 6; ++p) {
+		aPosCounter = 8;
+		aIPtIn = 1;
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
+				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
+				_frustum[p][3] < -0) {
+			aPosCounter--;
+			aIPtIn = 0;
+		}
+		if (aPosCounter == 0) //exclude
+		return added;
+		else
+			aTotalIn += aIPtIn;
+	}
+
+	if (this->hasData()) {
+		_ids->insert(this->mPriId);
+		added = true;
+	}
+
+
+	if (aTotalIn == 6) { //include
+		//vollständig drin
+		for (unsigned i = 0; i < 8; i++) {  //intersect
+			if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+				this->mChildren[LooseOctree::orderLUT[orderIdx][i]]->getAllSubtreeIds(_ids);
+			}
+		}
+		return added;
+	}
+	// kinder weiter testen
+
+	for (unsigned i = 0; i < 8; i++) {  //intersect
+		if (this->mChildren[LooseOctree::orderLUT[orderIdx][i]] != 0) {
+			(this->mChildren[LooseOctree::orderLUT[orderIdx][i]])->isInFrustum_orig(_frustum, _ids, orderIdx);
 		}
 	}
 	return added;
