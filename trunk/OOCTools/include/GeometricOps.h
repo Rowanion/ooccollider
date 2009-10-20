@@ -126,6 +126,9 @@ public:
 	 * @note This code was taken from the source of the Doom3-Engine, which has been released under the GPL. (http://www.iddevnet.com/doom3)
 	 */
 	static float Fabs( float f );
+
+	static V3f mul_row(const float* mat, const V3f& vec);
+	static V3f mul_column(const float* mat, const V3f& vec);
 };
 
 } // ooctools
