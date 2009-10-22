@@ -60,7 +60,7 @@ DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(tru
 	do {
 //		cout << "2 waiting for any..." << endl;
 		mPriMpiCon->ireceive(MPI::ANY_SOURCE);
-		while (!mPriMpiCon->inQueueEmpty()){
+		if (!mPriMpiCon->inQueueEmpty()){
 			handleMsg(mPriMpiCon->pop());
 		}
 		MpiControl::getSingleton()->isend();

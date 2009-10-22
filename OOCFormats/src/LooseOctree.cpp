@@ -62,16 +62,26 @@ LooseOctree::LooseOctree(LooseOctree* _father, const BoundingBox& _bb, int64_t _
 }
 
 LooseOctree::LooseOctree(const char* nodeSkel) :
-	mTriList(std::list<Triangle>()), mPriLevel(0), mPriId(0), mPriTriCount(0), mPriAreaSum(0.0), mFather(0)
+	mTriList(std::list<Triangle>()), mBb(0.0), mPriLevel(0), mPriId(0), mPriTriCount(0), mPriAreaSum(0.0), mFather(0)
 {
+//	cerr << "constructing looseoctree" << endl;
 	const char* count = nodeSkel;
 	mPriId = *((int64_t*)count);
 	count += sizeof(int64_t);
-	V3f min((float*)count);
+	V3f min = V3f((float*)count);
 	count += sizeof(float)*3;
-	V3f max((float*)count);
+	V3f max = V3f((float*)count);
 	count += sizeof(float)*3;
+//	cerr << "---------------------------------------------------------------" << endl;
+//	std::cerr << "Ptr OUT before: " << (uint64_t)mBb.mPriCenter << std::endl;
 	mBb = BoundingBox(min, max);
+//	std::cerr << "Ptr OUT after: " << (uint64_t)mBb.mPriCenter << std::endl;
+
+//	cerr << "1center: " << mBb.getCenter().toString() << endl;
+//	V3f test = V3f(mBb.getCenter());
+//	cerr << "2center: " << mBb.getFritz() << endl;
+//	cerr << "Testcenter: " << test.toString() << endl;
+//	cerr << "extBB from here" << endl;
 	mExtBb = extendBb(mBb);
 	mPriAreaSum = *((float*)count);
 	count += sizeof(float);
@@ -874,7 +884,7 @@ LooseOctree::frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std
 //}
 
 void
-LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyeDist, const float* distArray) {
+LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyePos, const float* distArray) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 
 	for (unsigned int p = 0; p < 6; ++p) {
@@ -938,18 +948,18 @@ LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsign
 		_ids->insert(this->mPriId);
 	}
 
-	cout << "2.1" << endl;
+//	cout << "2.1" << endl;
 
 	if (aTotalIn == 6) { //include
 		//vollständig drin
 		for (unsigned i = 0; i < 8; i++) {  //intersect
-			cout << "2.2" << endl;
+//			cout << "2.2" << endl;
 			LooseOctree* child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
 			if (child != 0) {
-				cout << "2.3" << endl;
-				if (eyeDist.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
-					cout << "2.4" << endl;
-					child->getAllSubtreeIds(_ids, orderIdx, eyeDist, distArray);
+//				cout << "2.3" << endl;
+				if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
+//					cout << "2.4" << endl;
+					child->getAllSubtreeIds(_ids, orderIdx, eyePos, distArray);
 				}
 				else{
 					return;
@@ -959,36 +969,36 @@ LooseOctree::isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsign
 		return;
 	}
 	// kinder weiter testen
-	cout << "2.5" << endl;
+//	cout << "2.5" << endl;
 
 	for (unsigned i = 0; i < 8; i++) {  //intersect
 		LooseOctree* child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
-		cout << "2.6" << endl;
+//		cout << "2.6" << endl;
 		if (child != 0) {
-			cout << "2.7" << endl;
-			cout << "center " << child->getBb().getCenter().toString()<< endl;
-			cout << "centerLeft " << child->getBb().getCenterLeft().toString()<< endl;
-			cout << "centerTop " << child->getBb().getCenterTop().toString()<< endl;
-			V3f edgeSizes = V3f();
-			child->getBb().computeEdgeSizes(edgeSizes);
-			cout << "edgeSizes " << edgeSizes.toString()<< endl;
-			V3f bla = V3f();
-			bla = child->getBb().getMin() + (edgeSizes*0.5f);
-			cout << "bla " << edgeSizes.toString()<< endl;
-			cout << "simpledist ";
-			cout << child->getBb().getCenter().calcSimpleDistance(eyeDist) << endl;
-			cout << "leveldist ";
-			cout << distArray[child->getLevel()] << endl;
-			if (eyeDist.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
-				cout << "2.8" << endl;
-				child->isInFrustum_orig(_frustum, _ids, orderIdx, eyeDist, distArray);
+//			cerr << "2.7" << endl;
+//			cerr << "simpledist ";
+//			cerr << child->getBb().getCenter().calcSimpleDistance(eyePos) << endl;
+//			cout << "child lvl " << child->getLevel() << endl;
+//			cout << "dist at level " << distArray[child->getLevel()] << endl;
+//			cerr << "leveldist ";
+////			exit(0);
+//			cout << distArray[child->getLevel()] << endl;
+//			V3f blub = eyePos;
+//			V3f bla = child->getBb().getCenter();
+//			bla -= blub;
+//			cout << "magnitude" << bla.calculateMagnitude() << endl;
+//			cout << "simple magnitude " << (bla.getX()*bla.getX())+(bla.getY()*bla.getY())+(bla.getZ()*bla.getZ())<< endl;
+//			cout << eyePos.calcSimpleDistance(child->getBb().getCenter()) << " vs " << distArray[child->getLevel()] << endl;
+			if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
+//				cout << "2.8" << endl;
+				child->isInFrustum_orig(_frustum, _ids, orderIdx, eyePos, distArray);
 			}
 			else{
 				return;
 			}
 		}
 	}
-	cout << "2.9" << endl;
+//	cout << "2.9" << endl;
 
 }
 
@@ -1004,7 +1014,7 @@ void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
 	}
 }
 
-void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyeDist, const float* distArray){
+void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyePos, const float* distArray){
 	if (this->hasData()) {
 		_ids->insert(this->mPriId);
 	}
@@ -1012,7 +1022,7 @@ void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, 
 	for (unsigned i = 0; i < 8; i++) {
 		LooseOctree* child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
 		if (child != 0) {
-			if (eyeDist.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
+			if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
 				child->getAllSubtreeIds(_ids);
 			}
 			else{

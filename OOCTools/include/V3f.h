@@ -132,6 +132,7 @@ public:
 	// back-reference for vertex-normal-calculation. DO NOT DELETE, DUH!
 	std::vector<Face*> *mPriFaceList;
 
+	void debug();
 private:
 	float mPriData[3];
 	int mPriCount;

@@ -41,7 +41,7 @@ using namespace oocframework;
 RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int finalHeight) :
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()), mPriCamHasMoved(false),
-			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriFbo(0),
+			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriMaxDistPerLevel(0), mPriFbo(0),
 			mPriWindowWidth(width), mPriWindowHeight(height), mPriRenderWidth(finalWidth), mPriRenderHeight(finalHeight), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
@@ -118,6 +118,8 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	mPriLo = 0;
 	delete mPriFbo;
 	mPriFbo = 0;
+	delete[] mPriMaxDistPerLevel;
+	mPriMaxDistPerLevel = 0;
 }
 
 void RenderCoreGlFrame::init() {
@@ -164,6 +166,8 @@ void RenderCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
+
+	generateMaxDistPerLevel(14, mPriLo->getBb().computeDiameter());
 
 	mPriSceneBB = mPriLo->getBb();
 	mPriSceneBB.computeCenter(mPriSceneCenter);
@@ -1170,7 +1174,7 @@ void RenderCoreGlFrame::cullFrustum()
 
 	getFrustum();
 	mPriIdsInExtFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, 0);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 
 	// original frustum
 	initTiles(false);
@@ -1179,7 +1183,7 @@ void RenderCoreGlFrame::cullFrustum()
 
 	getFrustum();
 	mPriIdsInFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, 0);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 
 	if (mPriShowOffset){
 		initTiles(true);
@@ -1189,6 +1193,25 @@ void RenderCoreGlFrame::cullFrustum()
 
 	divideIdList();
 	requestMissingVbos();
+}
+
+void RenderCoreGlFrame::generateMaxDistPerLevel(unsigned _maxLevel, float _originalSize)
+{
+	delete[] mPriMaxDistPerLevel;
+	mPriMaxDistPerLevel = new float[_maxLevel+1];
+	float tempSize = _originalSize;
+
+	float halfPixels = 0.5*mPriWindowWidth; // half pixel size because half frustum
+	float pixelLength = tan(45.0 * (ooctools::GeometricOps::PI / 180.0))*mPriNearClippingPlane;
+	float pixelSize = pixelLength / halfPixels;
+	float tanTheta = pixelSize / mPriNearClippingPlane; // the smaller angle corresponding to length of 1 pixel
+
+	for (unsigned i =0; i<=_maxLevel; i++){
+		mPriMaxDistPerLevel[i] = tempSize/tanTheta; // the distance at which the diameter is exactly 1
+		mPriMaxDistPerLevel[i] *= mPriMaxDistPerLevel[i];
+		cout << "Lvl: " << i << ", size: " << tempSize << ", dist: " << mPriMaxDistPerLevel[i] << endl;
+		tempSize*=0.5;
+	}
 }
 
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)

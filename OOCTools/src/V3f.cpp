@@ -488,4 +488,8 @@ V3f::lerp(V3f& v2, float factor)
 	return temp;
 }
 
+void V3f::debug()
+{
+	cout << toString() << endl;
+}
 } // Namespace OOCTools
