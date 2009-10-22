@@ -46,30 +46,30 @@ BoundingBox::hasSharedComponent(const BoundingBox &_bb1, const BoundingBox &_bb2
 BoundingBox::BoundingBox() :
 	mPriMin((float)numeric_limits<float>::max()), mPriMax((float)-numeric_limits<float>::max()),
 //	mPrivMin(3.0f), mPrivMax(3.0f),
-	mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
+	mPriEdgeSizes(0.0f), mPriCenter(0), mTriBoxTest()
 {
 	if (!BoundingBox::initialized){
 		init();
 	}
-	computeCenter(mPriCenter);
+	computeCenter();
 	// note the minus sign on the following line
 	// ::min() would return the positive value of the smallest magnitude,
 	// not the negative value of the largest magnitude
 }
 
 BoundingBox::BoundingBox(float _value) : mPriMin(_value), mPriMax(_value),
-mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
+mPriEdgeSizes(0.0f), mPriCenter(0), mTriBoxTest()
 {
 	if (!BoundingBox::initialized){
 		init();
 	}
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 BoundingBox::BoundingBox(float _valA, float _valB) :
 		mPriMin(numeric_limits<float>::max()), mPriMax(-numeric_limits<float>::max()),
 //		mPrivMin(2.0f), mPrivMax(2.0f),
-		mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
+		mPriEdgeSizes(0.0f), mPriCenter(0), mTriBoxTest()
 {
 	if (_valA<_valB) {
 		mPriMin = V3f(_valA);
@@ -88,13 +88,13 @@ BoundingBox::BoundingBox(float _valA, float _valB) :
 		exit(0);
 	}
 
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 //	mPrivMin(1.0f), mPrivMax(1.0f),
 	mPriMin(numeric_limits<float>::max()), mPriMax(-numeric_limits<float>::max()),
-	mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
+	mPriEdgeSizes(0.0f), mPriCenter(0), mTriBoxTest()
 {
 	if (_vA < _vB) {
 		mPriMin = V3f(_vA);
@@ -137,13 +137,13 @@ BoundingBox::BoundingBox(const V3f& _vA, const V3f& _vB) :
 	if (!BoundingBox::initialized){
 		init();
 	}
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 //	mPrivMin(1.0f), mPrivMax(1.0f),
 	mPriMin(numeric_limits<float>::max()), mPriMax(-numeric_limits<float>::max()),
-	mPriEdgeSizes(0.0f), mPriCenter(0.0f), mTriBoxTest()
+	mPriEdgeSizes(0.0f), mPriCenter(0), mTriBoxTest()
 {
 	V3f vA (_vA);
 	V3f vB (_vB);
@@ -158,43 +158,48 @@ BoundingBox::BoundingBox(const V4f& _vA, const V4f& _vB) :
 	if (!BoundingBox::initialized){
 		init();
 	}
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 /**
  * Copy Constructor
  */
-BoundingBox::BoundingBox(const BoundingBox& _bb) : mPriCenter(0.0f), mTriBoxTest()
+BoundingBox::BoundingBox(const BoundingBox& _bb) : mPriCenter(0), mTriBoxTest()
 {
+
 	mPriMax = _bb.getMax();
 	mPriMin = _bb.getMin();
+
+	mPriCenter = new V3f(_bb.getCenter());
+
 	if (!BoundingBox::initialized){
 		init();
 	}
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 // TODO
-BoundingBox::BoundingBox(fs::path bbFile) : mPriCenter(0.0f), mTriBoxTest()
+BoundingBox::BoundingBox(fs::path bbFile) : mPriCenter(0), mTriBoxTest()
 {
 
 	if (!BoundingBox::initialized){
 		init();
 	}
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 // TODO
-BoundingBox::BoundingBox(std::string bbFile) : mPriCenter(0.0f), mTriBoxTest()
+BoundingBox::BoundingBox(std::string bbFile) : mPriCenter(0), mTriBoxTest()
 {
 
 	if (!BoundingBox::initialized){
 		init();
 	}
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 BoundingBox::~BoundingBox()
 {
+	delete mPriCenter;
 //	cout << "BoundingBox..." << endl;
 }
 
@@ -358,7 +363,7 @@ BoundingBox::expand(const V3f &_v)
 {
 	mPriMax.maxMe(_v);
 	mPriMin.minMe(_v);
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 void
@@ -367,7 +372,7 @@ BoundingBox::expand(const V4f &_v)
 	V3f v(_v);
 	mPriMax.maxMe(v);
 	mPriMin.minMe(v);
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 
@@ -375,7 +380,7 @@ void
 BoundingBox::expand(const float *_v)
 {
 	expand(_v[0], _v[1], _v[2]);
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 void
@@ -383,7 +388,7 @@ BoundingBox::expand(float _x, float _y, float _z)
 {
 	mPriMax.maxMe(_x, _y, _z);
 	mPriMin.minMe(_x, _y, _z);
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 void
@@ -391,7 +396,7 @@ BoundingBox::expand(const BoundingBox &_bb)
 {
 	expand(_bb.getMin());
 	expand(_bb.getMax());
-	computeCenter(mPriCenter);
+	computeCenter();
 }
 
 bool
@@ -579,13 +584,35 @@ void saveToFile(fs::path bbFile);
 void saveToFile(std::string bbFile);
 
 void
-BoundingBox::computeCenter(V3f &_center) const
+BoundingBox::computeCenter(V3f& _center) const
 {
-	V3f edges;
-	computeEdgeSizes(edges);
+	if (mPriMin.getX() == 0.0 && mPriMin.getY() == 0.0 && mPriMin.getZ() == 0.0){
+		cout << "BB inside: " << endl;
+		cout << "center computation with " << mPriMin.toString() << " and " << mPriMax.toString() << endl;
+	}
+
+//	V3f edges;SB
+//	computeEdgeSizes(edges);
 //	V3f step = (mPrivMin.getAbs() + mPrivMax.getAbs()) *0.5f;
 //	_center = (mPrivMin + step);
-	_center = mPriMin + (edges*0.5f);
+//	_center = mPriMin + (edges*0.5f);
+	_center = (mPriMin +mPriMax) * 0.5;
+}
+
+void
+BoundingBox::computeCenter()
+{
+
+//	V3f edges;
+//	computeEdgeSizes(edges);
+//	V3f step = (mPrivMin.getAbs() + mPrivMax.getAbs()) *0.5f;
+//	_center = (mPrivMin + step);
+//	_center = mPriMin + (edges*0.5f);
+
+	if (mPriCenter != 0){
+		delete mPriCenter;
+	}
+	mPriCenter = new V3f((mPriMin +mPriMax) * 0.5);
 }
 
 bool
@@ -768,6 +795,7 @@ BoundingBox::operator=(const BoundingBox& _bb)
 		mPriMax = _bb.getMax();
 		mPriMin = _bb.getMin();
 	}
+	computeCenter();
 	return *this;
 }
 
@@ -836,7 +864,7 @@ unsigned BoundingBox::getMinDotIdx(const V3f& view)
 V3f
 BoundingBox::getCenterLeft() const
 {
-	V3f temp = mPriCenter;
+	V3f temp = *mPriCenter;
 	temp.setX(mPriMin.getX());
 	return temp;
 }
@@ -844,7 +872,7 @@ BoundingBox::getCenterLeft() const
 V3f
 BoundingBox::getCenterRight() const
 {
-	V3f temp = mPriCenter;
+	V3f temp = *mPriCenter;
 	temp.setX(mPriMax.getX());
 	return temp;
 }
@@ -852,7 +880,7 @@ BoundingBox::getCenterRight() const
 V3f
 BoundingBox::getCenterTop() const
 {
-	V3f temp = mPriCenter;
+	V3f temp = *mPriCenter;
 	temp.setY(mPriMax.getY());
 	return temp;
 }
@@ -860,7 +888,7 @@ BoundingBox::getCenterTop() const
 V3f
 BoundingBox::getCenterBottom() const
 {
-	V3f temp = mPriCenter;
+	V3f temp = *mPriCenter;
 	temp.setY(mPriMin.getY());
 	return temp;
 }
@@ -868,7 +896,7 @@ BoundingBox::getCenterBottom() const
 V3f
 BoundingBox::getCenterFront() const
 {
-	V3f temp = mPriCenter;
+	V3f temp = *mPriCenter;
 	temp.setZ(mPriMin.getZ());
 	return temp;
 }
@@ -876,7 +904,7 @@ BoundingBox::getCenterFront() const
 V3f
 BoundingBox::getCenterBack() const
 {
-	V3f temp = mPriCenter;
+	V3f temp = *mPriCenter;
 	temp.setZ(mPriMax.getZ());
 	return temp;
 }
@@ -947,7 +975,7 @@ V3f
 BoundingBox::getCenterTopLeft() const
 {
 	V3f temp = mPriMin;
-	temp.setZ(mPriCenter.getZ());
+	temp.setZ(mPriCenter->getZ());
 	temp.setY(mPriMax.getY());
 	return temp;
 }
@@ -956,7 +984,7 @@ V3f
 BoundingBox::getCenterTopRight() const
 {
 	V3f temp = mPriMax;
-	temp.setZ(mPriCenter.getZ());
+	temp.setZ(mPriCenter->getZ());
 	return temp;
 }
 
@@ -964,7 +992,7 @@ V3f
 BoundingBox::getCenterBottomLeft() const
 {
 	V3f temp = mPriMin;
-	temp.setZ(mPriCenter.getZ());
+	temp.setZ(mPriCenter->getZ());
 	return temp;
 }
 
@@ -972,7 +1000,7 @@ V3f
 BoundingBox::getCenterBottomRight() const
 {
 	V3f temp = mPriMin;
-	temp.setZ(mPriCenter.getZ());
+	temp.setZ(mPriCenter->getZ());
 	temp.setX(mPriMax.getX());
 	return temp;
 }
@@ -982,7 +1010,7 @@ V3f
 BoundingBox::getCenterFrontRight() const
 {
 	V3f temp = mPriMin;
-	temp.setY(mPriCenter.getY());
+	temp.setY(mPriCenter->getY());
 	temp.setX(mPriMax.getX());
 	return temp;
 }
@@ -991,7 +1019,7 @@ V3f
 BoundingBox::getCenterFrontLeft() const
 {
 	V3f temp = mPriMin;
-	temp.setY(mPriCenter.getY());
+	temp.setY(mPriCenter->getY());
 	return temp;
 }
 
@@ -999,7 +1027,7 @@ V3f
 BoundingBox::getCenterFrontTop() const
 {
 	V3f temp = mPriMin;
-	temp.setX(mPriCenter.getX());
+	temp.setX(mPriCenter->getX());
 	temp.setY(mPriMax.getY());
 	return temp;
 }
@@ -1008,7 +1036,7 @@ V3f
 BoundingBox::getCenterFrontBottom() const
 {
 	V3f temp = mPriMin;
-	temp.setX(mPriCenter.getX());
+	temp.setX(mPriCenter->getX());
 	return temp;
 }
 
@@ -1016,7 +1044,7 @@ V3f
 BoundingBox::getCenterBackRight() const
 {
 	V3f temp = mPriMax;
-	temp.setY(mPriCenter.getY());
+	temp.setY(mPriCenter->getY());
 	return temp;
 }
 
@@ -1024,7 +1052,7 @@ V3f
 BoundingBox::getCenterBackLeft() const
 {
 	V3f temp = mPriMax;
-	temp.setY(mPriCenter.getY());
+	temp.setY(mPriCenter->getY());
 	temp.setX(mPriMin.getX());
 	return temp;
 }
@@ -1033,7 +1061,7 @@ V3f
 BoundingBox::getCenterBackTop() const
 {
 	V3f temp = mPriMax;
-	temp.setX(mPriCenter.getX());
+	temp.setX(mPriCenter->getX());
 	return temp;
 }
 
@@ -1041,7 +1069,7 @@ V3f
 BoundingBox::getCenterBackBottom() const
 {
 	V3f temp = mPriMax;
-	temp.setX(mPriCenter.getX());
+	temp.setX(mPriCenter->getX());
 	temp.setY(mPriMin.getY());
 	return temp;
 }

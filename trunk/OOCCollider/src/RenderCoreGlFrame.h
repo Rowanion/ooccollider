@@ -103,6 +103,8 @@ private:
 
 	float mPriAspectRatio;
 
+	float* mPriMaxDistPerLevel;
+
 	float myGlobalAmbient[3]; /* Dim */
 	float myLightColor[3];  /* White */
 
@@ -228,6 +230,7 @@ private:
 	void uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
 	void stripDoublesFromRight(const std::set<uint64_t>& leftSet, std::set<uint64_t>& rightSet);
 	void stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, std::set<uint64_t>& rightSet);
+	void generateMaxDistPerLevel(unsigned _maxLevel, float _originalSize);
 };
 
 #endif /* RENDERCOREGLFRAME_H_ */

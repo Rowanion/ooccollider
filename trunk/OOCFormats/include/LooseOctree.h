@@ -74,7 +74,7 @@ class LooseOctree
 		float getAreaSum() const {return mPriAreaSum;};
 
 		void getAllSubtreeIds(std::set<uint64_t>* _ids);
-		void getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const ooctools::V3f& eyeDist, const float* distArray);
+		void getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray);
 
 		/**
 		 * @brief Debug-Function to check the correctness of subdivision.
@@ -156,7 +156,7 @@ class LooseOctree
 		bool frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx);
 		bool frustumSelfTest_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx);
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
-		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, const ooctools::V3f& eyeDist, const float* distArray);
+		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray);
 		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids, unsigned orderIdx);
 		void setDataLoaded(){mPriDataLoaded = true;};
 		void setDataUnloaded(){mPriDataLoaded = false;};

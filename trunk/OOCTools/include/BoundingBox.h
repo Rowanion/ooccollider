@@ -18,7 +18,7 @@
 
 #include "declarations.h"
 #include "TriBoxTest.h"
-
+#include <iostream>
 namespace fs = boost::filesystem;
 namespace ooctools {
 
@@ -55,6 +55,8 @@ public:
 	void expand(const BoundingBox& _bb);
 	const V3f& getMin() const {return mPriMin;};
 	const V3f& getMax() const {return mPriMax;};
+	const V3f& getCenter() const{return *mPriCenter;};
+
 	std::string toString() const;
 	bool hasSharedComponent(const BoundingBox& _bb) const;
 	void drawSolid() const;
@@ -215,7 +217,6 @@ public:
 
 	static bool hasSharedComponent(const BoundingBox& _bb1, const BoundingBox& _bb2);
 
-	const V3f& getCenter() const{return mPriCenter;};
 
 	static unsigned getMinDotIdx(const V3f& view);
 
@@ -226,7 +227,7 @@ private:
 	V3f mPriMin;
 	V3f mPriMax;
 	V3f mPriEdgeSizes;
-	V3f mPriCenter;
+	V3f* mPriCenter;
 	V3f mPriCenterLeft;
 	V3f mPriCenterRight;
 	V3f mPriCenterTop;
@@ -240,6 +241,8 @@ private:
 	void drawLineStrip() const;
 	void drawLineStrip(float texCoord) const;
 	void init();
+	void computeCenter();
+
 
 	static bool initialized;
 };
