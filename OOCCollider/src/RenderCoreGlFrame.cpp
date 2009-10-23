@@ -210,26 +210,6 @@ void RenderCoreGlFrame::setupCg()
 	g_cgShininess = cgGetNamedParameter(g_cgFragmentProg, "shininess");
 	g_cgModelViewInv = cgGetNamedParameter(g_cgFragmentProg, "mvi");
 
-//	set<uint64_t> a;
-//	a.insert(1);
-//	a.insert(3);
-//	a.insert(5);
-//	a.insert(7);
-//	set<uint64_t> b;
-//	b.insert(2);
-//	b.insert(4);
-//	b.insert(5);
-//	b.insert(9);
-//	set<uint64_t> c;
-//	uniqueElements(a,b,c);
-//
-//	IdSetIter it = c.begin();
-//	cout << "unique: " << endl;
-//	for (; it != c.end(); ++it){
-//		cout << *it << endl;
-//	}
-//	cout << sizeof(char) << endl;
-//	exit(0);
 }
 
 void RenderCoreGlFrame::display()
@@ -536,17 +516,15 @@ void
 RenderCoreGlFrame::requestMissingVbos()
 {
 	unsigned frustReq =0;
-	unsigned extFrustReq = 0;
+	unsigned extFrustReq =0;
 	oocformats::LooseOctree* currentNode = 0;
 	// deleting obsolete vbos
-	//TODO use cache buffer
 	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
 		mPriObsoleteVbos[i]->second->setOffline();
 		mPriOfflineVbosInFrustum.insert(make_pair(mPriObsoleteVbos[i]->first, mPriObsoleteVbos[i]->second));
 		//TODO research why getTriCount() seems to malfunction
 		mPriTriCount -= mPriObsoleteVbos[i]->second->getTriCount();
 
-//		delete mPriObsoleteVbos[i]->second;
 		mPriVbosInFrustum.erase(mPriObsoleteVbos[i]);
 	}
 	mPriObsoleteVbos.clear();
@@ -571,7 +549,6 @@ RenderCoreGlFrame::requestMissingVbos()
 			reqCount++;
 		}
 		else { // VBO is in cache -> flip
-			//TODO cacheflipping happens here
 			offIt->second->setOnline();
 			mPriTriCount += offIt->second->getTriCount();
 			mPriVbosInFrustum.insert(make_pair(offIt->first, offIt->second));
@@ -583,41 +560,37 @@ RenderCoreGlFrame::requestMissingVbos()
 		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MpiControl::getSingleton()->getRank(), false);
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
 		mPriMissingIdsInFrustum.clear();
-//		frustReq = missingTriple.size();
 		frustReq = nre.getIdxCount();
 	}
 
 	// now dealing with extended frustum
 	mPriMissingIdsInFrustum.clear();
 	missingTriple.clear();
-//	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
-//	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
-//	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
-//
-//	if (mPriMissingIdsInFrustum.size()>0){
-//		// calc exeDistances
-//		reqCount = 0;
-//		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
-//			ooctools::V3f center = ooctools::V3f();
-//			currentNode = mPriIdLoMap[*setIt];
-//			currentNode->getBb().computeCenter(center);
-//			missingTriple.insert(ooctools::Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
-//			mPriRequestedVboList.insert(*setIt);
-//			reqCount++;
-//		}
-//
-//		//TODO do something about the loadPerFrame limit
-//		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MpiControl::getSingleton()->getRank(), true);
-//		MpiControl::getSingleton()->isend(new Message(nre, 0));
-////		cout << "requested cache VBOs: (" << nre.getId(0) << ") - " << nre.getIdxCount() << endl;
-////		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
-//		extFrustReq = nre.getIdxCount();
-////		extFrustReq = missingTriple.size();
-//		cout << "missingVbos vs requested - " << frustReq << " vs " << extFrustReq << endl;
-//		missingTriple.clear();
-//		mPriMissingIdsInFrustum.clear();
-//
-//	}
+	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
+	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
+	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
+
+	if (mPriMissingIdsInFrustum.size()>0){
+		// calc eyeDistances
+		reqCount = 0;
+		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
+			ooctools::V3f center = ooctools::V3f();
+			currentNode = mPriIdLoMap[*setIt];
+			currentNode->getBb().computeCenter(center);
+			missingTriple.insert(ooctools::Triple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), *setIt));
+			mPriRequestedVboList.insert(*setIt);
+			reqCount++;
+		}
+
+		//TODO do something about the loadPerFrame limit
+		NodeRequestEvent nre = NodeRequestEvent(missingTriple, MpiControl::getSingleton()->getRank(), true);
+		MpiControl::getSingleton()->isend(new Message(nre, 0));
+//		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
+		extFrustReq = nre.getIdxCount();
+		missingTriple.clear();
+		mPriMissingIdsInFrustum.clear();
+
+	}
 
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));
@@ -628,8 +601,6 @@ RenderCoreGlFrame::requestMissingVbos()
 void
 RenderCoreGlFrame::divideIdList()
 {
-	// input: set<uint64_t> idsInFrustum, map<uint64_t, IndexedVbo*> loadedVbos
-	// output set<uint64_t> missingIdsInFrustum, vector<map<uint64_t, IndexedVbo*>::iterator> obsoleteVbos
 	IdSetIter setIt, reqIt;
 	IdVboMapIter mapIt;
 
@@ -651,13 +622,6 @@ RenderCoreGlFrame::divideIdList()
 			mPriObsoleteVbos.push_back(mapIt);
 		}
 	}
-
-//	if (mPriMissingIdsInFrustum.size() > 0){
-//		cout << "number of new vbos: " << mPriMissingIdsInFrustum.size() << endl;
-//		cout << mPriIdsInFrustum.size() << " - " << mPriVbosInFrustum.size() - mPriObsoleteVbos.size() + mPriMissingIdsInFrustum.size() << endl;
-//	}
-//	if (mPriObsoleteVbos.size() > 0)
-//	cout << "number of obs vbos: " << mPriObsoleteVbos.size() << endl;
 }
 
 void

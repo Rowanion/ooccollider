@@ -21,30 +21,29 @@ AbstractGlFrame::AbstractGlFrame(int winWidth, int winHeight, int targetWinWidth
 
 void AbstractGlFrame::initTiles()
 {
+
 	float fovy = BASE_FOVY;
 
 	mProScreenRatio = (float)mProWindowHeight / (float)mProWindowWidth;
 
+	// half width of frustum in frustum-space
 	float halfFrustumLength = tan(fovy * 0.5 * ooctools::GeometricOps::PI / 180.0) * mProNearClippingPlane;
 	mProFrustumUnit = halfFrustumLength / (0.5 * mProTargetWindowWidth);
 	float extHalfFrustumLength = mProFrustumUnit * (0.5 * mProWindowWidth);
-	//	float newFovy = atan(newHalfFrustumLength/mPriNearClippingPlane) *(180.0 / ooctools::GeometricOps::PI);
-
-	mProFrustumExtDistMaxY = extHalfFrustumLength * mProScreenRatio;
-	mProFrustumExtDistMaxX = extHalfFrustumLength;
-
-	mProFrustumExtDistMinY = -mProFrustumExtDistMaxY;
-	//	screenYMaxHExt = screenYMaxHExt * ratio;
-	mProFrustumExtDistMinX = -mProFrustumExtDistMaxX;
-
-	// --------------- extended -----------------------
 
 	mProFrustumDistMaxY = halfFrustumLength * mProScreenRatio;
 	mProFrustumDistMaxX = halfFrustumLength;
 
 	mProFrustumDistMinY = -mProFrustumDistMaxY;
-	//	screenYMaxH = screenYMaxH * ratio;
 	mProFrustumDistMinX = -mProFrustumDistMaxX;
+
+	// --------------- extended -----------------------
+
+	mProFrustumExtDistMaxY = extHalfFrustumLength * mProScreenRatio;
+	mProFrustumExtDistMaxX = extHalfFrustumLength;
+
+	mProFrustumExtDistMinY = -mProFrustumExtDistMaxY;
+	mProFrustumExtDistMinX = -mProFrustumExtDistMaxX;
 
 	mProFrustumExtensionX_px = (0.5 * mProWindowWidth) - (0.5 * mProTargetWindowWidth);
 	mProFrustumExtensionX_size = mProFrustumExtensionX_px * mProFrustumUnit;

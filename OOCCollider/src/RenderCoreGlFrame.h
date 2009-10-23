@@ -200,7 +200,7 @@ private:
 
 	/**
 	 * @brief Divides the set of nodes in frustum into a set of obsoleteVbos (ie. not anymore in frustum) and newVbos (ie. not
-	 * currently online).
+	 * currently online). The obsolete VBOs are in form of iterators to these elements.
 	 */
 	void divideIdList();
 
@@ -212,7 +212,17 @@ private:
 
 	void setupTexture();
 	void drawDepthTex();
+
+	/**
+	 * @brief Functions takes two sets with IDs and a reference to a third set which will contain all elements
+	 * which are only present in one of the sets. It's a kind of set-XOR
+	 */
 	void uniqueElements(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
+
+	/**
+	 * @brief Functions takes two maps with IDs and a reference to a third mapt which will contain all elements
+	 * which are only present in one of the maps. It's a kind of map-XOR
+	 */
 	void uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
 	void stripDoublesFromRight(const std::set<uint64_t>& leftSet, std::set<uint64_t>& rightSet);
 	void stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, std::set<uint64_t>& rightSet);
