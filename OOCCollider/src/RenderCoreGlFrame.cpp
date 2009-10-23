@@ -38,11 +38,12 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-RenderCoreGlFrame::RenderCoreGlFrame(int width, int height, int finalWidth, int finalHeight) :
+RenderCoreGlFrame::RenderCoreGlFrame(int winWidth, int winHeight, int targetWinWidth, int targetWinHeight) :
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()), mPriCamHasMoved(false),
 			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriMaxDistPerLevel(0), mPriFbo(0),
-			mPriWindowWidth(width), mPriWindowHeight(height), mPriRenderWidth(finalWidth), mPriRenderHeight(finalHeight), mPriTileYPos(0),
+			mPriWindowWidth(winWidth), mPriWindowHeight(winHeight), mPriTargetWindowWidth(targetWinWidth),
+			mPriTargetWindowHeight(targetWinHeight), mPriTileYPos(0),
 			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
@@ -453,48 +454,38 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
 
-	initTiles(false);
+	initTiles();
 }
 
-void RenderCoreGlFrame::initTiles(bool extendFovy)
+void RenderCoreGlFrame::initTiles()
 {
-//	extendFovy = false;
-	//resize
-	float fovy = 60.0;
-//	if (extendFovy){
-//		fovy = mPriExtendedFovy;
-//	}
-//	else {
-//		fovy = 45.0;
-//	}
+	float fovy = BASE_FOVY;
 
 	ratio = (GLfloat)mPriWindowHeight / (GLfloat)mPriWindowWidth;
 
-	screenYMax = tan(fovy * ooctools::GeometricOps::PI / 360.0) * mPriNearClippingPlane;
-	screenYMaxH = tan(fovy * ooctools::GeometricOps::PI / 360.0) * mPriNearClippingPlane;
-	if (extendFovy){
-		//GLfloat oppFac = (GLfloat)800 / (GLfloat)640; //(GLfloat)mPriTileWidth;
-		GLfloat oppFac = 1.0;
-//		oppFac *= oppFac;
-//		cout << "oppFac: " << oppFac << endl;
-		screenYMax *= oppFac;
-		screenYMaxH *= oppFac;
-	}
-	else{
-		GLfloat oppFac = (GLfloat)640 / (GLfloat)640; //(GLfloat)mPriTileWidth;
-//		cout << "oppFac: " << oppFac << endl;
-		screenYMax *= oppFac;
-		screenYMaxH *= oppFac;
-	}
+	float halfFrustumLength = tan(fovy * 0.5 * ooctools::GeometricOps::PI / 180.0) * mPriNearClippingPlane;
+	frustumUnit = halfFrustumLength / (0.5 * mPriTargetWindowWidth);
+	float extHalfFrustumLength = frustumUnit * (0.5 * mPriWindowWidth);
+//	float newFovy = atan(newHalfFrustumLength/mPriNearClippingPlane) *(180.0 / ooctools::GeometricOps::PI);
 
+	screenYMaxVExt = extHalfFrustumLength * ratio;
+	screenYMaxHExt = extHalfFrustumLength;
 
-//	}
-	screenYMax = screenYMax * ratio;
-	screenYMin = -screenYMax;
+	screenYMinVExt = -screenYMaxVExt;
+//	screenYMaxHExt = screenYMaxHExt * ratio;
+	screenYMinHExt = -screenYMaxHExt;
 
+	// --------------- extended -----------------------
+
+	screenYMaxV = halfFrustumLength * ratio;
+	screenYMaxH = halfFrustumLength;
+
+	screenYMinV = -screenYMaxV;
 //	screenYMaxH = screenYMaxH * ratio;
 	screenYMinH = -screenYMaxH;
 
+	frustumExtension_px = (0.5 * mPriWindowWidth) - (0.5 * mPriTargetWindowWidth);
+	frustumExtension_size = frustumExtension_px * frustumUnit;
 }
 
 void RenderCoreGlFrame::resizeFrustum() {
@@ -505,22 +496,73 @@ void RenderCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
 	this->resizeFrustum(0, 0, _width, _height);
 }
 
-void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
+void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight)
 {
-	if (tilesheight == 0)
-		tilesheight = 1;
-	if (tileswidth == 0)
-		tileswidth = 1;
+	if (tileHeight == 0)
+		tileHeight = 1;
+	if (tileWidth == 0)
+		tileWidth = 1;
 
-	float aFac = 400/320;
+	//	float aFac = 400/320;
+	float aFac = 1.0;
 
-	if (extendFrustum){
-		worldTopLine = ((GLdouble) tileYPos / (GLdouble) mPriWindowHeight );
-		worldBottomLine = ((GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight);
-		worldLeftLine = ((GLdouble) tileXPos / (GLdouble) mPriWindowWidth );
-		worldRightLine = ((GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth );
+	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriTargetWindowWidth;
+	worldRightLine = (GLdouble) (tileXPos + tileWidth) / (GLdouble) mPriTargetWindowWidth;
+	worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriTargetWindowHeight;
+	worldBottomLine = (GLdouble) (tileYPos + tileHeight) / (GLdouble) mPriTargetWindowHeight;
 
-			glViewport(0, 0, (GLint) 800, (GLint) 600);
+	glViewport(0, 0, (GLint) tileWidth, (GLint) tileHeight);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+//	worldTopLine = screenYMinV + ((screenYMaxV - screenYMinV) * worldTopLine);
+//	worldBottomLine = screenYMinV
+//			+ ((screenYMaxV - screenYMinV) * worldBottomLine);
+//
+//	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
+//	worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
+//			* worldRightLine);
+
+	wr = r + (tileXPos * frustumUnit);
+	wl = wr + (tileWidth * frustumUnit);
+	wr_strich = wr -frustumExtension_size;
+	wl_strich = wl + frustumExtension_size;
+	// how to get it to r_strich?
+	worldRightLine = screenYr + tileXPos * frustumUnit;
+			screenYMinH + ((screenYMaxH - screenYMinH)
+			* worldRightLine);
+	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
+
+	worldTopLine = screenYMinV + ((screenYMaxV - screenYMinV) * worldTopLine);
+	worldBottomLine = screenYMinV
+			+ ((screenYMaxV - screenYMinV) * worldBottomLine);
+
+
+
+	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
+			mPriNearClippingPlane, mPriFarClippingPlane);
+
+
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void RenderCoreGlFrame::resizeFrustumExt(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight)
+{
+	if (tileHeight == 0)
+		tileHeight = 1;
+	if (tileWidth == 0)
+		tileWidth = 1;
+
+	//	float aFac = 400/320;
+	float aFac = 1.0;
+
+	worldLeftLine = ((GLdouble) tileXPos / (GLdouble) mPriTargetWindowWidth );
+	worldRightLine = ((GLdouble) (tileXPos + tileWidth) / (GLdouble) mPriTargetWindowWidth );
+	worldTopLine = ((GLdouble) tileYPos / (GLdouble) mPriTargetWindowHeight );
+	worldBottomLine = ((GLdouble) (tileYPos + tileHeight) / (GLdouble) mPriTargetWindowHeight);
+
+	glViewport(0, 0, (GLint) 800, (GLint) 600);
 
 	//	if (extendFrustum){
 	//		glViewport(0, 0, (GLint) 800, (GLint) 600);
@@ -528,60 +570,26 @@ void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsi
 	//	else{
 	//		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
 	//	}
-//			glViewport(0, 0, (GLint) 800, (GLint) 600);
+	//			glViewport(0, 0, (GLint) 800, (GLint) 600);
 	//		glViewport(0, 0, (GLint) 640, (GLint) 480);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 
-		worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
-		worldBottomLine = screenYMin
-				+ ((screenYMax - screenYMin) * worldBottomLine);
+	worldTopLine = screenYMinVExt + ((screenYMaxVExt - screenYMinVExt) * worldTopLine);
+	worldBottomLine = screenYMinVExt
+			+ ((screenYMaxVExt - screenYMinVExt) * worldBottomLine);
 
-		worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
-		worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
-				* worldRightLine);
+	worldLeftLine = screenYMinHExt + ((screenYMaxHExt - screenYMinHExt) * worldLeftLine);
+	worldRightLine = screenYMinHExt + ((screenYMaxHExt - screenYMinHExt)
+			* worldRightLine);
 
-		GET_GLERROR(0);
-		glFrustum(worldLeftLine  * aFac, worldRightLine  * aFac, worldTopLine  * aFac, worldBottomLine  * aFac,
-				mPriNearClippingPlane, mPriFarClippingPlane);
-		GET_GLERROR(0);
-
-
-		glMatrixMode(GL_MODELVIEW);
-
-	}
-	else {
-//		worldTopLine = (GLdouble) tileYPos / (GLdouble) 480;
-//		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) 480;
-//		worldLeftLine = (GLdouble) tileXPos / (GLdouble) 640;
-//		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) 640;
-//
-//		glViewport(0, 0, (GLint) 640, (GLint) 480);
-		worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
-		worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
-		worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
-		worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
-
-		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
-		worldBottomLine = screenYMin
-				+ ((screenYMax - screenYMin) * worldBottomLine);
-
-		worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
-		worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
-				* worldRightLine);
-
-		glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
-				mPriNearClippingPlane, mPriFarClippingPlane);
+	GET_GLERROR(0);
+	glFrustum(worldLeftLine  * aFac, worldRightLine  * aFac, worldTopLine  * aFac, worldBottomLine  * aFac,
+			mPriNearClippingPlane, mPriFarClippingPlane);
+	GET_GLERROR(0);
 
 
-		glMatrixMode(GL_MODELVIEW);
-
-	}
+	glMatrixMode(GL_MODELVIEW);
 
 }
 
@@ -1087,9 +1095,8 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 
 void RenderCoreGlFrame::depthPass()
 {
-	initTiles(true);
 //	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
-	resizeFrustum(0, 0, 800, 600, true);
+	resizeFrustumExt(0, 0, 800, 600);
 	glLoadIdentity();
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
 	mPriCamera.calcMatrix();
@@ -1151,8 +1158,7 @@ void RenderCoreGlFrame::cullFrustum()
 	 */
 
 	//extend frustum
-	initTiles(true);
-	resizeFrustum(0, 0, 800, 600, true);
+	resizeFrustumExt(0, 0, 800, 600);
 
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
@@ -1177,8 +1183,7 @@ void RenderCoreGlFrame::cullFrustum()
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 
 	// original frustum
-	initTiles(false);
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, false);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 
 
 	getFrustum();
@@ -1186,8 +1191,7 @@ void RenderCoreGlFrame::cullFrustum()
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 
 	if (mPriShowOffset){
-		initTiles(true);
-		resizeFrustum(0, 0, 800, 600, true);
+		resizeFrustumExt(0, 0, 800, 600);
 	}
 
 
