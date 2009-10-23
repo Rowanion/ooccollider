@@ -36,14 +36,14 @@ using namespace std;
 using namespace ooctools;
 using namespace oocframework;
 
-DataCoreGlFrame::DataCoreGlFrame() :
-	scale(1.0f), avgFps(0.0f), time(0.0),
-			frame(0), mPriVboMan(0), mPriCgt(0),
-			mPriWindowWidth(0), mPriWindowHeight(0), mPriDepthBuffer(0), mPriNewDepthBuf(false), mPriExtendedFovy(EXTENDED_FOVY),
-			mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
-			mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFarClippingPlane(FAR_CLIPPING_PLANE),
-			mPriNearClippingPlane(0.1f), mPriFbo(0), mPriCamera(OOCCamera())
-			{
+DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) :
+		AbstractGlFrame(_winWidth, _winHeight, _targetWidth, _targetHeight),
+		scale(1.0f), avgFps(0.0f), time(0.0),
+		frame(0), mPriVboMan(0), mPriCgt(0),
+		mPriDepthBuffer(0), mPriNewDepthBuf(false), mPriExtendedFovy(EXTENDED_FOVY),
+		mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
+		mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFbo(0), mPriCamera(OOCCamera())
+{
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -105,7 +105,7 @@ void DataCoreGlFrame::init() {
 	glGenQueries(MAX_LOADS_PER_FRAME, mPriOccQueries);
 	GET_GLERROR(0);
 
-	mPriFbo = new Fbo(mPriWindowWidth,mPriWindowHeight);
+	mPriFbo = new Fbo(mProWindowWidth,mProWindowHeight);
 	Tile t = Tile();
 	for (unsigned i=0; i< MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER); ++i){
 		GET_GLERROR(0);
@@ -126,7 +126,7 @@ void DataCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
-	reshape(mPriWindowWidth, mPriWindowHeight);
+	reshape(mProWindowWidth, mProWindowHeight);
 	mPriByteSize = 0;
 }
 
@@ -149,7 +149,7 @@ void DataCoreGlFrame::display()
 void DataCoreGlFrame::display(NodeRequestEvent& nre)
 {
 	GET_GLERROR(0);
-	resizeFrustum(mPriTileMap[nre.getRecepient()].xPos, mPriTileMap[nre.getRecepient()].yPos, mPriTileMap[nre.getRecepient()].width, mPriTileMap[nre.getRecepient()].height, true);
+	resizeFrustumExt(mPriTileMap[nre.getRecepient()].xPos, mPriTileMap[nre.getRecepient()].yPos, mPriTileMap[nre.getRecepient()].width, mPriTileMap[nre.getRecepient()].height);
 //	cout << "data resizing frustum to " << mPriTileMap[nre.getRecepient()].xPos << ", " << mPriTileMap[nre.getRecepient()].yPos << ", " << mPriTileMap[nre.getRecepient()].width << ", " << mPriTileMap[nre.getRecepient()].height << endl;
 //	resizeWindow(height, width);
 //	cout << "starting display of DataCore" << endl;
@@ -283,7 +283,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 	if (nre.getRecepient() == 1){
 		// draw the result for debugging
-		reshape(mPriWindowWidth,mPriWindowHeight);
+		reshape(mProWindowWidth,mProWindowHeight);
 		cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
 		cgGLEnableTextureParameter(cgTexture);
 		mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
@@ -303,29 +303,29 @@ void DataCoreGlFrame::reshape(int width, int height) {
 //	cout << "Window resized to: " << width << ", " << height << endl;
 //	cout << "SIZE CHANGED" << endl;
 
-	mPriWindowWidth = width;
-	mPriWindowHeight = height;
+	mProWindowWidth = width;
+	mProWindowHeight = height;
 
 	// Prevent a divide by zero, when window is too short
 	// (you cant make a window of zero width).
-	if(mPriWindowHeight == 0)
-		mPriWindowHeight = 1;
+	if(mProWindowHeight == 0)
+		mProWindowHeight = 1;
 
-	float ratio = 1.0* mPriWindowWidth / mPriWindowHeight;
+	float ratio = 1.0* mProWindowWidth / mProWindowHeight;
 
 	// Reset the coordinate system before modifying
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	// Set the viewport to be the entire window
-	glViewport(0, 0, (GLint)mPriWindowWidth, (GLint)mPriWindowHeight);
+	glViewport(0, 0, (GLint)mProWindowWidth, (GLint)mProWindowHeight);
 	//glFrustum(-0.1f, 0.1f, -0.1f, 0.1f, 1.0f, 100.0f);					// perspective projection
 	//glFrustum(-0.4f, 0.4f, -0.5f, 0.5f, 1.0f, 100.0f);					// perspective projection
 
 	// Set the correct perspective.
 	//gluPerspective(45,ratio,1,1000);
 	//gluPerspective(20.0,1.0,0.5,50.0);
-	gluPerspective(45.0f, ratio, mPriNearClippingPlane, mPriFarClippingPlane);
+	gluPerspective(45.0f, ratio, mProNearClippingPlane, mProFarClippingPlane);
 //	gluPerspective(45.0f, ratio, 0.01f, 4000.0f);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -335,90 +335,90 @@ void DataCoreGlFrame::reshape(int width, int height) {
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
 	//resize
-	initTiles(false);
+	initTiles();
 }
 
-void DataCoreGlFrame::initTiles(bool extendFovy)
-{
-	//resize
-	float fovy = 45;
-//	if (extendFovy){
-//		fovy = mPriExtendedFovy;
-//	}
-//	else {
-//		fovy = 45.0;
-//	}
-
-	GLfloat oppFac = (GLfloat)800 / (GLfloat)640;
-	oppFac *= oppFac;
-	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
-	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
-	screenYMax *= oppFac;
-	screenYMaxH *= oppFac;
-
-//	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
-//	ratio = (GLfloat)800 / (GLfloat)600;
-	ratio = (GLfloat)640 / (GLfloat)480;
-
-	screenXMax = screenYMax * ratio;
-	screenYMin = -screenYMax;
-
-	screenXMaxH = screenYMaxH * ratio;
-	screenYMinH = -screenYMaxH;
-
-
-}
-
-void DataCoreGlFrame::resizeFrustum() {
-	this->resizeFrustum(0, 0, mPriWindowWidth, mPriWindowHeight);
-}
-
-void DataCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
-	this->resizeFrustum(0, 0, _width, _height);
-}
-
-void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
-{
-	GET_GLERROR(0);
-
-
-	if (tilesheight == 0)
-		tilesheight = 1;
-	if (tileswidth == 0)
-		tileswidth = 1;
-	worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
-	worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
-	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
-	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
-
-	GET_GLERROR(0);
-	glViewport(0, 0, (GLint) 800, (GLint) 600);
-//	glViewport(0, 0, (GLint) 640, (GLint) 480);
-	GET_GLERROR(0);
-//	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
-	GET_GLERROR(0);
-	glMatrixMode(GL_PROJECTION);
-	GET_GLERROR(0);
-	glLoadIdentity();
-	GET_GLERROR(0);
-
-	worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
-	worldBottomLine = screenYMin
-			+ ((screenYMax - screenYMin) * worldBottomLine);
-
-	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
-	worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
-			* worldRightLine);
-
-	GET_GLERROR(0);
-	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
-			mPriNearClippingPlane, mPriFarClippingPlane);
-
-	GET_GLERROR(0);
-	glMatrixMode(GL_MODELVIEW);
-	GET_GLERROR(0);
-
-}
+//void DataCoreGlFrame::initTiles(bool extendFovy)
+//{
+//	//resize
+//	float fovy = 45;
+////	if (extendFovy){
+////		fovy = mPriExtendedFovy;
+////	}
+////	else {
+////		fovy = 45.0;
+////	}
+//
+//	GLfloat oppFac = (GLfloat)800 / (GLfloat)640;
+//	oppFac *= oppFac;
+//	screenYMax = tan(fovy / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+//	screenYMaxH = tan((fovy * ratio) / 360.0 * ooctools::GeometricOps::PI) * mPriNearClippingPlane;
+//	screenYMax *= oppFac;
+//	screenYMaxH *= oppFac;
+//
+////	ratio = (GLfloat)mPriWindowWidth / (GLfloat)mPriWindowHeight;
+////	ratio = (GLfloat)800 / (GLfloat)600;
+//	ratio = (GLfloat)640 / (GLfloat)480;
+//
+//	screenXMax = screenYMax * ratio;
+//	screenYMin = -screenYMax;
+//
+//	screenXMaxH = screenYMaxH * ratio;
+//	screenYMinH = -screenYMaxH;
+//
+//
+//}
+//
+//void DataCoreGlFrame::resizeFrustum() {
+//	this->resizeFrustum(0, 0, mPriWindowWidth, mPriWindowHeight);
+//}
+//
+//void DataCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
+//	this->resizeFrustum(0, 0, _width, _height);
+//}
+//
+//void DataCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum)
+//{
+//	GET_GLERROR(0);
+//
+//
+//	if (tilesheight == 0)
+//		tilesheight = 1;
+//	if (tileswidth == 0)
+//		tileswidth = 1;
+//	worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriWindowHeight;
+//	worldBottomLine = (GLdouble) (tileYPos + tilesheight) / (GLdouble) mPriWindowHeight;
+//	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriWindowWidth;
+//	worldRightLine = (GLdouble) (tileXPos + tileswidth) / (GLdouble) mPriWindowWidth;
+//
+//	GET_GLERROR(0);
+//	glViewport(0, 0, (GLint) 800, (GLint) 600);
+////	glViewport(0, 0, (GLint) 640, (GLint) 480);
+//	GET_GLERROR(0);
+////	glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
+//	GET_GLERROR(0);
+//	glMatrixMode(GL_PROJECTION);
+//	GET_GLERROR(0);
+//	glLoadIdentity();
+//	GET_GLERROR(0);
+//
+//	worldTopLine = screenYMin + ((screenYMax - screenYMin) * worldTopLine);
+//	worldBottomLine = screenYMin
+//			+ ((screenYMax - screenYMin) * worldBottomLine);
+//
+//	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
+//	worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
+//			* worldRightLine);
+//
+//	GET_GLERROR(0);
+//	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
+//			mPriNearClippingPlane, mPriFarClippingPlane);
+//
+//	GET_GLERROR(0);
+//	glMatrixMode(GL_MODELVIEW);
+//	GET_GLERROR(0);
+//
+//}
 
 void DataCoreGlFrame::debug() {
 	scale *= 2.0f;
@@ -466,12 +466,12 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 				mPriUseWireFrame = !mPriUseWireFrame;
 			break;
 			case 'F': // increase far-clipping plane
-				mPriFarClippingPlane*=2.0f;
-				reshape(mPriWindowWidth, mPriWindowHeight);
+				mProFarClippingPlane*=2.0f;
+				reshape(mProWindowWidth, mProWindowHeight);
 			break;
 			case 'N': // decrease far-clipping plane
-				mPriFarClippingPlane = max(mPriFarClippingPlane/2.0f, 50.0f);
-				reshape(mPriWindowWidth, mPriWindowHeight);
+				mProFarClippingPlane = max(mProFarClippingPlane/2.0f, 50.0f);
+				reshape(mProWindowWidth, mProWindowHeight);
 			break;
 			default:
 			break;
@@ -481,12 +481,9 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		GET_GLERROR(0);
 
 		DepthBufferEvent& dbe = (DepthBufferEvent&)event;
-		mPriTileMap[dbe.getMpiRank()].xPos = dbe.getX();
-		mPriTileMap[dbe.getMpiRank()].yPos = dbe.getY();
-		mPriTileMap[dbe.getMpiRank()].width = dbe.getWidth();
-		mPriTileMap[dbe.getMpiRank()].height = dbe.getHeight();
+		mPriTileMap[dbe.getMpiRank()] = dbe.getTile();
 
-		cout << dbe.getMpiRank() << " ===> new depthbuffer dim: " << dbe.getX() << ", " << dbe.getY() << ", " << dbe.getWidth() << ", " << dbe.getHeight()<< endl;
+//		cout << dbe.getMpiRank() << " ===> new depthbuffer dim: " << dbe.getX() << ", " << dbe.getY() << ", " << dbe.getWidth() << ", " << dbe.getHeight()<< endl;
 		bool fboOn = mPriFbo->isBound();
 		GET_GLERROR(0);
 		if (!fboOn){
@@ -498,7 +495,9 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		GET_GLERROR(0);
 		glClearColor(0.0, 1.0, 0.0, 1.0);
 		GET_GLERROR(0);
-		resizeFrustum(dbe.getX(), dbe.getY(), dbe.getWidth(), dbe.getHeight());
+//		cout << "(" << dbe.getMpiRank() << ") Tile: " << dbe.getTile().xPos << ", " << dbe.getTile().yPos << ", " << dbe.getTile().width << ", " <<dbe.getTile().height << endl;
+//		cout << "(" << dbe.getMpiRank() << ") Depthbuffer: " << 0 << ", " << 0 << ", " << dbe.getWidth() << ", " <<dbe.getHeight() << endl;
+		resizeFrustumExt(dbe.getTile().xPos, dbe.getTile().yPos, dbe.getTile().width, dbe.getTile().height);
 		GET_GLERROR(0);
 		mPriFbo->clearDepth();
 		GET_GLERROR(0);
@@ -532,8 +531,8 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 //		for (unsigned i=0; i< 16; i+=4){
 //			cout << headerS.str() << "MVP: " << mat[i] << "\t" << mat[i+1] << "\t" << mat[i+2] << "\t" << mat[i+3] << endl;
 //		}
-		cout << headerS.str() << "nearPlane: " << mPriNearClippingPlane << endl;
-		cout << headerS.str() << "farPlane: " << mPriFarClippingPlane << endl;
+		cout << headerS.str() << "nearPlane: " << mProNearClippingPlane << endl;
+		cout << headerS.str() << "farPlane: " << mProFarClippingPlane << endl;
 		cout << headerS.str() << "Frustum-Modifier: " << mPriFrustumExtension << endl;
 
 		cout << "---------------------------------------" << endl;

@@ -12,6 +12,7 @@
 #include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
+#include "Structs.h"
 
 /**
  * @class ChangeTileDimensionsEvent

@@ -24,7 +24,7 @@
 
 class RenderCore {
 public:
-	RenderCore(unsigned _width=640, unsigned _height=480, unsigned _finalWidth=640, unsigned _finalHeight=480);
+	RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight);
 	virtual ~RenderCore();
 
 private:

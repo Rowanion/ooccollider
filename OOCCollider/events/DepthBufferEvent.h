@@ -15,6 +15,7 @@
 #include "IEvent.h"
 #include "ClassId.h"
 #include "Message.h"
+#include "Structs.h"
 
 /**
  * @class DepthBufferEvent
@@ -28,7 +29,7 @@
 class DepthBufferEvent : public oocframework::IEvent{
 public:
 	DepthBufferEvent();
-	DepthBufferEvent(int xPos, int yPos, int width, int height, int mpiRank, const GLfloat* depth);
+	DepthBufferEvent(Tile _tileDim, int xPos, int yPos, int width, int height, int mpiRank, const GLfloat* depth);
 	DepthBufferEvent(const oocframework::Message* msg);
 	virtual ~DepthBufferEvent();
 	static const oocframework::ClassId* classid();
@@ -43,36 +44,43 @@ public:
 	virtual unsigned getByteSize(){return mPriByteSize;};
 
 	/**
+	 * @brief Returns the original tile-dimensions.
+	 * This is needed to resize the frustum accordingly. Because all the depth-rendering happens at
+	 * extended frustum and the depthbuffer-size changes, this needed.
+	 */
+	Tile getTile(){return ((Tile*)mProData)[0];};
+
+	/**
 	 * @brief Returns the x-Part of the RasterPosition.
 	 * This is needed to restore later the depth-value to correct origin in the framebuffer.
 	 */
-	int getX(){return ((int*)mProData)[0];};
+	int getX(){return ((int*)(mProData+sizeof(Tile)))[0];};
 
 	/**
 	 * @brief Returns the y-Part of the RasterPosition.
 	 * This is needed to restore later the depth-value to correct origin in the framebuffer.
 	 */
-	int getY(){return ((int*)mProData)[1];};
+	int getY(){return ((int*)(mProData+sizeof(Tile)))[1];};
 
 	/**
 	 * @brief Returns the width of the framebuffer section.
 	 */
-	int getWidth(){return ((int*)mProData)[2];};
+	int getWidth(){return ((int*)(mProData+sizeof(Tile)))[2];};
 	/**
 	 * @brief Returns the height of the framebuffer section.
 	 */
-	int getHeight(){return ((int*)mProData)[3];};
+	int getHeight(){return ((int*)(mProData+sizeof(Tile)))[3];};
 
 	/**
 	 * @brief Returns the mpi-rank of the originating mpi-node.
 	 */
-	int getMpiRank(){return ((int*)mProData)[4];};
+	int getMpiRank(){return ((int*)(mProData+sizeof(Tile)))[4];};
 
 	/**
 	 * @brief Returns a const pointer to the depth-data.
 	 */
 	const GLfloat* getDepth(){
-		return (GLfloat*)(mProData+sizeof(int)*4);
+		return (GLfloat*)(mProData+sizeof(Tile)+sizeof(int)*4);
 	};
 
 protected:

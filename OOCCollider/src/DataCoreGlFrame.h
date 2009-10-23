@@ -39,7 +39,7 @@
  */
 class DataCoreGlFrame : public AbstractGlFrame, oocframework::AbstractEventListener {
 public:
-	DataCoreGlFrame();
+	DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight);
 	virtual ~DataCoreGlFrame();
 	virtual void init();
 	virtual void display(NodeRequestEvent& nre);
@@ -51,10 +51,10 @@ public:
 	;
 	void setMvMatrix(const float* matrix);
 
-	void initTiles(bool extendFovy);
-	void resizeFrustum();
-	void resizeFrustum(unsigned _width, unsigned _height);
-	void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum=false);
+//	void initTiles(bool extendFovy);
+//	void resizeFrustum();
+//	void resizeFrustum(unsigned _width, unsigned _height);
+//	void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum=false);
 	void debug();
 	void notify(oocframework::IEvent& event);
 
@@ -76,10 +76,10 @@ private:
 
 	ooctools::Camera camObj;
 
-	int mPriWindowWidth;
-	int mPriWindowHeight;
-	int mPriRenderWidth;
-	int mPriRenderHeight;
+//	int mPriWindowWidth;
+//	int mPriWindowHeight;
+//	int mPriRenderWidth;
+//	int mPriRenderHeight;
 
 	int mPriButtonActions[3];
 
@@ -108,13 +108,13 @@ private:
 	unsigned mPriByteSize;
 	bool mPriUseWireFrame;
 
-	float mPriFarClippingPlane;
-	float mPriNearClippingPlane;
-
-	GLdouble worldTopLine;
-	GLdouble worldBottomLine;
-	GLdouble worldLeftLine;
-	GLdouble worldRightLine;
+//	float mPriFarClippingPlane;
+//	float mPriNearClippingPlane;
+//
+//	GLdouble worldTopLine;
+//	GLdouble worldBottomLine;
+//	GLdouble worldLeftLine;
+//	GLdouble worldRightLine;
 
 	std::map<int, Tile> mPriTileMap;
 	std::map<int, GLuint> mPriDepthTextures;
@@ -150,13 +150,13 @@ private:
 //	CGparameter g_cgModelViewInv;
 
 	// resize
-	GLfloat ratio;
-	double screenXMax;
-	double screenYMax;
-	double screenYMin;
-	double screenXMaxH;
-	double screenYMaxH;
-	double screenYMinH;
+//	GLfloat ratio;
+//	double screenXMax;
+//	double screenYMax;
+//	double screenYMin;
+//	double screenXMaxH;
+//	double screenYMaxH;
+//	double screenYMinH;
 
 	typedef std::map<uint64_t, ooctools::IndexedVbo*>::iterator VboMapIter;
 	typedef std::map<int, ooctools::Fbo*>::iterator IntFboMapIter;

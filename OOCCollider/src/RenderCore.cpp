@@ -39,7 +39,8 @@ using namespace oocframework;
 
 RenderCore* RenderCore::instance = 0;
 
-RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, unsigned _finalHeight) : mWindow(0), mRunning(true), mPriGotMatrix(false)
+RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) :
+		mWindow(0), mRunning(true), mPriGotMatrix(false)
 {
 	RenderCore::instance = this;
 	mPriMpiCon = MpiControl::getSingleton();
@@ -47,9 +48,9 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 	//		setupWindow("My rank is NOT 0");
 	stringstream title;
 	title << "RenderNode (" << mPriMpiCon->getRank() << ")";
-	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
+	mWindow = new OOCWindow(_winWidth, _winHeight, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
-	mPriGlFrame = new RenderCoreGlFrame(_width, _height, _finalWidth, _finalHeight);
+	mPriGlFrame = new RenderCoreGlFrame(_winWidth, _winHeight, _targetWidth, _targetHeight);
 	mWindow->attachGlFrame(mPriGlFrame);
 	GET_GLERROR(0);
 
@@ -67,7 +68,8 @@ RenderCore::RenderCore(unsigned _width, unsigned _height, unsigned _finalWidth, 
 
 	mPriGlFrame->init();
 	GET_GLERROR(0);
-	mPriGlFrame->reshape(_width, _height);
+	mPriGlFrame->reshape(_winWidth, _winHeight);
+	mPriGlFrame->initTiles();
 	GET_GLERROR(0);
 
 	// Main rendering loop

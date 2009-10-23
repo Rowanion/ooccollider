@@ -45,12 +45,6 @@ public:
 	virtual void display();
 	virtual void reshape(int width, int height);
 	virtual void reshape(int width, int height, float farPlane);
-	virtual void resizeFrustum();
-	virtual void resizeFrustum(unsigned _width, unsigned _height);
-	virtual void resizeFrustum(unsigned tileXPos, unsigned tileYPos,
-			unsigned tileWidth, unsigned tileHeight);
-	virtual void resizeFrustumExt(unsigned tileXPos, unsigned tileYPos,
-			unsigned tileWidth, unsigned tileHeight);
 	float getFrames() const {
 		return avgFps;
 	}
@@ -64,6 +58,8 @@ public:
 	void depthPass();
 	ColorBufferEvent& getColorBufferEvent() {return mPriColorBufferEvent;};
 	void cullFrustum();
+//	void initTiles();
+
 
 protected:
 
@@ -79,15 +75,6 @@ protected:
 	float modl[16];
 	float clip[16];
 	float frustTemp;
-	unsigned width, height;
-	GLdouble worldTopLine, worldBottomLine;
-	GLdouble worldLeftLine, worldRightLine;
-	GLdouble screenXMaxV, screenYMaxV, screenYMinV;
-	GLdouble screenXMaxH, screenYMaxH, screenYMinH;
-	GLdouble screenXMaxVExt, screenYMaxVExt, screenYMinVExt;
-	GLdouble screenXMaxHExt, screenYMaxHExt, screenYMinHExt;
-	GLdouble frustumExtension_px, frustumExtension_size;
-	GLdouble frustumUnit;
 
 private:
 	float scale;
@@ -117,10 +104,6 @@ private:
 	ooctools::ColorTable mPriColorTable;
 
 	ooctools::Fbo* mPriFbo;
-	int mPriWindowWidth;
-	int mPriWindowHeight;
-	int mPriTargetWindowWidth;
-	int mPriTargetWindowHeight;
 	GLfloat ratio;
 	unsigned mPriTileYPos, mPriTileXPos, mPriTileWidth, mPriTileHeight;
 
@@ -155,8 +138,6 @@ private:
 	bool mPriUseWireFrame;
 
 	std::set<uint64_t> mPriRequestedVboList;
-
-	float mPriFarClippingPlane, mPriNearClippingPlane;
 
 	float mPriFrustumExtension;
 
@@ -231,7 +212,6 @@ private:
 
 	void setupTexture();
 	void drawDepthTex();
-	void initTiles();
 	void uniqueElements(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
 	void uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet);
 	void stripDoublesFromRight(const std::set<uint64_t>& leftSet, std::set<uint64_t>& rightSet);
