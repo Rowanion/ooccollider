@@ -21,16 +21,17 @@ DepthBufferEvent::DepthBufferEvent() {
 	init();
 }
 
-DepthBufferEvent::DepthBufferEvent(int xPos, int yPos, int width, int height, int mpiRank, const GLfloat* pixel)
+DepthBufferEvent::DepthBufferEvent(Tile _tileDim, int xPos, int yPos, int width, int height, int mpiRank, const GLfloat* pixel)
 {
-	mPriByteSize = sizeof(int)*5 + sizeof(GLfloat)*width*height;
+	mPriByteSize = sizeof(Tile) + sizeof(int)*5 + sizeof(GLfloat)*width*height;
 	mProData = new char[mPriByteSize];
-	((int*)mProData)[0] = xPos;
-	((int*)mProData)[1] = yPos;
-	((int*)mProData)[2] = width;
-	((int*)mProData)[3] = height;
-	((int*)mProData)[4] = mpiRank;
-	memcpy((mProData+sizeof(int)*5), pixel, sizeof(GLfloat)*width*height);
+	((Tile*)mProData)[0] = _tileDim;
+	((int*)(mProData+sizeof(Tile)))[0] = xPos;
+	((int*)(mProData+sizeof(Tile)))[1] = yPos;
+	((int*)(mProData+sizeof(Tile)))[2] = width;
+	((int*)(mProData+sizeof(Tile)))[3] = height;
+	((int*)(mProData+sizeof(Tile)))[4] = mpiRank;
+	memcpy((mProData+sizeof(Tile)+sizeof(int)*5), pixel, sizeof(GLfloat)*width*height);
 //	std::cout << "Texture: " << std::endl;
 //	for (unsigned i =0; i < sizeof(GLfloat)*width*height*4; i+=4){
 //		if (*(((GLfloat*)(mProData+sizeof(int)*4))+i) != 250){

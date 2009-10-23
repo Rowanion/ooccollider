@@ -39,18 +39,15 @@ using namespace ooctools;
 using namespace oocframework;
 
 RenderCoreGlFrame::RenderCoreGlFrame(int winWidth, int winHeight, int targetWinWidth, int targetWinHeight) :
-	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
+AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()), mPriCamHasMoved(false),
 			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriMaxDistPerLevel(0), mPriFbo(0),
-			mPriWindowWidth(winWidth), mPriWindowHeight(winHeight), mPriTargetWindowWidth(targetWinWidth),
-			mPriTargetWindowHeight(targetWinHeight), mPriTileYPos(0),
-			mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
+			mPriTileYPos(0), mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
-			mPriRequestedVboList(std::set<uint64_t>()), mPriFarClippingPlane(
-					FAR_CLIPPING_PLANE), mPriNearClippingPlane(0.1f),
+			mPriRequestedVboList(std::set<uint64_t>()),
 			mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false){
 
 	for (unsigned i = 0; i < 10; ++i) {
@@ -88,8 +85,8 @@ RenderCoreGlFrame::RenderCoreGlFrame(int winWidth, int winHeight, int targetWinW
 	mPriDepthBufferD = 0;
 	mPriDepthTexture = 0;
 
-	mPriPixelBuffer = new GLubyte[mPriWindowWidth*mPriWindowHeight*4];
-	mPriDepthBuffer = new GLfloat[mPriWindowWidth*mPriWindowHeight];
+	mPriPixelBuffer = new GLubyte[mProWindowWidth*mProWindowHeight*4];
+	mPriDepthBuffer = new GLfloat[mProWindowWidth*mProWindowHeight];
 
 }
 
@@ -157,12 +154,12 @@ void RenderCoreGlFrame::init() {
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 
 	mPriCamera.initMatrices();
-	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mPriWindowWidth,mPriWindowHeight);
+	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mProWindowWidth,mProWindowHeight);
 	mPriFbo->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	mPriFbo->unbind();
 	ooctools::FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-	ooctools::FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
+	ooctools::FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mProWindowWidth, mProWindowHeight);
 
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
@@ -172,7 +169,7 @@ void RenderCoreGlFrame::init() {
 
 	mPriSceneBB = mPriLo->getBb();
 	mPriSceneBB.computeCenter(mPriSceneCenter);
-	cout << "(" << MpiControl::getSingleton()->getRank() << ") render window resolution: " << mPriWindowWidth << ", " << mPriWindowHeight << endl;
+	cout << "(" << MpiControl::getSingleton()->getRank() << ") render window resolution: " << mProWindowWidth << ", " << mProWindowHeight << endl;
 	cout << "(" << MpiControl::getSingleton()->getRank() << ") tile: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
 
 }
@@ -387,7 +384,7 @@ void RenderCoreGlFrame::display()
 
 	// restore normal frustum before drawing
 	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)
-	reshape(mPriWindowWidth,mPriWindowHeight);
+	reshape(mProWindowWidth,mProWindowHeight);
 	GLint polyMode;
 	glGetIntegerv(GL_POLYGON_MODE, &polyMode);
 	glPolygonMode(GL_FRONT, GL_FILL);
@@ -416,23 +413,23 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 //	cout << "SIZE CHANGED" << endl;
 
 
-	mPriWindowWidth = width;
-	mPriWindowHeight = height;
+	mProWindowWidth = width;
+	mProWindowHeight = height;
 	if (mPriFbo != 0)
-		mPriFbo->setDimensions(mPriWindowWidth, mPriWindowHeight);
+		mPriFbo->setDimensions(mProWindowWidth, mProWindowHeight);
 	// Prevent a divide by zero, when window is too short
 	// (you cant make a window of zero width).
-	if(mPriWindowHeight == 0)
-		mPriWindowHeight = 1;
+	if(mProWindowHeight == 0)
+		mProWindowHeight = 1;
 
-	mPriAspectRatio = 1.0* mPriWindowWidth / mPriWindowHeight;
+	mPriAspectRatio = 1.0* mProWindowWidth / mProWindowHeight;
 
 	// Reset the coordinate system before modifying
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	// Set the viewport to be the entire window
-	glViewport(0, 0, (GLint)mPriWindowWidth, (GLint)mPriWindowHeight);
+	glViewport(0, 0, (GLint)mProWindowWidth, (GLint)mProWindowHeight);
 	//glFrustum(-0.1f, 0.1f, -0.1f, 0.1f, 1.0f, 100.0f);					// perspective projection
 	//glFrustum(-0.4f, 0.4f, -0.5f, 0.5f, 1.0f, 100.0f);					// perspective projection
 
@@ -440,7 +437,7 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	//gluPerspective(45,ratio,1,1000);
 	//gluPerspective(20.0,1.0,0.5,50.0);
 	if (farPlane == -1.0f){
-		gluPerspective(45.0f, mPriAspectRatio, 0.1f, mPriFarClippingPlane);
+		gluPerspective(45.0f, mPriAspectRatio, mProNearClippingPlane, mProFarClippingPlane);
 	}
 	else{
 		gluPerspective(45.0f, mPriAspectRatio, 0.1f, farPlane);
@@ -453,143 +450,6 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 	gluLookAt(0.0,0.0,5.0,
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
-
-	initTiles();
-}
-
-void RenderCoreGlFrame::initTiles()
-{
-	float fovy = BASE_FOVY;
-
-	ratio = (GLfloat)mPriWindowHeight / (GLfloat)mPriWindowWidth;
-
-	float halfFrustumLength = tan(fovy * 0.5 * ooctools::GeometricOps::PI / 180.0) * mPriNearClippingPlane;
-	frustumUnit = halfFrustumLength / (0.5 * mPriTargetWindowWidth);
-	float extHalfFrustumLength = frustumUnit * (0.5 * mPriWindowWidth);
-//	float newFovy = atan(newHalfFrustumLength/mPriNearClippingPlane) *(180.0 / ooctools::GeometricOps::PI);
-
-	screenYMaxVExt = extHalfFrustumLength * ratio;
-	screenYMaxHExt = extHalfFrustumLength;
-
-	screenYMinVExt = -screenYMaxVExt;
-//	screenYMaxHExt = screenYMaxHExt * ratio;
-	screenYMinHExt = -screenYMaxHExt;
-
-	// --------------- extended -----------------------
-
-	screenYMaxV = halfFrustumLength * ratio;
-	screenYMaxH = halfFrustumLength;
-
-	screenYMinV = -screenYMaxV;
-//	screenYMaxH = screenYMaxH * ratio;
-	screenYMinH = -screenYMaxH;
-
-	frustumExtension_px = (0.5 * mPriWindowWidth) - (0.5 * mPriTargetWindowWidth);
-	frustumExtension_size = frustumExtension_px * frustumUnit;
-}
-
-void RenderCoreGlFrame::resizeFrustum() {
-	this->resizeFrustum(0, 0, mPriWindowWidth, mPriWindowHeight);
-}
-
-void RenderCoreGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
-	this->resizeFrustum(0, 0, _width, _height);
-}
-
-void RenderCoreGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight)
-{
-	if (tileHeight == 0)
-		tileHeight = 1;
-	if (tileWidth == 0)
-		tileWidth = 1;
-
-	//	float aFac = 400/320;
-	float aFac = 1.0;
-
-	worldLeftLine = (GLdouble) tileXPos / (GLdouble) mPriTargetWindowWidth;
-	worldRightLine = (GLdouble) (tileXPos + tileWidth) / (GLdouble) mPriTargetWindowWidth;
-	worldTopLine = (GLdouble) tileYPos / (GLdouble) mPriTargetWindowHeight;
-	worldBottomLine = (GLdouble) (tileYPos + tileHeight) / (GLdouble) mPriTargetWindowHeight;
-
-	glViewport(0, 0, (GLint) tileWidth, (GLint) tileHeight);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-//	worldTopLine = screenYMinV + ((screenYMaxV - screenYMinV) * worldTopLine);
-//	worldBottomLine = screenYMinV
-//			+ ((screenYMaxV - screenYMinV) * worldBottomLine);
-//
-//	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
-//	worldRightLine = screenYMinH + ((screenYMaxH - screenYMinH)
-//			* worldRightLine);
-
-	wr = r + (tileXPos * frustumUnit);
-	wl = wr + (tileWidth * frustumUnit);
-	wr_strich = wr -frustumExtension_size;
-	wl_strich = wl + frustumExtension_size;
-	// how to get it to r_strich?
-	worldRightLine = screenYr + tileXPos * frustumUnit;
-			screenYMinH + ((screenYMaxH - screenYMinH)
-			* worldRightLine);
-	worldLeftLine = screenYMinH + ((screenYMaxH - screenYMinH) * worldLeftLine);
-
-	worldTopLine = screenYMinV + ((screenYMaxV - screenYMinV) * worldTopLine);
-	worldBottomLine = screenYMinV
-			+ ((screenYMaxV - screenYMinV) * worldBottomLine);
-
-
-
-	glFrustum(worldLeftLine, worldRightLine, worldTopLine, worldBottomLine,
-			mPriNearClippingPlane, mPriFarClippingPlane);
-
-
-	glMatrixMode(GL_MODELVIEW);
-}
-
-void RenderCoreGlFrame::resizeFrustumExt(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight)
-{
-	if (tileHeight == 0)
-		tileHeight = 1;
-	if (tileWidth == 0)
-		tileWidth = 1;
-
-	//	float aFac = 400/320;
-	float aFac = 1.0;
-
-	worldLeftLine = ((GLdouble) tileXPos / (GLdouble) mPriTargetWindowWidth );
-	worldRightLine = ((GLdouble) (tileXPos + tileWidth) / (GLdouble) mPriTargetWindowWidth );
-	worldTopLine = ((GLdouble) tileYPos / (GLdouble) mPriTargetWindowHeight );
-	worldBottomLine = ((GLdouble) (tileYPos + tileHeight) / (GLdouble) mPriTargetWindowHeight);
-
-	glViewport(0, 0, (GLint) 800, (GLint) 600);
-
-	//	if (extendFrustum){
-	//		glViewport(0, 0, (GLint) 800, (GLint) 600);
-	//	}
-	//	else{
-	//		glViewport(0, 0, (GLint) tileswidth, (GLint) tilesheight);
-	//	}
-	//			glViewport(0, 0, (GLint) 800, (GLint) 600);
-	//		glViewport(0, 0, (GLint) 640, (GLint) 480);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	worldTopLine = screenYMinVExt + ((screenYMaxVExt - screenYMinVExt) * worldTopLine);
-	worldBottomLine = screenYMinVExt
-			+ ((screenYMaxVExt - screenYMinVExt) * worldBottomLine);
-
-	worldLeftLine = screenYMinHExt + ((screenYMaxHExt - screenYMinHExt) * worldLeftLine);
-	worldRightLine = screenYMinHExt + ((screenYMaxHExt - screenYMinHExt)
-			* worldRightLine);
-
-	GET_GLERROR(0);
-	glFrustum(worldLeftLine  * aFac, worldRightLine  * aFac, worldTopLine  * aFac, worldBottomLine  * aFac,
-			mPriNearClippingPlane, mPriFarClippingPlane);
-	GET_GLERROR(0);
-
-
-	glMatrixMode(GL_MODELVIEW);
 
 }
 
@@ -1008,12 +868,12 @@ RenderCoreGlFrame::compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap
 void RenderCoreGlFrame::setupTexture()
 {
 	if (mPriDepthTexture == 0){
-		mPriDepthTexture = new GLfloat[mPriWindowWidth*mPriWindowHeight*4];
+		mPriDepthTexture = new GLfloat[mProWindowWidth*mProWindowHeight*4];
 	}
 	if (mPriDepthBufferD == 0){
-		mPriDepthBufferD = new GLfloat[mPriWindowWidth*mPriWindowHeight];
+		mPriDepthBufferD = new GLfloat[mProWindowWidth*mProWindowHeight];
 	}
-	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBufferD, 0, 0, mPriWindowWidth, mPriWindowHeight);
+	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBufferD, 0, 0, mProWindowWidth, mProWindowHeight);
 //	cout << "(render) depth at " << 62981 << ": " << mPriDepthBufferD[62981] << endl;
 
 //	for(int i=0; i< mPriWindowWidth*mPriWindowHeight*4; i+=4){
@@ -1039,7 +899,7 @@ void RenderCoreGlFrame::setupTexture()
 
 	GET_GLERROR(0);
 //	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, mPriWindowWidth, mPriWindowHeight, 0, GL_BGRA, GL_FLOAT, mPriDepthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mPriWindowWidth, mPriWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBufferD);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mProWindowWidth, mProWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBufferD);
 //	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA16, mPriWindowWidth, mPriWindowHeight, 0, GL_ALPHA, GL_FLOAT, mPriDepthBufferD);
 	GET_GLERROR(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -1083,7 +943,7 @@ void RenderCoreGlFrame::drawDepthTex()
 void
 RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 {
-	cout << MpiControl::getSingleton()->getRank() << " ---> changing tiledimensions: " << xPos << ", " << yPos << ", " << width << ", " << height << endl;
+//	cout << MpiControl::getSingleton()->getRank() << " ---> changing tiledimensions: " << xPos << ", " << yPos << ", " << width << ", " << height << endl;
 	mPriTileXPos = xPos;
 	mPriTileYPos = yPos;
 	mPriTileWidth = width;
@@ -1095,8 +955,7 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 
 void RenderCoreGlFrame::depthPass()
 {
-//	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, true);
-	resizeFrustumExt(0, 0, 800, 600);
+	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 	glLoadIdentity();
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
 	mPriCamera.calcMatrix();
@@ -1104,7 +963,6 @@ void RenderCoreGlFrame::depthPass()
 	GLint polyMode;
 	glGetIntegerv(GL_POLYGON_MODE, &polyMode);
 	glPolygonMode(GL_FRONT, GL_FILL);
-//	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 	GET_GLERROR(0);
 	mPriFbo->bind();
 	mPriFbo->clear();
@@ -1117,12 +975,14 @@ void RenderCoreGlFrame::depthPass()
 	GET_GLERROR(0);
 //	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 //	DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
-	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, 800, 600);
-	DepthBufferEvent dbe = DepthBufferEvent(0,0,800,600, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
+	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth+(2*mProFrustumExtensionX_px), mPriTileHeight+(2*mProFrustumExtensionY_px));
+	DepthBufferEvent dbe = DepthBufferEvent(Tile(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, 0.0),
+			mPriTileXPos,mPriTileYPos,mPriTileWidth+(2*mProFrustumExtensionX_px),mPriTileHeight+(2*mProFrustumExtensionY_px),
+			MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
 	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 	Message* msg = new Message(dbe, 0, MpiControl::DATA);
 	MpiControl::getSingleton()->send(msg);
-	cout << MpiControl::getSingleton()->getRank() << " has sent depthbuffer" << endl;
+//	cout << MpiControl::getSingleton()->getRank() << " has sent depthbuffer" << endl;
 	mPriRequestedVboList.clear();
 //	setupTexture();
 	mPriFbo->unbind();
@@ -1158,7 +1018,7 @@ void RenderCoreGlFrame::cullFrustum()
 	 */
 
 	//extend frustum
-	resizeFrustumExt(0, 0, 800, 600);
+	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
@@ -1191,7 +1051,7 @@ void RenderCoreGlFrame::cullFrustum()
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 
 	if (mPriShowOffset){
-		resizeFrustumExt(0, 0, 800, 600);
+		resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 	}
 
 
@@ -1205,10 +1065,10 @@ void RenderCoreGlFrame::generateMaxDistPerLevel(unsigned _maxLevel, float _origi
 	mPriMaxDistPerLevel = new float[_maxLevel+1];
 	float tempSize = _originalSize;
 
-	float halfPixels = 0.5*mPriWindowWidth; // half pixel size because half frustum
-	float pixelLength = tan(45.0 * (ooctools::GeometricOps::PI / 180.0))*mPriNearClippingPlane;
+	float halfPixels = 0.5*mProWindowWidth; // half pixel size because half frustum
+	float pixelLength = tan(45.0 * (ooctools::GeometricOps::PI / 180.0))*mProNearClippingPlane;
 	float pixelSize = pixelLength / halfPixels;
-	float tanTheta = pixelSize / mPriNearClippingPlane; // the smaller angle corresponding to length of 1 pixel
+	float tanTheta = pixelSize / mProNearClippingPlane; // the smaller angle corresponding to length of 1 pixel
 
 	for (unsigned i =0; i<=_maxLevel; i++){
 		mPriMaxDistPerLevel[i] = tempSize/tanTheta; // the distance at which the diameter is exactly 1
@@ -1235,21 +1095,6 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			case GLFW_KEY_KP_ADD:
 				mPriFrustumExtension += 0.1;
 				break;
-			case 'B': {// manually resend depth-buffer
-				mPriCamHasMoved = true;
-				bool bound = false;
-				bound = mPriFbo->isBound();
-				if (!bound){
-					mPriFbo->bind();
-				}
-				FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriWindowWidth, mPriWindowHeight);
-				if (!bound){
-					mPriFbo->unbind();
-				}
-				DepthBufferEvent dbe = DepthBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
-				MpiControl::getSingleton()->push(new Message(dbe, 2));
-				mPriRequestedVboList.clear();
-			break;}
 			case 'R': // switch wireframe
 				if (mPriUseWireFrame)
 					glPolygonMode(GL_FRONT, GL_FILL);
@@ -1267,13 +1112,13 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 					mPriBBMode = 0;
 			break;
 			case 'F': // increase far-clipping plane
-				mPriFarClippingPlane*=2.0f;
-				reshape(mPriWindowWidth, mPriWindowHeight);
+				mProFarClippingPlane*=2.0f;
+				reshape(mProWindowWidth, mProWindowHeight);
 				mPriCamHasMoved = true;
 			break;
 			case 'N': // decrease far-clipping plane
-				mPriFarClippingPlane = max(mPriFarClippingPlane/2.0f, 50.0f);
-				reshape(mPriWindowWidth, mPriWindowHeight);
+				mProFarClippingPlane = max(mProFarClippingPlane/2.0f, 50.0f);
+				reshape(mProWindowWidth, mProWindowHeight);
 				mPriCamHasMoved = true;
 			break;
 			default:
@@ -1326,8 +1171,8 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << headerS.str() << "loaded offline tris (counted): " << tCount << endl;
 		cout << headerS.str() << "loaded offline indices (counted): " << iCount << endl;
 
-		cout << headerS.str() << "nearPlane: " << mPriNearClippingPlane << endl;
-		cout << headerS.str() << "farPlane: " << mPriFarClippingPlane << endl;
+		cout << headerS.str() << "nearPlane: " << mProNearClippingPlane << endl;
+		cout << headerS.str() << "farPlane: " << mProFarClippingPlane << endl;
 
 		cout << headerS.str() << "Tile-Dimensions: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
 		cout << headerS.str() << "Frustum-Modifier: " << mPriFrustumExtension << endl;

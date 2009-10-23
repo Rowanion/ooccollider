@@ -24,7 +24,7 @@
 
 class DataCore {
 public:
-	DataCore(unsigned _width=640, unsigned _height=480);
+	DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight);
 	virtual ~DataCore();
 	void renderOneFrame();
 	void waitForDepthBuffers();

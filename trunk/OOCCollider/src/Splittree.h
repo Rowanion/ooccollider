@@ -9,6 +9,7 @@
 #define SPLITTREE_H_
 
 #include "declarations.h"
+#include "Structs.h"
 #include <vector>
 #include <map>
 #include <cmath>

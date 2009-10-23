@@ -27,7 +27,7 @@
 #define FAR_CLIPPING_PLANE 100.0f
 #define EXTENDED_FOVY 70.0
 #define MAX_TREE_ITERATIONS 3000
-#define BASE_FOVY 45.0
+#define BASE_FOVY 70.0
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
@@ -79,12 +79,6 @@ class WindowClosedEvent;
 class WindowResizedEvent;
 
 // struct declarations
-struct Tile{
-	int xPos;
-	int yPos;
-	int width;
-	int height;
-	double renderTime;
-};
+struct Tile;
 
 #endif /* DECLARATIONS_H_ */

@@ -37,7 +37,7 @@ using namespace oocframework;
 
 DataCore* DataCore::instance = 0;
 
-DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(true), mPriDepthBufferCount(0)
+DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) : mWindow(0), mRunning(true), mPriDepthBufferCount(0)
 {
 	DataCore::instance = this;
 	mPriMpiCon = oocframework::MpiControl::getSingleton();
@@ -45,10 +45,10 @@ DataCore::DataCore(unsigned _width, unsigned _height) : mWindow(0), mRunning(tru
 	//		setupWindow("My rank is NOT 0");
 	stringstream title;
 	title << "DataNode (" << mPriMpiCon->getRank() << ")";
-	mWindow = new OOCWindow(_width, _height, 8, false, title.str().c_str());
+	mWindow = new OOCWindow(_winWidth, _winHeight, 8, false, title.str().c_str());
 //	mWindow->enableKeyCallback();
 	GET_GLERROR(0);
-	mGlFrame = new DataCoreGlFrame();
+	mGlFrame = new DataCoreGlFrame(_winWidth, _winHeight, _targetWidth, _targetHeight);
 	GET_GLERROR(0);
 	mWindow->attachGlFrame(mGlFrame);
 	GET_GLERROR(0);
