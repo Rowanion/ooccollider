@@ -83,11 +83,6 @@ BoundingBox::BoundingBox(float _valA, float _valB) :
 		init();
 	}
 
-	if (!(mPriMin.getX() <= numeric_limits<float>::max()) || !(mPriMax.getX() >= -numeric_limits<float>::max())){
-		cerr << "NO VALUE PASSED IN V3F CONSTRUCTOR!" << endl;
-		exit(0);
-	}
-
 	computeCenter();
 }
 
