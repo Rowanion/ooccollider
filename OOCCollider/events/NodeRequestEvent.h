@@ -36,7 +36,7 @@
 class NodeRequestEvent : public oocframework::IEvent{
 public:
 	NodeRequestEvent();
-	NodeRequestEvent(const std::set<ooctools::Triple>& tripleSet, int recipient, bool isExtendedFrustum);
+	NodeRequestEvent(const std::set<ooctools::Quadruple>& quadrupleSet, int recipient, bool isExtendedFrustum);
 	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();
@@ -51,17 +51,17 @@ public:
 	virtual unsigned getByteSize(){return mPriByteSize;};
 
 	/**
-	 * @brief Returns a const pointer to the requested Triple at index idx.
+	 * @brief Returns a const pointer to the requested Quadruple at index idx.
 	 */
-	ooctools::Triple* getTriple(unsigned idx) const {
-		return &(((ooctools::Triple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx]);
+	ooctools::Quadruple* getQuadruple(unsigned idx) const {
+		return &(((ooctools::Quadruple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx]);
 	};
 
 	/**
-	 * @brief Returns a const pointer to all Triples.
+	 * @brief Returns a const pointer to all Quadruples.
 	 */
-	const ooctools::Triple* getTripleArray() const {
-		return ((const ooctools::Triple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
+	const ooctools::Quadruple* getQuadrupleArray() const {
+		return ((const ooctools::Quadruple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
 	};
 
 	/**

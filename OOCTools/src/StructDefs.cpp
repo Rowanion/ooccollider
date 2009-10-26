@@ -13,6 +13,21 @@
 
 namespace ooctools {
 
+Tuple::Tuple(){
+}
+
+Tuple::Tuple(int _lvl, float _dist) : lvl(_lvl), dist(_dist){
+}
+
+bool Tuple::operator<(const Tuple& rhs) const {
+	if (lvl == rhs.lvl){
+			return (dist < rhs.dist);
+	}
+	else {
+		return (lvl < rhs.lvl);
+	}
+}
+
 Triple::Triple(){
 }
 
@@ -54,15 +69,101 @@ bool Triple::operator<(const Triple& rhs) const {
 	}
 }
 
-Tuple::Tuple(){
+Quadruple::Quadruple(){
 }
 
-Tuple::Tuple(int _lvl, float _dist) : lvl(_lvl), dist(_dist){
+Quadruple::Quadruple(int _lvl, float _dist, int _destId, uint64_t _id) : lvl(_lvl), dist(_dist), destId(_destId), id(_id){
 }
 
-bool Tuple::operator<(const Tuple& rhs) const {
+void Quadruple::set(int _lvl, float _dist, int _destId, uint64_t _id)
+{
+	lvl = _lvl;
+	dist = _dist;
+	destId = _destId;
+	id = _id;
+}
+
+void Quadruple::set(Quadruple rhs)
+{
+	lvl = rhs.lvl;
+	dist = rhs.dist;
+	destId = rhs.destId;
+	id = rhs.id;
+}
+
+void Quadruple::set(const Quadruple* rhs)
+{
+	lvl = rhs->lvl;
+	dist = rhs->dist;
+	destId = rhs->destId;
+	id = rhs->id;
+}
+
+bool Quadruple::operator<(const Quadruple& rhs) const {
 	if (lvl == rhs.lvl){
+		if (dist == rhs.dist){
+			if (destId == rhs.destId){
+				return (id < rhs.id);
+			}
+			else{
+				return destId < rhs.destId;
+			}
+		}
+		else {
 			return (dist < rhs.dist);
+		}
+	}
+	else {
+		return (lvl < rhs.lvl);
+	}
+}
+
+Quintuple::Quintuple(){
+}
+
+Quintuple::Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt) : lvl(_lvl), dist(_dist), destId(_destId), id(_id), isExt(_isExt){
+}
+
+void Quintuple::set(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt)
+{
+	lvl = _lvl;
+	dist = _dist;
+	destId = _destId;
+	id = _id;
+	isExt = _isExt;
+}
+
+void Quintuple::set(Quintuple rhs)
+{
+	lvl = rhs.lvl;
+	dist = rhs.dist;
+	destId = rhs.destId;
+	id = rhs.id;
+	isExt = rhs.isExt;
+}
+
+void Quintuple::set(const Quintuple* rhs)
+{
+	lvl = rhs->lvl;
+	dist = rhs->dist;
+	destId = rhs->destId;
+	id = rhs->id;
+	isExt = rhs->isExt;
+}
+
+bool Quintuple::operator<(const Quintuple& rhs) const {
+	if (lvl == rhs.lvl){
+		if (dist == rhs.dist){
+			if (destId == rhs.destId){
+				return (id < rhs.id);
+			}
+			else{
+				return destId < rhs.destId;
+			}
+		}
+		else {
+			return (dist < rhs.dist);
+		}
 	}
 	else {
 		return (lvl < rhs.lvl);

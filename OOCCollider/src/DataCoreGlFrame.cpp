@@ -165,20 +165,20 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 	// load all requested vbos
 //	cout << "DataCore Loading VBOs:" << endl;
-	ooctools::Triple currTriple = ooctools::Triple();
+	ooctools::Quadruple currQuadruple = ooctools::Quadruple();
 	for (unsigned i=0; i< nre.getIdxCount(); ++i){
-		currTriple.set(nre.getTriple(i));
-		map<uint64_t, std::string>::iterator IT = mPriIdPathMap.find(currTriple.id);
+		currQuadruple.set(nre.getQuadruple(i));
+		map<uint64_t, std::string>::iterator IT = mPriIdPathMap.find(currQuadruple.id);
 		if(IT == mPriIdPathMap.end()) {
-			cerr << "ID " << currTriple.id << " not in pathmap!" << endl;
+			cerr << "ID " << currQuadruple.id << " not in pathmap!" << endl;
 			exit(0);
 		}
 
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
-		mPriVboMap.insert(make_pair(currTriple.id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currTriple.id]+".idx"), currTriple.id, false)));
+		mPriVboMap.insert(make_pair(currQuadruple.id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuadruple.id]+".idx"), currQuadruple.id, false)));
 //		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
-		mPriTriSet.insert(currTriple);
+		mPriQuadSet.insert(currQuadruple);
 //		cout << nre.getDistance(i) << endl;
 //		exit(0);
 	}
@@ -209,15 +209,15 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 				// performing the depthtest
 				std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
 				std::map<float, uint64_t>::iterator distIterator = mPriDistanceMap.begin();
-				std::set<ooctools::Triple>::iterator tripIterator = mPriTriSet.begin();
+				std::set<ooctools::Quadruple>::iterator quadIterator = mPriQuadSet.begin();
 
 				unsigned queryCount = 0;
 				glDepthMask(GL_FALSE);
 				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-				for(tripIterator = mPriTriSet.begin(); tripIterator != mPriTriSet.end(); ++tripIterator){
+				for(quadIterator = mPriQuadSet.begin(); quadIterator != mPriQuadSet.end(); ++quadIterator){
 					glBeginQuery(GL_SAMPLES_PASSED, mPriOccQueries[queryCount]);
-						mPriIdLoMap[tripIterator->id]->getBb().drawSolidTriFan();
+						mPriIdLoMap[quadIterator->id]->getBb().drawSolidTriFan();
 					glEndQuery(GL_SAMPLES_PASSED);
 					queryCount++;
 				}
@@ -227,23 +227,23 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 				unsigned byteSize = 0;
 				queryCount = 0;
-				for(tripIterator = mPriTriSet.begin(); tripIterator != mPriTriSet.end(); ++tripIterator){
+				for(quadIterator = mPriQuadSet.begin(); quadIterator != mPriQuadSet.end(); ++quadIterator){
 					GLint queryState = GL_FALSE;
 					while(queryState != GL_TRUE){
 					  glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT_AVAILABLE, &queryState);
 					}
 
-					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[tripIterator->id]);
+					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[quadIterator->id]);
 //					if (true){
 
-					if (mPriOccResults[tripIterator->id]>0){
+					if (mPriOccResults[quadIterator->id]>0){
 						// add visible VBO to the current DepthBuffer
-						mPriVboMap[tripIterator->id]->setOnline();
-						mPriVboMap[tripIterator->id]->managedDraw(true);
+						mPriVboMap[quadIterator->id]->setOnline();
+						mPriVboMap[quadIterator->id]->managedDraw(true);
 //						mPriIdLoMap[tripIterator->id]->getBb().drawSolidTriFan();
-						mPriVisibleVbosVec.push_back(mPriVboMap[tripIterator->id]);
-						mPriVisibleDistVec.push_back(tripIterator->dist);
-						byteSize = mPriVboMap[tripIterator->id]->getIndexCount()*sizeof(unsigned)+mPriVboMap[tripIterator->id]->getVertexCount()*sizeof(V4N4);
+						mPriVisibleVbosVec.push_back(mPriVboMap[quadIterator->id]);
+						mPriVisibleDistVec.push_back(quadIterator->dist);
+						byteSize = mPriVboMap[quadIterator->id]->getIndexCount()*sizeof(unsigned)+mPriVboMap[quadIterator->id]->getVertexCount()*sizeof(V4N4);
 					}
 					queryCount++;
 				}
@@ -275,7 +275,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 		mPriVboMap.erase(mPriVboMap.begin());
 	}
 	mPriVboMap.clear();
-	mPriTriSet.clear();
+	mPriQuadSet.clear();
 	mPriVisibleVbosVec.clear();
 	mPriVisibleDistVec.clear();
 
