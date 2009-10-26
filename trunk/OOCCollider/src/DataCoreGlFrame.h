@@ -103,7 +103,7 @@ private:
 	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;
 	std::vector<float> mPriVisibleDistVec;
 	std::multimap<float, uint64_t> mPriDistanceMap;
-	std::set<ooctools::Triple> mPriTriSet;
+	std::set<ooctools::Quadruple> mPriQuadSet;
 
 	unsigned mPriByteSize;
 	bool mPriUseWireFrame;

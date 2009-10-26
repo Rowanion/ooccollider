@@ -79,24 +79,55 @@ struct StatisticalData{
 
 };
 
+struct Tuple{
+	Tuple();
+	Tuple(int _lvl, float _dist);
+
+	int lvl;     // octree-level of this node
+	float dist;  // distance of node-center to eye
+	bool operator<(const Tuple& rhs) const;
+};
+
 struct Triple{
 	Triple();
 	Triple(int _lvl, float _dist, uint64_t _id);
 	void set(int _lvl, float _dist, uint64_t _id);
 	void set(Triple rhs);
 	void set(const Triple* rhs);
-	int lvl;
-	float dist;
-	uint64_t id;
+
+	int lvl;     // octree-level of this node
+	float dist;  // distance of node-center to eye
+	uint64_t id; // node-id
 	bool operator<(const Triple& rhs) const;
 };
 
-struct Tuple{
-	Tuple();
-	Tuple(int _lvl, float _dist);
-	int lvl;
-	float dist;
-	bool operator<(const Tuple& rhs) const;
+struct Quadruple{
+	Quadruple();
+	Quadruple(int _lvl, float _dist, int destId, uint64_t _id);
+	void set(int _lvl, float _dist, int destId, uint64_t _id);
+	void set(Quadruple rhs);
+	void set(const Quadruple* rhs);
+
+	int lvl;     // octree-level of this node
+	float dist;  // distance of node-center to eye
+	int destId;  // mpi-rank of requesting node
+	uint64_t id; // node-id
+	bool operator<(const Quadruple& rhs) const;
+};
+
+struct Quintuple{
+	Quintuple();
+	Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt);
+	void set(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt);
+	void set(Quintuple rhs);
+	void set(const Quintuple* rhs);
+
+	int lvl;     // octree-level of this node
+	float dist;  // distance of node-center to eye
+	int destId;  // mpi-rank of requesting node
+	uint64_t id; // node-id
+	bool isExt;	 // states wheather this node is in the extended frustum or not.
+	bool operator<(const Quintuple& rhs) const;
 };
 
 } // end of namespace OOCTools
