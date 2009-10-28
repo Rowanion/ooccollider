@@ -31,6 +31,8 @@
 #include "V3f.h"
 #include "NodeRequestEvent.h"
 #include "OOCCamera.h"
+#include "Structs.h"
+
 
 
 /**
@@ -42,8 +44,8 @@ public:
 	DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight);
 	virtual ~DataCoreGlFrame();
 	virtual void init();
-	virtual void display(NodeRequestEvent& nre);
 	virtual void display();
+	virtual void display(int _destId, std::list<const Quintuple*>* _quintList);
 	virtual void reshape(int width, int height);
 	inline float getFrames() const {
 		return avgFps;
@@ -101,9 +103,8 @@ private:
 	std::set<uint64_t> mPriIdsInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVboMap;
 	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;
-	std::vector<float> mPriVisibleDistVec;
-	std::multimap<float, uint64_t> mPriDistanceMap;
-	std::set<ooctools::Quadruple> mPriQuadSet;
+	std::vector<DistExtPair> mPriVisibleDistExtVec;
+	std::set<ooctools::Quintuple> mPriQuintSet;
 
 	unsigned mPriByteSize;
 	bool mPriUseWireFrame;

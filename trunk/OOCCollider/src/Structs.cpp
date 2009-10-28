@@ -18,3 +18,9 @@ Tile::Tile(int _xPos, int _yPos, int _width, int _height, double _renderTime) :
 {
 
 }
+
+DistExtPair::DistExtPair(float _dist, bool _isExt) :
+	dist(_dist), isExt(_isExt)
+{
+
+}

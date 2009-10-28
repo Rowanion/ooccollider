@@ -532,7 +532,7 @@ RenderCoreGlFrame::requestMissingVbos()
 
 	// ----------------------------------------------
 	// check if any of the new VBOs is already in the cache
-	set<ooctools::Quadruple> missingQuadruple = set<ooctools::Quadruple>();
+	set<ooctools::Quintuple> missingQuintuple = set<ooctools::Quintuple>();
 	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
 	IdVboMapIter offIt;
 	ooctools::V3f center = ooctools::V3f();
@@ -544,7 +544,7 @@ RenderCoreGlFrame::requestMissingVbos()
 			ooctools::V3f center = ooctools::V3f();
 			currentNode = mPriIdLoMap[*setIt];
 			currentNode->getBb().computeCenter(center);
-			missingQuadruple.insert(Quadruple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt));
+			missingQuintuple.insert(Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, false));
 			mPriRequestedVboList.insert(*setIt);
 			reqCount++;
 		}
@@ -556,8 +556,8 @@ RenderCoreGlFrame::requestMissingVbos()
 		}
 	}
 
-	if (missingQuadruple.size() > 0){
-		NodeRequestEvent nre = NodeRequestEvent(missingQuadruple, MpiControl::getSingleton()->getRank(), false);
+	if (missingQuintuple.size() > 0){
+		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple, MpiControl::getSingleton()->getRank(), false);
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
 		mPriMissingIdsInFrustum.clear();
 		frustReq = nre.getIdxCount();
@@ -565,7 +565,7 @@ RenderCoreGlFrame::requestMissingVbos()
 
 	// now dealing with extended frustum
 	mPriMissingIdsInFrustum.clear();
-	missingQuadruple.clear();
+	missingQuintuple.clear();
 	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
 	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
 	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
@@ -577,17 +577,17 @@ RenderCoreGlFrame::requestMissingVbos()
 			ooctools::V3f center = ooctools::V3f();
 			currentNode = mPriIdLoMap[*setIt];
 			currentNode->getBb().computeCenter(center);
-			missingQuadruple.insert(ooctools::Quadruple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt));
+			missingQuintuple.insert(ooctools::Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, true));
 			mPriRequestedVboList.insert(*setIt);
 			reqCount++;
 		}
 
 		//TODO do something about the loadPerFrame limit
-		NodeRequestEvent nre = NodeRequestEvent(missingQuadruple, MpiControl::getSingleton()->getRank(), true);
+		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple, MpiControl::getSingleton()->getRank(), true);
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
 //		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
 		extFrustReq = nre.getIdxCount();
-		missingQuadruple.clear();
+		missingQuintuple.clear();
 		mPriMissingIdsInFrustum.clear();
 
 	}
@@ -1091,19 +1091,17 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(VboEvent::classid())){
 		VboEvent& ve = (VboEvent&)event;
-
-		if (ve.isExtendedFrustum()){
-			for (unsigned i=0; i< ve.getVboCount(); ++i){
+		for (unsigned i=0; i< ve.getVboCount(); ++i){
+			if (ve.getDistExt(i).isExt){
 				mPriOfflineVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false)));
-				trimCacheMap();
 			}
-		}
-		else {
-			for (unsigned i=0; i< ve.getVboCount(); ++i){
+			else {
 				mPriTriCount += ve.getIndexCount(i)/3;
 				mPriVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
 			}
 		}
+		trimCacheMap();
+
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;

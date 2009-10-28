@@ -42,7 +42,7 @@ DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsign
 		frame(0), mPriVboMan(0), mPriCgt(0),
 		mPriDepthBuffer(0), mPriNewDepthBuf(false), mPriExtendedFovy(EXTENDED_FOVY),
 		mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
-		mPriDistanceMap(std::multimap<float, uint64_t>()), mPriFbo(0), mPriCamera(OOCCamera())
+		mPriFbo(0), mPriCamera(OOCCamera())
 {
 
 	for (unsigned i = 0; i < 10; ++i) {
@@ -143,13 +143,14 @@ void DataCoreGlFrame::setupCg()
 void DataCoreGlFrame::display()
 {
 	NodeRequestEvent nre = NodeRequestEvent();
-	display(nre);
+	std::list<const Quintuple*> quintList = std::list<const Quintuple*>();
+	display(MpiControl::getSingleton()->getRenderGroup()[0], &quintList);
 }
 
-void DataCoreGlFrame::display(NodeRequestEvent& nre)
+void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintList)
 {
 	GET_GLERROR(0);
-	resizeFrustumExt(mPriTileMap[nre.getRecepient()].xPos, mPriTileMap[nre.getRecepient()].yPos, mPriTileMap[nre.getRecepient()].width, mPriTileMap[nre.getRecepient()].height);
+	resizeFrustumExt(mPriTileMap[_destId].xPos, mPriTileMap[_destId].yPos, mPriTileMap[_destId].width, mPriTileMap[_destId].height);
 //	cout << "data resizing frustum to " << mPriTileMap[nre.getRecepient()].xPos << ", " << mPriTileMap[nre.getRecepient()].yPos << ", " << mPriTileMap[nre.getRecepient()].width << ", " << mPriTileMap[nre.getRecepient()].height << endl;
 //	resizeWindow(height, width);
 //	cout << "starting display of DataCore" << endl;
@@ -165,20 +166,21 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 	// load all requested vbos
 //	cout << "DataCore Loading VBOs:" << endl;
-	ooctools::Quadruple currQuadruple = ooctools::Quadruple();
-	for (unsigned i=0; i< nre.getIdxCount(); ++i){
-		currQuadruple.set(nre.getQuadruple(i));
-		map<uint64_t, std::string>::iterator IT = mPriIdPathMap.find(currQuadruple.id);
+	const ooctools::Quintuple* currQuintuple; //= ooctools::Quadruple();
+	std::list<const Quintuple*>::iterator quintIt = _quintList->begin();
+	for (; quintIt != _quintList->end(); ++quintIt){
+		currQuintuple = *quintIt;
+		map<uint64_t, std::string>::iterator IT = mPriIdPathMap.find(currQuintuple->id);
 		if(IT == mPriIdPathMap.end()) {
-			cerr << "ID " << currQuadruple.id << " not in pathmap!" << endl;
+			cerr << "ID " << currQuintuple->id << " not in pathmap!" << endl;
 			exit(0);
 		}
 
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
-		mPriVboMap.insert(make_pair(currQuadruple.id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuadruple.id]+".idx"), currQuadruple.id, false)));
+		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
 //		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
-		mPriQuadSet.insert(currQuadruple);
+//		mPriQuadSet.insert(currQuadruple);
 //		cout << nre.getDistance(i) << endl;
 //		exit(0);
 	}
@@ -196,7 +198,7 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 		glPushMatrix();
 			glPushMatrix();
 				glColor3f(1.0f,0.0f,0.0f);
-				mPriFbo->setDepthTex(mPriDepthTextures[nre.getRecepient()]);
+				mPriFbo->setDepthTex(mPriDepthTextures[_destId]);
 				mPriFbo->bind();
 //				mPriFbo->clearColor();
 //				cout << "Number of VBOs: " << mPriVbosInFrustum.size()<< endl;
@@ -208,16 +210,16 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 				// performing the depthtest
 				std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
-				std::map<float, uint64_t>::iterator distIterator = mPriDistanceMap.begin();
-				std::set<ooctools::Quadruple>::iterator quadIterator = mPriQuadSet.begin();
+//				std::set<ooctools::Quadruple>::iterator quadIterator = mPriQuadSet.begin();
+//				std::list<const ooctools::Quadruple*>::iterator quadIterator = mPriQuadSet.begin();
 
 				unsigned queryCount = 0;
 				glDepthMask(GL_FALSE);
 				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-				for(quadIterator = mPriQuadSet.begin(); quadIterator != mPriQuadSet.end(); ++quadIterator){
+				for(quintIt = _quintList->begin(); quintIt != _quintList->end(); ++quintIt){
 					glBeginQuery(GL_SAMPLES_PASSED, mPriOccQueries[queryCount]);
-						mPriIdLoMap[quadIterator->id]->getBb().drawSolidTriFan();
+						mPriIdLoMap[(*quintIt)->id]->getBb().drawSolidTriFan();
 					glEndQuery(GL_SAMPLES_PASSED);
 					queryCount++;
 				}
@@ -227,23 +229,23 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 				unsigned byteSize = 0;
 				queryCount = 0;
-				for(quadIterator = mPriQuadSet.begin(); quadIterator != mPriQuadSet.end(); ++quadIterator){
+				for(quintIt = _quintList->begin(); quintIt != _quintList->end(); ++quintIt){
 					GLint queryState = GL_FALSE;
 					while(queryState != GL_TRUE){
 					  glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT_AVAILABLE, &queryState);
 					}
 
-					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[quadIterator->id]);
+					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[(*quintIt)->id]);
 //					if (true){
 
-					if (mPriOccResults[quadIterator->id]>0){
+					if (mPriOccResults[(*quintIt)->id]>0){
 						// add visible VBO to the current DepthBuffer
-						mPriVboMap[quadIterator->id]->setOnline();
-						mPriVboMap[quadIterator->id]->managedDraw(true);
+						mPriVboMap[(*quintIt)->id]->setOnline();
+						mPriVboMap[(*quintIt)->id]->managedDraw(true);
 //						mPriIdLoMap[tripIterator->id]->getBb().drawSolidTriFan();
-						mPriVisibleVbosVec.push_back(mPriVboMap[quadIterator->id]);
-						mPriVisibleDistVec.push_back(quadIterator->dist);
-						byteSize = mPriVboMap[quadIterator->id]->getIndexCount()*sizeof(unsigned)+mPriVboMap[quadIterator->id]->getVertexCount()*sizeof(V4N4);
+						mPriVisibleVbosVec.push_back(mPriVboMap[(*quintIt)->id]);
+						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->isExt));
+						byteSize = mPriVboMap[(*quintIt)->id]->getIndexCount()*sizeof(unsigned)+mPriVboMap[(*quintIt)->id]->getVertexCount()*sizeof(V4N4);
 					}
 					queryCount++;
 				}
@@ -256,14 +258,14 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 
 	mPriByteSize = max(mPriByteSize, byteSize);
 
-	if (mPriVisibleDistVec.size() > 0){
+	if (mPriVisibleDistExtVec.size() > 0){
 		// send the visible object to the requester
-		VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistVec, nre.isExtendedFrustum());
-		if (nre.isExtendedFrustum()){
+		VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistExtVec);
+		if ((*_quintList->begin())->isExt){
 //			cout << "sending CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
 		}
 
-		Message* msg = new Message(ve, nre.getRecepient());
+		Message* msg = new Message(ve, (*_quintList->begin())->destId);
 		MpiControl::getSingleton()->push(msg);
 		//  MpiControl::getSingleton()->isend();
 	}
@@ -275,13 +277,13 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 		mPriVboMap.erase(mPriVboMap.begin());
 	}
 	mPriVboMap.clear();
-	mPriQuadSet.clear();
+	mPriQuintSet.clear();
 	mPriVisibleVbosVec.clear();
-	mPriVisibleDistVec.clear();
+	mPriVisibleDistExtVec.clear();
 
 	mPriOccResults.clear();
 
-	if (nre.getRecepient() == 1){
+	if (_destId == 1){
 		// draw the result for debugging
 		reshape(mProWindowWidth,mProWindowHeight);
 		cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
@@ -296,7 +298,6 @@ void DataCoreGlFrame::display(NodeRequestEvent& nre)
 		cgGLDisableTextureParameter(cgTexture);
 		GET_GLERROR(0);
 	}
-
 }
 
 void DataCoreGlFrame::reshape(int width, int height) {
