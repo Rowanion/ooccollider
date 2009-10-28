@@ -36,7 +36,7 @@
 class NodeRequestEvent : public oocframework::IEvent{
 public:
 	NodeRequestEvent();
-	NodeRequestEvent(const std::set<ooctools::Quadruple>& quadrupleSet, int recipient, bool isExtendedFrustum);
+	NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet, int recipient, bool isExtendedFrustum);
 	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();
@@ -53,15 +53,15 @@ public:
 	/**
 	 * @brief Returns a const pointer to the requested Quadruple at index idx.
 	 */
-	ooctools::Quadruple* getQuadruple(unsigned idx) const {
-		return &(((ooctools::Quadruple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx]);
+	ooctools::Quintuple* getQuintuple(unsigned idx) const {
+		return &(((ooctools::Quintuple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx]);
 	};
 
 	/**
 	 * @brief Returns a const pointer to all Quadruples.
 	 */
-	const ooctools::Quadruple* getQuadrupleArray() const {
-		return ((const ooctools::Quadruple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
+	const ooctools::Quintuple* getQuintupleArray() const {
+		return ((const ooctools::Quintuple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
 	};
 
 	/**
@@ -71,12 +71,12 @@ public:
 		return ((unsigned*)mProData)[0];
 	};
 
-	/**
-	 * @brief Returns the id of the mpi-node which requested these vbos.
-	 */
-	int getRecepient() const {
-		return 	((int*)(mProData+sizeof(unsigned)))[0];
-	};
+//	/**
+//	 * @brief Returns the id of the mpi-node which requested these vbos.
+//	 */
+//	int getRecepient() const {
+//		return 	((int*)(mProData+sizeof(unsigned)))[0];
+//	};
 
 	/**
 	 * @brief Returns whether the NodeRequest is for the extended frustum or not (ie. the original frustum).

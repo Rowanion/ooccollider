@@ -37,6 +37,7 @@ private:
 	std::queue<char*> mOutQueue;
 	DataCoreGlFrame* mGlFrame;
 	unsigned mPriDepthBufferCount;
+	std::map<int, std::list<const ooctools::Quintuple*> > mPriQuintMapList;
 
 	static DataCore* instance;
 

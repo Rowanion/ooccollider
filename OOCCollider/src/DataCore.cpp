@@ -37,7 +37,8 @@ using namespace oocframework;
 
 DataCore* DataCore::instance = 0;
 
-DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) : mWindow(0), mRunning(true), mPriDepthBufferCount(0)
+DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) :
+	mWindow(0), mRunning(true), mPriDepthBufferCount(0), mPriQuintMapList(std::map<int, std::list<const ooctools::Quintuple*> >())
 {
 	DataCore::instance = this;
 	mPriMpiCon = oocframework::MpiControl::getSingleton();
@@ -54,6 +55,10 @@ DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidt
 	GET_GLERROR(0);
 	mGlFrame->init();
 	GET_GLERROR(0);
+	const std::vector<int> dataGrp = mPriMpiCon->getDataGroup();
+	for (unsigned i=0; i< dataGrp.size(); ++i){
+		mPriQuintMapList.insert(make_pair(dataGrp[i], std::list<const ooctools::Quintuple*>()));
+	}
 	// Main rendering loop
 	mPriMpiCon->barrier();
 
@@ -155,12 +160,24 @@ void DataCore::handleMsg(Message* msg){
 		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
 			NodeRequestEvent nre = NodeRequestEvent(msg);
 			// fetch/reload VBOs and send back
-			//				cout << "list of node-requests reached DataCore: " << endl;
-			//				for(unsigned i=0; i< nre.getIdxCount(); ++i){
-			//					cout << nre.getId(i) << endl;
-			//				}
+
+			// sort Quadruples into map based on their destination id
+			for (unsigned i=0; i< nre.getIdxCount(); ++i){
+				Quintuple* quint = nre.getQuintuple(i);
+				mPriQuintMapList[quint->destId].push_back(quint);
+			}
+			// call display for each entry in map and clear list afterwards
+			map<int, list<const Quintuple*> >::iterator mapListIt = mPriQuintMapList.begin();
+			for (; mapListIt != mPriQuintMapList.end(); ++mapListIt){
+				if (!mapListIt->second.empty()){
+					mGlFrame->display(mapListIt->first, &(mapListIt->second));
+				}
+				mapListIt->second.clear();
+			}
+			// clear the lists in the map;
+			// for each non-empty map -> call display with ref toi this map
 			GET_GLERROR(0);
-			mGlFrame->display(nre);
+//			mGlFrame->display(nre);
 
 		}
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){

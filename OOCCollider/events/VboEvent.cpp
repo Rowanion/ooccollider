@@ -52,72 +52,67 @@ VboEvent::VboEvent(const ooctools::IndexedVbo* vbo) // single vbo
 	memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount), vbo->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
 }
 
-VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<float>& distVec, bool isExtFrustum) // multiple vbos
+VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<DistExtPair>& distExtVec) // multiple vbos
 {
 	unsigned vboCount = vboVec.size();
 	unsigned bytePrefixSums[vboCount+1];
 	bytePrefixSums[0] = 0;
 	for (unsigned i=1; i <= vboCount; ++i){
-		bytePrefixSums[i] = bytePrefixSums[i-1] + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(float) + sizeof(unsigned)*vboVec[i-1]->getIndexCount() + sizeof(V4N4)*vboVec[i-1]->getVertexCount();
+		bytePrefixSums[i] = bytePrefixSums[i-1] + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair) + sizeof(unsigned)*vboVec[i-1]->getIndexCount() + sizeof(V4N4)*vboVec[i-1]->getVertexCount();
 	}
 	// vbocount + bytePrefixSums+1 + sum of bytes
-	mPriByteSize = sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[vboCount];
+	mPriByteSize = sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[vboCount];
 	mProData = new char[mPriByteSize];
 
 	((unsigned*)mProData)[0] = vboCount;
-	((bool*)(mProData + sizeof(unsigned)))[0] = isExtFrustum;
 
-	memcpy(((mProData + sizeof(unsigned) + sizeof(bool))), bytePrefixSums, sizeof(unsigned)*(vboCount+1));
+	memcpy(((mProData + sizeof(unsigned) )), bytePrefixSums, sizeof(unsigned)*(vboCount+1));
 
 	for (unsigned i=0; i < vboCount; ++i){
-		char* tempPt =  (mProData + sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[i]);
+		char* tempPt =  (mProData + sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[i]);
 		unsigned iCount = vboVec[i]->getIndexCount();
 		unsigned vCount = vboVec[i]->getVertexCount();
 
 		((uint64_t*)tempPt)[0] = vboVec[i]->getId();
 		((unsigned*)(tempPt + sizeof(uint64_t)))[0] = iCount;
 		((unsigned*)(tempPt + sizeof(uint64_t)))[1] = vCount;
-		((unsigned*)(tempPt + sizeof(uint64_t) + sizeof(unsigned)*2))[0] = distVec[i];
-		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2) + sizeof(float), vboVec[i]->getIndexData(), sizeof(unsigned)*iCount);
-		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(float) + sizeof(unsigned)*iCount), vboVec[i]->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
+		((DistExtPair*)(tempPt + sizeof(uint64_t) + sizeof(unsigned)*2))[0] = distExtVec[i];
+		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2) + sizeof(DistExtPair), vboVec[i]->getIndexData(), sizeof(unsigned)*iCount);
+		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair) + sizeof(unsigned)*iCount), vboVec[i]->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
 	}
 }
 
 const ooctools::V4N4* VboEvent::getVertexArray(unsigned idx) const
 {
-	return ((ooctools::V4N4*)(mProData + sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(float) + sizeof(unsigned)*getIndexCount(idx)));
+	return ((ooctools::V4N4*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair) + sizeof(unsigned)*getIndexCount(idx)));
 };
 const unsigned* VboEvent::getIndexArray(unsigned idx) const
 {
-	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(float)));
+	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair)));
 };
-float VboEvent::getDist(unsigned idx) const
+DistExtPair VboEvent::getDistExt(unsigned idx) const
 {
-	return ((float*)(mProData + sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2))[0];
+	return ((DistExtPair*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2))[0];
 }
 unsigned VboEvent::getVertexCount(unsigned idx) const
 {
-	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t)))[1];
+	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t)))[1];
 }
 unsigned VboEvent::getIndexCount(unsigned idx) const
 {
-	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t)))[0];
+	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t)))[0];
 }
 uint64_t VboEvent::getNodeId(unsigned idx) const
 {
-	return ((uint64_t*)(mProData + sizeof(unsigned) + sizeof(bool) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx)))[0];
+	return ((uint64_t*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx)))[0];
 }
 unsigned VboEvent::getVboCount() const
 {
 	return ((unsigned*)mProData)[0];
 }
-bool VboEvent::isExtendedFrustum() const
-{
-	return ((bool*)(mProData+sizeof(unsigned)))[0];
-}
 unsigned VboEvent::getBytePrefixSum(unsigned idx) const
 {
-	return ((unsigned*)(mProData + sizeof(unsigned) + sizeof(bool)))[idx];
+	return ((unsigned*)(mProData + sizeof(unsigned) ))[idx];
 }
 VboEvent::VboEvent(std::string path, uint64_t nodeId) // single vbo
 {

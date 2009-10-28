@@ -26,23 +26,23 @@ NodeRequestEvent::NodeRequestEvent() {
 	init();
 }
 
-NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quadruple>& quadrupleSet, int recipient, bool isExtendedFrustum)
+NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet, int recipient, bool isExtendedFrustum)
 {
-	unsigned setSize = quadrupleSet.size();
+	unsigned setSize = quintSet.size();
 	unsigned minSize = setSize;
-	std::set<ooctools::Quadruple>::const_iterator quadIt;
+	std::set<ooctools::Quintuple>::const_iterator quintIt;
 
 	// #of nodes, recipientId, isExtFrus, distance of each node, id of each node
-	mPriByteSize = sizeof(unsigned) + sizeof(int) + sizeof(bool) + minSize*(sizeof(ooctools::Quadruple));
+	mPriByteSize = sizeof(unsigned) + sizeof(int) + sizeof(bool) + minSize*(sizeof(ooctools::Quintuple));
 	mProData = new char[mPriByteSize];
 	((unsigned*)mProData)[0] = minSize;
 	((int*)(mProData+sizeof(unsigned)))[0] = recipient;
 	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0] = isExtendedFrustum;
 	unsigned elementCount = 0;
 //	std::cout << "list of node-requests inside the Event: " << std::endl;
-	for (quadIt = quadrupleSet.begin(); quadIt!= quadrupleSet.end(); ++quadIt){
+	for (quintIt = quintSet.begin(); quintIt!= quintSet.end(); ++quintIt){
 //		std::cout << mapIt->second << std::endl;
-		((ooctools::Quadruple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[elementCount] = *quadIt;
+		((ooctools::Quintuple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[elementCount] = *quintIt;
 //		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
 
 		elementCount++;

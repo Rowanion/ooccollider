@@ -18,6 +18,7 @@
 #include "Message.h"
 #include "IndexedVbo.h"
 #include "StructDefs.h"
+#include "Structs.h"
 
 namespace fs = boost::filesystem;
 
@@ -39,7 +40,7 @@ public:
 	VboEvent();
 	VboEvent(const ooctools::IndexedVbo* vbo);
 	VboEvent(std::string path, uint64_t nodeId);
-	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<float>& distVec, bool isExtFrustum);
+	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<DistExtPair>& distExtVec);
 	VboEvent(const oocframework::Message* msg);
 	virtual ~VboEvent();
 	static const oocframework::ClassId* classid();
@@ -94,12 +95,11 @@ public:
 	 */
 	ooctools::IndexedVbo* createIVbo() const;
 
-	float getDist(unsigned idx) const;
-
 	/**
-	 * @brief Returns whether the included VBOs are from extended frustum or not (ie. the original frustum).
+	 * @brief Returns a float-bool-Struct for index idx, containing the distance and if it is
+	 * for the extended frustum (caching) or not.
 	 */
-	bool isExtendedFrustum() const;
+	DistExtPair getDistExt(unsigned idx) const;
 
 protected:
 	static oocframework::ClassId* mClassId;

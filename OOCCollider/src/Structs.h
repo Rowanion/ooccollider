@@ -20,4 +20,10 @@ struct Tile{
 	double renderTime;
 };
 
+struct DistExtPair{
+	DistExtPair(float _dist, bool _isExt);
+	float dist;
+	bool isExt;
+};
+
 #endif /* STRUCTS_H_ */
