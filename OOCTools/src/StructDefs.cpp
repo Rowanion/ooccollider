@@ -100,21 +100,21 @@ void Quadruple::set(const Quadruple* rhs)
 }
 
 bool Quadruple::operator<(const Quadruple& rhs) const {
-	if (lvl == rhs.lvl){
-		if (dist == rhs.dist){
-			if (destId == rhs.destId){
+	if (destId == rhs.destId){
+		if (lvl == rhs.lvl){
+			if (dist == rhs.dist){
 				return (id < rhs.id);
 			}
-			else{
-				return destId < rhs.destId;
+			else {
+				return (dist < rhs.dist);
 			}
 		}
 		else {
-			return (dist < rhs.dist);
+			return (lvl < rhs.lvl);
 		}
 	}
-	else {
-		return (lvl < rhs.lvl);
+	else{
+		return destId < rhs.destId;
 	}
 }
 
@@ -152,21 +152,21 @@ void Quintuple::set(const Quintuple* rhs)
 }
 
 bool Quintuple::operator<(const Quintuple& rhs) const {
-	if (lvl == rhs.lvl){
-		if (dist == rhs.dist){
-			if (destId == rhs.destId){
+	if (destId == rhs.destId){
+		if (lvl == rhs.lvl){
+			if (dist == rhs.dist){
 				return (id < rhs.id);
 			}
-			else{
-				return destId < rhs.destId;
+			else {
+				return (dist < rhs.dist);
 			}
 		}
 		else {
-			return (dist < rhs.dist);
+			return (lvl < rhs.lvl);
 		}
 	}
-	else {
-		return (lvl < rhs.lvl);
+	else{
+		return destId < rhs.destId;
 	}
 }
 
