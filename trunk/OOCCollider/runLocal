@@ -1,3 +1,4 @@
 #!/bin/sh
-mpirun --prefix /opt/OpenMPI64 -n $1 Debug/OOCCollider
+
+mpirun --prefix /opt/OpenMPI64 -n $1 Debug/OOCCollider $2 $3
 

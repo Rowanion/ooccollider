@@ -74,6 +74,7 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 
 	// Main rendering loop
 	unsigned frames = 0;
+
 	mPriMpiCon->barrier();
 	do {
 		mPriGotMatrix = false;

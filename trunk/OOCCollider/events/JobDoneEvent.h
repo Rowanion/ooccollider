@@ -26,11 +26,14 @@
 class JobDoneEvent : public oocframework::IEvent{
 public:
 	JobDoneEvent();
+	JobDoneEvent(unsigned int _jobCount);
+	JobDoneEvent(const oocframework::Message* msg);
 	virtual ~JobDoneEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 
+	unsigned int getJobCount() const {return ((unsigned int*)mProData)[0];};
 protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();

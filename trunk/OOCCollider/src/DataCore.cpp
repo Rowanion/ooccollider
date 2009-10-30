@@ -61,6 +61,7 @@ DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidt
 		mPriQuintMapList.insert(make_pair(dataGrp[i], std::list<const ooctools::Quintuple*>()));
 	}
 	// Main rendering loop
+
 	mPriMpiCon->barrier();
 
 	do {
@@ -161,6 +162,7 @@ void DataCore::handleMsg(Message* msg){
 		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
 			NodeRequestEvent nre = NodeRequestEvent(msg);
 			// fetch/reload VBOs and send back
+			cout << "starting " << nre.getIdxCount() << " jobs" << endl;
 
 			// sort Quadruples into map based on their destination id
 			for (unsigned i=0; i< nre.getIdxCount(); ++i){
@@ -172,11 +174,12 @@ void DataCore::handleMsg(Message* msg){
 			for (; mapListIt != mPriQuintMapList.end(); ++mapListIt){
 				if (!mapListIt->second.empty()){
 					mGlFrame->display(mapListIt->first, &(mapListIt->second));
-					JobDoneEvent jde = JobDoneEvent();
-					mPriMpiCon->isend(new Message(jde, 0));
 				}
 				mapListIt->second.clear();
 			}
+			cout << "finished " << nre.getIdxCount() << " jobs" << endl;
+			JobDoneEvent jde = JobDoneEvent(nre.getIdxCount());
+			mPriMpiCon->isend(new Message(jde, 0));
 			// clear the lists in the map;
 			// for each non-empty map -> call display with ref toi this map
 			GET_GLERROR(0);

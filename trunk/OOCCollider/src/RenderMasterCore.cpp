@@ -56,7 +56,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			true), mPriFrameCount(DEPTHBUFFER_INTERVAL), mPriRenderTimeCount(0), mPriOh(
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
-			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriNodeReqList(std::list<NodeRequestEvent>()),
+			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriQuintSet(std::set<Quintuple>()),
 			mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
@@ -84,11 +84,13 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	}
 
 	int id = 0;
+
 	mPriRootTile.xPos = mPriRootTile.yPos = 0;
 	mPriRootTile.width = _width;
 	mPriRootTile.height = _height;
 	mPriSTree = new Splittree(mPriMpiCon->getGroupSize(MpiControl::RENDERER),Splittree::VERTICAL,0,0,_width,_height,id);
 	mPriSTree->split(mPriRenderTimes, mPriRootTile,mPriTileMap);
+
 //	cout << "-----------------------1: " << newCoords[1].xPos << ", " << newCoords[1].yPos << ", " << newCoords[1].width << ", " << newCoords[1].height << endl;
 //	cout << "-----------------------2: " << newCoords[2].xPos << ", " << newCoords[2].yPos << ", " << newCoords[2].width << ", " << newCoords[2].height << endl;
 //	cout << "-----------------------3: " << newCoords[3].xPos << ", " << newCoords[3].yPos << ", " << newCoords[3].width << ", " << newCoords[3].height << endl;
@@ -109,7 +111,6 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			ctde.setTileDimension(it->second);
 			MpiControl::getSingleton()->send(new Message(ctde, it->first));
 		}
-
 
 	// Main rendering loop
 	unsigned frames = 0;
@@ -316,15 +317,19 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 //			cout << "NodeRequest" << endl;
 			//TODO implement c-Collision
 			// at the moment it just passes the request to the only datanode
-			mPriNodeReqList.push_back(NodeRequestEvent(msg));
+			NodeRequestEvent nre = NodeRequestEvent(msg);
+			for (unsigned i = 0; i< nre.getIdxCount(); ++i){
+				mPriQuintSet.insert(*nre.getQuintuple(i));
+			}
 		}
 		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()) {
 //			cout << "EndTransmission" << endl;
 			mPriRendererDoneCount++;
 		}
 		else if (msg->getType() == JobDoneEvent::classid()->getShortId()) {
-//			cout << "MASTER got JobDone MESSAGE!!!" << endl;
-			mPriDataLoad[msg->getSrc()]--;
+			//			cout << "MASTER got JobDone MESSAGE!!!" << endl;
+			JobDoneEvent jde = JobDoneEvent(msg);
+			mPriDataLoad[msg->getSrc()] -= jde.getJobCount();
 			cout << "jobs pending: " << mPriDataLoad[msg->getSrc()] << endl;
 		}
 		else{
@@ -348,14 +353,33 @@ void RenderMasterCore::manageCCollision()
 	while(!mPriMpiCon->inQueueEmpty()){
 		handleMsg(mPriMpiCon->pop());
 	}
-//	cout << "number of noderequests waiting to be processes by c-collision: " << mPriNodeReqList.size() << endl;
-	list<NodeRequestEvent>::iterator nodeReqIt = mPriNodeReqList.begin();
-	for (; nodeReqIt != mPriNodeReqList.end(); ++nodeReqIt){
-		mPriMpiCon->isend(new Message(*nodeReqIt,mPriMpiCon->getDataGroup()[0]));
-		mPriDataLoad[mPriMpiCon->getDataGroup()[0]]++;
-		cout << "now working on " << mPriDataLoad[mPriMpiCon->getDataGroup()[0]] << " jobs" << endl;
+	// distribution of requests from here
+	if (!mPriQuintSet.empty()){
+		// simple netdistribution with modulo 2
+		set<Quintuple> quintSet0 = set<Quintuple>();
+		set<Quintuple> quintSet1 = set<Quintuple>();
+		set<Quintuple>::iterator quintIt = mPriQuintSet.begin();
+		for (; quintIt != mPriQuintSet.end(); ++quintIt){
+			if (quintIt->id%2 == 0){
+				quintSet0.insert(*quintIt);
+			}
+			else {
+				quintSet1.insert(*quintIt);
+			}
+		}
+		if (!quintSet0.empty()){
+			NodeRequestEvent nre = NodeRequestEvent(quintSet0);
+			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[0]));
+			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
+		}
+		if (!quintSet1.empty()){
+			NodeRequestEvent nre = NodeRequestEvent(quintSet1);
+			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[1]));
+			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
+		}
+//		cout << "assigning " << nre.getIdxCount() << " jobs" << endl;
+		mPriQuintSet.clear();
 	}
-	mPriNodeReqList.clear();
 
 }
 

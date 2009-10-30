@@ -13,13 +13,28 @@
 
 #include "ClassId.h"
 #include "IEvent.h"
+#include "Message.h"
 
 oocframework::ClassId* JobDoneEvent::mClassId = new oocframework::ClassId("JobDoneEvent");
 
 JobDoneEvent::JobDoneEvent() {
-	mProByteSize = 1;
+	mProByteSize = sizeof(unsigned int);
 	mProData = new char[mProByteSize];
 	init();
+}
+
+JobDoneEvent::JobDoneEvent(unsigned int _jobCount) {
+	mProByteSize = sizeof(unsigned int);
+	mProData = new char[mProByteSize];
+	((unsigned int*)mProData)[0] = _jobCount;
+	init();
+}
+
+JobDoneEvent::JobDoneEvent(const oocframework::Message* msg)
+{
+	mProByteSize = msg->getLength();
+	mProData = new char[mProByteSize];
+	memcpy(mProData, msg->getData(),mProByteSize);
 }
 
 JobDoneEvent::~JobDoneEvent() {

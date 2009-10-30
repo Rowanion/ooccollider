@@ -102,7 +102,7 @@ void DataCoreGlFrame::init() {
 
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 
-	glGenQueries(MAX_LOADS_PER_FRAME, mPriOccQueries);
+	glGenQueries(MAX_LOADS_PER_FRAME*4, mPriOccQueries);
 	GET_GLERROR(0);
 
 	mPriFbo = new Fbo(mProWindowWidth,mProWindowHeight);
@@ -244,7 +244,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 						mPriVboMap[(*quintIt)->id]->managedDraw(true);
 //						mPriIdLoMap[tripIterator->id]->getBb().drawSolidTriFan();
 						mPriVisibleVbosVec.push_back(mPriVboMap[(*quintIt)->id]);
-						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->isExt));
+						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->priority));
 						byteSize = mPriVboMap[(*quintIt)->id]->getIndexCount()*sizeof(unsigned)+mPriVboMap[(*quintIt)->id]->getVertexCount()*sizeof(V4N4);
 					}
 					queryCount++;
@@ -261,7 +261,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 	if (mPriVisibleDistExtVec.size() > 0){
 		// send the visible object to the requester
 		VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistExtVec);
-		if ((*_quintList->begin())->isExt){
+		if ((*_quintList->begin())->priority){
 //			cout << "sending CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
 		}
 
