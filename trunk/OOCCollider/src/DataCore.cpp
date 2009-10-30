@@ -29,7 +29,7 @@
 #include "VboEvent.h"
 #include "InfoRequestEvent.h"
 #include "DepthBufferRequestEvent.h"
-#include "IEvent.h"
+#include "JobDoneEvent.h"
 
 #define RENDER_NODES 1
 
@@ -172,6 +172,8 @@ void DataCore::handleMsg(Message* msg){
 			for (; mapListIt != mPriQuintMapList.end(); ++mapListIt){
 				if (!mapListIt->second.empty()){
 					mGlFrame->display(mapListIt->first, &(mapListIt->second));
+					JobDoneEvent jde = JobDoneEvent();
+					mPriMpiCon->isend(new Message(jde, 0));
 				}
 				mapListIt->second.clear();
 			}

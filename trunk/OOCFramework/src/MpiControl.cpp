@@ -31,7 +31,10 @@ MpiControl::getSingleton()
 	return MpiControl::instance;
 }
 
-MpiControl::MpiControl() : mRank(0), mSize(0), mPriInRequests(std::queue<Message*>()), mPriOutRequests(std::queue<Message*>())
+MpiControl::MpiControl() :
+	mRank(0), mSize(0), mPriRenderNodes(vector<int>()), mPriDataNodes(vector<int>()), mPriInRequests(std::queue<Message*>()),
+	mPriOutRequests(std::queue<Message*>())
+
 
 {
 	MPI::Init();
@@ -239,6 +242,11 @@ void MpiControl::ireceive(Group _group)
 	case DATA:{
 		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
 			ireceive(mPriDataNodes[i]);
+		}
+		break;}
+	case ANY:{
+		for(unsigned i=0; i< mPriDataNodes.size(); ++i){
+			ireceive(MPI_ANY_SOURCE);
 		}
 		break;}
 	default:

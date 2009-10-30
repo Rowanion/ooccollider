@@ -29,7 +29,8 @@ public:
 		DEFAULT = -1,
 		ALL = 0,
 		RENDERER = 1,
-		DATA = 2
+		DATA = 2,
+		ANY = 3
 	};
 	virtual ~MpiControl();
 	void init();

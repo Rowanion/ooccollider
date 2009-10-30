@@ -41,6 +41,7 @@
 #include "CameraMovedEvent.h"
 #include "NodeRequestEvent.h"
 #include "EndTransmissionEvent.h"
+#include "JobDoneEvent.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -55,7 +56,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			true), mPriFrameCount(DEPTHBUFFER_INTERVAL), mPriRenderTimeCount(0), mPriOh(
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
-			mPriMpiCon(0), mPriNodeReqList(std::list<NodeRequestEvent>()),
+			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriNodeReqList(std::list<NodeRequestEvent>()),
 			mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
@@ -78,7 +79,10 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mPriGlFrame->init();
 
 	mPriMpiCon = MpiControl::getSingleton();
-	// --------------------------------------------------
+	for (unsigned i=0; i< mPriMpiCon->getGroupSize(MpiControl::DATA); ++i){
+		mPriDataLoad.insert(make_pair(mPriMpiCon->getDataGroup()[i],0));
+	}
+
 	int id = 0;
 	mPriRootTile.xPos = mPriRootTile.yPos = 0;
 	mPriRootTile.width = _width;
@@ -261,9 +265,11 @@ MPI::Request RenderMasterCore::sendQueue(int dest) {
 void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 	if (msg != 0) {
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()) {
+//			cout << "KillApplicationRequest" << endl;
 			mRunning = false;
 			cout << "recveived kill! from " << msg->getSrc() << endl;
 		} else if (msg->getType() == ColorBufferEvent::classid()->getShortId()) {
+//			cout << "ColorBufferRequest" << endl;
 			//			cout << "recveived colorbuffer! " << msg->getSrc() << endl;
 
 			ColorBufferEvent cbe = ColorBufferEvent(msg);
@@ -282,6 +288,7 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			//			mRunning = false;
 		}
 		else if (msg->getType() == AccumulatedRendertimeEvent::classid()->getShortId()) {
+//			cout << "AccumulatedRendertimeRequest" << endl;
 			mPriRenderTimes[msg->getSrc()-1] = ((double*)msg->getData())[0];
 //			mPriTileMap[msg->getSrc()].renderTime = ((double*)msg->getData())[0];
 			mPriRenderTimeCount++;
@@ -315,6 +322,11 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 //			cout << "EndTransmission" << endl;
 			mPriRendererDoneCount++;
 		}
+		else if (msg->getType() == JobDoneEvent::classid()->getShortId()) {
+//			cout << "MASTER got JobDone MESSAGE!!!" << endl;
+			mPriDataLoad[msg->getSrc()]--;
+			cout << "jobs pending: " << mPriDataLoad[msg->getSrc()] << endl;
+		}
 		else{
 			cout << "MASTER got unclassified MESSAGE!!!" << endl;
 		}
@@ -327,7 +339,7 @@ void RenderMasterCore::manageCCollision()
 {
 	mPriRendererDoneCount = 0;
 	while (mPriRendererDoneCount<mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
-		mPriMpiCon->ireceive(MpiControl::RENDERER);
+		mPriMpiCon->ireceive(MpiControl::ANY);
 		while(!mPriMpiCon->inQueueEmpty()){
 			handleMsg(mPriMpiCon->pop());
 		}
@@ -340,6 +352,8 @@ void RenderMasterCore::manageCCollision()
 	list<NodeRequestEvent>::iterator nodeReqIt = mPriNodeReqList.begin();
 	for (; nodeReqIt != mPriNodeReqList.end(); ++nodeReqIt){
 		mPriMpiCon->isend(new Message(*nodeReqIt,mPriMpiCon->getDataGroup()[0]));
+		mPriDataLoad[mPriMpiCon->getDataGroup()[0]]++;
+		cout << "now working on " << mPriDataLoad[mPriMpiCon->getDataGroup()[0]] << " jobs" << endl;
 	}
 	mPriNodeReqList.clear();
 
