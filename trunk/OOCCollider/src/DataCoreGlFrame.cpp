@@ -142,7 +142,7 @@ void DataCoreGlFrame::setupCg()
 
 void DataCoreGlFrame::display()
 {
-	NodeRequestEvent nre = NodeRequestEvent();
+	NodeRequestEvent nre = NodeRequestEvent(0);
 	std::list<const Quintuple*> quintList = std::list<const Quintuple*>();
 	display(MpiControl::getSingleton()->getRenderGroup()[0], &quintList);
 }

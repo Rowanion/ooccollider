@@ -544,7 +544,16 @@ RenderCoreGlFrame::requestMissingVbos()
 			ooctools::V3f center = ooctools::V3f();
 			currentNode = mPriIdLoMap[*setIt];
 			currentNode->getBb().computeCenter(center);
+			// -------------------------------------------------------
 			missingQuintuple.insert(Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, false));
+//			Quintuple q;
+//			q.lvl = currentNode->getLevel();
+//			q.dist = mPriEyePosition.calcDistance(center);
+//			q.destId = MpiControl::getSingleton()->getRank();
+//			q.id = *setIt;
+//			q.isExt = 0;
+//			missingQuintuple.insert(q);
+			// -------------------------------------------------------
 			mPriRequestedVboList.insert(*setIt);
 			reqCount++;
 		}
@@ -555,9 +564,17 @@ RenderCoreGlFrame::requestMissingVbos()
 			mPriOfflineVbosInFrustum.erase(offIt);
 		}
 	}
-
 	if (missingQuintuple.size() > 0){
-		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple, MpiControl::getSingleton()->getRank(), false);
+		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
+//		// ------------------------------
+//		Message bla = Message(nre, 0);
+//		NodeRequestEvent nre2 = NodeRequestEvent(&bla);
+//		for (unsigned i=0; i< nre.getIdxCount(); ++i){
+//			cout << "in renderer " << nre2.getQuintuple(i)->destId << ", " << nre2.getQuintuple(i)->dist << ", " << nre2.getQuintuple(i)->id << ", " << nre2.getQuintuple(i)->isExt << ", " << nre2.getQuintuple(i)->lvl << endl;
+//		}
+//		exit(0);
+//		// ------------------------------
+
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
 		mPriMissingIdsInFrustum.clear();
 		frustReq = nre.getIdxCount();
@@ -577,13 +594,23 @@ RenderCoreGlFrame::requestMissingVbos()
 			ooctools::V3f center = ooctools::V3f();
 			currentNode = mPriIdLoMap[*setIt];
 			currentNode->getBb().computeCenter(center);
+			// -------------------------------------------------------
 			missingQuintuple.insert(ooctools::Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, true));
+//			Quintuple q;
+//			q.lvl = currentNode->getLevel();
+//			q.dist = mPriEyePosition.calcDistance(center);
+//			q.destId = MpiControl::getSingleton()->getRank();
+//			q.id = *setIt;
+//			q.isExt = 1;
+//			missingQuintuple.insert(q);
+			// -------------------------------------------------------
+
 			mPriRequestedVboList.insert(*setIt);
 			reqCount++;
 		}
 
 		//TODO do something about the loadPerFrame limit
-		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple, MpiControl::getSingleton()->getRank(), true);
+		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
 //		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
 		extFrustReq = nre.getIdxCount();

@@ -13,10 +13,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* InfoRequestEvent::mClassId = new oocframework::ClassId("InfoRequestEvent");
-unsigned InfoRequestEvent::mProByteSize = 1;
 
 InfoRequestEvent::InfoRequestEvent() {
-	mProData = new char[1];
+	mProByteSize = 1;
+	mProData = new char[mProByteSize];
 	init();
 }
 

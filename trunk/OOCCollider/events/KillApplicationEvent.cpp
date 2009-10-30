@@ -13,10 +13,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* KillApplicationEvent::mClassId = new oocframework::ClassId("KillApplicationEvent");
-unsigned KillApplicationEvent::mProByteSize = 1;
 
 KillApplicationEvent::KillApplicationEvent() {
-	mProData = new char[1];
+	mProByteSize = 1;
+	mProData = new char[mProByteSize];
 	init();
 }
 

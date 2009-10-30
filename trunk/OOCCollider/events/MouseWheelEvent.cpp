@@ -13,16 +13,17 @@
 #include "IEvent.h"
 
 oocframework::ClassId* MouseWheelEvent::mClassId = new oocframework::ClassId("MouseWheelEvent");
-unsigned MouseWheelEvent::mProByteSize = sizeof(int);
 
 MouseWheelEvent::MouseWheelEvent() {
-	mProData = new char[MouseWheelEvent::mProByteSize];
+	mProByteSize = sizeof(int);
+	mProData = new char[mProByteSize];
 	((Direction*)mProData)[0] = STILL;
 	init();
 }
 
 MouseWheelEvent::MouseWheelEvent(Direction _direction) {
-	mProData = new char[sizeof(int)];
+	mProByteSize = sizeof(int);
+	mProData = new char[mProByteSize];
 	((Direction*)mProData)[0] = _direction;
 	init();
 }

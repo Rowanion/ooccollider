@@ -13,17 +13,18 @@
 #include "IEvent.h"
 
 oocframework::ClassId* MouseDraggedEvent::mClassId = new oocframework::ClassId("MouseDraggedEvent");
-unsigned MouseDraggedEvent::mProByteSize = sizeof(int)*2;
 
 MouseDraggedEvent::MouseDraggedEvent() {
-	mProData = new char[MouseDraggedEvent::mProByteSize];
+	mProByteSize = sizeof(int)*2;
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = 0;
 	((int*)mProData)[1] = 0;
 	init();
 }
 
 MouseDraggedEvent::MouseDraggedEvent(int x, int y){
-	mProData = new char[sizeof(int)];
+	mProByteSize = sizeof(int)*2;
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = x;
 	((int*)mProData)[1] = y;
 	init();

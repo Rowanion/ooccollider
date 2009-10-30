@@ -35,8 +35,9 @@
  */
 class NodeRequestEvent : public oocframework::IEvent{
 public:
-	NodeRequestEvent();
-	NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet, int recipient, bool isExtendedFrustum);
+//	NodeRequestEvent();
+	NodeRequestEvent(const NodeRequestEvent& _nre);
+	NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet);
 	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();
@@ -44,24 +45,17 @@ public:
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 
 	/**
-	 * @brief Switching to member for byteSize because the size may differ per event.
-	 * The resolution is the key to size determination.
-	 * @return the size in bytes stored in superclass oocframework::IEvent::mProData
-	 */
-	virtual unsigned getByteSize(){return mPriByteSize;};
-
-	/**
 	 * @brief Returns a const pointer to the requested Quadruple at index idx.
 	 */
 	ooctools::Quintuple* getQuintuple(unsigned idx) const {
-		return &(((ooctools::Quintuple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[idx]);
+		return &(((ooctools::Quintuple*)(mProData+sizeof(unsigned)))[idx]);
 	};
 
 	/**
 	 * @brief Returns a const pointer to all Quadruples.
 	 */
 	const ooctools::Quintuple* getQuintupleArray() const {
-		return ((const ooctools::Quintuple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)));
+		return ((const ooctools::Quintuple*)(mProData+sizeof(unsigned)));
 	};
 
 	/**
@@ -71,6 +65,7 @@ public:
 		return ((unsigned*)mProData)[0];
 	};
 
+	const NodeRequestEvent& operator=(const NodeRequestEvent& _rhs);
 //	/**
 //	 * @brief Returns the id of the mpi-node which requested these vbos.
 //	 */
@@ -78,18 +73,10 @@ public:
 //		return 	((int*)(mProData+sizeof(unsigned)))[0];
 //	};
 
-	/**
-	 * @brief Returns whether the NodeRequest is for the extended frustum or not (ie. the original frustum).
-	 */
-	bool isExtendedFrustum() const {
-		return 	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0];
-	};
-
 protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();
 private:
-	unsigned mPriByteSize;
 };
 
 #endif /* NodeRequestEVENT_H_ */

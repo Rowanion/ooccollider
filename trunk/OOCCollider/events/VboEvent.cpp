@@ -24,8 +24,8 @@ using namespace ooctools;
 oocframework::ClassId* VboEvent::mClassId = new oocframework::ClassId("VboEvent");
 
 VboEvent::VboEvent() {
-	mPriByteSize = sizeof(unsigned);
-	mProData = new char[mPriByteSize];
+	mProByteSize = sizeof(unsigned);
+	mProData = new char[mProByteSize];
 	((unsigned*)mProData)[0] = 0;
 	init();
 }
@@ -35,8 +35,8 @@ VboEvent::VboEvent(const ooctools::IndexedVbo* vbo) // single vbo
 	unsigned bytePrefixSums[2];
 	bytePrefixSums[0] = 0;
 	bytePrefixSums[1] = sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*vbo->getIndexCount() + sizeof(V4N4)*vbo->getVertexCount();
-	mPriByteSize = sizeof(unsigned) + sizeof(unsigned)*(2) + bytePrefixSums[1];
-	mProData = new char[mPriByteSize];
+	mProByteSize = sizeof(unsigned) + sizeof(unsigned)*(2) + bytePrefixSums[1];
+	mProData = new char[mProByteSize];
 
 	((unsigned*)mProData)[0] = 1;
 	memcpy(((mProData + sizeof(unsigned))), bytePrefixSums, sizeof(unsigned)*(2));
@@ -61,8 +61,8 @@ VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::
 		bytePrefixSums[i] = bytePrefixSums[i-1] + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair) + sizeof(unsigned)*vboVec[i-1]->getIndexCount() + sizeof(V4N4)*vboVec[i-1]->getVertexCount();
 	}
 	// vbocount + bytePrefixSums+1 + sum of bytes
-	mPriByteSize = sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[vboCount];
-	mProData = new char[mPriByteSize];
+	mProByteSize = sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[vboCount];
+	mProData = new char[mProByteSize];
 
 	((unsigned*)mProData)[0] = vboCount;
 
@@ -133,8 +133,8 @@ VboEvent::VboEvent(std::string path, uint64_t nodeId) // single vbo
 	unsigned bytePrefixSums[2];
 	bytePrefixSums[0] = 0;
 	bytePrefixSums[1] = sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(unsigned)*iCount + sizeof(V4N4)*vCount;
-	mPriByteSize = sizeof(unsigned) + sizeof(unsigned)*(2) + bytePrefixSums[1];
-	mProData = new char[mPriByteSize];
+	mProByteSize = sizeof(unsigned) + sizeof(unsigned)*(2) + bytePrefixSums[1];
+	mProData = new char[mProByteSize];
 	((unsigned*)mProData)[0] = 1;
 	memcpy(((mProData + sizeof(unsigned))), bytePrefixSums, sizeof(unsigned)*(2));
 	char* tempPt =  (mProData + sizeof(unsigned) + sizeof(unsigned)*(2));
@@ -151,9 +151,9 @@ VboEvent::VboEvent(std::string path, uint64_t nodeId) // single vbo
 }
 
 VboEvent::VboEvent(const oocframework::Message* msg){
-	mPriByteSize = msg->getLength();
+	mProByteSize = msg->getLength();
 //	const char* dat = msg->getData();
-	mProData = new char[mPriByteSize];
+	mProData = new char[mProByteSize];
 
 	memcpy(mProData, msg->getData(),msg->getLength());
 

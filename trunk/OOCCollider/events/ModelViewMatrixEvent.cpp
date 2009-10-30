@@ -14,10 +14,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* ModelViewMatrixEvent::mClassId = new oocframework::ClassId("ModelViewMatrixEvent");
-unsigned ModelViewMatrixEvent::mProByteSize = sizeof(float)*16;
 
 ModelViewMatrixEvent::ModelViewMatrixEvent(){
-	mProData = new char[ModelViewMatrixEvent::mProByteSize];
+	mProByteSize = sizeof(float)*16;
+	mProData = new char[mProByteSize];
 	((float*)mProData)[0] = 1;
 	((float*)mProData)[1] = 0;
 	((float*)mProData)[2] = 0;
@@ -38,14 +38,16 @@ ModelViewMatrixEvent::ModelViewMatrixEvent(){
 }
 
 ModelViewMatrixEvent::ModelViewMatrixEvent(const float* matrix){
-	mProData = new char[ModelViewMatrixEvent::mProByteSize];
-	memcpy(mProData, matrix, ModelViewMatrixEvent::mProByteSize);
+	mProByteSize = sizeof(float)*16;
+	mProData = new char[mProByteSize];
+	memcpy(mProData, matrix, mProByteSize);
 	init();
 }
 
 ModelViewMatrixEvent::ModelViewMatrixEvent(const oocframework::Message* msg)
 {
-	mProData = new char[ModelViewMatrixEvent::mProByteSize];
+	mProByteSize = sizeof(float)*16;
+	mProData = new char[mProByteSize];
 	memcpy(mProData, msg->getData(),msg->getLength());
 }
 

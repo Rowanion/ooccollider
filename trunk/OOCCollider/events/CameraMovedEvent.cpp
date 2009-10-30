@@ -14,10 +14,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* CameraMovedEvent::mClassId = new oocframework::ClassId("CameraMovedEvent");
-unsigned CameraMovedEvent::mProByteSize = 1;
 
 CameraMovedEvent::CameraMovedEvent() {
-	mProData = new char[1];
+	mProByteSize = 1;
+	mProData = new char[mProByteSize];
 	init();
 }
 

@@ -13,10 +13,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* MouseButtonStateChangeEvent::mClassId = new oocframework::ClassId("MouseButtonStateChangeEvent");
-unsigned MouseButtonStateChangeEvent::mProByteSize = sizeof(int)*3;
 
 MouseButtonStateChangeEvent::MouseButtonStateChangeEvent() {
-	mProData = new char[MouseButtonStateChangeEvent::mProByteSize];
+	mProByteSize = sizeof(int)*3;
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = 0;
 	((int*)mProData)[1] = 0;
 	((int*)mProData)[2] = 0;
@@ -24,7 +24,8 @@ MouseButtonStateChangeEvent::MouseButtonStateChangeEvent() {
 }
 
 MouseButtonStateChangeEvent::MouseButtonStateChangeEvent(int button, int oState, int nState) {
-	mProData = new char[MouseButtonStateChangeEvent::mProByteSize];
+	mProByteSize = sizeof(int)*3;
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = button;
 	((int*)mProData)[1] = oState;
 	((int*)mProData)[2] = nState;

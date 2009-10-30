@@ -13,10 +13,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* WindowClosedEvent::mClassId = new oocframework::ClassId("WindowClosedEvent");
-unsigned WindowClosedEvent::mProByteSize = 0;
 
 WindowClosedEvent::WindowClosedEvent() {
-	mProData = 0;
+	mProByteSize = 1;
+	mProData = new char[mProByteSize];
 	init();
 }
 

@@ -25,6 +25,7 @@
 #include "MouseDraggedEvent.h"
 #include "Fbo.h"
 #include "Splittree.h"
+#include "NodeRequestEvent.h"
 
 
 class RenderMasterCore: oocframework::AbstractEventListener {
@@ -56,6 +57,7 @@ private:
 	unsigned mPriRendererDoneCount;
 	unsigned mPriTileCount;
 	oocframework::EventManager* mPriEventMan;
+	std::list<NodeRequestEvent> mPriNodeReqList;
 
 	std::map<int, Tile> mPriTileMap;
 	int mPriWindowWidth;

@@ -121,10 +121,10 @@ bool Quadruple::operator<(const Quadruple& rhs) const {
 Quintuple::Quintuple(){
 }
 
-Quintuple::Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt) : lvl(_lvl), dist(_dist), destId(_destId), id(_id), isExt(_isExt){
+Quintuple::Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt) : lvl(_lvl), dist(_dist), destId(_destId), id(_id), isExt(_isExt){
 }
 
-void Quintuple::set(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt)
+void Quintuple::set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt)
 {
 	lvl = _lvl;
 	dist = _dist;
@@ -169,5 +169,25 @@ bool Quintuple::operator<(const Quintuple& rhs) const {
 		return destId < rhs.destId;
 	}
 }
+
+//bool operator<(const Quintuple& lhs, const Quintuple& rhs)
+//{
+//	if (lhs.destId == rhs.destId){
+//		if (lhs.lvl == rhs.lvl){
+//			if (lhs.dist == rhs.dist){
+//				return (lhs.id < rhs.id);
+//			}
+//			else {
+//				return (lhs.dist < rhs.dist);
+//			}
+//		}
+//		else {
+//			return (lhs.lvl < rhs.lvl);
+//		}
+//	}
+//	else{
+//		return lhs.destId < rhs.destId;
+//	}
+//}
 
 } // end of namespace OOCTools

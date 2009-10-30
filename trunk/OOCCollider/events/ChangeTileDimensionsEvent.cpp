@@ -14,15 +14,16 @@
 #include "Message.h"
 
 oocframework::ClassId* ChangeTileDimensionsEvent::mClassId = new oocframework::ClassId("ChangeTileDimensionsEvent");
-unsigned ChangeTileDimensionsEvent::mProByteSize = 4*sizeof(int);
 
 ChangeTileDimensionsEvent::ChangeTileDimensionsEvent() {
+	mProByteSize = 4*sizeof(int);
 	mProData = new char[mProByteSize];
 	init();
 }
 
 ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(int xPos, int yPos, int width, int height)
 {
+	mProByteSize = 4*sizeof(int);
 	mProData = new char[mProByteSize];
 	init();
 
@@ -34,6 +35,7 @@ ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(int xPos, int yPos, int wid
 
 ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(Tile& t)
 {
+	mProByteSize = 4*sizeof(int);
 	mProData = new char[mProByteSize];
 	init();
 
@@ -45,6 +47,7 @@ ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(Tile& t)
 
 ChangeTileDimensionsEvent::ChangeTileDimensionsEvent(const oocframework::Message* msg)
 {
+	mProByteSize = 4*sizeof(int);
 	mProData = new char[mProByteSize];
 	memcpy(mProData, msg->getData(),msg->getLength());
 }

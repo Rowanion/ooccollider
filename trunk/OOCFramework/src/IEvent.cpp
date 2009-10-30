@@ -17,7 +17,6 @@
 namespace oocframework {
 
 oocframework::ClassId* IEvent::mClassId = 0;
-unsigned IEvent::mProByteSize = 0;
 
 IEvent::IEvent() : mProData(0)
 {
@@ -47,9 +46,9 @@ const oocframework::ClassId* IEvent::classid()
 	return mClassId;
 }
 
-unsigned IEvent::getByteSize()
+unsigned IEvent::getByteSize() const
 {
-	return 0;
+	return mProByteSize;
 }
 
 const char* IEvent::getData() const
