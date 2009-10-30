@@ -13,10 +13,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* EndOfFrameEvent::mClassId = new oocframework::ClassId("EndOfFrameEvent");
-unsigned EndOfFrameEvent::mProByteSize = 1;
 
 EndOfFrameEvent::EndOfFrameEvent() {
-	mProData = new char[1];
+	mProByteSize = 1;
+	mProData = new char[mProByteSize];
 	init();
 }
 

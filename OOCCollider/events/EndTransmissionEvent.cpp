@@ -13,10 +13,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* EndTransmissionEvent::mClassId = new oocframework::ClassId("EndTransmissionEvent");
-unsigned EndTransmissionEvent::mProByteSize = 1;
 
 EndTransmissionEvent::EndTransmissionEvent() {
-	mProData = new char[1];
+	mProByteSize = 1;
+	mProData = new char[mProByteSize];
 	init();
 }
 

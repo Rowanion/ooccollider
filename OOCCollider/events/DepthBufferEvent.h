@@ -37,13 +37,6 @@ public:
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 
 	/**
-	 * @brief Switching to member for byteSize because the size may differ per event.
-	 * The framebuffer-resolution is the key to size-determination.
-	 * @return the size in bytes stored in member mPriData
-	 */
-	virtual unsigned getByteSize(){return mPriByteSize;};
-
-	/**
 	 * @brief Returns the original tile-dimensions.
 	 * This is needed to resize the frustum accordingly. Because all the depth-rendering happens at
 	 * extended frustum and the depthbuffer-size changes, this needed.
@@ -87,7 +80,6 @@ protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();
 private:
-	unsigned mPriByteSize;
 };
 
 #endif /* DEPTHBUFFEREVENT_H_ */

@@ -23,8 +23,8 @@ DepthBufferEvent::DepthBufferEvent() {
 
 DepthBufferEvent::DepthBufferEvent(Tile _tileDim, int xPos, int yPos, int width, int height, int mpiRank, const GLfloat* pixel)
 {
-	mPriByteSize = sizeof(Tile) + sizeof(int)*5 + sizeof(GLfloat)*width*height;
-	mProData = new char[mPriByteSize];
+	mProByteSize = sizeof(Tile) + sizeof(int)*5 + sizeof(GLfloat)*width*height;
+	mProData = new char[mProByteSize];
 	((Tile*)mProData)[0] = _tileDim;
 	((int*)(mProData+sizeof(Tile)))[0] = xPos;
 	((int*)(mProData+sizeof(Tile)))[1] = yPos;
@@ -45,9 +45,9 @@ DepthBufferEvent::DepthBufferEvent(Tile _tileDim, int xPos, int yPos, int width,
 
 DepthBufferEvent::DepthBufferEvent(const oocframework::Message* msg)
 {
-	mPriByteSize = msg->getLength();
+	mProByteSize = msg->getLength();
 //	const char* dat = msg->getData();
-	mProData = new char[mPriByteSize];
+	mProData = new char[mProByteSize];
 	memcpy(mProData, msg->getData(),msg->getLength());
 //
 //

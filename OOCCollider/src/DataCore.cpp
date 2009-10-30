@@ -29,6 +29,7 @@
 #include "VboEvent.h"
 #include "InfoRequestEvent.h"
 #include "DepthBufferRequestEvent.h"
+#include "IEvent.h"
 
 #define RENDER_NODES 1
 

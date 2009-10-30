@@ -38,13 +38,11 @@ public:
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
-	virtual unsigned getByteSize(){return ModelViewMatrixEvent::mProByteSize;};
 
 	const float* getMatrix() const {return (float*)mProData;};
 
 protected:
 	static oocframework::ClassId* mClassId;
-	static unsigned mProByteSize;
 	virtual void init();
 private:
 };

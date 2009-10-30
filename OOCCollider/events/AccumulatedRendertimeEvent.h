@@ -31,13 +31,11 @@ public:
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
-	virtual unsigned getByteSize(){return AccumulatedRendertimeEvent::mProByteSize;};
 
 	double getRenderTime(){return ((double*)mProData)[0];};
 
 protected:
 	static oocframework::ClassId* mClassId;
-	static unsigned mProByteSize;
 	virtual void init();
 private:
 };

@@ -13,16 +13,17 @@
 #include "IEvent.h"
 
 oocframework::ClassId* KeyPressedEvent::mClassId = new oocframework::ClassId("KeyPressedEvent");
-unsigned KeyPressedEvent::mProByteSize = sizeof(int);
 
 KeyPressedEvent::KeyPressedEvent() {
-	mProData = new char[KeyPressedEvent::mProByteSize];
+	mProByteSize = sizeof(int);
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = 0;
 	init();
 }
 
 KeyPressedEvent::KeyPressedEvent(int key) {
-	mProData = new char[KeyPressedEvent::mProByteSize];
+	mProByteSize = sizeof(int);
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = key;
 }
 

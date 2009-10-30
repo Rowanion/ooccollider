@@ -56,7 +56,7 @@ public:
 	 * how many bytes you'll get via getData().
 	 * @return the size of the sum of all event's fields in bytes.
 	 */
-	virtual unsigned getByteSize();
+	virtual unsigned getByteSize() const;
 
 	/**
 	 * @brief Returns a raw byte-pointer to all the events' data fields.
@@ -81,7 +81,7 @@ protected:
 	virtual void init();
 
 	char* mProData;
-	static unsigned mProByteSize;
+	unsigned mProByteSize;
 
 	//TODO make iEvent Message-Compatible
 	// remove obsolete fields/methods

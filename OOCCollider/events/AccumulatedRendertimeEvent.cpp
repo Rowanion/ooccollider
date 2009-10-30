@@ -13,15 +13,16 @@
 #include "IEvent.h"
 
 oocframework::ClassId* AccumulatedRendertimeEvent::mClassId = new oocframework::ClassId("AccumulatedRendertimeEvent");
-unsigned AccumulatedRendertimeEvent::mProByteSize = sizeof(double);
 
 AccumulatedRendertimeEvent::AccumulatedRendertimeEvent() {
+	mProByteSize = sizeof(double);
 	mProData = new char[mProByteSize];
 	init();
 }
 
 AccumulatedRendertimeEvent::AccumulatedRendertimeEvent(double renderTime)
 {
+	mProByteSize = sizeof(double);
 	mProData = new char[mProByteSize];
 	init();
 

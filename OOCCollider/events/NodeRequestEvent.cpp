@@ -15,34 +15,40 @@
 #include "ClassId.h"
 #include "IEvent.h"
 
+
 using namespace std;
 
 oocframework::ClassId* NodeRequestEvent::mClassId = new oocframework::ClassId("NodeRequestEvent");
 
-NodeRequestEvent::NodeRequestEvent() {
-	mPriByteSize = sizeof(unsigned);
-	mProData = new char[mPriByteSize];
-	((unsigned*)mProData)[0] = 0;
-	init();
+//NodeRequestEvent::NodeRequestEvent() {
+//	mPriByteSize = sizeof(unsigned);
+//	mProData = new char[mPriByteSize];
+//	((unsigned*)mProData)[0] = 0;
+//	init();
+//}
+
+NodeRequestEvent::NodeRequestEvent(const NodeRequestEvent& _nre)
+{
+	mProByteSize = _nre.getByteSize();
+	mProData = new char[mProByteSize];
+
+	memcpy(mProData, _nre.getData(), mProByteSize);
 }
 
-NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet, int recipient, bool isExtendedFrustum)
+NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet)
 {
 	unsigned setSize = quintSet.size();
-	unsigned minSize = setSize;
 	std::set<ooctools::Quintuple>::const_iterator quintIt;
 
 	// #of nodes, recipientId, isExtFrus, distance of each node, id of each node
-	mPriByteSize = sizeof(unsigned) + sizeof(int) + sizeof(bool) + minSize*(sizeof(ooctools::Quintuple));
-	mProData = new char[mPriByteSize];
-	((unsigned*)mProData)[0] = minSize;
-	((int*)(mProData+sizeof(unsigned)))[0] = recipient;
-	((bool*)(mProData+sizeof(unsigned)+sizeof(int)))[0] = isExtendedFrustum;
+	mProByteSize = sizeof(unsigned) + setSize*(sizeof(ooctools::Quintuple));
+	mProData = new char[mProByteSize];
+	((unsigned*)mProData)[0] = setSize;
 	unsigned elementCount = 0;
 //	std::cout << "list of node-requests inside the Event: " << std::endl;
 	for (quintIt = quintSet.begin(); quintIt!= quintSet.end(); ++quintIt){
 //		std::cout << mapIt->second << std::endl;
-		((ooctools::Quintuple*)(mProData+sizeof(unsigned)+sizeof(int)+sizeof(bool)))[elementCount] = *quintIt;
+		((ooctools::Quintuple*)(mProData+sizeof(unsigned)))[elementCount] = *quintIt;
 //		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
 
 		elementCount++;
@@ -52,9 +58,9 @@ NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet
 
 NodeRequestEvent::NodeRequestEvent(const oocframework::Message* msg){
 
-	mPriByteSize = msg->getLength();
+	mProByteSize = msg->getLength();
 //	const char* dat = msg->getData();
-	mProData = new char[mPriByteSize];
+	mProData = new char[mProByteSize];
 
 	memcpy(mProData, msg->getData(),msg->getLength());
 
@@ -62,6 +68,22 @@ NodeRequestEvent::NodeRequestEvent(const oocframework::Message* msg){
 
 NodeRequestEvent::~NodeRequestEvent() {
 	delete[] mProData;
+}
+
+const NodeRequestEvent& NodeRequestEvent::operator=(const NodeRequestEvent& _rhs)
+{
+	if (this == &_rhs)
+		return *this;
+	else{
+		if (mProByteSize != 0){
+			delete[] mProData;
+			mProData = 0;
+		}
+		mProByteSize = _rhs.getLength();
+		mProData = new char[mProByteSize];
+		memcpy(mProData, _rhs.getData(), mProByteSize);
+		return *this;
+	}
 }
 
 const oocframework::ClassId* NodeRequestEvent::classid()

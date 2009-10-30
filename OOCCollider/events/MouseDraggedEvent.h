@@ -30,7 +30,6 @@ public:
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
-	virtual unsigned getByteSize(){return MouseDraggedEvent::mProByteSize;};
 
 	/**
 	 * @brief Returns the x-position to where the mouse was dragged.
@@ -44,7 +43,6 @@ public:
 
 protected:
 	static oocframework::ClassId* mClassId;
-	static unsigned mProByteSize;
 	virtual void init();
 private:
 };

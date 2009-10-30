@@ -48,13 +48,6 @@ public:
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 
 	/**
-	 * @brief Switching to member for byteSize because the size may differ per event.
-	 * The resolution is the key to size determination.
-	 * @return the size in bytes stored in this particular events' member mPriData.
-	 */
-	virtual unsigned getByteSize(){return mPriByteSize;};
-
-	/**
 	 * @brief Returns the number of VBOs encapsulated in this event.
 	 */
 	unsigned getVboCount() const;
@@ -105,7 +98,6 @@ protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();
 private:
-	unsigned mPriByteSize;
 
 	/**
 	 * @brief Returns the number of bytes all other VBOs prior to this one take up.

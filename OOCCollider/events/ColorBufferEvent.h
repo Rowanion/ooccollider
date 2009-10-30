@@ -35,13 +35,6 @@ public:
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
 
 	/**
-	 * @brief Switching to member for byteSize because the size may differ per event.
-	 * The framebuffer-section resolution is the key to size determination.
-	 * @return the size in bytes stored in member mPriData
-	 */
-	virtual unsigned getByteSize(){return mPriByteSize;};
-
-	/**
 	 * @brief Returns the x-rasterposition of the framebuffer-section.
 	 */
 	int getX() const {return ((int*)mProData)[0];};
@@ -90,7 +83,6 @@ protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();
 private:
-	unsigned mPriByteSize;
 };
 
 #endif /* COLORBUFFEREVENT_H_ */

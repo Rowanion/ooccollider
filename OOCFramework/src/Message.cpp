@@ -28,7 +28,7 @@ Message::Message(int _type, unsigned int _length, int _dst, const char* _data, M
 Message::Message(oocframework::IEvent& event, int _dst, MpiControl::Group _group) :
 	mType(event.getClassId()->getShortId()), mLength(event.getByteSize()), mDst(_dst), mData(0), mGroup(_group)
 {
-	mData = new char[event.getByteSize()];
+	mData = new char[mLength];
 	memcpy(mData, event.getData(), mLength);
 	mSrc = MpiControl::getSingleton()->getRank();
 }

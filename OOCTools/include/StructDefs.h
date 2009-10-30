@@ -117,18 +117,20 @@ struct Quadruple{
 
 struct Quintuple{
 	Quintuple();
-	Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt);
-	void set(int _lvl, float _dist, int _destId, uint64_t _id, bool _isExt);
+	Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt);
+	void set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt);
 	void set(Quintuple rhs);
 	void set(const Quintuple* rhs);
 
 	int lvl;     // octree-level of this node
 	float dist;  // distance of node-center to eye
 	int destId;  // mpi-rank of requesting node
+	int isExt;	 // states wheather this node is in the extended frustum or not.
 	uint64_t id; // node-id
-	bool isExt;	 // states wheather this node is in the extended frustum or not.
+
 	bool operator<(const Quintuple& rhs) const;
 };
 
+//bool operator<(const Quintuple& lhs, const Quintuple& rhs);
 } // end of namespace OOCTools
 #endif /* STRUCTDEFS_H_ */

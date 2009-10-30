@@ -55,7 +55,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			true), mPriFrameCount(DEPTHBUFFER_INTERVAL), mPriRenderTimeCount(0), mPriOh(
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
-			mPriMpiCon(0),
+			mPriMpiCon(0), mPriNodeReqList(std::list<NodeRequestEvent>()),
 			mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
@@ -309,9 +309,7 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 //			cout << "NodeRequest" << endl;
 			//TODO implement c-Collision
 			// at the moment it just passes the request to the only datanode
-			msg->setDst(mPriMpiCon->getDataGroup()[0]);
-			Message* newMsg = new Message(*msg);
-			mPriMpiCon->isend(newMsg);
+			mPriNodeReqList.push_back(NodeRequestEvent(msg));
 		}
 		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()) {
 //			cout << "EndTransmission" << endl;
@@ -320,7 +318,6 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 		else{
 			cout << "MASTER got unclassified MESSAGE!!!" << endl;
 		}
-
 		delete msg;
 		msg = 0;
 	}
@@ -339,6 +336,13 @@ void RenderMasterCore::manageCCollision()
 	while(!mPriMpiCon->inQueueEmpty()){
 		handleMsg(mPriMpiCon->pop());
 	}
+//	cout << "number of noderequests waiting to be processes by c-collision: " << mPriNodeReqList.size() << endl;
+	list<NodeRequestEvent>::iterator nodeReqIt = mPriNodeReqList.begin();
+	for (; nodeReqIt != mPriNodeReqList.end(); ++nodeReqIt){
+		mPriMpiCon->isend(new Message(*nodeReqIt,mPriMpiCon->getDataGroup()[0]));
+	}
+	mPriNodeReqList.clear();
+
 }
 
 void RenderMasterCore::notify(oocframework::IEvent& event) {

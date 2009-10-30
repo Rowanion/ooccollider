@@ -23,8 +23,8 @@ ColorBufferEvent::ColorBufferEvent() {
 
 ColorBufferEvent::ColorBufferEvent(int xPos, int yPos, int width, int height, double renderTime, const GLubyte* pixel)
 {
-	mPriByteSize = sizeof(int)*5 + sizeof(double) + sizeof(GLubyte)*width*height*4;
-	mProData = new char[mPriByteSize];
+	mProByteSize = sizeof(int)*5 + sizeof(double) + sizeof(GLubyte)*width*height*4;
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = xPos;
 	((int*)mProData)[1] = yPos;
 	((int*)mProData)[2] = width;
@@ -47,9 +47,9 @@ ColorBufferEvent::ColorBufferEvent(int xPos, int yPos, int width, int height, do
 
 ColorBufferEvent::ColorBufferEvent(const oocframework::Message* msg)
 {
-	mPriByteSize = msg->getLength();
+	mProByteSize = msg->getLength();
 //	const char* dat = msg->getData();
-	mProData = new char[mPriByteSize];
+	mProData = new char[mProByteSize];
 
 	memcpy(mProData, msg->getData(),msg->getLength());
 
@@ -70,10 +70,10 @@ ColorBufferEvent::~ColorBufferEvent() {
 void ColorBufferEvent::set(int xPos, int yPos, int width, int height, double renderTime, const GLubyte* pixel)
 {
 	unsigned newSize = sizeof(int)*5 + sizeof(double) + sizeof(GLubyte)*width*height*4;
-	if (newSize != mPriByteSize){
+	if (newSize != mProByteSize){
 		delete[] mProData;
-		mPriByteSize = newSize;
-		mProData = new char[mPriByteSize];
+		mProByteSize = newSize;
+		mProData = new char[mProByteSize];
 	}
 	((int*)mProData)[0] = xPos;
 	((int*)mProData)[1] = yPos;

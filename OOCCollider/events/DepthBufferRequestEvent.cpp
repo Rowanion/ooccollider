@@ -13,10 +13,10 @@
 #include "IEvent.h"
 
 oocframework::ClassId* DepthBufferRequestEvent::mClassId = new oocframework::ClassId("DepthBufferRequestEvent");
-unsigned DepthBufferRequestEvent::mProByteSize = 1;
 
 DepthBufferRequestEvent::DepthBufferRequestEvent() {
-	mProData = new char[1];
+	mProByteSize = 1;
+	mProData = new char[mProByteSize];
 	init();
 }
 

@@ -13,17 +13,18 @@
 #include "IEvent.h"
 
 oocframework::ClassId* WindowResizedEvent::mClassId = new oocframework::ClassId("WindowResizedEvent");
-unsigned WindowResizedEvent::mProByteSize = sizeof(int)*2;
 
 WindowResizedEvent::WindowResizedEvent() {
-	mProData = new char[WindowResizedEvent::mProByteSize];
+	mProByteSize = sizeof(int)*2;
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = 0;
 	((int*)mProData)[1] = 0;
 	init();
 }
 
 WindowResizedEvent::WindowResizedEvent(int width, int height) {
-	mProData = new char[WindowResizedEvent::mProByteSize];
+	mProByteSize = sizeof(int)*2;
+	mProData = new char[mProByteSize];
 	((int*)mProData)[0] = width;
 	((int*)mProData)[1] = height;
 	init();
