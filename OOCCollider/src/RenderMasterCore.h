@@ -53,6 +53,7 @@ private:
 	oocframework::MpiControl* mPriMpiCon;
 	Tile mPriRootTile;
 	SimpleGlFrame* mPriGlFrame;
+	std::map<int, unsigned> mPriDataLoad;
 
 	unsigned mPriRendererDoneCount;
 	unsigned mPriTileCount;
