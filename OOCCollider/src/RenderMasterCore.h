@@ -58,7 +58,8 @@ private:
 	unsigned mPriRendererDoneCount;
 	unsigned mPriTileCount;
 	oocframework::EventManager* mPriEventMan;
-	std::list<NodeRequestEvent> mPriNodeReqList;
+	std::set<ooctools::Quintuple> mPriQuintSet;
+
 
 	std::map<int, Tile> mPriTileMap;
 	int mPriWindowWidth;

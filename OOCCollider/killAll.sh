@@ -1,6 +1,5 @@
 #!/bin/sh
-COMMAND = "killall -9 OOCCollider"
 
-$COMMAND
-ssh osiris $COMMAND
-ssh horus $COMMAND
+killall -9 OOCCollider
+ssh horus "killall -9 OOCCollider"
+ssh osiris "killall -9 OOCCollider"

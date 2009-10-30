@@ -125,7 +125,7 @@ struct Quintuple{
 	int lvl;     // octree-level of this node
 	float dist;  // distance of node-center to eye
 	int destId;  // mpi-rank of requesting node
-	int isExt;	 // states wheather this node is in the extended frustum or not.
+	int priority;	 // states wheather this node is in the extended frustum or not.
 	uint64_t id; // node-id
 
 	bool operator<(const Quintuple& rhs) const;

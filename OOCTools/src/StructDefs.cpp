@@ -121,7 +121,7 @@ bool Quadruple::operator<(const Quadruple& rhs) const {
 Quintuple::Quintuple(){
 }
 
-Quintuple::Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt) : lvl(_lvl), dist(_dist), destId(_destId), id(_id), isExt(_isExt){
+Quintuple::Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt) : lvl(_lvl), dist(_dist), destId(_destId), priority(_isExt), id(_id){
 }
 
 void Quintuple::set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt)
@@ -130,7 +130,7 @@ void Quintuple::set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt
 	dist = _dist;
 	destId = _destId;
 	id = _id;
-	isExt = _isExt;
+	priority = _isExt;
 }
 
 void Quintuple::set(Quintuple rhs)
@@ -139,7 +139,7 @@ void Quintuple::set(Quintuple rhs)
 	dist = rhs.dist;
 	destId = rhs.destId;
 	id = rhs.id;
-	isExt = rhs.isExt;
+	priority = rhs.priority;
 }
 
 void Quintuple::set(const Quintuple* rhs)
@@ -148,25 +148,30 @@ void Quintuple::set(const Quintuple* rhs)
 	dist = rhs->dist;
 	destId = rhs->destId;
 	id = rhs->id;
-	isExt = rhs->isExt;
+	priority = rhs->priority;
 }
 
 bool Quintuple::operator<(const Quintuple& rhs) const {
-	if (destId == rhs.destId){
-		if (lvl == rhs.lvl){
-			if (dist == rhs.dist){
-				return (id < rhs.id);
+	if (priority == rhs.priority){
+		if (destId == rhs.destId){
+			if (lvl == rhs.lvl){
+				if (dist == rhs.dist){
+					return (id < rhs.id);
+				}
+				else {
+					return (dist < rhs.dist);
+				}
 			}
 			else {
-				return (dist < rhs.dist);
+				return (lvl < rhs.lvl);
 			}
 		}
-		else {
-			return (lvl < rhs.lvl);
+		else{
+			return destId < rhs.destId;
 		}
 	}
 	else{
-		return destId < rhs.destId;
+		return priority < rhs.priority;
 	}
 }
 

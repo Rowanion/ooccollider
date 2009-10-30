@@ -72,42 +72,64 @@ MpiControl::~MpiControl()
 	}
 }
 
-void MpiControl::init()
+void MpiControl::init(int argc, char *argv[])
 {
-	if (mSize == 2) { // project start - one master & one renderer
-		mPriRenderNodes.push_back(1);
-		if (mRank == 1)
-			mGroup = RENDERER;
-	}
-	if (mSize == 3) { // one master & one renderer & data
-		mPriRenderNodes.push_back(1);
-		mPriDataNodes.push_back(2);
-		if (mRank == 1)
-			mGroup = RENDERER;
-		else if (mRank == 1)
-			mGroup = DATA;
-	}
-	else if (mSize == 4){ // first split - one master & two renderer & data
-		mPriRenderNodes.push_back(1);
-		mPriRenderNodes.push_back(2);
-		mPriDataNodes.push_back(3);
-		if (mRank >= 1 && mRank <= 2)
-			mGroup = RENDERER;
-		else if (mRank >= 3)
-			mGroup = DATA;
-	}
-	else if (mSize > 5){ // final - one master & four renderer & rest -> data
-		mPriRenderNodes.push_back(1);
-		mPriRenderNodes.push_back(2);
-		mPriRenderNodes.push_back(3);
-		mPriRenderNodes.push_back(4);
-		for (int i=5; i< mSize; ++i){
-			mPriDataNodes.push_back(i);
+	int rendererCount = 0;
+	int dataCount = 0;
+	if (argc>1){
+		rendererCount = atoi(argv[1]);
+		dataCount = atoi(argv[2]);
+
+		for (int i =1; i<= rendererCount; ++i){
+			mPriRenderNodes.push_back(i);
+			if (mRank == i){
+				mGroup = RENDERER;
+			}
 		}
-		if (mRank >= 1 && mRank <= 4)
-			mGroup = RENDERER;
-		else if (mRank >= 5)
-			mGroup = DATA;
+		for (int i = 1+rendererCount; i<= dataCount + rendererCount; ++i){
+			mPriDataNodes.push_back(i);
+			if (mRank == i){
+				mGroup = DATA;
+			}
+		}
+	}
+	else {
+
+		if (mSize == 2) { // project start - one master & one renderer
+			mPriRenderNodes.push_back(1);
+			if (mRank == 1)
+				mGroup = RENDERER;
+		}
+		if (mSize == 3) { // one master & one renderer & data
+			mPriRenderNodes.push_back(1);
+			mPriDataNodes.push_back(2);
+			if (mRank == 1)
+				mGroup = RENDERER;
+			else if (mRank == 1)
+				mGroup = DATA;
+		}
+		else if (mSize == 4){ // first split - one master & two renderer & data
+			mPriRenderNodes.push_back(1);
+			mPriRenderNodes.push_back(2);
+			mPriDataNodes.push_back(3);
+			if (mRank >= 1 && mRank <= 2)
+				mGroup = RENDERER;
+			else if (mRank >= 3)
+				mGroup = DATA;
+		}
+		else if (mSize > 5){ // final - one master & four renderer & rest -> data
+			mPriRenderNodes.push_back(1);
+			mPriRenderNodes.push_back(2);
+			mPriRenderNodes.push_back(3);
+			mPriRenderNodes.push_back(4);
+			for (int i=5; i< mSize; ++i){
+				mPriDataNodes.push_back(i);
+			}
+			if (mRank >= 1 && mRank <= 4)
+				mGroup = RENDERER;
+			else if (mRank >= 5)
+				mGroup = DATA;
+		}
 	}
 }
 

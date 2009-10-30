@@ -95,7 +95,7 @@ private:
 	float** priFrustum;
 	float priFrustTemp;
 
-	GLuint mPriOccQueries[MAX_LOADS_PER_FRAME];
+	GLuint mPriOccQueries[MAX_LOADS_PER_FRAME*4];
 	std::map<uint64_t, GLint> mPriOccResults;
 
 	std::map<uint64_t, std::string> mPriIdPathMap;

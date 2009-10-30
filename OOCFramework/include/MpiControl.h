@@ -33,7 +33,7 @@ public:
 		ANY = 3
 	};
 	virtual ~MpiControl();
-	void init();
+	void init(int argc, char *argv[]);
 
 	int getRank() const {return mRank;};
 	int getSize() const {return mSize;};
