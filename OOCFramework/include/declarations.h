@@ -28,6 +28,7 @@
  * like Interface-Definitions, the EventManager, AbstractEvents, etc.
  */
 namespace oocframework{
+	class CCollisionProtocol;
 	class IEvent;
 	class AbstractEventListener;
 	class ClassId;

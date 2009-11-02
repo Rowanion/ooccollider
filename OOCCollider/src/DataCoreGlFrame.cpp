@@ -40,7 +40,7 @@ DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsign
 		AbstractGlFrame(_winWidth, _winHeight, _targetWidth, _targetHeight),
 		scale(1.0f), avgFps(0.0f), time(0.0),
 		frame(0), mPriVboMan(0), mPriCgt(0),
-		mPriDepthBuffer(0), mPriNewDepthBuf(false), mPriExtendedFovy(EXTENDED_FOVY),
+		mPriDepthBuffer(0), mPriNewDepthBuf(false),
 		mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
 		mPriFbo(0), mPriCamera(OOCCamera())
 {
@@ -534,7 +534,6 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 //		}
 		cout << headerS.str() << "nearPlane: " << mProNearClippingPlane << endl;
 		cout << headerS.str() << "farPlane: " << mProFarClippingPlane << endl;
-		cout << headerS.str() << "Frustum-Modifier: " << mPriFrustumExtension << endl;
 
 		cout << "---------------------------------------" << endl;
 	}

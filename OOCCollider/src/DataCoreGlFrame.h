@@ -53,7 +53,6 @@ public:
 	;
 	void setMvMatrix(const float* matrix);
 
-//	void initTiles(bool extendFovy);
 //	void resizeFrustum();
 //	void resizeFrustum(unsigned _width, unsigned _height);
 //	void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum=false);
@@ -87,7 +86,6 @@ private:
 
 	GLfloat* mPriDepthBuffer;
 	bool mPriNewDepthBuf;
-	double mPriExtendedFovy;
 	// Frustum-Culling member
 	float priProj[16];
 	float priModl[16];
@@ -120,7 +118,6 @@ private:
 	std::map<int, Tile> mPriTileMap;
 	std::map<int, GLuint> mPriDepthTextures;
 	ooctools::Fbo* mPriFbo;
-	float mPriFrustumExtension;
 
 	OOCCamera mPriCamera;
 

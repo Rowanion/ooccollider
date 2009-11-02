@@ -41,7 +41,7 @@ using namespace oocframework;
 RenderCoreGlFrame::RenderCoreGlFrame(int winWidth, int winHeight, int targetWinWidth, int targetWinHeight) :
 AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()), mPriCamHasMoved(false),
-			mPriBBMode(0), mPriExtendedFovy(EXTENDED_FOVY), mPriAspectRatio(0.0f), mPriMaxDistPerLevel(0), mPriFbo(0),
+			mPriBBMode(0), mPriAspectRatio(0.0f), mPriMaxDistPerLevel(0), mPriFbo(0),
 			mPriTileYPos(0), mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
@@ -1081,10 +1081,8 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			case GLFW_KEY_PAGEUP: // tilt up
 			break;
 			case GLFW_KEY_KP_SUBTRACT:
-				mPriFrustumExtension -= 0.1;
 				break;
 			case GLFW_KEY_KP_ADD:
-				mPriFrustumExtension += 0.1;
 				break;
 			case 'R': // switch wireframe
 				if (mPriUseWireFrame)
@@ -1164,7 +1162,6 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << headerS.str() << "farPlane: " << mProFarClippingPlane << endl;
 
 		cout << headerS.str() << "Tile-Dimensions: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
-		cout << headerS.str() << "Frustum-Modifier: " << mPriFrustumExtension << endl;
 		cout << "---------------------------------------" << endl;
 	}
 

@@ -485,6 +485,9 @@ void MpiControl::push(Message* msg)
 		}
 		delete msg;
 		break;}
+	default:
+		mOutQueue.push(msg);
+		break;
 	}
 }
 

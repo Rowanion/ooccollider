@@ -1,6 +1,6 @@
 /*! \file declarations.h
-    \author Timo Wiesemann <ava@upb.de>
-    \date $Date: 2009/03/22 17:04:31 $
+    \author TheAvatar <weltmarktfuehrer@googlemail.com>
+    \date Created on 2009/03/22 17:04:31
     \brief Conveniently place all forward declarations in one place.
 
     Declares all classes of the respective namespace.
@@ -21,9 +21,9 @@
 */
 
 namespace oocformats {
-	class IModelLoader;
 	class FileHeader;
 	class FileIO;
+	class IModelLoader;
 	class LooseOctree;
 	class LooseProcessingOctree;
 	class ObjModelLoader;
