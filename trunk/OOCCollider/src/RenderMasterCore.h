@@ -26,6 +26,7 @@
 #include "Fbo.h"
 #include "Splittree.h"
 #include "NodeRequestEvent.h"
+#include "MersenneTwister.h"
 
 
 class RenderMasterCore: oocframework::AbstractEventListener {
@@ -59,6 +60,7 @@ private:
 	unsigned mPriTileCount;
 	oocframework::EventManager* mPriEventMan;
 	std::set<ooctools::Quintuple> mPriQuintSet;
+	ooctools::MTRand mPriMTwister;
 
 
 	std::map<int, Tile> mPriTileMap;

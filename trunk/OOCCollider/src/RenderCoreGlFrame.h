@@ -92,8 +92,6 @@ private:
 	bool mPriCamHasMoved;
 	unsigned mPriBBMode;
 
-	double mPriExtendedFovy;
-
 	float mPriAspectRatio;
 
 	float* mPriMaxDistPerLevel;
@@ -138,8 +136,6 @@ private:
 	bool mPriUseWireFrame;
 
 	std::set<uint64_t> mPriRequestedVboList;
-
-	float mPriFrustumExtension;
 
 	OOCCamera mPriCamera;
 

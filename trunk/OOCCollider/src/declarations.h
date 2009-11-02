@@ -20,14 +20,16 @@
                  fflush(stderr); \
          } \
 }
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+#define TARGET_WIDTH 640
+#define TARGET_HEIGHT 480
 #define DEPTHBUFFER_INTERVAL 15
 #define CAMERA_OFFSET 15.0f
 #define FAR_CLIPPING_PLANE 100.0f
-#define EXTENDED_FOVY 70.0
 #define MAX_TREE_ITERATIONS 3000
 #define BASE_FOVY 70.0
+#define PRESELECTED_SEED 670274678
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
@@ -62,9 +64,10 @@ class ChangeTileDimensionsEvent;
 class ColorBufferEvent;
 class DepthBufferEvent;
 class DepthBufferRequestEvent;
-class EndTransmissionEvent;
 class EndOfFrameEvent;
+class EndTransmissionEvent;
 class InfoRequestEvent;
+class JobDoneEvent;
 class KeyPressedEvent;
 class KillApplicationEvent;
 class ModelViewMatrixEvent;
@@ -74,6 +77,7 @@ class MouseDraggedEvent;
 class MouseMovedEvent;
 class MouseWheelEvent;
 class NodeRequestEvent;
+class RandomSeedEvent;
 class VboEvent;
 class WindowClosedEvent;
 class WindowResizedEvent;

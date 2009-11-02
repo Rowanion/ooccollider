@@ -31,6 +31,8 @@
 <option id="gnu.cpp.compiler.so.debug.option.debugging.level.541997307" name="Debug Level" superClass="gnu.cpp.compiler.so.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.41899360" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFramework/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
 <listOptionValue builtIn="false" value="/opt/OpenMPI/include"/>
 </option>
 <option id="gnu.cpp.compiler.option.other.other.788168273" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fPIC" valueType="string"/>
@@ -50,8 +52,14 @@
 </tool>
 <tool command="mpic++" id="cdt.managedbuild.tool.gnu.cpp.linker.so.debug.1892392038" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.debug">
 <option defaultValue="true" id="gnu.cpp.link.so.debug.option.shared.541455255" name="Shared (-shared)" superClass="gnu.cpp.link.so.debug.option.shared" valueType="boolean"/>
-<option id="gnu.cpp.link.option.libs.123851437" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<option id="gnu.cpp.link.option.libs.123851437" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="mpi"/>
+<listOptionValue builtIn="false" value="OOCFormats"/>
+<listOptionValue builtIn="false" value="OOCTools"/>
+</option>
+<option id="gnu.cpp.link.option.paths.815442989" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/Debug}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/Debug}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.292147280" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

@@ -42,6 +42,7 @@
 #include "NodeRequestEvent.h"
 #include "EndTransmissionEvent.h"
 #include "JobDoneEvent.h"
+#include "CCollisionProtocol.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -57,7 +58,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
 			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriQuintSet(std::set<Quintuple>()),
-			mPriWindowWidth(_width), mPriWindowHeight(_height) {
+			mPriMTwister(PRESELECTED_SEED), mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
@@ -99,7 +100,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	// ---------------------------------------------------
 
 
-
+	CCollisionProtocol ccp = CCollisionProtocol(PRESELECTED_SEED, 2);
 	//	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path("/media/ClemensHDD/Octree/skeleton.bin"));
 	//	glFrame->setVbo(new IndexedVbo(fs::path("/media/ClemensHDD/B3_SampleTree/data/0/1.idx")));
 

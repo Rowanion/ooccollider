@@ -39,7 +39,8 @@ using namespace oocframework;
 DataCore* DataCore::instance = 0;
 
 DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) :
-	mWindow(0), mRunning(true), mPriDepthBufferCount(0), mPriQuintMapList(std::map<int, std::list<const ooctools::Quintuple*> >())
+	mWindow(0), mRunning(true), mPriDepthBufferCount(0), mPriQuintMapList(std::map<int, std::list<const ooctools::Quintuple*> >()),
+	mPriMTwister(PRESELECTED_SEED)
 {
 	DataCore::instance = this;
 	mPriMpiCon = oocframework::MpiControl::getSingleton();

@@ -21,6 +21,7 @@
 #include "OctreeHandler.h"
 #include "LooseOctree.h"
 #include "MpiControl.h"
+#include "MersenneTwister.h"
 
 class DataCore {
 public:
@@ -38,6 +39,7 @@ private:
 	DataCoreGlFrame* mGlFrame;
 	unsigned mPriDepthBufferCount;
 	std::map<int, std::list<const ooctools::Quintuple*> > mPriQuintMapList;
+	ooctools::MTRand mPriMTwister;
 
 	static DataCore* instance;
 
