@@ -35,6 +35,9 @@ public:
 	CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy = 2);
 	virtual ~CCollisionProtocol();
 	void generateDistribution(const oocformats::LooseOctree* _lo);
+	const std::set<uint64_t>& getMyNodeSet();
+	void doCCollision(std::set<ooctools::Quintuple>& _quintSet, std::map<int, std::set<ooctools::Quintuple> >& _nodeReqMap);
+	void debug();
 private:
 	oocframework::MpiControl* mPriMpiCon;
 	std::map<uint64_t, std::set<int> > mPriIdToNodeMap;
@@ -45,8 +48,15 @@ private:
 	unsigned int mPriDataNodeCount;
 	int mPriLowestNodeId;
 	int mPriHighesNodeId;
+	unsigned int mPriCConst;
+	std::map<int, unsigned int> mPriNodeLoad;
+
+	typedef std::map<uint64_t, std::set<int> >::iterator IdMapSetIter;
+	typedef std::map<int, std::set<uint64_t> >::iterator NodeMapSetIter;
+	typedef std::set<int>::iterator NodeSetIter;
 
 	void genRndNodes(std::set<int>& _nodeSet);
+	void resetLoad();
 };
 
 } //oocframework
