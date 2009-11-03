@@ -27,6 +27,7 @@
 #include "Splittree.h"
 #include "NodeRequestEvent.h"
 #include "MersenneTwister.h"
+#include "CCollisionProtocol.h"
 
 
 class RenderMasterCore: oocframework::AbstractEventListener {
@@ -60,7 +61,9 @@ private:
 	unsigned mPriTileCount;
 	oocframework::EventManager* mPriEventMan;
 	std::set<ooctools::Quintuple> mPriQuintSet;
+	std::map<int, std::set<Quintuple> > mPriNodeReqMap;
 	ooctools::MTRand mPriMTwister;
+	oocframework::CCollisionProtocol mPriCCol;
 
 
 	std::map<int, Tile> mPriTileMap;

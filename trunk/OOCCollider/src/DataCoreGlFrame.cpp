@@ -42,7 +42,7 @@ DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsign
 		frame(0), mPriVboMan(0), mPriCgt(0),
 		mPriDepthBuffer(0), mPriNewDepthBuf(false),
 		mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
-		mPriFbo(0), mPriCamera(OOCCamera())
+		mPriCCol(PRESELECTED_SEED, 2), mPriFbo(0), mPriCamera(OOCCamera())
 {
 
 	for (unsigned i = 0; i < 10; ++i) {
@@ -126,6 +126,7 @@ void DataCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
+	mPriCCol.generateDistribution(mPriLo);
 	reshape(mProWindowWidth, mProWindowHeight);
 	mPriByteSize = 0;
 }
@@ -138,6 +139,15 @@ void DataCoreGlFrame::setupCg()
 
 	cgTexture = cgGetNamedParameter(cgFragmentProg, "depthTex");
 //	cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
+}
+
+void DataCoreGlFrame::loadAssignedVbos()
+{
+	set<uint64_t> nodes = mPriCCol.getMyNodeSet();
+	set<uint64_t>::iterator setIt = nodes.begin();
+	for (; setIt != nodes.end(); ++setIt){
+		mPriVboMap.insert(make_pair(*setIt, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[*setIt]+".idx"), *setIt, false)));
+	}
 }
 
 void DataCoreGlFrame::display()

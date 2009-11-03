@@ -32,6 +32,7 @@
 #include "NodeRequestEvent.h"
 #include "OOCCamera.h"
 #include "Structs.h"
+#include "CCollisionProtocol.h"
 
 
 
@@ -103,6 +104,8 @@ private:
 	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;
 	std::vector<DistExtPair> mPriVisibleDistExtVec;
 	std::set<ooctools::Quintuple> mPriQuintSet;
+	oocframework::CCollisionProtocol mPriCCol;
+
 
 	unsigned mPriByteSize;
 	bool mPriUseWireFrame;
@@ -162,6 +165,7 @@ private:
 	void calcFPS();
 	void loadMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
 	void setupCg();
+	void loadAssignedVbos();
 };
 
 #endif /* DATACOREGLFRAME_H_ */
