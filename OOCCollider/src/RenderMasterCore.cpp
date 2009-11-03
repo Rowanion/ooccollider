@@ -42,7 +42,6 @@
 #include "NodeRequestEvent.h"
 #include "EndTransmissionEvent.h"
 #include "JobDoneEvent.h"
-#include "CCollisionProtocol.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -58,7 +57,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
 			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriQuintSet(std::set<Quintuple>()),
-			mPriMTwister(PRESELECTED_SEED), mPriWindowWidth(_width), mPriWindowHeight(_height) {
+			mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, 2), mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
@@ -99,19 +98,23 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 //	exit(0);
 	// ---------------------------------------------------
 
+	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 
-	CCollisionProtocol ccp = CCollisionProtocol(PRESELECTED_SEED, 2);
-	//	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path("/media/ClemensHDD/Octree/skeleton.bin"));
+	mPriCCol.generateDistribution(mPriLo);
+
+
 	//	glFrame->setVbo(new IndexedVbo(fs::path("/media/ClemensHDD/B3_SampleTree/data/0/1.idx")));
 
 
 	// init tile-dimensions
-		ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent();
-		map<int, Tile>::iterator it = mPriTileMap.begin();
-		for(; it != mPriTileMap.end(); ++it){
-			ctde.setTileDimension(it->second);
-			MpiControl::getSingleton()->send(new Message(ctde, it->first));
-		}
+	ChangeTileDimensionsEvent ctde = ChangeTileDimensionsEvent();
+	map<int, Tile>::iterator it = mPriTileMap.begin();
+	for(; it != mPriTileMap.end(); ++it){
+		ctde.setTileDimension(it->second);
+		MpiControl::getSingleton()->send(new Message(ctde, it->first));
+	}
+
+
 
 	// Main rendering loop
 	unsigned frames = 0;
