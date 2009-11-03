@@ -21,6 +21,9 @@ CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy)
 	mPriLowestNodeId = mPriMpiCon->getDataGroup()[0];
 	mPriHighesNodeId = mPriMpiCon->getDataGroup()[mPriDataNodeCount-1];
 
+	mPriCConst = 2;
+
+	resetLoad();
 }
 
 CCollisionProtocol::~CCollisionProtocol()
@@ -33,8 +36,17 @@ CCollisionProtocol::generateDistribution(const oocformats::LooseOctree* _lo)
 	// parse octree
 	if (_lo->hasData()){
 		genRndNodes(mPriIdToNodeMap[_lo->getId()]);
+		NodeSetIter nsi = mPriIdToNodeMap[_lo->getId()].begin();
+		for (; nsi != mPriIdToNodeMap[_lo->getId()].end(); ++nsi){
+			mPriNodeToIdMap[*nsi].insert(_lo->getId());
+		}
+
 //		mPriIdToNodeMap[_lo->getId()].insert();
-		unsigned int rnd = mPriLowestNodeId + mPriMTwister.randInt(mPriLowestNodeId + mPriHighesNodeId);
+	}
+	for (unsigned i=0; i<8; ++i){
+		if (_lo->getChild(i)!=0){
+			generateDistribution(_lo->getChild(i));
+		}
 	}
 }
 
@@ -47,6 +59,60 @@ void CCollisionProtocol::genRndNodes(std::set<int>& _nodeSet)
 		}while(!verify.second);
 	}
 
+}
+
+void CCollisionProtocol::doCCollision(set<ooctools::Quintuple>& _quintSet, map<int, set<ooctools::Quintuple> >& _nodeReqMap)
+{
+	// iterator over all requested vbos
+	set<ooctools::Quintuple>::iterator quintIt = _quintSet.begin();
+	for (; quintIt != _quintSet.end(); ){
+		// iterate over each data-node to pick exactly these number of vbos
+		for (unsigned i=0; (i < mPriMpiCon->getGroupSize(MpiControl::DATA)) && (quintIt != _quintSet.end()); ++i){
+			int minLoadNode = mPriMpiCon->getDataGroup()[0];
+			set<int>& nodeSet = mPriIdToNodeMap[quintIt->id];
+			set<int>::iterator nodeIt = nodeSet.begin();
+			// iterate over all nodes which are in possession of this vbo and find minLoad
+			for (; nodeIt != nodeSet.end(); ++nodeIt){
+				if (mPriNodeLoad[*nodeIt] < mPriNodeLoad[minLoadNode]){
+					minLoadNode = *nodeIt;
+				}
+			}
+			if (mPriNodeLoad[minLoadNode] >= mPriCConst){
+				cerr << "c-collision collided!!!!" << endl;
+			}
+			else {
+				_nodeReqMap[minLoadNode].insert(*quintIt);
+				mPriNodeLoad[minLoadNode]++;
+			}
+		}
+	}
+}
+
+const std::set<uint64_t>& CCollisionProtocol::getMyNodeSet()
+{
+	return mPriNodeToIdMap[mPriMpiCon->getRank()];
+}
+
+void CCollisionProtocol::resetLoad()
+{
+	for (unsigned i=0; i< mPriMpiCon->getGroupSize(MpiControl::DATA); ++i){
+		mPriNodeLoad[mPriMpiCon->getDataGroup()[i]] = 0;
+	}
+
+}
+
+void CCollisionProtocol::debug()
+{
+	IdMapSetIter it = mPriIdToNodeMap.begin();
+	NodeSetIter nsi;
+	for (; it!=mPriIdToNodeMap.end(); it++){
+		nsi = it->second.begin();
+		cout << it->first << ": ";
+		for(; nsi != it->second.end(); ++nsi){
+			cout << *nsi << ", ";
+		}
+		cout << endl;
+	}
 }
 
 } // oocframework
