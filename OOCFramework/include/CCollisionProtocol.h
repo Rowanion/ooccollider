@@ -36,7 +36,20 @@ public:
 	virtual ~CCollisionProtocol();
 	void generateDistribution(const oocformats::LooseOctree* _lo);
 	const std::set<uint64_t>& getMyNodeSet();
-	void doCCollision(std::set<ooctools::Quintuple>& _quintSet, std::map<int, std::set<ooctools::Quintuple> >& _nodeReqMap);
+	void doCCollision(std::set<ooctools::Quintuple>* _quintSet, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap);
+
+	/**
+	 * @brief Tries to solve one round of the c-collision protocol.
+	 * Assumptions:
+	 * \f$ \texttt{Let n be the number of nodes possessing a single object. Then}\f$ <br>
+	 * \f$ \frac{\sum_{i=0}^{n} \left(Triangles_i\right)-Triangles_k}{\sum_{j=0}^{n} \left(\sum_{i=0}^{n} \left(Triangles_i\right)-Triangles_j\right)}\f$ <br>
+	 * \f$ \texttt{is the probability of choosing a single Node } N_k.\f$ <br>
+	 * \f$ \texttt{Example: 3 Nodes } N_0, N_1 \texttt{ and }N_2 \texttt{ with 10, 1 and 89 triangles.}\f$ <br>
+	 * \f$ \texttt{So the probabilities would be}\f$ <br>
+	 * \f$ \frac{100-10}{200}, \frac{100-1}{200}\texttt{ and }\frac{100-89}{200} = \frac{90}{200}, \frac{99}{200}\texttt{ and }\frac{11}{200}\f$ <br>
+	 *
+	 */
+	bool solveCCollision(std::map<int, std::set<uint64_t> >* _initialDistribution, unsigned _cConst);
 	void debug();
 private:
 	oocframework::MpiControl* mPriMpiCon;
@@ -50,6 +63,8 @@ private:
 	int mPriHighesNodeId;
 	unsigned int mPriCConst;
 	std::map<int, unsigned int> mPriNodeLoad;
+	std::map<int, unsigned int> mPriTriCount;
+	std::map<int, unsigned int> mPriRequestCount;
 
 	typedef std::map<uint64_t, std::set<int> >::iterator IdMapSetIter;
 	typedef std::map<int, std::set<uint64_t> >::iterator NodeMapSetIter;

@@ -35,6 +35,8 @@ namespace oocframework{
 	class EventManager;
 	class Message;
 	class MpiControl;
+	class VirtualNode;
+	class VirtualRequest;
 
 
 } // end of namespace oocframework

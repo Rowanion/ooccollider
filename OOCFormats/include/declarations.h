@@ -29,7 +29,7 @@ namespace oocformats {
 	class ObjModelLoader;
 	class OctreeHandler;
 	class RawModelHandler;
-	class TriangleStream;
+	class TriangleStream;;
 
 	struct ProcessingObject;
 } // end of namespace oocformats
