@@ -17,6 +17,8 @@
 #include "MpiControl.h"
 #include "MersenneTwister.h"
 #include "LooseOctree.h"
+#include "VirtualNode.h"
+#include "VirtualRequest.h"
 
 namespace oocframework{
 
@@ -36,7 +38,7 @@ public:
 	virtual ~CCollisionProtocol();
 	void generateDistribution(const oocformats::LooseOctree* _lo);
 	const std::set<uint64_t>& getMyNodeSet();
-	void doCCollision(std::set<ooctools::Quintuple>* _quintSet, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap);
+	void doCCollision(std::vector<ooctools::Quintuple>* _quintVec, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap);
 
 	/**
 	 * @brief Tries to solve one round of the c-collision protocol.
@@ -49,7 +51,7 @@ public:
 	 * \f$ \frac{100-10}{200}, \frac{100-1}{200}\texttt{ and }\frac{100-89}{200} = \frac{90}{200}, \frac{99}{200}\texttt{ and }\frac{11}{200}\f$ <br>
 	 *
 	 */
-	bool solveCCollision(std::map<int, std::set<uint64_t> >* _initialDistribution, unsigned _cConst);
+	void solveCCollision(unsigned _cConst, unsigned int _assignedValue = 0);
 	void debug();
 private:
 	oocframework::MpiControl* mPriMpiCon;
@@ -60,11 +62,16 @@ private:
 	int mPriLvlOfRedundancy;
 	unsigned int mPriDataNodeCount;
 	int mPriLowestNodeId;
-	int mPriHighesNodeId;
+	int mPriHighestNodeId;
 	unsigned int mPriCConst;
+	unsigned int mPriSeed;
 	std::map<int, unsigned int> mPriNodeLoad;
 	std::map<int, unsigned int> mPriTriCount;
 	std::map<int, unsigned int> mPriRequestCount;
+	std::vector<VirtualNode> mPriVirtualNodes;
+	std::vector<VirtualRequest> mPriVirtualRequests;
+	std::map<uint64_t, unsigned int> mPriLoTriMap;
+
 
 	typedef std::map<uint64_t, std::set<int> >::iterator IdMapSetIter;
 	typedef std::map<int, std::set<uint64_t> >::iterator NodeMapSetIter;
@@ -72,6 +79,9 @@ private:
 
 	void genRndNodes(std::set<int>& _nodeSet);
 	void resetLoad();
+	void resetAllRequests();
+	VirtualNode* selectRandomNode(std::list<VirtualNode*>* _candidateList);
+	void searchEqualNodes(std::vector<VirtualNode>::reverse_iterator _from, std::vector<VirtualNode>::reverse_iterator _to, std::list<VirtualNode*>* _equalList);
 };
 
 } //oocframework

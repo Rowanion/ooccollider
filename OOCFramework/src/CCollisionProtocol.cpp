@@ -9,6 +9,7 @@
 #include "CCollisionProtocol.h"
 
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 namespace oocframework{
@@ -17,9 +18,16 @@ CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy)
 	mPriMpiCon(MpiControl::getSingleton()), mPriRndNodeSet(std::set<int>()), mPriMTwister(_seed),
 	mPriLvlOfRedundancy(_lvlOfRedundancy)
 {
+	mPriSeed = _seed;
 	mPriDataNodeCount = mPriMpiCon->getGroupSize(MpiControl::DATA);
 	mPriLowestNodeId = mPriMpiCon->getDataGroup()[0];
-	mPriHighesNodeId = mPriMpiCon->getDataGroup()[mPriDataNodeCount-1];
+	mPriHighestNodeId = mPriMpiCon->getDataGroup()[mPriDataNodeCount-1];
+	cout << "dealing with HardNode " << MpiControl::getSingleton()->getRank() << endl;
+	for (int i=mPriLowestNodeId; i<= mPriHighestNodeId; ++i){
+		mPriVirtualNodes.push_back(VirtualNode(i));
+		VirtualNode::registerNode( &mPriVirtualNodes.back());
+		mPriVirtualRequests.push_back(VirtualRequest());
+	}
 
 	mPriCConst = 2;
 
@@ -33,6 +41,9 @@ CCollisionProtocol::~CCollisionProtocol()
 void
 CCollisionProtocol::generateDistribution(const oocformats::LooseOctree* _lo)
 {
+	// save triangleCount of OctreeNode in map
+	mPriLoTriMap.insert(make_pair(_lo->getId(), _lo->getTriangleCount()));
+
 	// parse octree
 	if (_lo->hasData()){
 		genRndNodes(mPriIdToNodeMap[_lo->getId()]);
@@ -61,27 +72,33 @@ void CCollisionProtocol::genRndNodes(std::set<int>& _nodeSet)
 
 }
 
-void CCollisionProtocol::doCCollision(set<ooctools::Quintuple>* _quintSet, map<int, set<ooctools::Quintuple> >* _nodeReqMap)
+void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, map<int, set<ooctools::Quintuple> >* _nodeReqMap)
 {
-	//TODO ensure randomness of _quintSet
-	// iterator over all requested vbos
+	//ensure randomness of _quintVec
+	random_shuffle(_quintVec->begin(), _quintVec->end());
 
-	map<int, set<uint64_t> > initialDistribution = map<int, set<uint64_t> >();
-	set<ooctools::Quintuple>::iterator quintIt = _quintSet->begin();
-	for (; quintIt != _quintSet->end(); ){
+	//reset all nodes to start-values
+	VirtualNode::hardReset();
+
+	// iterator over all requested vbos
+	vector<ooctools::Quintuple>::iterator quintIt = _quintVec->begin();
+	while (quintIt != _quintVec->end() ){
 		// iterate over each data-node to pick exactly these number of vbos
-		for (unsigned i=0; (i < mPriMpiCon->getGroupSize(MpiControl::DATA)) && (quintIt != _quintSet->end()); ++i){
+		resetAllRequests();
+		for (unsigned i=0; (i < mPriMpiCon->getGroupSize(MpiControl::DATA)) && (quintIt != _quintVec->end()); ++i){
 			set<int>& nodeSet = mPriIdToNodeMap[quintIt->id];
 			set<int>::iterator nodeIt = nodeSet.begin();
 			// iterate over all nodes which are in possession of this vbo and inc request-count
-			for (; nodeIt != nodeSet.end(); ++nodeIt){
-				initialDistribution[*nodeIt].insert(quintIt->id);
-				mPriRequestCount[*nodeIt]++;
-			}
+			mPriVirtualRequests[i].reset(&(*quintIt), mPriLoTriMap[quintIt->id], &mPriIdToNodeMap[quintIt->id]);
 			quintIt++;
 		}
+		solveCCollision(2);
+		//extract assignments from VirtualRequests
+		for (unsigned int i=0; i< mPriVirtualRequests.size(); ++i){
+			(*_nodeReqMap)[mPriVirtualRequests[i].getServiceNodeRank()].insert(*mPriVirtualRequests[i].getQuintuple());
+		}
+
 	}
-	solveCCollision(&initialDistribution, 2);
 
 }
 
@@ -131,69 +148,106 @@ void CCollisionProtocol::resetLoad()
 
 }
 
-bool CCollisionProtocol::solveCCollision(map<int, set<uint64_t> >* _initialDistribution, unsigned _cConst)
+void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assignedValue)
 {
-	/*
-	 * two iterations per cConst
-	 * first check requestCount of each node and assign if fits
-	 *   if more then 1 node with
-	 * second check if nodes can now be solved
-	 * if so return true
-	 * else return false
-	 *
-	 * need requestCounter / node
-	 * need triCounter / node
-	 * need requestAssignmentContainer
-	 */
+	//TODO coin-flip
+	//TODO make sure no assigning and tagging occurs twice
+	unsigned tagCount = 0;
 
-	map<int, set<uint64_t> >::iterator mapIntSetIt = _initialDistribution->begin();
-	for (; mapIntSetIt != _initialDistribution->end(); ++mapIntSetIt){ // for each node
-		if (mPriRequestCount[mapIntSetIt->first] <= _cConst){
-			set<uint64_t>& idSet = mapIntSetIt->second;
-			set<uint64_t>::iterator uintIt = idSet.begin();
-			for(; uintIt != idSet.end(); ++uintIt){
-				// check each node having this baby for reqLoad
-//				if (/* reqCount[mPriIdToNodeMap[*uintIt]]<=_cConst*/)
+	unsigned requestCount = mPriVirtualRequests.size();
+	unsigned requestsAssigned = _assignedValue;
+	sort(mPriVirtualNodes.begin(), mPriVirtualNodes.end());
+	vector<VirtualNode>::reverse_iterator nodeIt;
+	// using reverse_iterator here because it's sorted by inverse triCount, meaning
+	// largest number = lowest load = largest probability to be picked
+	bool taggedANode = true;
+	while(taggedANode && (requestCount > requestsAssigned)) {
+		taggedANode = false;
+		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
+			if (!nodeIt->isTagged() && nodeIt->getRequestCount() <= _cConst){
+				// choose a random node among nodes with equal
+				//TODO pick random node and tag4service
+				nodeIt->tag();
+				tagCount++;
+				taggedANode = true;
+			}
+		}
+
+		// sub-turn
+		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
+			if (nodeIt->isTagged()){
+				if (nodeIt->isTagged4Service()){
+					requestsAssigned += nodeIt->professService();
+				}
+			}
+			else if (nodeIt->getRequestCount() == 0){
+				nodeIt->tag();
+				tagCount++;
+				taggedANode = true;
 			}
 		}
 	}
 
-//	NodeMapSetIter nmsi = _roundResult->begin();
-//	for (; nmsi != _roundResult->end(); ++nmsi){
-//		//check load against cConst
-//		if (mPriNodeLoad[nmsi->first] <= mPriCConst){ // if load is within cConst
-//		      // attention here: randomization needs to be implemented
-////		      get all other DataNodes having this Object and remove the requests from NodeMap
-////		      and decrease loadCount accordingly
-////		      finally mark DataNode as done // no idea yet how to do that
-//		}
-//		else{ // if load is out of bounds
-////		      for each Object assigned to this node{
-////		        check if this object is assigned to another DataNode with load < cConst
-////		        check cConst again -> if true -> break;
-//		        // question: really break here or try to distribute further?
-//		}
-		/*
-      check cConst again -> if false -> return false; // cConst is too small
-      // another thought: can it happen that this situation has a solution if other nodes can be resolved?
-    }
-		 */
-//	}
+	if (requestCount > requestsAssigned){
+		//recurse
+		solveCCollision(++_cConst, requestsAssigned);
+	}
+
 }
 
+void CCollisionProtocol::resetAllRequests()
+{
+	for (unsigned int i = 0; i< mPriVirtualNodes.size(); ++i){
+		mPriVirtualRequests[i].reset();
+	}
+}
+
+VirtualNode* CCollisionProtocol::selectRandomNode(std::list<VirtualNode*>* _candidateList)
+{
+	// reset MersenneTwister with spontaneous randomness
+	mPriMTwister.seed();
+
+	VirtualNode* currentPick = *_candidateList->begin();
+	unsigned int winningNumber = mPriMTwister.randInt();
+
+	std::list<VirtualNode*>::iterator nodeIt = ++_candidateList->begin();
+	for (; nodeIt != _candidateList->end(); ++nodeIt){
+		unsigned tmp = mPriMTwister.randInt();
+		if (tmp > winningNumber){
+			winningNumber = tmp;
+			currentPick = *nodeIt;
+		}
+	}
+
+	// reset MersenneTwister with constant randomness
+	mPriMTwister.seed(mPriSeed);
+
+	return currentPick;
+}
+
+void CCollisionProtocol::searchEqualNodes(vector<VirtualNode>::reverse_iterator _from, vector<VirtualNode>::reverse_iterator _to, std::list<VirtualNode*>* _equalList)
+{
+	vector<VirtualNode>::reverse_iterator tmpIt = _from;
+	for (;(tmpIt != _to && tmpIt->getInverseTriCount() == _from->getInverseTriCount()); ++tmpIt){
+		if (_from->compRequests(&(*tmpIt))){
+			_equalList->push_back(&(*tmpIt));
+		}
+	}
+}
 
 void CCollisionProtocol::debug()
 {
-	IdMapSetIter it = mPriIdToNodeMap.begin();
-	NodeSetIter nsi;
-	for (; it!=mPriIdToNodeMap.end(); it++){
-		nsi = it->second.begin();
-		cout << it->first << ": ";
-		for(; nsi != it->second.end(); ++nsi){
-			cout << *nsi << ", ";
-		}
-		cout << endl;
+	mPriVirtualNodes[0].debug(4);
+	mPriVirtualNodes[1].debug(9);
+	mPriVirtualNodes[2].debug(123);
+	mPriVirtualNodes[3].debug(17);
+	sort(mPriVirtualNodes.begin(), mPriVirtualNodes.end());
+	vector<VirtualNode>::reverse_iterator it;
+	cout << "total tris: " << VirtualNode::getTotalTriCount() << endl;
+	for (it = mPriVirtualNodes.rbegin(); it!=mPriVirtualNodes.rend(); ++it){
+		cout << "tricount vs inv tricount " << (*it).getRank() << ": " << (*it).getTriCount() << " vs. " << (*it).getInverseTriCount() << endl;
 	}
+
 }
 
 } // oocframework
