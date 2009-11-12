@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mpirun --prefix /opt/OpenMPI64 -n $1 Debug/OOCTest $2 $3
+
