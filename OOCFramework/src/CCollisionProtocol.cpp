@@ -25,13 +25,21 @@ CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy)
 	cout << "dealing with HardNode " << MpiControl::getSingleton()->getRank() << endl;
 	for (int i=mPriLowestNodeId; i<= mPriHighestNodeId; ++i){
 		mPriVirtualNodes.push_back(VirtualNode(i));
+		cout << "registerNode: " << mPriVirtualNodes.back().getRank() << endl;
 		VirtualNode::registerNode( &mPriVirtualNodes.back());
 		mPriVirtualRequests.push_back(VirtualRequest());
 	}
+	cout << "lowestNode: " << mPriLowestNodeId << endl;
+	cout << "highestNode: " << mPriHighestNodeId << endl;
+	cout << "registerNode: " << VirtualNode::getNode(3)->getRank() << endl;
+	cout << "registerNode: " << VirtualNode::getNode(4)->getRank() << endl;
+	cout << "nodecount: " << VirtualNode::getNodeCount() << endl;
+	exit(0);
 
+	cout << "protokol: inital nodes: " << mPriVirtualNodes.size() << endl;
+	cout << "protokol: inital requests: " << mPriVirtualRequests.size() << endl;
 	mPriCConst = 2;
 
-	resetLoad();
 }
 
 CCollisionProtocol::~CCollisionProtocol()
@@ -77,26 +85,39 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 	//ensure randomness of _quintVec
 	random_shuffle(_quintVec->begin(), _quintVec->end());
 
+	cout << "1" << endl;
 	//reset all nodes to start-values
 	VirtualNode::hardReset();
+	cout << "2" << endl;
 
 	// iterator over all requested vbos
 	vector<ooctools::Quintuple>::iterator quintIt = _quintVec->begin();
 	while (quintIt != _quintVec->end() ){
+		cout << "3" << endl;
 		// iterate over each data-node to pick exactly these number of vbos
 		resetAllRequests();
+		cout << "4" << endl;
 		for (unsigned i=0; (i < mPriMpiCon->getGroupSize(MpiControl::DATA)) && (quintIt != _quintVec->end()); ++i){
+			cout << "5" << endl;
 			set<int>& nodeSet = mPriIdToNodeMap[quintIt->id];
 			set<int>::iterator nodeIt = nodeSet.begin();
 			// iterate over all nodes which are in possession of this vbo and inc request-count
 			mPriVirtualRequests[i].reset(&(*quintIt), mPriLoTriMap[quintIt->id], &mPriIdToNodeMap[quintIt->id]);
+			cout << "6" << endl;
 			quintIt++;
 		}
+		cout << "7" << endl;
+
 		solveCCollision(2);
+		cout << "8" << endl;
+
 		//extract assignments from VirtualRequests
+		cout << "9" << endl;
+
 		for (unsigned int i=0; i< mPriVirtualRequests.size(); ++i){
 			(*_nodeReqMap)[mPriVirtualRequests[i].getServiceNodeRank()].insert(*mPriVirtualRequests[i].getQuintuple());
 		}
+		cout << "10" << endl;
 
 	}
 
@@ -138,14 +159,6 @@ new method -> bool solveCCollision(map<int, set<uint64_t> >&, unsigned cConst)
 const std::set<uint64_t>& CCollisionProtocol::getMyNodeSet()
 {
 	return mPriNodeToIdMap[mPriMpiCon->getRank()];
-}
-
-void CCollisionProtocol::resetLoad()
-{
-	for (unsigned i=0; i< mPriMpiCon->getGroupSize(MpiControl::DATA); ++i){
-		mPriNodeLoad[mPriMpiCon->getDataGroup()[i]] = 0;
-	}
-
 }
 
 void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assignedValue)
