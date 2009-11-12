@@ -7,6 +7,7 @@
  */
 
 #include "VirtualRequest.h"
+#include "MpiControl.h"
 
 using namespace std;
 namespace oocframework {
@@ -18,6 +19,7 @@ VirtualRequest::VirtualRequest() {
 
 VirtualRequest::~VirtualRequest() {
 	// TODO Auto-generated destructor stub
+	cout << MpiControl::getSingleton()->getRank() << ": VirtualRequest DESTRUCTED!" << endl;
 }
 
 void VirtualRequest::unregisterAllButThis(VirtualNode* _vNode)

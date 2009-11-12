@@ -16,6 +16,11 @@ namespace oocframework {
 unsigned VirtualNode::priNodeCount = 0;
 unsigned VirtualNode::priTotalTriCount = 0;
 std::map<int, VirtualNode*>* VirtualNode::priNodeMap = new std::map<int, VirtualNode*>();
+unsigned VirtualNode::getNodeCount()
+{
+	return VirtualNode::priNodeCount;
+}
+
 void VirtualNode::registerNode(VirtualNode* _vNode)
 {
 	(*VirtualNode::priNodeMap)[_vNode->mPriRank] = _vNode;
@@ -43,11 +48,16 @@ VirtualNode* VirtualNode::getNode(int _rank)
 
 void VirtualNode::hardReset()
 {
+	cout << "1.1" << endl;
 	std::map<int, VirtualNode*>::iterator nodeIt = VirtualNode::priNodeMap->begin();
+	cout << "1.2" << endl;
 	for (; nodeIt != VirtualNode::priNodeMap->end(); ++nodeIt){
+		cout << "1.3" << endl;
 		nodeIt->second->newTurn();
+		cout << "1.4" << endl;
 		nodeIt->second->mPriTriCount = 0;
 	}
+	cout << "1.5" << endl;
 	VirtualNode::priTotalTriCount = 0;
 }
 
@@ -57,6 +67,8 @@ VirtualNode::VirtualNode(int _rank) : mPriTag(false), mPriServiceTag(false)
 	cout << "constructor with rank " << _rank << endl;
 	mPriRank = _rank;
 	mPriTriCount = 1;
+	mPriReqSet = set<VirtualRequest*>();
+	cout << "initial sizeofmap: " << mPriReqSet.size() << endl;
 	cout << "b4: size of map: " << VirtualNode::priNodeMap->size() << endl;
 	VirtualNode::priNodeCount = VirtualNode::priNodeMap->size();
 	cout << "aft: size of map: " << VirtualNode::priNodeMap->size() << endl;
@@ -111,7 +123,10 @@ void VirtualNode::newTurn()
 {
 	mPriTag = false;
 	mPriServiceTag = false;
+	cout << "1.3.1" << endl;
+	cout << "sizeofset: " << mPriReqSet.size()<< endl;
 	mPriReqSet.clear();
+	cout << "1.3.2" << endl;
 	mPriReqCount = 0;
 }
 
