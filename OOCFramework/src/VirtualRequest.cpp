@@ -19,7 +19,6 @@ VirtualRequest::VirtualRequest() {
 
 VirtualRequest::~VirtualRequest() {
 	// TODO Auto-generated destructor stub
-	cout << MpiControl::getSingleton()->getRank() << ": VirtualRequest DESTRUCTED!" << endl;
 }
 
 void VirtualRequest::unregisterAllButThis(VirtualNode* _vNode)
@@ -79,6 +78,7 @@ void VirtualRequest::reset(ooctools::Quintuple* _quint, unsigned int _triCount, 
 {
 	mPriQuint = _quint;
 	mPriTag = false;
+	mPriServiceNodeRank = 0;
 	if (mPriQuint == 0){
 		mPriId = 0;
 		mPriDestRank = 0;

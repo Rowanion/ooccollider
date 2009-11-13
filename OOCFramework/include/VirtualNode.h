@@ -69,6 +69,7 @@ public:
 	unsigned int getRequestCount() const {return mPriReqCount;};
 	bool compRequests(const VirtualNode* _rhs) const;
 	bool operator<(const VirtualNode& _rhs) const;
+	std::set<VirtualRequest*>* getReqSet() {return &mPriReqSet;};
 	void debug(unsigned _i);
 
 	/**

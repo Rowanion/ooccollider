@@ -77,27 +77,20 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 	//ensure randomness of _quintVec
 	random_shuffle(_quintVec->begin(), _quintVec->end());
 
-	cout << "1" << endl;
 	//reset all nodes to start-values
 	VirtualNode::hardReset();
-	cout << "2" << endl;
 
 	// iterator over all requested vbos
 	vector<ooctools::Quintuple>::iterator quintIt = _quintVec->begin();
 	while (quintIt != _quintVec->end() ){
-		cout << "3" << endl;
 		// iterate over each data-node to pick exactly these number of vbos
 		resetAllRequests();
-		cout << "4" << endl;
 		for (unsigned i=0; (i < mPriMpiCon->getGroupSize(MpiControl::DATA)) && (quintIt != _quintVec->end()); ++i){
-			cout << "5" << endl;
-			set<int>& nodeSet = mPriIdToNodeMap[quintIt->id];
-			set<int>::iterator nodeIt = nodeSet.begin();
 			// iterate over all nodes which are in possession of this vbo and inc request-count
 			mPriVirtualRequests[i].reset(&(*quintIt), mPriLoTriMap[quintIt->id], &mPriIdToNodeMap[quintIt->id]);
-			cout << "6" << endl;
 			quintIt++;
 		}
+
 		cout << "7" << endl;
 
 		solveCCollision(2);
@@ -158,42 +151,57 @@ void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assigne
 	//TODO coin-flip
 	//TODO make sure no assigning and tagging occurs twice
 	unsigned tagCount = 0;
-
+	cout << "7.1" << endl;
 	unsigned requestCount = mPriVirtualRequests.size();
 	unsigned requestsAssigned = _assignedValue;
-	sort(mPriVirtualNodes.begin(), mPriVirtualNodes.end());
+	cout << "7.2" << endl;
 	vector<VirtualNode>::reverse_iterator nodeIt;
 	// using reverse_iterator here because it's sorted by inverse triCount, meaning
 	// largest number = lowest load = largest probability to be picked
 	bool taggedANode = true;
+	cout << "7.3" << endl;
 	while(taggedANode && (requestCount > requestsAssigned)) {
+		sort(mPriVirtualNodes.begin(), mPriVirtualNodes.end());
 		taggedANode = false;
+		cout << "7.4" << endl;
 		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
+			cout << "7.5" << endl;
 			if (!nodeIt->isTagged() && nodeIt->getRequestCount() <= _cConst){
 				// choose a random node among nodes with equal
 				//TODO pick random node and tag4service
 				nodeIt->tag();
+				nodeIt->tag4Service();
 				tagCount++;
 				taggedANode = true;
+				cout << "7.6" << endl;
+
 			}
 		}
+		cout << "7.7" << endl;
 
 		// sub-turn
 		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
+			cout << "7.8" << endl;
 			if (nodeIt->isTagged()){
+				cout << "7.9" << endl;
 				if (nodeIt->isTagged4Service()){
+					cout << "7.10" << endl;
 					requestsAssigned += nodeIt->professService();
 				}
 			}
 			else if (nodeIt->getRequestCount() == 0){
+				cout << "7.11" << endl;
 				nodeIt->tag();
 				tagCount++;
 				taggedANode = true;
 			}
 		}
 	}
+	cout << "7.12" << endl;
 
 	if (requestCount > requestsAssigned){
+		cout << "7.13" << endl;
+
 		//recurse
 		solveCCollision(++_cConst, requestsAssigned);
 	}
@@ -207,16 +215,28 @@ void CCollisionProtocol::resetAllRequests()
 	}
 }
 
-VirtualNode* CCollisionProtocol::selectRandomNode(std::list<VirtualNode*>* _candidateList)
+VirtualNode* CCollisionProtocol::selectRandomNode(VirtualNode* _candidate)
 {
+	std::set<VirtualNode*> nodeSet = std::set<VirtualNode*>();
+	// fetches request-list of this node
+	std::set<VirtualRequest*>* candidateRequests = _candidate->getReqSet();
+	std::set<VirtualRequest*>::iterator reqIt = candidateRequests->begin();
+	// fetches all nodes of all those requests and puts them into set
+	for (; reqIt != candidateRequests->end(); reqIt++){
+		nodeSet.insert((*reqIt)->getNodeSet()->begin(), (*reqIt)->getNodeSet()->end());
+	}
+	// for each node in this set check 4 configuration equality (aka invTriCount & requests)
+
+	// ----------------------------
+
 	// reset MersenneTwister with spontaneous randomness
 	mPriMTwister.seed();
 
-	VirtualNode* currentPick = *_candidateList->begin();
+	VirtualNode* currentPick = *nodeSet.begin();
 	unsigned int winningNumber = mPriMTwister.randInt();
 
-	std::list<VirtualNode*>::iterator nodeIt = ++_candidateList->begin();
-	for (; nodeIt != _candidateList->end(); ++nodeIt){
+	std::set<VirtualNode*>::iterator nodeIt = ++nodeSet.begin();
+	for (; nodeIt != nodeSet.end(); ++nodeIt){
 		unsigned tmp = mPriMTwister.randInt();
 		if (tmp > winningNumber){
 			winningNumber = tmp;

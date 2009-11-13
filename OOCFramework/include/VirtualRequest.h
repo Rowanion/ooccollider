@@ -78,6 +78,7 @@ public:
 	 */
 	int getServiceNodeRank() const {return mPriServiceNodeRank;};
 	const ooctools::Quintuple* getQuintuple() const {return mPriQuint;};
+	std::set<VirtualNode*>* getNodeSet(){return &mPriNodeSet;};
 	bool operator<(const VirtualRequest& _rhs) const;
 
 private:
