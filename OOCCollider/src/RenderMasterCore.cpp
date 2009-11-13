@@ -96,10 +96,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 //	cout << "-----------------------3: " << newCoords[3].xPos << ", " << newCoords[3].yPos << ", " << newCoords[3].width << ", " << newCoords[3].height << endl;
 //	cout << "-----------------------4: " << newCoords[4].xPos << ", " << newCoords[4].yPos << ", " << newCoords[4].width << ", " << newCoords[4].height << endl;
 //	exit(0);
-	// ---------------------------------------------------
-	mPriCCol.debug();
-	exit(0);
-	// ---------------------------------------------------
+
 	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 
 	mPriCCol.generateDistribution(mPriLo);

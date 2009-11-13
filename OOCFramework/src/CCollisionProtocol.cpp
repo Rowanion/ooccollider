@@ -16,28 +16,20 @@ namespace oocframework{
 
 CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy) :
 	mPriMpiCon(MpiControl::getSingleton()), mPriRndNodeSet(std::set<int>()), mPriMTwister(_seed),
-	mPriLvlOfRedundancy(_lvlOfRedundancy)
+	mPriLvlOfRedundancy(_lvlOfRedundancy), mPriDataNodeCount(mPriMpiCon->getGroupSize(MpiControl::DATA)),
+	mPriVirtualNodes(mPriDataNodeCount, VirtualNode(0))
+
 {
 	mPriSeed = _seed;
-	mPriDataNodeCount = mPriMpiCon->getGroupSize(MpiControl::DATA);
 	mPriLowestNodeId = mPriMpiCon->getDataGroup()[0];
 	mPriHighestNodeId = mPriMpiCon->getDataGroup()[mPriDataNodeCount-1];
-	cout << "dealing with HardNode " << MpiControl::getSingleton()->getRank() << endl;
-	for (int i=mPriLowestNodeId; i<= mPriHighestNodeId; ++i){
-		mPriVirtualNodes.push_back(VirtualNode(i));
-		cout << "registerNode: " << mPriVirtualNodes.back().getRank() << endl;
-		VirtualNode::registerNode( &mPriVirtualNodes.back());
+	int i, idx;
+	for (i=mPriLowestNodeId, idx = 0; i<= mPriHighestNodeId; ++i, ++idx){
+		mPriVirtualNodes[idx] = (VirtualNode(i));
+		VirtualNode::registerNode(&mPriVirtualNodes[idx]);
 		mPriVirtualRequests.push_back(VirtualRequest());
 	}
-	cout << "lowestNode: " << mPriLowestNodeId << endl;
-	cout << "highestNode: " << mPriHighestNodeId << endl;
-	cout << "registerNode: " << VirtualNode::getNode(3)->getRank() << endl;
-	cout << "registerNode: " << VirtualNode::getNode(4)->getRank() << endl;
-	cout << "nodecount: " << VirtualNode::getNodeCount() << endl;
-	exit(0);
 
-	cout << "protokol: inital nodes: " << mPriVirtualNodes.size() << endl;
-	cout << "protokol: inital requests: " << mPriVirtualRequests.size() << endl;
 	mPriCConst = 2;
 
 }
