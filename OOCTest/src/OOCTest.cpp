@@ -37,7 +37,9 @@ int main(int argc, char *argv[]) {
 		ccp.generateDistribution(lo);
 
 		vector<ooctools::Quintuple> quintVec = vector<ooctools::Quintuple>();
-		quintVec.push_back(Quintuple(1, 17.4, 1, 1000, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 1, 4, 0));
+//		quintVec.push_back(Quintuple(1, 17.4, 1, 1001, 0));
+//		quintVec.push_back(Quintuple(1, 17.4, 1, 1002, 0));
 
 		map<int, set<ooctools::Quintuple> > nodeReqMap = map<int, set<ooctools::Quintuple> >();
 
