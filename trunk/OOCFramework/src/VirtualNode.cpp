@@ -112,7 +112,6 @@ void VirtualNode::newTurn()
 {
 	mPriTag = false;
 	mPriServiceTag = false;
-	cout << "sizeofset: " << mPriReqSet.size()<< endl;
 	mPriReqSet.clear();
 	mPriReqCount = 0;
 }

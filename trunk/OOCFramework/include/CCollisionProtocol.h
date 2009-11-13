@@ -80,7 +80,7 @@ private:
 	void genRndNodes(std::set<int>& _nodeSet);
 	void resetLoad();
 	void resetAllRequests();
-	VirtualNode* selectRandomNode(std::list<VirtualNode*>* _candidateList);
+	VirtualNode* selectRandomNode(VirtualNode* _candidate);
 	void searchEqualNodes(std::vector<VirtualNode>::reverse_iterator _from, std::vector<VirtualNode>::reverse_iterator _to, std::list<VirtualNode*>* _equalList);
 };
 
