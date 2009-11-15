@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 #include "GlToolkit.h"
 #include <Cg/cg.h>
