@@ -81,6 +81,8 @@ public:
 	std::set<VirtualNode*>* getNodeSet(){return &mPriNodeSet;};
 	bool operator<(const VirtualRequest& _rhs) const;
 
+	void debug();
+
 private:
 	uint64_t mPriId;
 	unsigned mPriTriCount;

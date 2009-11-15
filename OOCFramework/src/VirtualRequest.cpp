@@ -105,4 +105,8 @@ bool VirtualRequest::operator<(const VirtualRequest& _rhs) const
 	else return mPriId < _rhs.getId();
 }
 
+void VirtualRequest::debug()
+{
+	// to test locally
+}
 } // oocframework

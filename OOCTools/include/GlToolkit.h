@@ -10,6 +10,7 @@
 #define GLTOOLKIT_H_
 
 #include <iostream>
+#include <cstdio>
 
 #include <GL/glew.h>
 #include <GL/gl.h>

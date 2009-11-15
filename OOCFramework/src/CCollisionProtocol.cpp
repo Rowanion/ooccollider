@@ -17,7 +17,7 @@ namespace oocframework{
 CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy) :
 	mPriMpiCon(MpiControl::getSingleton()), mPriRndNodeSet(std::set<int>()), mPriMTwister(_seed),
 	mPriLvlOfRedundancy(_lvlOfRedundancy), mPriDataNodeCount(mPriMpiCon->getGroupSize(MpiControl::DATA)),
-	mPriVirtualNodes(mPriDataNodeCount, VirtualNode(0))
+	mPriVirtualNodes(mPriDataNodeCount, VirtualNode(0)), mPriVirtualRequests(mPriDataNodeCount, VirtualRequest())
 
 {
 	mPriSeed = _seed;
@@ -27,7 +27,7 @@ CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy)
 	for (i=mPriLowestNodeId, idx = 0; i<= mPriHighestNodeId; ++i, ++idx){
 		mPriVirtualNodes[idx] = (VirtualNode(i));
 		VirtualNode::registerNode(&mPriVirtualNodes[idx]);
-		mPriVirtualRequests.push_back(VirtualRequest());
+		mPriVirtualRequests[idx] = (VirtualRequest());
 	}
 
 	mPriCConst = 2;
@@ -85,7 +85,7 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 	while (quintIt != _quintVec->end() ){
 		// iterate over each data-node to pick exactly these number of vbos
 		resetAllRequests();
-		for (unsigned i=0; (i < mPriMpiCon->getGroupSize(MpiControl::DATA)) && (quintIt != _quintVec->end()); ++i){
+		for (unsigned i=0; (i < mPriDataNodeCount) && (quintIt != _quintVec->end()); ++i){
 			// iterate over all nodes which are in possession of this vbo and inc request-count
 			mPriVirtualRequests[i].reset(&(*quintIt), mPriLoTriMap[quintIt->id], &mPriIdToNodeMap[quintIt->id]);
 			quintIt++;
@@ -148,12 +148,14 @@ const std::set<uint64_t>& CCollisionProtocol::getMyNodeSet()
 
 void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assignedValue)
 {
-	//TODO coin-flip
 	//TODO make sure no assigning and tagging occurs twice
-	unsigned tagCount = 0;
+	//TODO somehow the _cConst grows to infinity.....?
+	//TODO with request-ids 4 and 8 it terminates - problem seems to be odd ratio between request-objects and actual requests.
+	//TODO like when i have 2 nodes but just one request. The requestCount==requestsAssigned constraint never gets satisfied.
 	cout << "7.1" << endl;
 	unsigned requestCount = mPriVirtualRequests.size();
 	unsigned requestsAssigned = _assignedValue;
+	cout << _cConst << ": req. status: " << requestsAssigned << "/" << requestCount << endl;
 	cout << "7.2" << endl;
 	vector<VirtualNode>::reverse_iterator nodeIt;
 	// using reverse_iterator here because it's sorted by inverse triCount, meaning
@@ -167,37 +169,36 @@ void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assigne
 		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
 			cout << "7.5" << endl;
 			if (!nodeIt->isTagged() && nodeIt->getRequestCount() <= _cConst){
-				// choose a random node among nodes with equal
-				//TODO pick random node and tag4service
-				nodeIt->tag();
-				nodeIt->tag4Service();
-				tagCount++;
+				// choose a random node among nodes with equal requests and probability
+				selectRandomNode(&(*nodeIt))->tag4Service();
 				taggedANode = true;
 				cout << "7.6" << endl;
 
 			}
 		}
+		cout << "tagged a node? " << taggedANode << endl;
 		cout << "7.7" << endl;
+		//TODO if no node has been tagged until here -> recurse!
+		if(!taggedANode)
+			break;
 
 		// sub-turn
 		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
 			cout << "7.8" << endl;
-			if (nodeIt->isTagged()){
-				cout << "7.9" << endl;
-				if (nodeIt->isTagged4Service()){
-					cout << "7.10" << endl;
-					requestsAssigned += nodeIt->professService();
-				}
+			if (nodeIt->isTagged4Service() && nodeIt->getRequestCount() > 0){
+				cout << "7.10" << endl;
+				cout << "assigning " << nodeIt->getRequestCount() << " jobs to node " << nodeIt->getRank() << endl;
+				requestsAssigned += nodeIt->professService();
 			}
-			else if (nodeIt->getRequestCount() == 0){
-				cout << "7.11" << endl;
-				nodeIt->tag();
-				tagCount++;
-				taggedANode = true;
-			}
+//			else if (nodeIt->getRequestCount() == 0){
+//				cout << "7.11" << endl;
+//				nodeIt->tag();
+//				taggedANode = true;
+//			}
 		}
 	}
 	cout << "7.12" << endl;
+//	exit(0);
 
 	if (requestCount > requestsAssigned){
 		cout << "7.13" << endl;
@@ -221,11 +222,19 @@ VirtualNode* CCollisionProtocol::selectRandomNode(VirtualNode* _candidate)
 	// fetches request-list of this node
 	std::set<VirtualRequest*>* candidateRequests = _candidate->getReqSet();
 	std::set<VirtualRequest*>::iterator reqIt = candidateRequests->begin();
-	// fetches all nodes of all those requests and puts them into set
+	std::set<VirtualNode*>::iterator nodeIt;
+	// fetches all nodes of all those requests...
 	for (; reqIt != candidateRequests->end(); reqIt++){
-		nodeSet.insert((*reqIt)->getNodeSet()->begin(), (*reqIt)->getNodeSet()->end());
+//		nodeSet.insert((*reqIt)->getNodeSet()->begin(), (*reqIt)->getNodeSet()->end());
+		// ... and tests them against state-equality of _candiate
+		for (nodeIt = (*reqIt)->getNodeSet()->begin(); nodeIt != (*reqIt)->getNodeSet()->end(); ++nodeIt){
+			if (_candidate->compNodeStats(*nodeIt)){
+				// tag node because equality is given and to prevent re-assignment
+				(*nodeIt)->tag();
+				nodeSet.insert(*nodeIt);
+			}
+		}
 	}
-	// for each node in this set check 4 configuration equality (aka invTriCount & requests)
 
 	// ----------------------------
 
@@ -235,7 +244,7 @@ VirtualNode* CCollisionProtocol::selectRandomNode(VirtualNode* _candidate)
 	VirtualNode* currentPick = *nodeSet.begin();
 	unsigned int winningNumber = mPriMTwister.randInt();
 
-	std::set<VirtualNode*>::iterator nodeIt = ++nodeSet.begin();
+	nodeIt = ++nodeSet.begin();
 	for (; nodeIt != nodeSet.end(); ++nodeIt){
 		unsigned tmp = mPriMTwister.randInt();
 		if (tmp > winningNumber){
@@ -254,23 +263,28 @@ void CCollisionProtocol::searchEqualNodes(vector<VirtualNode>::reverse_iterator 
 {
 	vector<VirtualNode>::reverse_iterator tmpIt = _from;
 	for (;(tmpIt != _to && tmpIt->getInverseTriCount() == _from->getInverseTriCount()); ++tmpIt){
-		if (_from->compRequests(&(*tmpIt))){
+		if (_from->compNodeStats(&(*tmpIt))){
 			_equalList->push_back(&(*tmpIt));
 		}
 	}
 }
 
-void CCollisionProtocol::debug()
+void CCollisionProtocol::debug(unsigned nodeCount)
 {
-	mPriVirtualNodes[0].debug(4);
-	mPriVirtualNodes[1].debug(9);
-	mPriVirtualNodes[2].debug(123);
-	mPriVirtualNodes[3].debug(17);
-	sort(mPriVirtualNodes.begin(), mPriVirtualNodes.end());
-	vector<VirtualNode>::reverse_iterator it;
-	cout << "total tris: " << VirtualNode::getTotalTriCount() << endl;
-	for (it = mPriVirtualNodes.rbegin(); it!=mPriVirtualNodes.rend(); ++it){
-		cout << "tricount vs inv tricount " << (*it).getRank() << ": " << (*it).getTriCount() << " vs. " << (*it).getInverseTriCount() << endl;
+	// to test this locally
+	mPriVirtualNodes.clear();
+	mPriVirtualRequests.clear();
+	VirtualNode::debug();
+	mPriDataNodeCount = nodeCount;
+	mPriVirtualNodes.resize(nodeCount, VirtualNode(0));
+	mPriVirtualRequests.resize(nodeCount, VirtualRequest());
+	mPriLowestNodeId = 0;
+	mPriHighestNodeId = nodeCount-1;
+	int i, idx;
+	for (i=mPriLowestNodeId, idx = 0; i<= mPriHighestNodeId; ++i, ++idx){
+		mPriVirtualNodes[idx] = (VirtualNode(i));
+		VirtualNode::registerNode(&mPriVirtualNodes[idx]);
+		mPriVirtualRequests[idx] = (VirtualRequest());
 	}
 
 }

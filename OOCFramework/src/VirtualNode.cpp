@@ -90,7 +90,7 @@ void VirtualNode::unregisterRequest(VirtualRequest* _vReq)
 
 unsigned int VirtualNode::professService()
 {
-	unsigned requestCount = mPriReqCount;
+	unsigned requestCount = mPriReqSet.size();
 	set<VirtualRequest*>::iterator reqSetIt = mPriReqSet.begin();
 	for (; reqSetIt != mPriReqSet.end(); ++reqSetIt){
 		unsigned int triCount = (*reqSetIt)->imHappyToHelp(this);
@@ -127,8 +127,11 @@ bool VirtualNode::operator<(const VirtualNode& _rhs) const
 	}
 }
 
-bool VirtualNode::compRequests(const VirtualNode* _rhs) const
+bool VirtualNode::compNodeStats(const VirtualNode* _rhs) const
 {
+	if (getInverseTriCount() != _rhs->getInverseTriCount()){
+		return false;
+	}
 	set<VirtualRequest*>::iterator lhsSetIt = mPriReqSet.begin();
 	set<VirtualRequest*>::iterator rhsSetIt = _rhs->mPriReqSet.begin();
 	for (; lhsSetIt != mPriReqSet.end() && rhsSetIt != _rhs->mPriReqSet.end(); ++lhsSetIt, ++rhsSetIt){
@@ -139,10 +142,10 @@ bool VirtualNode::compRequests(const VirtualNode* _rhs) const
 	return true;
 }
 
-void VirtualNode::debug(unsigned _i)
+void VirtualNode::debug()
 {
-	mPriTriCount += _i;
-	VirtualNode::priTotalTriCount+=_i;
+	// to test locally
+	VirtualNode::priNodeMap->clear();
 }
 
 } // oocframework

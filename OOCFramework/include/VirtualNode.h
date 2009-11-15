@@ -63,14 +63,14 @@ public:
 	 * This will be reset each sub-turn.
 	 */
 	void tag(){mPriTag = true;};
-	bool isTagged() const {return mPriTag;};
+	bool isTagged() const {return mPriTag||mPriServiceTag;};
 	void tag4Service(){mPriServiceTag = true;};
 	bool isTagged4Service() const {return mPriServiceTag;};
 	unsigned int getRequestCount() const {return mPriReqCount;};
-	bool compRequests(const VirtualNode* _rhs) const;
+	bool compNodeStats(const VirtualNode* _rhs) const;
 	bool operator<(const VirtualNode& _rhs) const;
 	std::set<VirtualRequest*>* getReqSet() {return &mPriReqSet;};
-	void debug(unsigned _i);
+	static void debug();
 
 	/**
 	 * @brief Returns a pointer to the node identified by _rank.
