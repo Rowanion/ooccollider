@@ -132,10 +132,13 @@ bool VirtualNode::compNodeStats(const VirtualNode* _rhs) const
 	if (getInverseTriCount() != _rhs->getInverseTriCount()){
 		return false;
 	}
+	if (mPriReqSet.size() != _rhs->mPriReqSet.size()){
+		return false;
+	}
 	set<VirtualRequest*>::iterator lhsSetIt = mPriReqSet.begin();
 	set<VirtualRequest*>::iterator rhsSetIt = _rhs->mPriReqSet.begin();
 	for (; lhsSetIt != mPriReqSet.end() && rhsSetIt != _rhs->mPriReqSet.end(); ++lhsSetIt, ++rhsSetIt){
-		if (*lhsSetIt != *rhsSetIt){
+		if ((*lhsSetIt)->getId() != (*rhsSetIt)->getId()){
 			return false;
 		}
 	}

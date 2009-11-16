@@ -77,14 +77,16 @@ unsigned VirtualRequest::imHappyToHelp(VirtualNode* _vNode)
 void VirtualRequest::reset(ooctools::Quintuple* _quint, unsigned int _triCount, std::set<int>* _relevantNodes)
 {
 	mPriQuint = _quint;
-	mPriTag = false;
 	mPriServiceNodeRank = 0;
+	mPriQuint = _quint;
 	if (mPriQuint == 0){
+		mPriTag = true;
 		mPriId = 0;
 		mPriDestRank = 0;
 		mPriTriCount = 1000000;
 	}
 	else {
+		mPriTag = false;
 		mPriId = _quint->id;
 		mPriDestRank = _quint->destId;
 		mPriTriCount = _triCount;

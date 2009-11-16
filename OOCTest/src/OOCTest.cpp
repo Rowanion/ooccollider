@@ -31,26 +31,36 @@ int main(int argc, char *argv[]) {
 
 	if (mpic->getRank() == 0) {
 		OctreeHandler oh = OctreeHandler();
-		CCollisionProtocol ccp = CCollisionProtocol(PRESELECTED_SEED);
+		CCollisionProtocol ccp = CCollisionProtocol(PRESELECTED_SEED, 2);
 		LooseOctree* lo = oh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
+		map<uint64_t, LooseOctree*> idLoMap = map<uint64_t, LooseOctree*>();
+		oh.generateIdLoMap(lo, idLoMap);
+
 
 		ccp.generateDistribution(lo);
 
 		vector<ooctools::Quintuple> quintVec = vector<ooctools::Quintuple>();
+		quintVec.push_back(Quintuple(1, 17.4, 1, 0, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 1, 1, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 1, 2, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 1, 3, 0));
 		quintVec.push_back(Quintuple(1, 17.4, 1, 4, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 1, 5, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 1, 6, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 1, 7, 0));
 		quintVec.push_back(Quintuple(1, 17.4, 1, 8, 0));
-//		quintVec.push_back(Quintuple(1, 17.4, 1, 1002, 0));
 
 		map<int, set<ooctools::Quintuple> > nodeReqMap = map<int, set<ooctools::Quintuple> >();
 
 		ccp.doCCollision(&quintVec, &nodeReqMap);
 		map<int, set<ooctools::Quintuple> >::iterator mapIt = nodeReqMap.begin();
-		cout << "Distribution 4 Node " << mapIt->first << ": " << endl;
 		for (; mapIt != nodeReqMap.end(); mapIt++){
+			cerr << "Distribution for Node " << mapIt->first << " (" << mapIt->second.size() << " VBOs): " << endl;
 			set<ooctools::Quintuple>::iterator setIt = mapIt->second.begin();
 			for (; setIt != mapIt->second.end(); setIt++){
-				cout << "VBO-Id: " << setIt->id << endl;
+				cerr << "VBO-Id: " << setIt->id << ", (" << idLoMap[setIt->id]->getTriangleCount() << ")" << endl;
 			}
+			cerr << endl;
 		}
 
 		mpic->barrier();
