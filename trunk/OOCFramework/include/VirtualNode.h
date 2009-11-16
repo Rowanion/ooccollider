@@ -66,7 +66,7 @@ public:
 	bool isTagged() const {return mPriTag||mPriServiceTag;};
 	void tag4Service(){mPriServiceTag = true;};
 	bool isTagged4Service() const {return mPriServiceTag;};
-	unsigned int getRequestCount() const {return mPriReqCount;};
+	unsigned int getRequestCount() const {return mPriReqSet.size();};
 	bool compNodeStats(const VirtualNode* _rhs) const;
 	bool operator<(const VirtualNode& _rhs) const;
 	std::set<VirtualRequest*>* getReqSet() {return &mPriReqSet;};
