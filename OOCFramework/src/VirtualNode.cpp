@@ -74,6 +74,7 @@ void VirtualNode::registerRequest(VirtualRequest* _vReq)
 	pair<set<VirtualRequest*>::iterator, bool> result;
 	result = mPriReqSet.insert(_vReq);
 	if (result.second){
+//		cerr << "REGistered request " << _vReq->getId() << " at node " << mPriRank << endl;
 		mPriReqCount++;
 	}
 }
@@ -83,6 +84,7 @@ void VirtualNode::unregisterRequest(VirtualRequest* _vReq)
 	set<VirtualRequest*>::iterator reqSetIt;
 	reqSetIt = mPriReqSet.find(_vReq);
 	if (reqSetIt != mPriReqSet.end()){
+//		cerr << "UNregistered request " << _vReq->getId() << " from node " << mPriRank << endl;
 		mPriReqSet.erase(reqSetIt);
 		mPriReqCount--;
 	}
