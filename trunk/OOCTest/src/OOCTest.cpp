@@ -13,6 +13,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <boost/lambda/lambda.hpp>
+#include <algorithm>
 
 #define PRESELECTED_SEED 670274678
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
@@ -28,8 +30,56 @@ int main(int argc, char *argv[]) {
 	// init nodes
 	mpic->init(argc, argv);
 
-
 	if (mpic->getRank() == 0) {
+
+
+
+
+//		   set<int*, IntPtrLess > ssp;
+//		   vector<int*> iVec = vector<int*>();
+//		   iVec.resize(3);
+//		   int* a = new int(13);
+//		   int* b = new int(1);
+//		   int* c = new int(4);
+//		   iVec[0] = (a);
+//		   iVec[1] = (b);
+//		   iVec[2] = (c);
+//		   for (unsigned i=0; i< iVec.size(); ++i){
+//			   cerr << i << ": " << *iVec[i] << " (" << (uint64_t)iVec[i] << ")" << endl;
+//		   }
+//		   std::sort(iVec.begin(), iVec.end(), *boost::lambda::_1 < *boost::lambda::_2 );
+//		   cerr << "------------------------------------------" << endl;
+//		   for (unsigned i=0; i< iVec.size(); ++i){
+//			   cerr << i << ": " << *iVec[i] << " (" << (uint64_t)iVec[i] << ")" << endl;
+//		   }
+//		   cerr << "------------------------------------------" << endl;
+//		   vector<int> iVec2 = vector<int>();
+//		   iVec2.resize(3);
+//		   iVec2[0] = (*a);
+//		   iVec2[1] = (*b);
+//		   iVec2[2] = (*c);
+//		   for (unsigned i=0; i< iVec2.size(); ++i){
+//			   cerr << i << ": " << iVec2[i] << " (" << (uint64_t)&iVec2[i] << ")" << endl;
+//		   }
+//		   std::sort(iVec2.begin(), iVec2.end(), boost::lambda::_1 < boost::lambda::_2 );
+//		   cerr << "------------------------------------------" << endl;
+//		   for (unsigned i=0; i< iVec2.size(); ++i){
+//			   cerr << i << ": " << iVec2[i] << " (" << (uint64_t)&iVec2[i] << ")" << endl;
+//		   }
+//	//	   std::sort( begin, end, *_1 > *_2 );
+//		   // Now you can loop through the iterators and print strings in
+//		      //alphabetical order.
+//
+//		exit(0);
+
+
+
+
+
+
+
+
+
 		OctreeHandler oh = OctreeHandler();
 		CCollisionProtocol ccp = CCollisionProtocol(PRESELECTED_SEED, 2);
 		LooseOctree* lo = oh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
@@ -70,24 +120,7 @@ int main(int argc, char *argv[]) {
 	}
 
 
-//	cout << "entering depending part" << endl;
-//	if (mpic->getRank() == 0) {
-//		cout << "MY RANK IS " << mpic->getRank() << endl;
-//		RenderMasterCore rmc = RenderMasterCore(TARGET_WIDTH, TARGET_HEIGHT);
-////		setupWindow("master");
-//		cout << "End of display loop " << mpic->getRank()  << endl;
-//		//		setupWindow("My rank is 0");
-//	}
-//	else if (mpic->getGroup() == oocframework::MpiControl::RENDERER){ // RENDER-GROUP
-//		//		setupWindow("slave");
-//		RenderCore rc = RenderCore(WINDOW_WIDTH, WINDOW_HEIGHT, TARGET_WIDTH, TARGET_HEIGHT);
-//		cout << "End of display loop " << mpic->getRank() << endl;
-//	}
-//	else if (mpic->getGroup() == oocframework::MpiControl::DATA){ // DATA-GROUP
-//		//		setupWindow("slave");
-//		DataCore dc = DataCore(WINDOW_WIDTH, WINDOW_HEIGHT, TARGET_WIDTH, TARGET_HEIGHT);
-//		cout << "End of display loop " << mpic->getRank() << endl;
-//	}
+
 
 	cout << "leaving depending part: " << mpic->getRank() << endl;
 	mpic->finalize();
