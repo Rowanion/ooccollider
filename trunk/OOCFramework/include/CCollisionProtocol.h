@@ -68,7 +68,7 @@ private:
 	std::map<int, unsigned int> mPriNodeLoad;
 	std::map<int, unsigned int> mPriTriCount;
 	std::map<int, unsigned int> mPriRequestCount;
-	std::vector<VirtualNode> mPriVirtualNodes;
+	std::vector<VirtualNode*> mPriVirtualNodes;
 	std::vector<VirtualRequest> mPriVirtualRequests;
 	std::map<uint64_t, unsigned int> mPriLoTriMap;
 

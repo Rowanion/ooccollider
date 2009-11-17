@@ -91,7 +91,6 @@ private:
 	int mPriServiceNodeRank;
 	const ooctools::Quintuple* mPriQuint;
 	std::set<VirtualNode*> mPriNodeSet;
-	std::map<int, std::set<VirtualRequest>* > mPriNodeMap;
 };
 
 }

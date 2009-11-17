@@ -11,22 +11,25 @@
 #include <iostream>
 #include <algorithm>
 
+#include <boost/lambda/lambda.hpp>
+
 using namespace std;
 namespace oocframework{
 
 CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy) :
 	mPriMpiCon(MpiControl::getSingleton()), mPriRndNodeSet(std::set<int>()), mPriMTwister(_seed),
 	mPriLvlOfRedundancy(_lvlOfRedundancy), mPriDataNodeCount(mPriMpiCon->getGroupSize(MpiControl::DATA)),
-	mPriVirtualNodes(mPriDataNodeCount, VirtualNode(0)), mPriVirtualRequests(mPriDataNodeCount, VirtualRequest())
+	mPriVirtualRequests(mPriDataNodeCount, VirtualRequest())
 
 {
+	mPriVirtualNodes.resize(mPriDataNodeCount);
 	mPriSeed = _seed;
 	mPriLowestNodeId = mPriMpiCon->getDataGroup()[0];
 	mPriHighestNodeId = mPriMpiCon->getDataGroup()[mPriDataNodeCount-1];
 	int i, idx;
 	for (i=mPriLowestNodeId, idx = 0; i<= mPriHighestNodeId; ++i, ++idx){
-		mPriVirtualNodes[idx] = (VirtualNode(i));
-		VirtualNode::registerNode(&mPriVirtualNodes[idx]);
+		mPriVirtualNodes[idx] = new VirtualNode(i);
+		VirtualNode::registerNode(mPriVirtualNodes[idx]);
 		mPriVirtualRequests[idx] = (VirtualRequest());
 	}
 
@@ -86,11 +89,40 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 	while (quintIt != _quintVec->end() ){
 		// iterate over each data-node to pick exactly these number of vbos
 		resetAllRequests();
+		cerr << "performing cCollision with this distribution:" << endl;
 		for (unsigned i=0; (i < mPriDataNodeCount) && (quintIt != _quintVec->end()); ++i){
 			// iterate over all nodes which are in possession of this vbo and inc request-count
+			// ------------------------------------
+			set<int>::iterator setIntIt = mPriIdToNodeMap[quintIt->id].begin();
+			cerr << "request-id " << quintIt->id << endl;
+			for(; setIntIt != mPriIdToNodeMap[quintIt->id].end(); ++setIntIt){
+				cerr << "is distributed to node " << *setIntIt << endl;
+
+			}
+			// ------------------------------------
 			mPriVirtualRequests[i].reset(&(*quintIt), mPriLoTriMap[quintIt->id], &mPriIdToNodeMap[quintIt->id]);
 			quintIt++;
 			cerr << "-6-" << endl;
+		}
+
+		cerr << "FINAL DISTRIBUTION: " << endl;
+		cerr << "R -> N" << endl;
+		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+			cerr << "Req " << mPriVirtualRequests[i].getId() << " (" << (uint64_t) &mPriVirtualRequests[i] << ") -> ";
+			std::set<VirtualNode*>::iterator aIt = mPriVirtualRequests[i].getNodeSet()->begin();
+			for (; aIt != mPriVirtualRequests[i].getNodeSet()->end(); aIt++){
+				cerr << (*aIt)->getRank() << " (" << uint64_t(*aIt) << ") , ";
+			}
+			cerr << endl;
+		}
+		cerr << "N -> R" << endl;
+		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+			cerr << "Node " << mPriVirtualNodes[i]->getRank() << " (" << (uint64_t) mPriVirtualNodes[i] << ") -> ";
+			std::set<VirtualRequest*>::iterator aIt = mPriVirtualNodes[i]->getReqSet()->begin();
+			for (; aIt != mPriVirtualNodes[i]->getReqSet()->end(); aIt++){
+				cerr << (*aIt)->getId() << " (" << uint64_t(*aIt) << ") , ";
+			}
+			cerr << endl;
 		}
 
 		cerr << "7" << endl;
@@ -113,7 +145,7 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 		}
 		// clean up the nodes.
 		for (unsigned int i=0; i< mPriVirtualNodes.size(); ++i){
-			mPriVirtualNodes[i].newTurn();
+			mPriVirtualNodes[i]->newTurn();
 		}
 		cerr << "10" << endl;
 
@@ -170,20 +202,60 @@ void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assigne
 	unsigned requestsAssigned = _assignedValue;
 	cerr << "started solving with c=" << _cConst << ": req. status: " << requestsAssigned << "/" << requestCount << endl;
 	cerr << "7.2" << endl;
-	vector<VirtualNode>::reverse_iterator nodeIt;
+	vector<VirtualNode*>::reverse_iterator nodeIt;
 	// using reverse_iterator here because it's sorted by inverse triCount, meaning
 	// largest number = lowest load = largest probability to be picked
 	bool taggedANode = true;
 	cerr << "7.3" << endl;
 	while(taggedANode && (requestCount > requestsAssigned)) {
-		sort(mPriVirtualNodes.begin(), mPriVirtualNodes.end());
+		cerr << "BEFORE SORT: " << endl;
+		cerr << "fetching node 4: " << VirtualNode::getNode(4)->getRank() << endl;
+		cerr << "R -> N" << endl;
+		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+			cerr << "Req " << mPriVirtualRequests[i].getId() << " (" << (uint64_t) &mPriVirtualRequests[i] << ") -> ";
+			std::set<VirtualNode*>::iterator aIt = mPriVirtualRequests[i].getNodeSet()->begin();
+			for (; aIt != mPriVirtualRequests[i].getNodeSet()->end(); aIt++){
+				cerr << (*aIt)->getRank() << " (" << uint64_t(*aIt) << ") , ";
+			}
+			cerr << endl;
+		}
+		cerr << "N -> R" << endl;
+		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+			cerr << "Node " << mPriVirtualNodes[i]->getRank() << " (" << (uint64_t) mPriVirtualNodes[i] << ") -> ";
+			std::set<VirtualRequest*>::iterator aIt = mPriVirtualNodes[i]->getReqSet()->begin();
+			for (; aIt != mPriVirtualNodes[i]->getReqSet()->end(); aIt++){
+				cerr << (*aIt)->getId() << " (" << uint64_t(*aIt) << ") , ";
+			}
+			cerr << endl;
+		}
+		sort(mPriVirtualNodes.begin(), mPriVirtualNodes.end(), *boost::lambda::_1 < *boost::lambda::_2 );
+		cerr << "AFTER SORT: " << endl;
+		cerr << "fetching node 4: " << VirtualNode::getNode(4)->getRank() << endl;
+		cerr << "R -> N" << endl;
+		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+			cerr << "Req " << mPriVirtualRequests[i].getId() << " (" << (uint64_t) &mPriVirtualRequests[i] << ") -> ";
+			std::set<VirtualNode*>::iterator aIt = mPriVirtualRequests[i].getNodeSet()->begin();
+			for (; aIt != mPriVirtualRequests[i].getNodeSet()->end(); aIt++){
+				cerr << (*aIt)->getRank() << " (" << uint64_t(*aIt) << ") , ";
+			}
+			cerr << endl;
+		}
+		cerr << "N -> R" << endl;
+		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+			cerr << "Node " << mPriVirtualNodes[i]->getRank() << " (" << (uint64_t) mPriVirtualNodes[i] << ") -> ";
+			std::set<VirtualRequest*>::iterator aIt = mPriVirtualNodes[i]->getReqSet()->begin();
+			for (; aIt != mPriVirtualNodes[i]->getReqSet()->end(); aIt++){
+				cerr << (*aIt)->getId() << " (" << uint64_t(*aIt) << ") , ";
+			}
+			cerr << endl;
+		}
 		taggedANode = false;
 		cerr << "7.4" << endl;
 		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
 			cerr << "7.5" << endl;
-			if (!nodeIt->isTagged() && nodeIt->getRequestCount() <= _cConst){
+			if (!(*nodeIt)->isTagged() && (*nodeIt)->getRequestCount() <= _cConst){
 				// choose a random node among nodes with equal requests and probability
-				selectRandomNode(&(*nodeIt))->tag4Service();
+				selectRandomNode(*nodeIt)->tag4Service();
 				taggedANode = true;
 				cerr << "7.6" << endl;
 
@@ -191,19 +263,19 @@ void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assigne
 		}
 		cerr << "tagged a node? " << taggedANode << endl;
 		cerr << "7.7" << endl;
-		//TODO if no node has been tagged until here -> recurse!
+		//if no node has been tagged until here -> recurse!
 		if(!taggedANode)
 			break;
 
 		// sub-turn
 		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
 			cerr << "7.8" << endl;
-			if (nodeIt->isTagged4Service() && nodeIt->getRequestCount() > 0){
+			if ((*nodeIt)->isTagged4Service() && (*nodeIt)->getRequestCount() > 0){
 				cerr << "7.10" << endl;
-				unsigned tris = nodeIt->getTriCount();
-				unsigned jobs = nodeIt->getRequestCount();
-				requestsAssigned += nodeIt->professService();
-				cerr << "assigning " << jobs << " jobs to node " << nodeIt->getRank() << " with "<< nodeIt->getTriCount()-tris << " tris." << endl;
+				unsigned tris = (*nodeIt)->getTriCount();
+				unsigned jobs = (*nodeIt)->getRequestCount();
+				requestsAssigned += (*nodeIt)->professService();
+				cerr << "assigning " << jobs << " jobs to node " << (*nodeIt)->getRank() << " with "<< (*nodeIt)->getTriCount()-tris << " tris." << endl;
 			}
 //			else if (nodeIt->getRequestCount() == 0){
 //				cout << "7.11" << endl;
@@ -237,13 +309,25 @@ VirtualNode* CCollisionProtocol::selectRandomNode(VirtualNode* _candidate)
 	cerr << _candidate->getRank() << ": " << _candidate->getRequestCount() << ", " << _candidate->getTriCount() << endl;
 	cerr << "7.5.1" << endl;
 	std::set<VirtualNode*> nodeSet = std::set<VirtualNode*>();
+	// adding start-node to set
+	nodeSet.insert(_candidate);
 	// fetches request-list of this node
 	std::set<VirtualRequest*>* candidateRequests = _candidate->getReqSet();
 	std::set<VirtualRequest*>::iterator reqIt = candidateRequests->begin();
 	std::set<VirtualNode*>::iterator nodeIt;
 	// fetches all nodes of all those requests...
 	cerr << "7.5.2" << endl;
-	for (; reqIt != candidateRequests->end(); reqIt++){
+	for (reqIt = candidateRequests->begin(); reqIt != candidateRequests->end(); reqIt++){
+		// --------------------------
+		cerr << "nodeCount of startRequest " << (*reqIt)->getNodeSet()->size() << endl;
+		cerr << "nodes of startRequest " << (*reqIt)->getId() << " (" << uint64_t(*reqIt) << ") : ";
+		for (nodeIt = (*reqIt)->getNodeSet()->begin(); nodeIt != (*reqIt)->getNodeSet()->end(); nodeIt++){
+			cerr << (*nodeIt)->getRank() << " (" << uint64_t(*nodeIt) << ") , ";
+		}
+		cerr << endl;
+		// --------------------------
+
+		cerr << "tesing request: " << (*reqIt)->getId() << ", " << (*reqIt)->getTriCount() << ", " << (*reqIt)->getDestRank() << ", " << (*reqIt)->getServiceNodeRank() << endl;
 //		nodeSet.insert((*reqIt)->getNodeSet()->begin(), (*reqIt)->getNodeSet()->end());
 		// ... and tests them against state-equality of _candiate
 		cerr << "7.5.3" << endl;
@@ -312,21 +396,7 @@ void CCollisionProtocol::searchEqualNodes(vector<VirtualNode>::reverse_iterator 
 
 void CCollisionProtocol::debug(unsigned nodeCount)
 {
-	// to test this locally
-	mPriVirtualNodes.clear();
-	mPriVirtualRequests.clear();
-	VirtualNode::debug();
-	mPriDataNodeCount = nodeCount;
-	mPriVirtualNodes.resize(nodeCount, VirtualNode(0));
-	mPriVirtualRequests.resize(nodeCount, VirtualRequest());
-	mPriLowestNodeId = 0;
-	mPriHighestNodeId = nodeCount-1;
-	int i, idx;
-	for (i=mPriLowestNodeId, idx = 0; i<= mPriHighestNodeId; ++i, ++idx){
-		mPriVirtualNodes[idx] = (VirtualNode(i));
-		VirtualNode::registerNode(&mPriVirtualNodes[idx]);
-		mPriVirtualRequests[idx] = (VirtualRequest());
-	}
+
 
 }
 
