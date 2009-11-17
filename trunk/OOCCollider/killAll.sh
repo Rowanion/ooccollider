@@ -1,6 +1,6 @@
 #!/bin/bash
 
-hosts=("osiris" "horus" "kerner");
+hosts=("osiris" "horus" "kerner" "maat" );
 
 for host in ${hosts[@]}
 do
