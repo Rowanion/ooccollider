@@ -92,15 +92,15 @@ void VirtualRequest::reset(ooctools::Quintuple* _quint, unsigned int _triCount, 
 		mPriId = _quint->id;
 		mPriDestRank = _quint->destId;
 		mPriTriCount = _triCount;
-		cerr << "Request " << mPriId << " resetted with nodes ";
+//		cerr << "Request " << mPriId << " resetted with nodes ";
 		set<int>::iterator rankIt = _relevantNodes->begin();
 		for (; rankIt != _relevantNodes->end(); ++rankIt){
 			VirtualNode* vNode = VirtualNode::getNode(*rankIt);
 			vNode->registerRequest(this);
 			mPriNodeSet.insert(vNode);
-			cerr << vNode->getRank() << ", ";
+//			cerr << vNode->getRank() << ", ";
 		}
-		cerr << " and total " << mPriNodeSet.size() << " nodes." << endl;
+//		cerr << " and total " << mPriNodeSet.size() << " nodes." << endl;
 	}
 }
 

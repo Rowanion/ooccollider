@@ -71,6 +71,7 @@ private:
 	std::vector<VirtualNode*> mPriVirtualNodes;
 	std::vector<VirtualRequest> mPriVirtualRequests;
 	std::map<uint64_t, unsigned int> mPriLoTriMap;
+	unsigned int mPriRandomSeed;
 
 
 	typedef std::map<uint64_t, std::set<int> >::iterator IdMapSetIter;
