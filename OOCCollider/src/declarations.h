@@ -31,9 +31,14 @@
 #define BASE_FOVY 70.0
 #define PRESELECTED_SEED 670274678
 
+#undef DEBUG_CCOLLISION
+#undef DEBUG_RENDERLOOP
+#undef DEBUG_FRUSTUMCULLING
+#define DEBUG_DATAREQUEST
+
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
-#define MAX_LOADS_PER_FRAME 1923
+#define MAX_LOADS_PER_FRAME 1000
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
 #endif
 #ifdef HOME

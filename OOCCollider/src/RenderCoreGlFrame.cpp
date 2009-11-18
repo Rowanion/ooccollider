@@ -214,6 +214,10 @@ void RenderCoreGlFrame::setupCg()
 
 void RenderCoreGlFrame::display()
 {
+#ifdef DEBUG_RENDERLOOP
+	double newTime = glfwGetTime();
+#endif
+
 	double f = glfwGetTime();  // Time (in seconds)
 
 	cgGLSetParameter3fv(g_cgLightPosition,lightPos);
@@ -361,6 +365,11 @@ void RenderCoreGlFrame::display()
 			glPopMatrix();
 		glPopMatrix();
 	glPopMatrix();
+
+#ifdef DEBUG_RENDERLOOP
+	double newerTime = glfwGetTime();
+	cout << "(" << MpiControl::getSingleton()->getRank() << ") Renderloop took " << newerTime-newTime << " secs." << endl;
+#endif
 
 	// restore normal frustum before drawing
 	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)

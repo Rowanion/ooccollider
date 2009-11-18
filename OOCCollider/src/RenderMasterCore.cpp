@@ -56,7 +56,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			true), mPriFrameCount(DEPTHBUFFER_INTERVAL), mPriRenderTimeCount(0), mPriOh(
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
-			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriQuintSet(std::set<Quintuple>()),
+			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriQuintVec(std::vector<Quintuple>()),
 			mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, 2), mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
@@ -81,6 +81,10 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mPriMpiCon = MpiControl::getSingleton();
 	for (unsigned i=0; i< mPriMpiCon->getGroupSize(MpiControl::DATA); ++i){
 		mPriDataLoad.insert(make_pair(mPriMpiCon->getDataGroup()[i],0));
+	}
+
+	for (unsigned i=0; i< mPriMpiCon->getGroupSize(MpiControl::DATA); ++i){
+		mPriNodeReqMap.insert(make_pair(mPriMpiCon->getDataGroup()[i], set<Quintuple>()));
 	}
 
 	int id = 0;
@@ -170,9 +174,14 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 //			while (!MpiControl::getSingleton()->inQueueEmpty()) {
 //				handleMsg(MpiControl::getSingleton()->pop());
 //			}
+#ifdef DEBUG_CCOLLISION
 			newTime = glfwGetTime();
+#endif
 			manageCCollision(); // takes also care of tiles
+#ifdef DEBUG_CCOLLISION
 			newerTime = glfwGetTime();
+			cout << "(" << mPriMpiCon->getRank() << ") c-collision took " << newerTime-newTime << " secs." << endl;
+#endif
 //			cout << "[0] time for tile-sending and c-collision: " << newerTime-newTime<< endl;
 
 //			adjustTileDimensions();
@@ -322,7 +331,7 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			// at the moment it just passes the request to the only datanode
 			NodeRequestEvent nre = NodeRequestEvent(msg);
 			for (unsigned i = 0; i< nre.getIdxCount(); ++i){
-				mPriQuintSet.insert(*nre.getQuintuple(i));
+				mPriQuintVec.push_back(*nre.getQuintuple(i));
 			}
 		}
 		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()) {
@@ -357,31 +366,41 @@ void RenderMasterCore::manageCCollision()
 		handleMsg(mPriMpiCon->pop());
 	}
 	// distribution of requests from here
-	if (!mPriQuintSet.empty()){
-		// simple netdistribution with modulo 2
-		set<Quintuple> quintSet0 = set<Quintuple>();
-		set<Quintuple> quintSet1 = set<Quintuple>();
-		set<Quintuple>::iterator quintIt = mPriQuintSet.begin();
-		for (; quintIt != mPriQuintSet.end(); ++quintIt){
-			if (quintIt->id%2 == 0){
-				quintSet0.insert(*quintIt);
-			}
-			else {
-				quintSet1.insert(*quintIt);
-			}
+	if (!mPriQuintVec.empty()){
+		mPriCCol.doCCollision(&mPriQuintVec, &mPriNodeReqMap);
+		map<int, set<Quintuple> >::iterator intQuintIt = mPriNodeReqMap.begin();
+		for (; intQuintIt != mPriNodeReqMap.end(); ++intQuintIt){
+			NodeRequestEvent nre = NodeRequestEvent(intQuintIt->second);
+			mPriMpiCon->isend(new Message(nre,intQuintIt->first));
+			mPriDataLoad[intQuintIt->first]+=nre.getIdxCount();
 		}
-		if (!quintSet0.empty()){
-			NodeRequestEvent nre = NodeRequestEvent(quintSet0);
-			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[0]));
-			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
-		}
-		if (!quintSet1.empty()){
-			NodeRequestEvent nre = NodeRequestEvent(quintSet1);
-			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[1]));
-			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
-		}
-//		cout << "assigning " << nre.getIdxCount() << " jobs" << endl;
-		mPriQuintSet.clear();
+		mPriNodeReqMap.clear();
+		mPriQuintVec.clear();
+
+//		// simple netdistribution with modulo 2
+//		vector<Quintuple> quintSet0 = vector<Quintuple>();
+//		vector<Quintuple> quintSet1 = vector<Quintuple>();
+//		vector<Quintuple>::iterator quintIt = mPriQuintVec.begin();
+//		for (; quintIt != mPriQuintVec.end(); ++quintIt){
+//			if (quintIt->id%2 == 0){
+//				quintSet0.push_back(*quintIt);
+//			}
+//			else {
+//				quintSet1.push_back(*quintIt);
+//			}
+//		}
+//		if (!quintSet0.empty()){
+//			NodeRequestEvent nre = NodeRequestEvent(quintSet0);
+//			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[0]));
+//			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
+//		}
+//		if (!quintSet1.empty()){
+//			NodeRequestEvent nre = NodeRequestEvent(quintSet1);
+//			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[1]));
+//			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
+//		}
+////		cout << "assigning " << nre.getIdxCount() << " jobs" << endl;
+//		mPriQuintVec.clear();
 	}
 
 }
