@@ -99,6 +99,9 @@ int main(int argc, char *argv[]) {
 		quintVec.push_back(Quintuple(1, 17.4, 1, 6, 0));
 		quintVec.push_back(Quintuple(1, 17.4, 1, 7, 0));
 		quintVec.push_back(Quintuple(1, 17.4, 1, 8, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 2, 3, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 3, 3, 0));
+		quintVec.push_back(Quintuple(1, 17.4, 4, 3, 0));
 
 		map<int, set<ooctools::Quintuple> > nodeReqMap = map<int, set<ooctools::Quintuple> >();
 
