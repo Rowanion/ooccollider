@@ -89,7 +89,14 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 			//		cout << "renderer sending colorbuffer" << endl;
 			mPriMpiCon->isend(new Message(mPriGlFrame->getColorBufferEvent(), 0));
 			//		cout << "renderer culling and requesting" << endl;
+#ifdef DEBUG_FRUSTUMCULLING
+			double newTime = glfwGetTime();
+#endif
 			mPriGlFrame->cullFrustum();
+#ifdef DEBUG_FRUSTUMCULLING
+			double newerTime = glfwGetTime();
+			cout << "(" << MpiControl::getSingleton()->getRank() << ") FrustumCulling took " << newerTime-newTime << " secs." << endl;
+#endif
 
 			//		cout << "renderer checking for data-input" << endl;
 			MpiControl::getSingleton()->ireceive(MpiControl::DATA);

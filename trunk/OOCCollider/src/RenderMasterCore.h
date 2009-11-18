@@ -60,8 +60,8 @@ private:
 	unsigned mPriRendererDoneCount;
 	unsigned mPriTileCount;
 	oocframework::EventManager* mPriEventMan;
-	std::set<ooctools::Quintuple> mPriQuintSet;
-	std::map<int, std::set<Quintuple> > mPriNodeReqMap;
+	std::vector<ooctools::Quintuple> mPriQuintVec;
+	std::map<int, std::set<ooctools::Quintuple> > mPriNodeReqMap;
 	ooctools::MTRand mPriMTwister;
 	oocframework::CCollisionProtocol mPriCCol;
 

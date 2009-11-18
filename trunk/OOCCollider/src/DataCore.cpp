@@ -161,9 +161,12 @@ void DataCore::handleMsg(Message* msg){
 //			cout << "datacore has now " << mPriDepthBufferCount << " of " << MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)<< endl;
 		}
 		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
+#ifdef DEBUG_DATAREQUEST
+			double newTime = glfwGetTime();
+#endif
 			NodeRequestEvent nre = NodeRequestEvent(msg);
 			// fetch/reload VBOs and send back
-			cout << "starting " << nre.getIdxCount() << " jobs" << endl;
+//			cout << "starting " << nre.getIdxCount() << " jobs" << endl;
 
 			// sort Quadruples into map based on their destination id
 			for (unsigned i=0; i< nre.getIdxCount(); ++i){
@@ -178,14 +181,18 @@ void DataCore::handleMsg(Message* msg){
 				}
 				mapListIt->second.clear();
 			}
-			cout << "finished " << nre.getIdxCount() << " jobs" << endl;
-			JobDoneEvent jde = JobDoneEvent(nre.getIdxCount());
-			mPriMpiCon->isend(new Message(jde, 0));
+//			cout << "finished " << nre.getIdxCount() << " jobs" << endl;
+//			JobDoneEvent jde = JobDoneEvent(nre.getIdxCount());
+//			mPriMpiCon->isend(new Message(jde, 0));
 			// clear the lists in the map;
 			// for each non-empty map -> call display with ref toi this map
 			GET_GLERROR(0);
 //			mGlFrame->display(nre);
 
+#ifdef DEBUG_DATAREQUEST
+			double newerTime = glfwGetTime();
+			cout << "(" << MpiControl::getSingleton()->getRank() << ") DataRequest took " << newerTime-newTime << " secs." << endl;
+#endif
 		}
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
 			mPriMpiCon->barrier();
