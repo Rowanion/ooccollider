@@ -40,7 +40,7 @@ DataCore* DataCore::instance = 0;
 
 DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) :
 	mWindow(0), mRunning(true), mPriDepthBufferCount(0), mPriQuintMapList(std::map<int, std::list<const ooctools::Quintuple*> >()),
-	mPriMTwister(PRESELECTED_SEED)
+	mPriMTwister(PRESELECTED_SEED), mPriFrameTick(0), mPriRequestTime(0.0)
 {
 	DataCore::instance = this;
 	mPriMpiCon = oocframework::MpiControl::getSingleton();
@@ -161,6 +161,7 @@ void DataCore::handleMsg(Message* msg){
 //			cout << "datacore has now " << mPriDepthBufferCount << " of " << MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER)<< endl;
 		}
 		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()){
+
 #ifdef DEBUG_DATAREQUEST
 			double newTime = glfwGetTime();
 #endif
@@ -191,8 +192,14 @@ void DataCore::handleMsg(Message* msg){
 
 #ifdef DEBUG_DATAREQUEST
 			double newerTime = glfwGetTime();
-			cout << "(" << MpiControl::getSingleton()->getRank() << ") DataRequest took " << newerTime-newTime << " secs." << endl;
+			mPriRequestTime += (newerTime-newTime);
+			if (mPriFrameTick % DATAREQUEST_AVG == 0){
+				cout << "(" << MpiControl::getSingleton()->getRank() << ") DataRequest took " << mPriRequestTime/DATAREQUEST_AVG << " secs avg. over " << DISPLAY_AVG << " frames." << endl;
+				mPriRequestTime = 0.0;
+			}
 #endif
+			++mPriFrameTick;
+			mPriFrameTick %= MODULO_FRAMECOUNT;
 		}
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
 			mPriMpiCon->barrier();

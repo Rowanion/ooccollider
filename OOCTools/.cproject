@@ -45,7 +45,7 @@
 <listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/include&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
 </option>
-<option id="gnu.c.compiler.option.misc.other.2107764758" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fPIC" valueType="string"/>
+<option id="gnu.c.compiler.option.misc.other.2107764758" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fPIC" valueType="string"/>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1547007378" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.so.debug.33995331" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.so.debug">
@@ -528,6 +528,11 @@
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.so.release.1755779674" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.release">
 <option id="gnu.cpp.compiler.so.release.option.optimization.level.1036177475" name="Optimization Level" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.so.release.option.debugging.level.1484305353" name="Debug Level" superClass="gnu.cpp.compiler.so.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.include.paths.151819845" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/include&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.other.other.1029134101" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-long-long -Wno-deprecated -fPIC -ffast-math -funroll-loops" valueType="string"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.967230013" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.so.release.316026757" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release">

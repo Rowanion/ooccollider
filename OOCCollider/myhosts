@@ -1,9 +1,5 @@
-seth
-seth
-osiris
-horus
-osiris
-horus
-kerner
-maat
-
+seth	cpu=5
+osiris    cpu=1
+horus    cpu=1
+maat    cpu=1
+kerner    cpu=1

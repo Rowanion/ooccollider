@@ -1,3 +1,0 @@
-#!/bin/sh
-mpirun --prefix /opt/OpenMPI64 -hostfile myhosts -n $1 startScript.sh $2 $3
-

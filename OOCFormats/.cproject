@@ -30,9 +30,9 @@
 <option id="gnu.cpp.compiler.so.debug.option.optimization.level.408958509" name="Optimization Level" superClass="gnu.cpp.compiler.so.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.so.debug.option.debugging.level.1697417699" name="Debug Level" superClass="gnu.cpp.compiler.so.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.option.include.paths.1403324307" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/include&quot;"/>
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/include&quot;"/>
 </option>
 <option id="gnu.cpp.compiler.option.warnings.pedantic.289546317" name="Pedantic (-pedantic)" superClass="gnu.cpp.compiler.option.warnings.pedantic" value="false" valueType="boolean"/>
 <option id="gnu.cpp.compiler.option.other.other.1695517832" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-long-long -Wno-deprecated -fPIC" valueType="string"/>
@@ -524,6 +524,12 @@
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.so.release.877029165" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.release">
 <option id="gnu.cpp.compiler.so.release.option.optimization.level.349197078" name="Optimization Level" superClass="gnu.cpp.compiler.so.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.so.release.option.debugging.level.700138419" name="Debug Level" superClass="gnu.cpp.compiler.so.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.other.other.1564597286" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-long-long -Wno-deprecated -fPIC -ffast-math -funroll-loops" valueType="string"/>
+<option id="gnu.cpp.compiler.option.include.paths.1700774404" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/include&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1803616330" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.so.release.1039440508" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.so.release">
@@ -536,6 +542,14 @@
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.cpp.linker.so.release.1701102446" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.so.release">
 <option defaultValue="true" id="gnu.cpp.link.so.release.option.shared.1698569159" name="Shared (-shared)" superClass="gnu.cpp.link.so.release.option.shared" valueType="boolean"/>
+<option id="gnu.cpp.link.option.libs.1946073924" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+<listOptionValue builtIn="false" value="OOCTools"/>
+<listOptionValue builtIn="false" value="boost_filesystem-gcc43-mt-1_38"/>
+</option>
+<option id="gnu.cpp.link.option.paths.629465076" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+<listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/lib&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/Release}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1233646928" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 <additionalInput kind="additionalinput" paths="$(LIBS)"/>

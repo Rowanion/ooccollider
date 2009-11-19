@@ -33,6 +33,10 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFramework/include}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/include}&quot;"/>
 </option>
+<option id="gnu.cpp.compiler.option.preprocessor.def.276308357" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="OFFICE"/>
+</option>
+<option id="gnu.cpp.compiler.option.other.other.357595845" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fPIC" valueType="string"/>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1075637803" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool command="mpicc" id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.953511987" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
@@ -57,6 +61,8 @@
 </option>
 <option id="gnu.cpp.link.option.libs.984484872" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="mpi"/>
+<listOptionValue builtIn="false" value="Cg"/>
+<listOptionValue builtIn="false" value="CgGL"/>
 <listOptionValue builtIn="false" value="X11"/>
 <listOptionValue builtIn="false" value="spnav"/>
 <listOptionValue builtIn="false" value="boost_filesystem-gcc43-mt-1_38"/>
@@ -354,12 +360,25 @@
 <targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.792644595" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
 <builder buildPath="${workspace_loc:/OOCCollider/Release}" id="cdt.managedbuild.target.gnu.builder.exe.release.1341201116" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.758382450" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
-<tool command="/home/ava/Diplom/usr/bin/mpic++" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1500035741" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+<tool command="mpic++" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1500035741" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
 <option id="gnu.cpp.compiler.exe.release.option.optimization.level.528058407" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 <option id="gnu.cpp.compiler.exe.release.option.debugging.level.2112549288" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+<option id="gnu.cpp.compiler.option.include.paths.561132157" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="/opt/OpenMPI/include"/>
+<listOptionValue builtIn="false" value="/home/ava/Diplom/usr/include"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFramework/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCCollider/src}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCCollider/events}&quot;"/>
+</option>
+<option id="gnu.cpp.compiler.option.other.other.1987522380" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -Wno-long-long -Wno-deprecated -fPIC -ffast-math -funroll-loops" valueType="string"/>
+<option id="gnu.cpp.compiler.option.preprocessor.def.1990659420" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+<listOptionValue builtIn="false" value="OFFICE"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.925328472" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
-<tool command="/home/ava/Diplom/usr/bin/mpicc" id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.698188760" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
+<tool command="mpicc" id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.698188760" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
 <option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.1693286450" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
 <option id="gnu.c.compiler.exe.release.option.debugging.level.1268887577" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 <option id="gnu.c.compiler.option.include.paths.822227098" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
@@ -369,12 +388,26 @@
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.785513522" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.383260186" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release"/>
-<tool command="/home/ava/Diplom/usr/bin/mpic++" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.712205615" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+<tool command="mpic++" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.712205615" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
 <option id="gnu.cpp.link.option.paths.1542924541" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-<listOptionValue builtIn="false" value="/home/ava/Diplom/usr/include/lib"/>
+<listOptionValue builtIn="false" value="/home/ava/Diplom/usr/lib"/>
+<listOptionValue builtIn="false" value="&quot;${HOME}/Diplom/usr/lib64&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCTools/Release}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFramework/Release}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OOCFormats/Release}&quot;"/>
 </option>
 <option id="gnu.cpp.link.option.libs.226893157" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 <listOptionValue builtIn="false" value="mpi"/>
+<listOptionValue builtIn="false" value="Cg"/>
+<listOptionValue builtIn="false" value="CgGL"/>
+<listOptionValue builtIn="false" value="X11"/>
+<listOptionValue builtIn="false" value="spnav"/>
+<listOptionValue builtIn="false" value="boost_filesystem-gcc43-mt-1_38"/>
+<listOptionValue builtIn="false" value="OOCFramework"/>
+<listOptionValue builtIn="false" value="OOCTools"/>
+<listOptionValue builtIn="false" value="OOCFormats"/>
+<listOptionValue builtIn="false" value="GLEW"/>
+<listOptionValue builtIn="false" value="glfw"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.189477474" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

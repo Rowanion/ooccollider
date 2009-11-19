@@ -48,7 +48,9 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
 					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()),
-			mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false){
+			mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false),
+			mPriFrameTick(0), mPriDisplayTime(0.0)
+{
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -368,7 +370,11 @@ void RenderCoreGlFrame::display()
 
 #ifdef DEBUG_RENDERLOOP
 	double newerTime = glfwGetTime();
-	cout << "(" << MpiControl::getSingleton()->getRank() << ") Renderloop took " << newerTime-newTime << " secs." << endl;
+	mPriDisplayTime += (newerTime-newTime);
+	if (mPriFrameTick % CCOLLISION_AVG == 0){
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") RenderLoop " << mPriDisplayTime/DISPLAY_AVG << " secs avg. over " << DISPLAY_AVG << " frames." << endl;
+		mPriDisplayTime = 0.0;
+	}
 #endif
 
 	// restore normal frustum before drawing
@@ -381,6 +387,9 @@ void RenderCoreGlFrame::display()
 //	drawDepthTex();
 	glPolygonMode(GL_FRONT, polyMode);
 	GET_GLERROR(0);
+
+	++mPriFrameTick;
+	mPriFrameTick %= MODULO_FRAMECOUNT;
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;

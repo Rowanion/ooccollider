@@ -1,0 +1,3 @@
+#!/bin/sh
+mpirun --prefix /opt/OpenMPI64 -hostfile myhosts -n $1 startScriptDebug.sh $2 $3
+
