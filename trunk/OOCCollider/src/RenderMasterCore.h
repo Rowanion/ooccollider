@@ -56,6 +56,8 @@ private:
 	Tile mPriRootTile;
 	SimpleGlFrame* mPriGlFrame;
 	std::map<int, unsigned> mPriDataLoad;
+	unsigned mPriFrameTick;
+	double mPriCCollisionTime;
 
 	unsigned mPriRendererDoneCount;
 	unsigned mPriTileCount;

@@ -149,6 +149,9 @@ private:
 
 	bool mPriShowOffset;
 
+	unsigned mPriFrameTick;
+	double mPriDisplayTime;
+
 	CGprogram g_cgVertexProg;
 	CGparameter g_cgGlobalAmbient;
 	CGparameter g_cgLightColor;

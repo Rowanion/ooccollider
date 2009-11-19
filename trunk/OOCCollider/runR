@@ -1,0 +1,3 @@
+#!/bin/sh
+mpirun --prefix /opt/OpenMPI64 -hostfile myhosts -n $1 startScriptRelease.sh $2 $3
+

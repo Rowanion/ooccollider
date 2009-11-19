@@ -56,8 +56,9 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			true), mPriFrameCount(DEPTHBUFFER_INTERVAL), mPriRenderTimeCount(0), mPriOh(
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
-			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriQuintVec(std::vector<Quintuple>()),
-			mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, 2), mPriWindowWidth(_width), mPriWindowHeight(_height) {
+			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriFrameTick(0), mPriCCollisionTime(0.0),
+			mPriQuintVec(std::vector<Quintuple>()), mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, 2),
+			mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
@@ -174,14 +175,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 //			while (!MpiControl::getSingleton()->inQueueEmpty()) {
 //				handleMsg(MpiControl::getSingleton()->pop());
 //			}
-#ifdef DEBUG_CCOLLISION
-			newTime = glfwGetTime();
-#endif
 			manageCCollision(); // takes also care of tiles
-#ifdef DEBUG_CCOLLISION
-			newerTime = glfwGetTime();
-			cout << "(" << mPriMpiCon->getRank() << ") c-collision took " << newerTime-newTime << " secs." << endl;
-#endif
 //			cout << "[0] time for tile-sending and c-collision: " << newerTime-newTime<< endl;
 
 //			adjustTileDimensions();
@@ -205,6 +199,8 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 		// Swap front and back buffers (we use a double buffered display)
 		mWindow->flip();
 		mWindow->poll();
+		++mPriFrameTick;
+		mPriFrameTick %= MODULO_FRAMECOUNT;
 		++frames;
 		if (frames >= 100) {
 			frames = 0;
@@ -365,6 +361,10 @@ void RenderMasterCore::manageCCollision()
 	while(!mPriMpiCon->inQueueEmpty()){
 		handleMsg(mPriMpiCon->pop());
 	}
+#ifdef DEBUG_CCOLLISION
+			double newTime = glfwGetTime();
+#endif
+
 	// distribution of requests from here
 	if (!mPriQuintVec.empty()){
 		mPriCCol.doCCollision(&mPriQuintVec, &mPriNodeReqMap);
@@ -402,6 +402,15 @@ void RenderMasterCore::manageCCollision()
 ////		cout << "assigning " << nre.getIdxCount() << " jobs" << endl;
 //		mPriQuintVec.clear();
 	}
+#ifdef DEBUG_CCOLLISION
+			double newerTime = glfwGetTime();
+			mPriCCollisionTime += (newerTime-newTime);
+			if (mPriFrameTick % CCOLLISION_AVG == 0){
+				cout << "(" << mPriMpiCon->getRank() << ") c-collision took " << mPriCCollisionTime/CCOLLISION_AVG << " secs avg. over " << CCOLLISION_AVG << " frames." << endl;
+				mPriCCollisionTime = 0.0;
+			}
+#endif
+
 
 }
 

@@ -41,6 +41,10 @@ private:
 	std::map<int, std::list<const ooctools::Quintuple*> > mPriQuintMapList;
 	ooctools::MTRand mPriMTwister;
 
+	unsigned mPriFrameTick;
+	double mPriRequestTime;
+
+
 	static DataCore* instance;
 
 	void sendMethod(int dest);
