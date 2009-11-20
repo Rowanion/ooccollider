@@ -20,11 +20,65 @@
 #include "declarations.h"
 #include "StructDefs.h"
 #include "BoundingBox.h"
+#include "IndexedVbo.h"
 
 #define MAX_OCTREE_LEVEL 14
 #define MAX_OCTREE_TRIANGLES 5000
 
 namespace oocformats {
+
+struct WrappedOcNode{
+	enum State{
+		MISSING,
+		REQUESTED,
+		ONLINE,
+		OFFLINE
+	};
+
+//	WrappedOcNode();
+//	WrappedOcNode(double _time, LooseOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, State _state);
+//	WrappedOcNode(LooseOctree* _octreeNode);
+
+	WrappedOcNode()
+	{
+		timeStamp = 0.0;
+		octreeNode = 0;
+		iVbo = 0;
+		state = MISSING;
+	}
+
+	WrappedOcNode(double _time, LooseOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, State _state)
+	{
+		timeStamp = _time;
+		octreeNode = _octreeNode;
+		iVbo = _iVbo;
+		state = _state;
+	}
+
+	WrappedOcNode(LooseOctree* _octreeNode)
+	{
+		timeStamp = 0.0;
+		octreeNode = _octreeNode;
+		iVbo = 0;
+		state = MISSING;
+	}
+
+	bool operator<(const WrappedOcNode& rhs) const
+	{
+		return (timeStamp < rhs.timeStamp);
+	}
+
+//	void set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt);
+//	void set(WrappedOcNode rhs);
+//	void set(const WrappedOcNode* rhs);
+
+	double timeStamp;     // octree-level of this node
+	LooseOctree* octreeNode;  // mpi-rank of requesting node
+	ooctools::IndexedVbo* iVbo;	 // states wheather this node is in the extended frustum or not.
+	State state;
+
+};
+
 
 /**
  * @class LooseOctree
@@ -156,11 +210,14 @@ class LooseOctree
 		bool frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseOctree*>& _toDoQueue, unsigned orderIdx);
 		bool frustumSelfTest_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx);
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
-		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray);
-		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids, unsigned orderIdx);
+//		void isInFrustum_orig(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray);
+//		void isInFrustum_orig(float** _frustum, std::map<uint64_t, int>* _ids, unsigned orderIdx);
+		void isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray);
+
 		void setDataLoaded(){mPriDataLoaded = true;};
 		void setDataUnloaded(){mPriDataLoaded = false;};
 		bool isDataLoaded() const {return mPriDataLoaded;};
+		WrappedOcNode* getWrapper() {return &mPriWrapper;};
 
 		/**
 		 * @brief Counts for the whole tree how many children we have
@@ -179,6 +236,8 @@ class LooseOctree
 		static unsigned orderLUT[26][8];
 		static unsigned detailLUT[26][8];
 
+		static unsigned pubTick;
+
 	private:
 		typedef std::list<ooctools::Triangle>::const_iterator CTriIter;
 		typedef std::list<ooctools::Triangle>::iterator TriIter;
@@ -196,6 +255,8 @@ class LooseOctree
 		unsigned mPriTriCount;
 		double mPriAreaSum;
 		bool mPriDataLoaded;
+		float mPriDistance;
+		WrappedOcNode mPriWrapper;
 
 		LooseOctree* mChildren[8];
 		LooseOctree* mFather;
