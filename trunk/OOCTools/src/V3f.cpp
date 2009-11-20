@@ -465,7 +465,9 @@ V3f::calcDistance(const V3f& point) const
 float
 V3f::calcSimpleDistance(const V3f& point) const
 {
-	return pow((*x - point.getX()), 2.0) + pow((*y - point.getY()), 2.0) + pow((*z - point.getZ()), 2.0);
+	V3f aVec = *this-point;
+	return (aVec.getX()*aVec.getX()) + (aVec.getY()*aVec.getY()) + (aVec.getZ()*aVec.getZ());
+//	return pow((*x - point.getX()), 2.0) + pow((*y - point.getY()), 2.0) + pow((*z - point.getZ()), 2.0);
 }
 
 float

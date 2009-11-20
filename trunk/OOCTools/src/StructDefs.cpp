@@ -118,10 +118,13 @@ bool Quadruple::operator<(const Quadruple& rhs) const {
 	}
 }
 
-Quintuple::Quintuple(){
+Quintuple::Quintuple()
+{
 }
 
-Quintuple::Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt) : lvl(_lvl), dist(_dist), destId(_destId), priority(_isExt), id(_id){
+Quintuple::Quintuple(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt) :
+	lvl(_lvl), dist(_dist), destId(_destId), priority(_isExt), id(_id)
+{
 }
 
 void Quintuple::set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt)
@@ -151,7 +154,8 @@ void Quintuple::set(const Quintuple* rhs)
 	priority = rhs->priority;
 }
 
-bool Quintuple::operator<(const Quintuple& rhs) const {
+bool Quintuple::operator<(const Quintuple& rhs) const
+{
 	if (priority == rhs.priority){
 		if (destId == rhs.destId){
 			if (lvl == rhs.lvl){
