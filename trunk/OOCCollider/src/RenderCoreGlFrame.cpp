@@ -34,8 +34,10 @@
 #include "ModelViewMatrixEvent.h"
 #include "InfoRequestEvent.h"
 
+
 using namespace std;
 using namespace ooctools;
+using namespace oocformats;
 using namespace oocframework;
 
 RenderCoreGlFrame::RenderCoreGlFrame(int winWidth, int winHeight, int targetWinWidth, int targetWinHeight) :
@@ -46,10 +48,10 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
-					std::vector<IdVboMapIter>()), mPriUseWireFrame(false),
+					std::list<IdVboMapIter>()), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()),
 			mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false),
-			mPriFrameTick(0), mPriDisplayTime(0.0)
+			mPriFrameTick(0), mPriDisplayTime(0.0), mPriFrustumCullingTime(0.0), mPriRequestDataTime(0.0)
 {
 
 	for (unsigned i = 0; i < 10; ++i) {
@@ -372,7 +374,7 @@ void RenderCoreGlFrame::display()
 	double newerTime = glfwGetTime();
 	mPriDisplayTime += (newerTime-newTime);
 	if (mPriFrameTick % CCOLLISION_AVG == 0){
-		cout << "(" << MpiControl::getSingleton()->getRank() << ") RenderLoop " << mPriDisplayTime/DISPLAY_AVG << " secs avg. over " << DISPLAY_AVG << " frames." << endl;
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") RenderLoop took " << mPriDisplayTime/DISPLAY_AVG << " secs avg. over " << DISPLAY_AVG << " frames." << endl;
 		mPriDisplayTime = 0.0;
 	}
 #endif
@@ -536,14 +538,15 @@ RenderCoreGlFrame::requestMissingVbos()
 	unsigned frustReq =0;
 	unsigned extFrustReq =0;
 	oocformats::LooseOctree* currentNode = 0;
-	// deleting obsolete vbos
-	for (unsigned i=0; i<mPriObsoleteVbos.size(); ++i){
-		mPriObsoleteVbos[i]->second->setOffline();
-		mPriOfflineVbosInFrustum.insert(make_pair(mPriObsoleteVbos[i]->first, mPriObsoleteVbos[i]->second));
+	// moving obsolete vbos into cache
+	list<map<uint64_t, IndexedVbo*>::iterator >::iterator iterIt = mPriObsoleteVbos.begin();
+	for (; iterIt != mPriObsoleteVbos.end(); ++iterIt){
+		(*iterIt)->second->setOffline();
+		mPriOfflineVbosInFrustum.insert(make_pair((*iterIt)->first, (*iterIt)->second));
 		//TODO research why getTriCount() seems to malfunction
-		mPriTriCount -= mPriObsoleteVbos[i]->second->getTriCount();
+		mPriTriCount -= (*iterIt)->second->getTriCount();
 
-		mPriVbosInFrustum.erase(mPriObsoleteVbos[i]);
+		mPriVbosInFrustum.erase((*iterIt));
 	}
 	mPriObsoleteVbos.clear();
 	trimCacheMap();
@@ -1027,6 +1030,10 @@ void RenderCoreGlFrame::cullFrustum()
 	 */
 
 	//extend frustum
+#ifdef DEBUG_FRUSTUMCULLING
+	double newTime = glfwGetTime();
+#endif
+
 	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 
 	// light blue
@@ -1049,6 +1056,7 @@ void RenderCoreGlFrame::cullFrustum()
 
 	getFrustum();
 	mPriIdsInExtFrustum.clear();
+	//TODO umstellen auf ne list
 	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 
 	// original frustum
@@ -1063,9 +1071,30 @@ void RenderCoreGlFrame::cullFrustum()
 		resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 	}
 
+#ifdef DEBUG_FRUSTUMCULLING
+	double newerTime = glfwGetTime();
+	mPriFrustumCullingTime += (newerTime-newTime);
+	if (mPriFrameTick % FRUSTUMCULLING_AVG == 0){
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") FrustumCulling took " << mPriFrustumCullingTime/FRUSTUMCULLING_AVG << " secs avg. over " << DISPLAY_AVG << " frames." << endl;
+		mPriFrustumCullingTime = 0.0;
+	}
+#endif
+
+#ifdef DEBUG_REQUESTDATA
+	double newTime2 = glfwGetTime();
+#endif
 
 	divideIdList();
 	requestMissingVbos();
+
+#ifdef DEBUG_REQUESTDATA
+	double newerTime2 = glfwGetTime();
+	mPriRequestDataTime += (newerTime2-newTime2);
+	if (mPriFrameTick % REQUESTDATA_AVG == 0){
+		cout << "(" << MpiControl::getSingleton()->getRank() << ") assemble DataRequests took " << mPriRequestDataTime/REQUESTDATA_AVG << " secs avg. over " << DISPLAY_AVG << " frames." << endl;
+		mPriRequestDataTime = 0.0;
+	}
+#endif
 }
 
 void RenderCoreGlFrame::generateMaxDistPerLevel(unsigned _maxLevel, float _originalSize)
