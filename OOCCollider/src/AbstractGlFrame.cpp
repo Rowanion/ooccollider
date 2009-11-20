@@ -15,7 +15,7 @@
 
 AbstractGlFrame::AbstractGlFrame(int winWidth, int winHeight, int targetWinWidth, int targetWinHeight) :
 	mProWindowWidth(winWidth), mProWindowHeight(winHeight), mProTargetWindowWidth(targetWinWidth),
-	mProTargetWindowHeight(targetWinHeight), mProFarClippingPlane(FAR_CLIPPING_PLANE), mProNearClippingPlane(0.1f)
+	mProTargetWindowHeight(targetWinHeight), mProNearClippingPlane(0.1f), mProFarClippingPlane(FAR_CLIPPING_PLANE)
 {
 }
 

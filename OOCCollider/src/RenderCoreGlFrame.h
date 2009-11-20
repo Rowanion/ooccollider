@@ -131,7 +131,7 @@ private:
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVbosInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriOfflineVbosInFrustum;
 	std::set<uint64_t> mPriMissingIdsInFrustum;
-	std::vector< std::map<uint64_t, ooctools::IndexedVbo*>::iterator > mPriObsoleteVbos;
+	std::list< std::map<uint64_t, ooctools::IndexedVbo*>::iterator > mPriObsoleteVbos;
 
 	bool mPriUseWireFrame;
 
@@ -151,6 +151,8 @@ private:
 
 	unsigned mPriFrameTick;
 	double mPriDisplayTime;
+	double mPriFrustumCullingTime;
+	double mPriRequestDataTime;
 
 	CGprogram g_cgVertexProg;
 	CGparameter g_cgGlobalAmbient;
@@ -186,6 +188,9 @@ private:
 	typedef std::set<uint64_t>::iterator IdSetIter;
 	typedef std::set<uint64_t>::const_iterator CIdSetIter;
 	typedef std::set<uint64_t>::reverse_iterator RIdSetIter;
+	typedef std::list<uint64_t>::iterator IdListIter;
+	typedef std::list<uint64_t>::const_iterator CIdListIter;
+	typedef std::list<uint64_t>::reverse_iterator RIdListIter;
 	typedef std::set<ooctools::Triple>::iterator TripleSetIter;
 	typedef std::set<ooctools::Triple>::const_iterator CTripleSetIter;
 	typedef std::set<ooctools::Triple>::reverse_iterator RTripleSetIter;
