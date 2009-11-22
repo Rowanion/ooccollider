@@ -133,6 +133,9 @@ private:
 	std::set<uint64_t> mPriMissingIdsInFrustum;
 	std::list< std::map<uint64_t, ooctools::IndexedVbo*>::iterator > mPriObsoleteVbos;
 
+	std::list<oocformats::WrappedOcNode*> mPriWrapperInFrustum;
+	std::set<ooctools::Quintuple> mPriRequests;
+
 	bool mPriUseWireFrame;
 
 	std::set<uint64_t> mPriRequestedVboList;
@@ -197,6 +200,9 @@ private:
 	typedef std::map<uint64_t, int>::iterator IdLvlMapIter;
 	typedef std::map<uint64_t, int>::const_iterator CIdLvlSetIter;
 	typedef std::map<uint64_t, int>::reverse_iterator RIdLvlSetIter;
+	typedef std::list<oocformats::WrappedOcNode*>::iterator WrapperListIter;
+	typedef std::list<oocformats::WrappedOcNode*>::const_iterator CWrapperListIter;
+	typedef std::list<oocformats::WrappedOcNode*>::reverse_iterator RWrapperListIter;
 
 	void calcFPS();
 	void requestMissingVbos();
