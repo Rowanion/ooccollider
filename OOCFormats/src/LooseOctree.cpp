@@ -1072,7 +1072,10 @@ LooseOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _node
 
 	if (this->hasData()) {
 		if (mPriWrapper.state == WrappedOcNode::MISSING){
-			_nodes->insert(this->mPriId);
+			_nodes->push_back(&this->mPriWrapper);
+		}
+		else if (mPriWrapper.state == WrappedOcNode::OFFLINE){
+			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
 		}
 	}
 
@@ -1089,7 +1092,7 @@ LooseOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _node
 //				cout << "2.3" << endl;
 				if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
 //					cout << "2.4" << endl;
-					child->getAllSubtreeIds(_ids, orderIdx, eyePos, distArray);
+					child->getAllSubtreeIds(_nodes, orderIdx, eyePos, distArray);
 				}
 				else{
 					return;
@@ -1121,7 +1124,7 @@ LooseOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _node
 //			cout << eyePos.calcSimpleDistance(child->getBb().getCenter()) << " vs " << distArray[child->getLevel()] << endl;
 			if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
 //				cout << "2.8" << endl;
-				child->isInFrustum_orig(_frustum, _ids, orderIdx, eyePos, distArray);
+				child->isInFrustum_orig(_frustum, _nodes, orderIdx, eyePos, distArray);
 			}
 			else{
 				return;
@@ -1144,6 +1147,23 @@ void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
 	}
 }
 
+void LooseOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes){
+	if (this->hasData()){
+		if (this->mPriWrapper.state == WrappedOcNode::MISSING) {
+			_nodes->push_back(&this->mPriWrapper);
+		}
+		else if (this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
+			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
+		}
+	}
+
+	for (unsigned i = 0; i < 8; i++) {
+		if (this->mChildren[i] != 0) {
+			(this->mChildren[i])->getAllSubtreeIds(_nodes);
+		}
+	}
+}
+
 void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyePos, const float* distArray){
 	if (this->hasData()) {
 		_ids->insert(this->mPriId);
@@ -1154,6 +1174,33 @@ void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, 
 		if (child != 0) {
 			if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
 				child->getAllSubtreeIds(_ids);
+			}
+			else{
+				return;
+			}
+		}
+	}
+}
+
+void LooseOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray){
+	if (this->hasData()){
+		if (this->mPriWrapper.state == WrappedOcNode::MISSING) {
+			_nodes->push_back(&this->mPriWrapper);
+		}
+		else if (this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
+			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
+		}
+	}
+	LooseOctree* child = 0;
+	for (unsigned i = 0; i < 8; i++) {
+		child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
+		if (child != 0) {
+			//TODO abhängigkeit von tick to calc dist
+			if (child->mPriWrapper.dist == 0.0 || true){
+				child->mPriWrapper.dist = eyePos.calcSimpleDistance(child->getBb().getCenter());
+			}
+			if (this->mPriWrapper.dist < distArray[child->getLevel()]){
+				child->getAllSubtreeIds(_nodes);
 			}
 			else{
 				return;
@@ -1331,48 +1378,5 @@ void LooseOctree::isInFrustum(float** _frustum, std::set<uint64_t>*
  * at filesystem level.
  *
  */
-
-//WrappedOcNode::WrappedOcNode() : timeStamp(0.0), octreeNode(0), iVbo(0), state(MISSING)
-//{
-//}
-//
-//WrappedOcNode::WrappedOcNode(double _time, LooseOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, State _state) :
-//	timeStamp(_time), octreeNode(_octreeNode), iVbo(_iVbo), state(_state){
-//}
-//WrappedOcNode::WrappedOcNode(LooseOctree* _octreeNode) :
-//	timeStamp(0.0), octreeNode(_octreeNode), iVbo(0), state(MISSING)
-//{
-//}
-//
-//void WrappedOcNode::set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt)
-//{
-//	lvl = _lvl;
-//	dist = _dist;
-//	destId = _destId;
-//	id = _id;
-//	priority = _isExt;
-//}
-//
-//void WrappedOcNode::set(WrappedOcNode rhs)
-//{
-//	lvl = rhs.lvl;
-//	dist = rhs.dist;
-//	destId = rhs.destId;
-//	id = rhs.id;
-//	priority = rhs.priority;
-//}
-//
-//void WrappedOcNode::set(const WrappedOcNode* rhs)
-//{
-//	lvl = rhs->lvl;
-//	dist = rhs->dist;
-//	destId = rhs->destId;
-//	id = rhs->id;
-//	priority = rhs->priority;
-//}
-//
-//bool WrappedOcNode::operator<(const WrappedOcNode& rhs) const {
-//	return (timeStamp < rhs.timeStamp);
-//}
 
 } // oocformats

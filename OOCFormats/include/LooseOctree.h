@@ -29,10 +29,11 @@ namespace oocformats {
 
 struct WrappedOcNode{
 	enum State{
-		MISSING,
-		REQUESTED,
-		ONLINE,
-		OFFLINE
+		SET_ONLINE = 0,
+		REQUESTED = 1,
+		ONLINE = 2,
+		MISSING = 3,
+		OFFLINE =4
 	};
 
 //	WrappedOcNode();
@@ -44,14 +45,16 @@ struct WrappedOcNode{
 		timeStamp = 0.0;
 		octreeNode = 0;
 		iVbo = 0;
+		dist = 0.0;
 		state = MISSING;
 	}
 
-	WrappedOcNode(double _time, LooseOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, State _state)
+	WrappedOcNode(double _time, LooseOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, float _dist, State _state)
 	{
 		timeStamp = _time;
 		octreeNode = _octreeNode;
 		iVbo = _iVbo;
+		dist = _dist;
 		state = _state;
 	}
 
@@ -60,6 +63,7 @@ struct WrappedOcNode{
 		timeStamp = 0.0;
 		octreeNode = _octreeNode;
 		iVbo = 0;
+		dist = 0.0;
 		state = MISSING;
 	}
 
@@ -76,6 +80,7 @@ struct WrappedOcNode{
 	LooseOctree* octreeNode;  // mpi-rank of requesting node
 	ooctools::IndexedVbo* iVbo;	 // states wheather this node is in the extended frustum or not.
 	State state;
+	float dist;
 
 };
 
@@ -128,7 +133,9 @@ class LooseOctree
 		float getAreaSum() const {return mPriAreaSum;};
 
 		void getAllSubtreeIds(std::set<uint64_t>* _ids);
+		void getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes);
 		void getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray);
+		void getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray);
 
 		/**
 		 * @brief Debug-Function to check the correctness of subdivision.

@@ -275,6 +275,87 @@ void RenderCoreGlFrame::display()
 				cgGLDisableTextureParameter(cgNoLightLUT);
 				mPriColorTable.unbindTex();
 
+
+				//TODO new function to iterate over list<Wrapper>
+				// ---------------------------------
+				for (WrapperListIter wIt = mPriWrapperInFrustum.begin(); wIt != mPriWrapperInFrustum.end(); ++wIt){
+					if (mPriBBMode == 0){
+						mPriColorTable.bindTex();
+						cgGLEnableTextureParameter(cgFragLUT);
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+						// -------------------------------------
+						switch (wIt->status) {
+						case WrappedOcNode::MISSING:
+							//TODO request
+							mPriRequests.insert(Quintuple(wIt->octreeNode->getLevel(), wIt->dist, MpiControl::getSingleton()->getRank(), true));
+							wIt->state = WrappedOcNode::REQUESTED;
+							wIt->timeStamp = glfwGetTime();
+							break;
+						case WrappedOcNode::SET_ONLINE:
+							wIt->timeStamp = glfwGetTime();
+							wIt->iVbo->setOnline();
+							wIt->state = WrappedOcNode::ONLINE;
+							wIt->iVbo->managedDraw();
+							break;
+						case WrappedOcNode::ONLINE:
+							wIt->timeStamp = glfwGetTime();
+							wIt->iVbo->managedDraw();
+							break;
+
+						}
+						//TODO do 2-lvl caching
+						// -------------------------------------
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+						cgGLDisableTextureParameter(cgFragLUT);
+						mPriColorTable.unbindTex();
+					}
+					else if (mPriBBMode == 1){
+						mPriColorTable.bindTex();
+						cgGLEnableTextureParameter(cgFragLUT);
+						cgGLEnableTextureParameter(cgNoLightLUT);
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+						it->second->managedDraw();
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+						cgGLDisableTextureParameter(cgNoLightLUT);
+						cgGLDisableTextureParameter(cgFragLUT);
+						mPriColorTable.unbindTex();
+					}
+					else if (mPriBBMode == 2){
+						mPriColorTable.bindTex();
+						cgGLEnableTextureParameter(cgNoLightLUT);
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+						cgGLDisableTextureParameter(cgNoLightLUT);
+						mPriColorTable.unbindTex();
+					}
+					else if (mPriBBMode == 3){
+						mPriColorTable.bindTex();
+						cgGLEnableTextureParameter(cgNoLightLUT);
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						mPriIdLoMap[it->first]->getBb().drawSolidTriFan(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+						cgGLDisableTextureParameter(cgNoLightLUT);
+						mPriColorTable.unbindTex();
+					}
+
+				}
+
+				// -----------------------------------
 				for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
 					if (mPriBBMode == 0){
 						mPriColorTable.bindTex();
