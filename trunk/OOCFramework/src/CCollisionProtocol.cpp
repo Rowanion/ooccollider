@@ -44,7 +44,7 @@ CCollisionProtocol::~CCollisionProtocol()
 }
 
 void
-CCollisionProtocol::generateDistribution(const oocformats::LooseOctree* _lo)
+CCollisionProtocol::generateDistribution(const oocformats::LooseRenderOctree* _lo)
 {
 	// save triangleCount of OctreeNode in map
 	mPriLoTriMap.insert(make_pair(_lo->getId(), _lo->getTriangleCount()));
