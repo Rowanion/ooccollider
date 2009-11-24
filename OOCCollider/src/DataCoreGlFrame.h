@@ -26,7 +26,7 @@
 #include "IndexedVbo.h"
 #include "AbstractEventListener.h"
 #include "Fbo.h"
-#include "LooseOctree.h"
+#include "LooseRenderOctree.h"
 #include "OctreeHandler.h"
 #include "V3f.h"
 #include "NodeRequestEvent.h"
@@ -98,7 +98,7 @@ private:
 	std::map<uint64_t, GLint> mPriOccResults;
 
 	std::map<uint64_t, std::string> mPriIdPathMap;
-	std::map<uint64_t, oocformats::LooseOctree*> mPriIdLoMap;
+	std::map<uint64_t, oocformats::LooseRenderOctree*> mPriIdLoMap;
 	std::set<uint64_t> mPriIdsInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVboMap;
 	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;
@@ -128,7 +128,7 @@ private:
 	ooctools::Quaternion totalQuat;
 
 	oocformats::OctreeHandler mPriOh;
-	oocformats::LooseOctree* mPriLo;
+	oocformats::LooseRenderOctree* mPriLo;
 	ooctools::BoundingBox mPriSceneBB;
 	ooctools::V3f mPriSceneCenter;
 

@@ -123,7 +123,7 @@ void DataCoreGlFrame::init() {
 	setupCg();
 
 	sleep(20);
-	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
+	mPriLo = mPriOh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
 	mPriCCol.generateDistribution(mPriLo);
