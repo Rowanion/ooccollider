@@ -17,6 +17,7 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include "declarations.h"
+#include "LooseRenderOctree.h"
 #include "../../OOCTools/include/declarations.h"
 
 namespace fs = boost::filesystem;
@@ -81,6 +82,7 @@ class FileIO
 		void readTriangleNormals(ooctools::Triangle& _tri, fs::fstream& _if);
 		void writeLooseOctreeNodeSkeleton(LooseOctree* _node, fs::ofstream& _of);
 		LooseOctree* readLooseOctreeNodeSkeleton(fs::ifstream& _if);
+		LooseRenderOctree* readLooseRenderOctreeNodeSkeleton(fs::ifstream& _if);
 		long double readLongDouble(fs::ifstream& _if);
 		int64_t readLongLongInt(fs::ifstream& _if);
 		void writeLongDouble(long double _ld, fs::ofstream& _of);

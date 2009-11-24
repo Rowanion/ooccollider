@@ -21,6 +21,7 @@
 #include "LooseProcessingOctree.h"
 #include "FileIO.h"
 #include "StructDefs.h"
+#include "LooseRenderOctree.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -72,6 +73,7 @@ class OctreeHandler
 		void saveLooseSubTreeData(LooseOctree* lo, fs::path path);
 		void saveLooseOctreeSkeleton(LooseOctree* lo, fs::ofstream& _of);
 		LooseOctree* loadLooseOctreeSkeleton(fs::path file);
+		LooseRenderOctree* loadLooseRenderOctreeSkeleton(fs::path file);
 		void convertProctreeCell(fs::path lpoCell, fs::path dstDir, std::string id, LooseOctree* lo=0);
 		void recursiveProc2Octree(fs::path lpoSrc, fs::path dstDir, LooseOctree* lo);
 		void recursiveOct2LooseOct(fs::path ocPath, fs::path lOcPath, LooseOctree* lo);
@@ -85,7 +87,9 @@ class OctreeHandler
 		double calcAreaSumFromPath(fs::path path, std::string id);
 
 		void generateIdPathMap(const LooseOctree* lo, std::map<uint64_t, std::string>& idPathMap) const;
+		void generateIdPathMap(const LooseRenderOctree* lo, std::map<uint64_t, std::string>& idPathMap) const;
 		void generateIdLoMap(LooseOctree* lo, std::map<uint64_t, oocformats::LooseOctree*>& idLoMap) const;
+		void generateIdLoMap(LooseRenderOctree* lo, std::map<uint64_t, oocformats::LooseRenderOctree*>& idLoMap) const;
 
 	private:
 		void parsePhase1(const fs::path& src, const fs::path& dst);

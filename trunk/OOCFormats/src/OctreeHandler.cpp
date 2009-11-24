@@ -564,6 +564,49 @@ OctreeHandler::loadLooseOctreeSkeleton(fs::path file)
 	return lo;
 }
 
+LooseRenderOctree*
+OctreeHandler::loadLooseRenderOctreeSkeleton(fs::path file)
+{
+	fs::ifstream _if;
+	_if.open(file, ios::in|ios::binary);
+	LooseRenderOctree* lro;
+	_if.seekg (0, ios::end);
+	unsigned length = _if.tellg();
+	_if.seekg (0, ios::beg);
+
+
+	lro = mFio.readLooseRenderOctreeNodeSkeleton(_if);
+	LooseRenderOctree::maxTriCount = lro->getTriangleCount();
+	LooseRenderOctree::totalTriCount += lro->getTriangleCount();
+
+	//DEBUG
+	cout << "reading id: " << lro->getIdString() << endl;
+//	if (lo->getId() == 1)
+//	{
+//		cout << lo->getIdString() << endl;
+//	}
+	//DEBUG
+	unsigned pos = _if.tellg();
+	_if.seekg(pos+LooseRenderOctree::getSkeletonSize(), ios::beg);
+
+	while(pos < length){
+		lro->insertNode(mFio.readLooseRenderOctreeNodeSkeleton(_if));
+		pos = _if.tellg();
+		_if.seekg(pos+LooseRenderOctree::getSkeletonSize(), ios::beg);
+	}
+
+	cout << "MaxLevel of OctreeSkel: " << LooseRenderOctree::maxLevel << endl;
+	cout << "MaxTriCount/node of OctreeSkel: " << LooseRenderOctree::maxTriCount << endl;
+	cout << "TotalTriCount: " << LooseRenderOctree::totalTriCount << endl;
+	for (unsigned i =0; i< 8; ++i){
+		cout << "Children with id " << i << ": " << LooseRenderOctree::descendantCount[i] << endl;
+	}
+//	exit(0);
+
+
+	return lro;
+}
+
 void
 OctreeHandler::convertProctreeCell(fs::path lpoCell, fs::path dstDir, string id, LooseOctree* lo)
 {
@@ -922,6 +965,23 @@ OctreeHandler::generateIdPathMap(const LooseOctree* lo, std::map<uint64_t, std::
 }
 
 void
+OctreeHandler::generateIdPathMap(const LooseRenderOctree* lo, std::map<uint64_t, std::string>& idPathMap) const
+{
+	// if node has triangles, grab the reference
+	if (lo->hasData()){
+		std::string s = string(lo->getDirPrefix());
+		s.append(lo->getIdString());
+		idPathMap.insert(make_pair(lo->getId(), s));
+	}
+	// process children
+	for (unsigned i=0; i<8; ++i){
+		if (lo->getChild(i)!=0){
+			generateIdPathMap(lo->getChild(i), idPathMap);
+		}
+	}
+}
+
+void
 OctreeHandler::generateIdLoMap(LooseOctree* lo, std::map<uint64_t, oocformats::LooseOctree*>& idLoMap) const
 {
 	if (lo->getId()==96){
@@ -932,6 +992,21 @@ OctreeHandler::generateIdLoMap(LooseOctree* lo, std::map<uint64_t, oocformats::L
 		exit(0);
 	}
 
+	// if node has triangles, grab the reference
+	if (lo->hasData()){
+		idLoMap.insert(make_pair(lo->getId(), lo));
+	}
+	// process children
+	for (unsigned i=0; i<8; ++i){
+		if (lo->getChild(i)!=0){
+			generateIdLoMap(lo->getChild(i), idLoMap);
+		}
+	}
+}
+
+void
+OctreeHandler::generateIdLoMap(LooseRenderOctree* lo, std::map<uint64_t, oocformats::LooseRenderOctree*>& idLoMap) const
+{
 	// if node has triangles, grab the reference
 	if (lo->hasData()){
 		idLoMap.insert(make_pair(lo->getId(), lo));

@@ -48,25 +48,31 @@ unsigned LooseOctree::detailLUT[26][8] = {{14, 14, 14, 14, 7, 7, 7, 7}, {14, 14,
 		{14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}, {14, 14, 9, 9, 9, 9, 5, 5}};
 
 unsigned LooseOctree::pubTick = 0;
+unsigned LooseOctree::pubTickLimit = 0;
+unsigned LooseOctree::pubNodeCount = 0;
+LooseOctree* LooseOctree::pubRoot = 0;
 
 LooseOctree::LooseOctree(LooseOctree* _father, const BoundingBox& _bb, int64_t _id) :
-	mTriList(std::list<Triangle>()), mBb(_bb), mExtBb(extendBb(_bb)), mPriRoot(this),
+	mTriList(std::list<Triangle>()), mBb(_bb), mExtBb(extendBb(_bb)),
 			mPriLevel(0), mPriId(_id), mPriTriCount(0), mPriAreaSum(0.0), mPriDataLoaded(false),
 			mPriDistance(0.0), mFather(_father)
 {
 	if (mFather != 0) {
 		mPriLevel = mFather->getLevel() + 1;
-		mPriRoot = mFather->getRoot();
+	}
+	if (LooseOctree::pubRoot == 0) {
+		LooseOctree::pubRoot = this;
 	}
 	for(unsigned i=0; i< 8; ++i){
 		mChildren[i] = 0;
 	}
+	pubNodeCount++;
 
 }
 
 LooseOctree::LooseOctree(const char* nodeSkel) :
-	mTriList(std::list<Triangle>()), mBb(0.0), mPriLevel(0), mPriId(0), mPriTriCount(0), mPriAreaSum(0.0),
-	mPriDistance(0.0), mPriWrapper(this), mFather(0)
+	mBb(0.0), mPriLevel(0), mPriId(0), mPriTriCount(0),
+	 mPriDistanceUpdateKey(-1), mFather(0)
 {
 //	cerr << "constructing looseoctree" << endl;
 	const char* count = nodeSkel;
@@ -93,6 +99,11 @@ LooseOctree::LooseOctree(const char* nodeSkel) :
 	for(unsigned i=0; i< 8; ++i){
 		mChildren[i] = 0;
 	}
+	if (LooseOctree::pubRoot == 0) {
+		LooseOctree::pubRoot = this;
+	}
+
+	pubNodeCount++;
 
 }
 
@@ -107,7 +118,6 @@ LooseOctree::~LooseOctree()
 	}
 	mTriList.clear();
 
-	std::vector<ProcessingObject*> mObjectList;
 	if (!isLeaf()){
 		for (unsigned i=0; i<8; ++i){
 			delete mChildren[i];
@@ -119,7 +129,7 @@ LooseOctree::~LooseOctree()
 bool
 LooseOctree::isRoot() const
 {
-	if (mFather == 0)
+	if (this == LooseOctree::pubRoot)
 		return true;
 	else
 		return false;
@@ -404,7 +414,6 @@ void LooseOctree::insertNode(LooseOctree* node)
 		mChildren[(node->getId()-(mPriId*8))-1] = node;
 		node->setFather(this);
 		node->setLevel(mPriLevel+1);
-		node->setRoot(mPriRoot);
 		LooseOctree::maxLevel = (LooseOctree::maxLevel < node->getLevel()) ? node->getLevel() : LooseOctree::maxLevel;
 		LooseOctree::maxTriCount = (LooseOctree::maxTriCount < node->getTriangleCount()) ? node->getTriangleCount() : LooseOctree::maxTriCount;
 		LooseOctree::totalTriCount += node->getTriangleCount();
@@ -914,7 +923,8 @@ LooseOctree::frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std
 //			aIPtIn = 0;
 //		}
 //		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-//				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
+//				this->mExtBb.getMax().getY() + _fru		float getAreaSum() const {return mPriAreaSum;};
+
 //				_frustum[p][3] < -0) {
 //			aPosCounter--;
 //			aIPtIn = 0;
@@ -1009,131 +1019,6 @@ LooseOctree::frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std
 //
 //}
 
-void
-LooseOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray) {
-	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
-
-	for (unsigned int p = 0; p < 6; ++p) {
-		aPosCounter = 8;
-		aIPtIn = 1;
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMin().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMin().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMin().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (_frustum[p][0] * this->mExtBb.getMax().getX() + _frustum[p][1] *
-				this->mExtBb.getMax().getY() + _frustum[p][2] * this->mExtBb.getMax().getZ() +
-				_frustum[p][3] < -0) {
-			aPosCounter--;
-			aIPtIn = 0;
-		}
-		if (aPosCounter == 0) //exclude
-		return;
-		else
-			aTotalIn += aIPtIn;
-	}
-
-	if (this->hasData()) {
-		if (mPriWrapper.state == WrappedOcNode::MISSING){
-			_nodes->push_back(&this->mPriWrapper);
-		}
-		else if (mPriWrapper.state == WrappedOcNode::OFFLINE){
-			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
-		}
-	}
-
-//	cout << "2.1" << endl;
-
-	LooseOctree* child = 0;
-
-	if (aTotalIn == 6) { //include
-		//vollständig drin
-		for (unsigned i = 0; i < 8; i++) {  //intersect
-//			cout << "2.2" << endl;
-			child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
-			if (child != 0) {
-//				cout << "2.3" << endl;
-				if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
-//					cout << "2.4" << endl;
-					child->getAllSubtreeIds(_nodes, orderIdx, eyePos, distArray);
-				}
-				else{
-					return;
-				}
-			}
-		}
-		return;
-	}
-	// kinder weiter testen
-//	cout << "2.5" << endl;
-
-	for (unsigned i = 0; i < 8; i++) {  //intersect
-		child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
-//		cout << "2.6" << endl;
-		if (child != 0) {
-//			cerr << "2.7" << endl;
-//			cerr << "simpledist ";
-//			cerr << child->getBb().getCenter().calcSimpleDistance(eyePos) << endl;
-//			cout << "child lvl " << child->getLevel() << endl;
-//			cout << "dist at level " << distArray[child->getLevel()] << endl;
-//			cerr << "leveldist ";
-////			exit(0);
-//			cout << distArray[child->getLevel()] << endl;
-//			V3f blub = eyePos;
-//			V3f bla = child->getBb().getCenter();
-//			bla -= blub;
-//			cout << "magnitude" << bla.calculateMagnitude() << endl;
-//			cout << "simple magnitude " << (bla.getX()*bla.getX())+(bla.getY()*bla.getY())+(bla.getZ()*bla.getZ())<< endl;
-//			cout << eyePos.calcSimpleDistance(child->getBb().getCenter()) << " vs " << distArray[child->getLevel()] << endl;
-			if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
-//				cout << "2.8" << endl;
-				child->isInFrustum_orig(_frustum, _nodes, orderIdx, eyePos, distArray);
-			}
-			else{
-				return;
-			}
-		}
-	}
-//	cout << "2.9" << endl;
-
-}
 
 void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
 	if (this->hasData()) {
@@ -1143,68 +1028,6 @@ void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids){
 	for (unsigned i = 0; i < 8; i++) {
 		if (this->mChildren[i] != 0) {
 			(this->mChildren[i])->getAllSubtreeIds(_ids);
-		}
-	}
-}
-
-void LooseOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes){
-	if (this->hasData()){
-		if (this->mPriWrapper.state == WrappedOcNode::MISSING) {
-			_nodes->push_back(&this->mPriWrapper);
-		}
-		else if (this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
-			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
-		}
-	}
-
-	for (unsigned i = 0; i < 8; i++) {
-		if (this->mChildren[i] != 0) {
-			(this->mChildren[i])->getAllSubtreeIds(_nodes);
-		}
-	}
-}
-
-void LooseOctree::getAllSubtreeIds(std::set<uint64_t>* _ids, unsigned orderIdx, const V3f& eyePos, const float* distArray){
-	if (this->hasData()) {
-		_ids->insert(this->mPriId);
-	}
-	LooseOctree* child = 0;
-	for (unsigned i = 0; i < 8; i++) {
-		child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
-		if (child != 0) {
-			if (eyePos.calcSimpleDistance(child->getBb().getCenter()) < distArray[child->getLevel()]){
-				child->getAllSubtreeIds(_ids);
-			}
-			else{
-				return;
-			}
-		}
-	}
-}
-
-void LooseOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray){
-	if (this->hasData()){
-		if (this->mPriWrapper.state == WrappedOcNode::MISSING) {
-			_nodes->push_back(&this->mPriWrapper);
-		}
-		else if (this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
-			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
-		}
-	}
-	LooseOctree* child = 0;
-	for (unsigned i = 0; i < 8; i++) {
-		child = this->mChildren[LooseOctree::orderLUT[orderIdx][i]];
-		if (child != 0) {
-			//TODO abhängigkeit von tick to calc dist
-			if (child->mPriWrapper.dist == 0.0 || true){
-				child->mPriWrapper.dist = eyePos.calcSimpleDistance(child->getBb().getCenter());
-			}
-			if (this->mPriWrapper.dist < distArray[child->getLevel()]){
-				child->getAllSubtreeIds(_nodes);
-			}
-			else{
-				return;
-			}
 		}
 	}
 }
