@@ -1,5 +1,9 @@
-seth	cpu=5
+seth	cpu=3
 osiris    cpu=1
 horus    cpu=1
 maat    cpu=1
 kerner    cpu=1
+hapi	cpu=1
+sokar	cpu=1
+sobek	cpu=1
+ammit	cpu=1

@@ -22,7 +22,6 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include "OOCWindow.h"
-#include "RenderMasterCoreGlFrame.h"
 #include "MpiControl.h"
 #include "Message.h"
 #include "KillApplicationEvent.h"
@@ -234,9 +233,6 @@ void RenderMasterCore::Event(int event, bool state) {
 	switch (event) {
 	case EVENT_WINDOW_CLOSED:
 		mRunning = false;
-		break;
-	case GLFW_KEY_F1:
-		((RenderMasterCoreGlFrame*) mWindow->getGlFrame())->debug();
 		break;
 	case EVENT_WINDOW_RESIZED: {
 		//		int count = 2*sizeof(int);

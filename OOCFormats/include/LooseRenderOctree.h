@@ -209,7 +209,6 @@ class LooseRenderOctree
 		ooctools::BoundingBox mExtBb;
 		std::string path;
 		int64_t mPriId;
-		unsigned mPriTriCount;
 		WrappedOcNode mPriWrapper;
 
 		//TODO change to byte
@@ -219,6 +218,7 @@ class LooseRenderOctree
 		//TODO change to LooseRenderOctree**
 		LooseRenderOctree* mChildren[8];
 		LooseRenderOctree* mFather;
+		unsigned mPriTriCount;
 
 		const ooctools::BoundingBox extendBb(const ooctools::BoundingBox& _bb) const;
 

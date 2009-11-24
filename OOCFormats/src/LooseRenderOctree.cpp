@@ -54,8 +54,7 @@ LooseRenderOctree* LooseRenderOctree::pubRoot = 0;
 
 LooseRenderOctree::LooseRenderOctree(LooseRenderOctree* _father, const BoundingBox& _bb, int64_t _id) :
 	mBb(_bb), mExtBb(extendBb(_bb)),
-			mPriLevel(0), mPriId(_id), mPriTriCount(0),
-			mFather(_father)
+	mPriId(_id), mPriLevel(0), mFather(_father), mPriTriCount(0)
 {
 	if (mFather != 0) {
 		mPriLevel = mFather->getLevel() + 1;
@@ -71,8 +70,8 @@ LooseRenderOctree::LooseRenderOctree(LooseRenderOctree* _father, const BoundingB
 }
 
 LooseRenderOctree::LooseRenderOctree(const char* nodeSkel) :
-	mBb(0.0), mPriLevel(0), mPriId(0), mPriTriCount(0),
-	 mPriWrapper(this), mPriDistanceUpdateKey(-1), mFather(0)
+	mBb(0.0), mPriId(0), mPriWrapper(this), mPriDistanceUpdateKey(-1), mPriLevel(0),
+	mFather(0), mPriTriCount(0)
 {
 //	cerr << "constructing LooseRenderOctree" << endl;
 	const char* count = nodeSkel;
