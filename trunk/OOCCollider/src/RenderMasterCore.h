@@ -20,7 +20,7 @@
 #include "declarations.h"
 #include "AbstractEventHandler.h"
 #include "OctreeHandler.h"
-#include "LooseOctree.h"
+#include "LooseRenderOctree.h"
 #include "AbstractEventListener.h"
 #include "MouseDraggedEvent.h"
 #include "Fbo.h"
@@ -49,7 +49,7 @@ private:
 	GLFWthread mSendThread;
 	GLFWthread mReceiveThread;
 	oocformats::OctreeHandler mPriOh;
-	oocformats::LooseOctree* mPriLo;
+	oocformats::LooseRenderOctree* mPriLo;
 	Splittree* mPriSTree;
 	vector<double> mPriRenderTimes;
 	oocframework::MpiControl* mPriMpiCon;

@@ -48,7 +48,7 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
 			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
 			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
-					std::list<IdVboMapIter>()), mPriUseWireFrame(false),
+					std::list<IdVboMapIter>()), mPriL1Cache(0), mPriL2Cache(0), mPriUseWireFrame(false),
 			mPriRequestedVboList(std::set<uint64_t>()),
 			mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false),
 			mPriFrameTick(0), mPriDisplayTime(0.0), mPriFrustumCullingTime(0.0), mPriRequestDataTime(0.0)
@@ -165,7 +165,9 @@ void RenderCoreGlFrame::init() {
 	ooctools::FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
 	ooctools::FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mProWindowWidth, mProWindowHeight);
 
-	mPriLo = mPriOh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
+	mPriLo = mPriOh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
+
+	mPriLo->pubTickLimit = DISTANCE_RENEWAL;
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
 
@@ -278,29 +280,31 @@ void RenderCoreGlFrame::display()
 
 				//TODO new function to iterate over list<Wrapper>
 				// ---------------------------------
-				for (WrapperListIter wIt = mPriWrapperInFrustum.begin(); wIt != mPriWrapperInFrustum.end(); ++wIt){
+				for (RWrapperListIter wIt = mPriWrapperInFrustum.rbegin(); wIt != mPriWrapperInFrustum.rend(); ++wIt){
 					if (mPriBBMode == 0){
 						mPriColorTable.bindTex();
 						cgGLEnableTextureParameter(cgFragLUT);
 						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
 						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
 						// -------------------------------------
-						switch (wIt->status) {
+						switch ((*wIt)->state) {
 						case WrappedOcNode::MISSING:
 							//TODO request
-							mPriRequests.insert(Quintuple(wIt->octreeNode->getLevel(), wIt->dist, MpiControl::getSingleton()->getRank(), true));
-							wIt->state = WrappedOcNode::REQUESTED;
-							wIt->timeStamp = glfwGetTime();
+							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+							(*wIt)->state = WrappedOcNode::REQUESTED;
+							(*wIt)->timeStamp = glfwGetTime();
 							break;
 						case WrappedOcNode::SET_ONLINE:
-							wIt->timeStamp = glfwGetTime();
-							wIt->iVbo->setOnline();
-							wIt->state = WrappedOcNode::ONLINE;
-							wIt->iVbo->managedDraw();
+							(*wIt)->timeStamp = glfwGetTime();
+							(*wIt)->iVbo->setOnline();
+							(*wIt)->state = WrappedOcNode::ONLINE;
+							(*wIt)->iVbo->managedDraw();
 							break;
 						case WrappedOcNode::ONLINE:
-							wIt->timeStamp = glfwGetTime();
-							wIt->iVbo->managedDraw();
+							(*wIt)->timeStamp = glfwGetTime();
+							(*wIt)->iVbo->managedDraw();
+							break;
+						default:
 							break;
 
 						}
@@ -311,105 +315,52 @@ void RenderCoreGlFrame::display()
 						cgGLDisableTextureParameter(cgFragLUT);
 						mPriColorTable.unbindTex();
 					}
-					else if (mPriBBMode == 1){
-						mPriColorTable.bindTex();
-						cgGLEnableTextureParameter(cgFragLUT);
-						cgGLEnableTextureParameter(cgNoLightLUT);
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
-						it->second->managedDraw();
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-						cgGLDisableTextureParameter(cgNoLightLUT);
-						cgGLDisableTextureParameter(cgFragLUT);
-						mPriColorTable.unbindTex();
-					}
-					else if (mPriBBMode == 2){
-						mPriColorTable.bindTex();
-						cgGLEnableTextureParameter(cgNoLightLUT);
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-						cgGLDisableTextureParameter(cgNoLightLUT);
-						mPriColorTable.unbindTex();
-					}
-					else if (mPriBBMode == 3){
-						mPriColorTable.bindTex();
-						cgGLEnableTextureParameter(cgNoLightLUT);
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-						mPriIdLoMap[it->first]->getBb().drawSolidTriFan(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-						cgGLDisableTextureParameter(cgNoLightLUT);
-						mPriColorTable.unbindTex();
-					}
+//					else if (mPriBBMode == 1){
+//						mPriColorTable.bindTex();
+//						cgGLEnableTextureParameter(cgFragLUT);
+//						cgGLEnableTextureParameter(cgNoLightLUT);
+//						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
+//						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+//						it->second->managedDraw();
+//						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+//						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+//
+//						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+//						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+//						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+//						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+//						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+//						cgGLDisableTextureParameter(cgNoLightLUT);
+//						cgGLDisableTextureParameter(cgFragLUT);
+//						mPriColorTable.unbindTex();
+//					}
+//					else if (mPriBBMode == 2){
+//						mPriColorTable.bindTex();
+//						cgGLEnableTextureParameter(cgNoLightLUT);
+//						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+//						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+//						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+//						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+//						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+//						cgGLDisableTextureParameter(cgNoLightLUT);
+//						mPriColorTable.unbindTex();
+//					}
+//					else if (mPriBBMode == 3){
+//						mPriColorTable.bindTex();
+//						cgGLEnableTextureParameter(cgNoLightLUT);
+//						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+//						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+//						mPriIdLoMap[it->first]->getBb().drawSolidTriFan(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
+//						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+//						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+//						cgGLDisableTextureParameter(cgNoLightLUT);
+//						mPriColorTable.unbindTex();
+//					}
 
 				}
 
 				// -----------------------------------
-				for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
-					if (mPriBBMode == 0){
-						mPriColorTable.bindTex();
-						cgGLEnableTextureParameter(cgFragLUT);
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
-						it->second->managedDraw();
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-						cgGLDisableTextureParameter(cgFragLUT);
-						mPriColorTable.unbindTex();
-					}
-					else if (mPriBBMode == 1){
-						mPriColorTable.bindTex();
-						cgGLEnableTextureParameter(cgFragLUT);
-						cgGLEnableTextureParameter(cgNoLightLUT);
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
-						it->second->managedDraw();
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
 
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-						cgGLDisableTextureParameter(cgNoLightLUT);
-						cgGLDisableTextureParameter(cgFragLUT);
-						mPriColorTable.unbindTex();
-					}
-					else if (mPriBBMode == 2){
-						mPriColorTable.bindTex();
-						cgGLEnableTextureParameter(cgNoLightLUT);
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-						cgGLDisableTextureParameter(cgNoLightLUT);
-						mPriColorTable.unbindTex();
-					}
-					else if (mPriBBMode == 3){
-						mPriColorTable.bindTex();
-						cgGLEnableTextureParameter(cgNoLightLUT);
-						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-						mPriIdLoMap[it->first]->getBb().drawSolidTriFan(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-						cgGLDisableTextureParameter(cgNoLightLUT);
-						mPriColorTable.unbindTex();
-					}
-				}
 				if (mPriBBMode>0){
 					mPriColorTable.drawLegend();
 				}
@@ -471,8 +422,8 @@ void RenderCoreGlFrame::display()
 	glPolygonMode(GL_FRONT, polyMode);
 	GET_GLERROR(0);
 
-	++mPriFrameTick;
-	mPriFrameTick %= MODULO_FRAMECOUNT;
+	++mPriFrameTick %= MODULO_FRAMECOUNT;
+	mPriLo->pubTick = mPriFrameTick;
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
@@ -616,116 +567,140 @@ this->priFrustum[i][0] + this->priFrustum[i][1] * this->priFrustum[i][1]
 void
 RenderCoreGlFrame::requestMissingVbos()
 {
-	unsigned frustReq =0;
-	unsigned extFrustReq =0;
-	oocformats::LooseOctree* currentNode = 0;
-	// moving obsolete vbos into cache
-	list<map<uint64_t, IndexedVbo*>::iterator >::iterator iterIt = mPriObsoleteVbos.begin();
-	for (; iterIt != mPriObsoleteVbos.end(); ++iterIt){
-		(*iterIt)->second->setOffline();
-		mPriOfflineVbosInFrustum.insert(make_pair((*iterIt)->first, (*iterIt)->second));
-		//TODO research why getTriCount() seems to malfunction
-		mPriTriCount -= (*iterIt)->second->getTriCount();
+//	cerr << "size of wrappers in frustum: " << mPriWrapperInFrustum.size() << endl;
 
-		mPriVbosInFrustum.erase((*iterIt));
+	unsigned int loadCount = 0;
+	QuintSetIter qIt = mPriRequests.begin();
+	while (loadCount <= MAX_LOADS_PER_FRAME && qIt != mPriRequests.end()){
+		qIt++;
+		loadCount++;
 	}
-	mPriObsoleteVbos.clear();
-	trimCacheMap();
-
-	// ----------------------------------------------
-	// check if any of the new VBOs is already in the cache
-	set<ooctools::Quintuple> missingQuintuple = set<ooctools::Quintuple>();
-	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
-	IdVboMapIter offIt;
-	ooctools::V3f center = ooctools::V3f();
-	unsigned reqCount = 0;
-	for (; setIt!=mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
-		offIt = mPriOfflineVbosInFrustum.find(*setIt);
-		if (offIt == mPriOfflineVbosInFrustum.end()){ // not in cache -> needs to be requested
-			//calculate eye distances of missing vbos
-			ooctools::V3f center = ooctools::V3f();
-			currentNode = mPriIdLoMap[*setIt];
-			currentNode->getBb().computeCenter(center);
-			// -------------------------------------------------------
-			missingQuintuple.insert(Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, false));
-//			Quintuple q;
-//			q.lvl = currentNode->getLevel();
-//			q.dist = mPriEyePosition.calcDistance(center);
-//			q.destId = MpiControl::getSingleton()->getRank();
-//			q.id = *setIt;
-//			q.isExt = 0;
-//			missingQuintuple.insert(q);
-			// -------------------------------------------------------
-			mPriRequestedVboList.insert(*setIt);
-			reqCount++;
-		}
-		else { // VBO is in cache -> flip
-			offIt->second->setOnline();
-			mPriTriCount += offIt->second->getTriCount();
-			mPriVbosInFrustum.insert(make_pair(offIt->first, offIt->second));
-			mPriOfflineVbosInFrustum.erase(offIt);
-		}
-	}
-	if (missingQuintuple.size() > 0){
-		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
-//		// ------------------------------
-//		Message bla = Message(nre, 0);
-//		NodeRequestEvent nre2 = NodeRequestEvent(&bla);
-//		for (unsigned i=0; i< nre.getIdxCount(); ++i){
-//			cout << "in renderer " << nre2.getQuintuple(i)->destId << ", " << nre2.getQuintuple(i)->dist << ", " << nre2.getQuintuple(i)->id << ", " << nre2.getQuintuple(i)->isExt << ", " << nre2.getQuintuple(i)->lvl << endl;
-//		}
-//		exit(0);
-//		// ------------------------------
-
+	if (loadCount>0){
+		// actually request them
+		NodeRequestEvent nre = NodeRequestEvent(mPriRequests.begin(), qIt, loadCount);
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
-		mPriMissingIdsInFrustum.clear();
-		frustReq = nre.getIdxCount();
+		//		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
+		mPriRequests.erase(mPriRequests.begin(), qIt);
+//		cerr << "requesting " << loadCount << "vbos.." << endl;
 	}
-
-	// now dealing with extended frustum
-	mPriMissingIdsInFrustum.clear();
-	missingQuintuple.clear();
-	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
-	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
-	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
-
-	if (mPriMissingIdsInFrustum.size()>0){
-		// calc eyeDistances
-		reqCount = 0;
-		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
-			ooctools::V3f center = ooctools::V3f();
-			currentNode = mPriIdLoMap[*setIt];
-			currentNode->getBb().computeCenter(center);
-			// -------------------------------------------------------
-			missingQuintuple.insert(ooctools::Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, true));
-//			Quintuple q;
-//			q.lvl = currentNode->getLevel();
-//			q.dist = mPriEyePosition.calcDistance(center);
-//			q.destId = MpiControl::getSingleton()->getRank();
-//			q.id = *setIt;
-//			q.isExt = 1;
-//			missingQuintuple.insert(q);
-			// -------------------------------------------------------
-
-			mPriRequestedVboList.insert(*setIt);
-			reqCount++;
-		}
-
-		//TODO do something about the loadPerFrame limit
-		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
-		MpiControl::getSingleton()->isend(new Message(nre, 0));
-//		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
-		extFrustReq = nre.getIdxCount();
-		missingQuintuple.clear();
-		mPriMissingIdsInFrustum.clear();
-
-	}
-
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));
-//	cout << "renderer finalized nodeRequests" << endl;
 
 }
+
+//void
+//RenderCoreGlFrame::requestMissingVbos()
+//{
+//	unsigned frustReq =0;
+//	unsigned extFrustReq =0;
+//	oocformats::LooseOctree* currentNode = 0;
+//	// moving obsolete vbos into cache
+//	list<map<uint64_t, IndexedVbo*>::iterator >::iterator iterIt = mPriObsoleteVbos.begin();
+//	for (; iterIt != mPriObsoleteVbos.end(); ++iterIt){
+//		(*iterIt)->second->setOffline();
+//		mPriOfflineVbosInFrustum.insert(make_pair((*iterIt)->first, (*iterIt)->second));
+//		//TODO research why getTriCount() seems to malfunction
+//		mPriTriCount -= (*iterIt)->second->getTriCount();
+//
+//		mPriVbosInFrustum.erase((*iterIt));
+//	}
+//	mPriObsoleteVbos.clear();
+//	trimCacheMap();
+//
+//	// ----------------------------------------------
+//	// check if any of the new VBOs is already in the cache
+//	set<ooctools::Quintuple> missingQuintuple = set<ooctools::Quintuple>();
+//	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
+//	IdVboMapIter offIt;
+//	ooctools::V3f center = ooctools::V3f();
+//	unsigned reqCount = 0;
+//	for (; setIt!=mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
+//		offIt = mPriOfflineVbosInFrustum.find(*setIt);
+//		if (offIt == mPriOfflineVbosInFrustum.end()){ // not in cache -> needs to be requested
+//			//calculate eye distances of missing vbos
+//			ooctools::V3f center = ooctools::V3f();
+//			currentNode = mPriIdLoMap[*setIt];
+//			currentNode->getBb().computeCenter(center);
+//			// -------------------------------------------------------
+//			missingQuintuple.insert(Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, false));
+////			Quintuple q;
+////			q.lvl = currentNode->getLevel();
+////			q.dist = mPriEyePosition.calcDistance(center);
+////			q.destId = MpiControl::getSingleton()->getRank();
+////			q.id = *setIt;
+////			q.isExt = 0;
+////			missingQuintuple.insert(q);
+//			// -------------------------------------------------------
+//			mPriRequestedVboList.insert(*setIt);
+//			reqCount++;
+//		}
+//		else { // VBO is in cache -> flip
+//			offIt->second->setOnline();
+//			mPriTriCount += offIt->second->getTriCount();
+//			mPriVbosInFrustum.insert(make_pair(offIt->first, offIt->second));
+//			mPriOfflineVbosInFrustum.erase(offIt);
+//		}
+//	}
+//	if (missingQuintuple.size() > 0){
+//		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
+////		// ------------------------------
+////		Message bla = Message(nre, 0);
+////		NodeRequestEvent nre2 = NodeRequestEvent(&bla);
+////		for (unsigned i=0; i< nre.getIdxCount(); ++i){
+////			cout << "in renderer " << nre2.getQuintuple(i)->destId << ", " << nre2.getQuintuple(i)->dist << ", " << nre2.getQuintuple(i)->id << ", " << nre2.getQuintuple(i)->isExt << ", " << nre2.getQuintuple(i)->lvl << endl;
+////		}
+////		exit(0);
+////		// ------------------------------
+//
+//		MpiControl::getSingleton()->isend(new Message(nre, 0));
+//		mPriMissingIdsInFrustum.clear();
+//		frustReq = nre.getIdxCount();
+//	}
+//
+//	// now dealing with extended frustum
+//	mPriMissingIdsInFrustum.clear();
+//	missingQuintuple.clear();
+//	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
+//	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
+//	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
+//
+//	if (mPriMissingIdsInFrustum.size()>0){
+//		// calc eyeDistances
+//		reqCount = 0;
+//		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
+//			ooctools::V3f center = ooctools::V3f();
+//			currentNode = mPriIdLoMap[*setIt];
+//			currentNode->getBb().computeCenter(center);
+//			// -------------------------------------------------------
+//			missingQuintuple.insert(ooctools::Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, true));
+////			Quintuple q;
+////			q.lvl = currentNode->getLevel();
+////			q.dist = mPriEyePosition.calcDistance(center);
+////			q.destId = MpiControl::getSingleton()->getRank();
+////			q.id = *setIt;
+////			q.isExt = 1;
+////			missingQuintuple.insert(q);
+//			// -------------------------------------------------------
+//
+//			mPriRequestedVboList.insert(*setIt);
+//			reqCount++;
+//		}
+//
+//		//TODO do something about the loadPerFrame limit
+//		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
+//		MpiControl::getSingleton()->isend(new Message(nre, 0));
+////		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
+//		extFrustReq = nre.getIdxCount();
+//		missingQuintuple.clear();
+//		mPriMissingIdsInFrustum.clear();
+//
+//	}
+//
+//	EndTransmissionEvent ete = EndTransmissionEvent();
+//	MpiControl::getSingleton()->send(new Message(ete, 0));
+////	cout << "renderer finalized nodeRequests" << endl;
+//
+//}
 
 void
 RenderCoreGlFrame::divideIdList()
@@ -1061,9 +1036,16 @@ void RenderCoreGlFrame::depthPass()
 	mPriFbo->clear();
 	GET_GLERROR(0);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	for (IdVboMapIter it= mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
-		it->second->managedDraw(true);
+	RWrapperListIter wIt = mPriWrapperInFrustum.rbegin();
+	for (; wIt != mPriWrapperInFrustum.rend(); ++wIt){
+		if((*wIt)->state == WrappedOcNode::ONLINE){
+			(*wIt)->iVbo->managedDraw(true);
+		}
 	}
+
+//	for (IdVboMapIter it = mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
+//		it->second->managedDraw(true);
+//	}
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	GET_GLERROR(0);
 //	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
@@ -1076,7 +1058,8 @@ void RenderCoreGlFrame::depthPass()
 	Message* msg = new Message(dbe, 0, MpiControl::DATA);
 	MpiControl::getSingleton()->send(msg);
 //	cout << MpiControl::getSingleton()->getRank() << " has sent depthbuffer" << endl;
-	mPriRequestedVboList.clear();
+//	mPriRequestedVboList.clear();
+	clearRequests();
 //	setupTexture();
 	mPriFbo->unbind();
 	glPolygonMode(GL_FRONT, polyMode);
@@ -1136,17 +1119,18 @@ void RenderCoreGlFrame::cullFrustum()
 //	GET_GLERROR(0);
 
 	getFrustum();
-	mPriIdsInExtFrustum.clear();
+//	mPriIdsInExtFrustum.clear();
 	//TODO umstellen auf ne list
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
-
+//	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, true);
 	// original frustum
 	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 
 
 	getFrustum();
-	mPriIdsInFrustum.clear();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
+//	mPriIdsInFrustum.clear();
+//	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, false);
 
 	if (mPriShowOffset){
 		resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
@@ -1165,8 +1149,10 @@ void RenderCoreGlFrame::cullFrustum()
 	double newTime2 = glfwGetTime();
 #endif
 
-	divideIdList();
+	manageCaching();
+//	divideIdList();
 	requestMissingVbos();
+
 
 #ifdef DEBUG_REQUESTDATA
 	double newerTime2 = glfwGetTime();
@@ -1176,6 +1162,44 @@ void RenderCoreGlFrame::cullFrustum()
 		mPriRequestDataTime = 0.0;
 	}
 #endif
+}
+
+void RenderCoreGlFrame::manageCaching()
+{
+	mPriWrapperInFrustum.sort();
+	unsigned int delta = 0;
+	WrapperListIter wIt = mPriWrapperInFrustum.begin();
+
+	// L1-Cache cleaning
+	while (mPriL1Cache>L1_CACHE_THRESHOLD && wIt != mPriWrapperInFrustum.end()){
+		// letzen eincachen
+		if ((*wIt)->state == WrappedOcNode::ONLINE){
+			(*wIt)->iVbo->setOffline();
+			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+			mPriL2Cache += delta;
+			mPriL1Cache -= delta;
+		}
+		++wIt;
+	}
+
+	// L2 cache cleaning
+	wIt = mPriWrapperInFrustum.begin();
+	while (mPriL2Cache>L2_CACHE_THRESHOLD && wIt != mPriWrapperInFrustum.end()){
+		if ((*wIt)->state == WrappedOcNode::OFFLINE){
+			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+			mPriL2Cache -= delta;
+			delete (*wIt)->iVbo;
+			(*wIt)->iVbo = 0;
+			(*wIt)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wIt++);
+		}
+		else if ((*wIt)->state == WrappedOcNode::MISSING){
+			mPriWrapperInFrustum.erase(wIt++);
+		}
+		else {
+			++wIt;
+		}
+	}
 }
 
 void RenderCoreGlFrame::generateMaxDistPerLevel(unsigned _maxLevel, float _originalSize)
@@ -1195,6 +1219,23 @@ void RenderCoreGlFrame::generateMaxDistPerLevel(unsigned _maxLevel, float _origi
 		cout << "Lvl: " << i << ", size: " << tempSize << ", dist: " << mPriMaxDistPerLevel[i] << endl;
 		tempSize*=0.5;
 	}
+}
+
+void RenderCoreGlFrame::clearRequests()
+{
+	//delete un-sent requests
+	//clear requestlist and remove those from list
+	WrapperListIter wIt = mPriWrapperInFrustum.begin();
+	while (wIt != mPriWrapperInFrustum.end()){
+		if ((*wIt)->state == WrappedOcNode::REQUESTED){
+			(*wIt)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wIt++);
+		}
+		else{
+			++wIt;
+		}
+	}
+	mPriRequests.clear();
 }
 
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)
@@ -1244,17 +1285,23 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(VboEvent::classid())){
 		VboEvent& ve = (VboEvent&)event;
+		std::map<uint64_t, oocformats::LooseRenderOctree*>::iterator idLoIt;
 		for (unsigned i=0; i< ve.getVboCount(); ++i){
-			if (ve.getDistExt(i).isExt){
-				mPriOfflineVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false)));
-			}
-			else {
-				mPriTriCount += ve.getIndexCount(i)/3;
-				mPriVbosInFrustum.insert(make_pair(ve.getNodeId(i), new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i))));
+			idLoIt = mPriIdLoMap.find(ve.getNodeId(i));
+			if (idLoIt != mPriIdLoMap.end()){
+				if (idLoIt->second->getWrapper()->state == WrappedOcNode::REQUESTED){
+					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
+					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
+					mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
+				}
+				else if (idLoIt->second->getWrapper()->state == WrappedOcNode::MISSING){
+					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
+					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
+					mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
+					mPriWrapperInFrustum.push_back(idLoIt->second->getWrapper());
+				}
 			}
 		}
-		trimCacheMap();
-
 	}
 	else if (event.instanceOf(InfoRequestEvent::classid())){
 		stringstream headerS;

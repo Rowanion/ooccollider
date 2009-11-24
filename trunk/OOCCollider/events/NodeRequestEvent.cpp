@@ -56,6 +56,27 @@ NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet
 	init();
 }
 
+NodeRequestEvent::NodeRequestEvent(std::set<ooctools::Quintuple>::iterator _begin, std::set<ooctools::Quintuple>::iterator _end, unsigned int _count)
+{
+	mProByteSize = sizeof(unsigned) + _count*(sizeof(ooctools::Quintuple));
+	mProData = new char[mProByteSize];
+
+	std::set<ooctools::Quintuple>::const_iterator quintIt;
+
+	// #of nodes, recipientId, isExtFrus, distance of each node, id of each node
+	((unsigned*)mProData)[0] = _count;
+	unsigned elementCount = 0;
+//	std::cout << "list of node-requests inside the Event: " << std::endl;
+	for (quintIt = _begin; quintIt!= _end; ++quintIt){
+//		std::cout << mapIt->second << std::endl;
+		((ooctools::Quintuple*)(mProData+sizeof(unsigned)))[elementCount] = *quintIt;
+//		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
+
+		elementCount++;
+	}
+	init();
+}
+
 NodeRequestEvent::NodeRequestEvent(const oocframework::Message* msg){
 
 	mProByteSize = msg->getLength();

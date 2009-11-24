@@ -25,7 +25,7 @@
 #include "IndexedVbo.h"
 #include "AbstractEventListener.h"
 #include "Fbo.h"
-#include "LooseOctree.h"
+#include "LooseRenderOctree.h"
 #include "OctreeHandler.h"
 #include "V3f.h"
 #include "OOCCamera.h"
@@ -58,6 +58,8 @@ public:
 	void depthPass();
 	ColorBufferEvent& getColorBufferEvent() {return mPriColorBufferEvent;};
 	void cullFrustum();
+	void manageCaching();
+	void clearRequests();
 //	void initTiles();
 
 
@@ -124,7 +126,7 @@ private:
 	float priFrustTemp;
 
 	std::map<uint64_t, std::string> mPriIdPathMap;
-	std::map<uint64_t, oocformats::LooseOctree*> mPriIdLoMap;
+	std::map<uint64_t, oocformats::LooseRenderOctree*> mPriIdLoMap;
 	std::set<uint64_t> mPriIdsInFrustum;
 	std::map<uint64_t, int> mPriIdLvlInFrustum;
 	std::set<uint64_t> mPriIdsInExtFrustum;
@@ -135,6 +137,8 @@ private:
 
 	std::list<oocformats::WrappedOcNode*> mPriWrapperInFrustum;
 	std::set<ooctools::Quintuple> mPriRequests;
+	unsigned int mPriL1Cache;
+	unsigned int mPriL2Cache;
 
 	bool mPriUseWireFrame;
 
@@ -144,7 +148,7 @@ private:
 
 
 	oocformats::OctreeHandler mPriOh;
-	oocformats::LooseOctree* mPriLo;
+	oocformats::LooseRenderOctree* mPriLo;
 	ooctools::BoundingBox mPriSceneBB;
 	ooctools::V3f mPriSceneCenter;
 
@@ -203,6 +207,9 @@ private:
 	typedef std::list<oocformats::WrappedOcNode*>::iterator WrapperListIter;
 	typedef std::list<oocformats::WrappedOcNode*>::const_iterator CWrapperListIter;
 	typedef std::list<oocformats::WrappedOcNode*>::reverse_iterator RWrapperListIter;
+	typedef std::set<ooctools::Quintuple>::iterator QuintSetIter;
+	typedef std::set<ooctools::Quintuple>::const_iterator CQuintSetIter;
+	typedef std::set<ooctools::Quintuple>::reverse_iterator RQuintSetIter;
 
 	void calcFPS();
 	void requestMissingVbos();

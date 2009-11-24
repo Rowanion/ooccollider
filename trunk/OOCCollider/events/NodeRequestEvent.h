@@ -38,6 +38,8 @@ public:
 //	NodeRequestEvent();
 	NodeRequestEvent(const NodeRequestEvent& _nre);
 	NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet);
+	NodeRequestEvent(std::set<ooctools::Quintuple>::iterator _begin, std::set<ooctools::Quintuple>::iterator _end, unsigned int _count);
+
 	NodeRequestEvent(const oocframework::Message* msg);
 	virtual ~NodeRequestEvent();
 	static const oocframework::ClassId* classid();
