@@ -16,7 +16,7 @@
 #include "declarations.h"
 #include "MpiControl.h"
 #include "MersenneTwister.h"
-#include "LooseOctree.h"
+#include "LooseRenderOctree.h"
 #include "VirtualNode.h"
 #include "VirtualRequest.h"
 
@@ -36,7 +36,7 @@ class CCollisionProtocol {
 public:
 	CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy = 2);
 	virtual ~CCollisionProtocol();
-	void generateDistribution(const oocformats::LooseOctree* _lo);
+	void generateDistribution(const oocformats::LooseRenderOctree* _lo);
 	const std::set<uint64_t>& getMyNodeSet();
 	void doCCollision(std::vector<ooctools::Quintuple>* _quintVec, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap);
 
