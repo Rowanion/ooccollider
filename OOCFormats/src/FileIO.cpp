@@ -451,6 +451,18 @@ FileIO::readLooseOctreeNodeSkeleton(fs::ifstream& _if)
 	return node;
 }
 
+LooseRenderOctree*
+FileIO::readLooseRenderOctreeNodeSkeleton(fs::ifstream& _if)
+{
+	char nodeSkel[LooseRenderOctree::getSkeletonSize()];
+	// id, 8 ids, 6 floats, long double area, uint tricount
+	_if.read((char*)nodeSkel, LooseRenderOctree::getSkeletonSize());
+	//TODO
+	LooseRenderOctree* node = new LooseRenderOctree(nodeSkel);
+
+	return node;
+}
+
 long double
 FileIO::readLongDouble(fs::ifstream& _if)
 {

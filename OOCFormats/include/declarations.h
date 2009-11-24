@@ -26,6 +26,7 @@ namespace oocformats {
 	class IModelLoader;
 	class LooseOctree;
 	class LooseProcessingOctree;
+	class LooseRenderOctree;
 	class ObjModelLoader;
 	class OctreeHandler;
 	class RawModelHandler;
