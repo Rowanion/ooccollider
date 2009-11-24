@@ -41,15 +41,12 @@ using namespace oocformats;
 using namespace oocframework;
 
 RenderCoreGlFrame::RenderCoreGlFrame(int winWidth, int winHeight, int targetWinWidth, int targetWinHeight) :
-AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0),
-			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()), mPriCamHasMoved(false),
+AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), avgFps(0.0f), time(0.0), frame(0), mPriCgt(0),
+			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()),
 			mPriBBMode(0), mPriAspectRatio(0.0f), mPriMaxDistPerLevel(0), mPriFbo(0),
 			mPriTileYPos(0), mPriTileXPos(0), mPriTileWidth(0), mPriTileHeight(0),
 			mPriPixelBuffer(0), mPriDepthBuffer(0), mPriTriCount(0),mPriColorBufferEvent(0,0,0,0,0.0,0),
-			priFrustum(0), mPriIdPathMap(std::map<uint64_t, std::string>()),
-			mPriMissingIdsInFrustum(std::set<uint64_t>()), mPriObsoleteVbos(
-					std::list<IdVboMapIter>()), mPriL1Cache(0), mPriL2Cache(0), mPriUseWireFrame(false),
-			mPriRequestedVboList(std::set<uint64_t>()),
+			priFrustum(0), mPriL1Cache(0), mPriL2Cache(0), mPriUseWireFrame(false),
 			mPriCamera(OOCCamera()), mPriRenderTimeSum(0.0), mPriShowOffset(false),
 			mPriFrameTick(0), mPriDisplayTime(0.0), mPriFrustumCullingTime(0.0), mPriRequestDataTime(0.0)
 {
@@ -57,9 +54,8 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
 	}
-	mPriVboMan = VboManager::getSingleton();
 	mPriColorTable = ColorTable(string(BASE_MODEL_PATH) + string("/colortable.bin"));
-	mPriVboMan->setColorTable(mPriColorTable);
+	VboManager::getSingleton()->setColorTable(mPriColorTable);
 	mPriCgt = CgToolkit::getSingleton();
 	myGlobalAmbient[0] = 0.1f;
 	myGlobalAmbient[1] = 0.1f;
@@ -86,8 +82,6 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), scale(1.0
 		this->priFrustum[i] = new float[4];
 	}
 
-	mPriDepthBufferD = 0;
-	mPriDepthTexture = 0;
 
 	mPriPixelBuffer = new GLubyte[mProWindowWidth*mProWindowHeight*4];
 	mPriDepthBuffer = new GLfloat[mProWindowWidth*mProWindowHeight];
@@ -104,18 +98,6 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	mPriPixelBuffer = 0;
 	delete[] mPriDepthBuffer;
 	mPriDepthBuffer = 0;
-	IdVboMapIter mapIt = mPriVbosInFrustum.begin();
-	for (; mapIt != mPriVbosInFrustum.end(); ++mapIt){
-		delete mapIt->second;
-		mapIt->second = 0;
-	}
-	mapIt = mPriOfflineVbosInFrustum.begin();
-	for (; mapIt != mPriVbosInFrustum.end(); ++mapIt){
-		delete mapIt->second;
-		mapIt->second = 0;
-	}
-	mPriVbosInFrustum.clear();
-
 	delete mPriLo;
 	mPriLo = 0;
 	delete mPriFbo;
@@ -154,7 +136,7 @@ void RenderCoreGlFrame::init() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
-	mPriVboMan->setCgDiffParam(g_cgKd);
+	VboManager::getSingleton()->setCgDiffParam(g_cgKd);
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 
 	mPriCamera.initMatrices();
@@ -168,7 +150,6 @@ void RenderCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 
 	mPriLo->pubTickLimit = DISTANCE_RENEWAL;
-	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
 
 	generateMaxDistPerLevel(14, mPriLo->getBb().computeDiameter());
@@ -229,13 +210,6 @@ void RenderCoreGlFrame::display()
 	cgGLSetParameter3fv(g_cgLightPosition,lightPos);
 	cgGLSetParameter3fv(g_cgEyePosition,lightPos);
 
-	//	normalizeFrustum();
-//	glLoadIdentity();
-//	gluLookAt( // Set camera position and orientation
-//			0.0, 0.0, 10.0, // Camera position (x,y,z)
-//			0.0, 0.0, 0.0, // View point (x,y,z)
-//			0.0, 1.0, 0.0 // Up-vector (x,y,z)
-//	);
 	glPushMatrix();
 		glPushMatrix();
 			cgGLSetStateMatrixParameter(g_cgModelViewInv,CG_GL_MODELVIEW_PROJECTION_MATRIX,CG_GL_MATRIX_IDENTITY);
@@ -249,13 +223,6 @@ void RenderCoreGlFrame::display()
 				mPriFbo->bind();
 				mPriFbo->clear();
 				GET_GLERROR(0);
-//				cout << "Number of VBOs: " << mPriVbosInFrustum.size()<< endl;
-//				cout << "Number of Tris being rendered: " << mPriTriCount<< endl;
-//				for (std::set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!= mPriIdsInFrustum.end(); ++it){
-////					cout << "drawing box with id: " << *it << endl;
-////					cout << "in in node: " << mPriIdLoMap[(*it)]->getIdString() << endl;
-//					mPriIdLoMap[(*it)]->getBb().draw();
-//				}
 
 				GET_GLERROR(0);
 
@@ -371,31 +338,8 @@ void RenderCoreGlFrame::display()
 
 
 				FboFactory::getSingleton()->readColorFromFb(mPriPixelBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-//				ColorBufferEvent cbe = ColorBufferEvent(0,0,mPriWindowWidth,mPriWindowHeight,t-f, mPriPixelBuffer);
 				mPriColorBufferEvent.set(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight,t-f, mPriPixelBuffer);
 				mPriRenderTimeSum += t-f;
-
-				// dumping the depth-buffer every 100 frames....
-//				cout << "frame: " << frame << ", camMoved? " << mPriCamHasMoved<< endl;
-//				if (frame == (DEPTHBUFFER_INTERVAL - 1)){ // send time
-//				}
-//				if (frame == (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved){
-//					GET_GLERROR(0);
-//					mPriCamHasMoved = false;mPriExtendedFovy
-//					FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-//					DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, mPriDepthBuffer);
-//					MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
-//					Message* msg = new Message(dbe, 0, MpiControl::DATA);
-//					MpiControl::getSingleton()->push(msg);
-//					mPriRequestedVboList.clear();
-////					setupTexture();
-//				}
-
-			//
-//				Message* msg = new Message(mPriColorBufferEvent, 0);
-//				MpiControl::getSingleton()->push(msg);
-//				MpiControl::getSingleton()->sendAll();
-//				delete msg;
 
 				mPriFbo->unbind();
 			glPopMatrix();
@@ -483,11 +427,6 @@ void RenderCoreGlFrame::reshape(int width, int height, float farPlane) {
 		      0.0,0.0,-3.0,
 			  0.0f,1.0f,0.0f);
 
-}
-
-void RenderCoreGlFrame::debug() {
-	scale *= 2.0f;
-	cout << "debug!" << endl;
 }
 
 void RenderCoreGlFrame::calcFPS() {
@@ -588,392 +527,6 @@ RenderCoreGlFrame::requestMissingVbos()
 
 }
 
-//void
-//RenderCoreGlFrame::requestMissingVbos()
-//{
-//	unsigned frustReq =0;
-//	unsigned extFrustReq =0;
-//	oocformats::LooseOctree* currentNode = 0;
-//	// moving obsolete vbos into cache
-//	list<map<uint64_t, IndexedVbo*>::iterator >::iterator iterIt = mPriObsoleteVbos.begin();
-//	for (; iterIt != mPriObsoleteVbos.end(); ++iterIt){
-//		(*iterIt)->second->setOffline();
-//		mPriOfflineVbosInFrustum.insert(make_pair((*iterIt)->first, (*iterIt)->second));
-//		//TODO research why getTriCount() seems to malfunction
-//		mPriTriCount -= (*iterIt)->second->getTriCount();
-//
-//		mPriVbosInFrustum.erase((*iterIt));
-//	}
-//	mPriObsoleteVbos.clear();
-//	trimCacheMap();
-//
-//	// ----------------------------------------------
-//	// check if any of the new VBOs is already in the cache
-//	set<ooctools::Quintuple> missingQuintuple = set<ooctools::Quintuple>();
-//	IdSetIter setIt = mPriMissingIdsInFrustum.begin();
-//	IdVboMapIter offIt;
-//	ooctools::V3f center = ooctools::V3f();
-//	unsigned reqCount = 0;
-//	for (; setIt!=mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
-//		offIt = mPriOfflineVbosInFrustum.find(*setIt);
-//		if (offIt == mPriOfflineVbosInFrustum.end()){ // not in cache -> needs to be requested
-//			//calculate eye distances of missing vbos
-//			ooctools::V3f center = ooctools::V3f();
-//			currentNode = mPriIdLoMap[*setIt];
-//			currentNode->getBb().computeCenter(center);
-//			// -------------------------------------------------------
-//			missingQuintuple.insert(Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, false));
-////			Quintuple q;
-////			q.lvl = currentNode->getLevel();
-////			q.dist = mPriEyePosition.calcDistance(center);
-////			q.destId = MpiControl::getSingleton()->getRank();
-////			q.id = *setIt;
-////			q.isExt = 0;
-////			missingQuintuple.insert(q);
-//			// -------------------------------------------------------
-//			mPriRequestedVboList.insert(*setIt);
-//			reqCount++;
-//		}
-//		else { // VBO is in cache -> flip
-//			offIt->second->setOnline();
-//			mPriTriCount += offIt->second->getTriCount();
-//			mPriVbosInFrustum.insert(make_pair(offIt->first, offIt->second));
-//			mPriOfflineVbosInFrustum.erase(offIt);
-//		}
-//	}
-//	if (missingQuintuple.size() > 0){
-//		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
-////		// ------------------------------
-////		Message bla = Message(nre, 0);
-////		NodeRequestEvent nre2 = NodeRequestEvent(&bla);
-////		for (unsigned i=0; i< nre.getIdxCount(); ++i){
-////			cout << "in renderer " << nre2.getQuintuple(i)->destId << ", " << nre2.getQuintuple(i)->dist << ", " << nre2.getQuintuple(i)->id << ", " << nre2.getQuintuple(i)->isExt << ", " << nre2.getQuintuple(i)->lvl << endl;
-////		}
-////		exit(0);
-////		// ------------------------------
-//
-//		MpiControl::getSingleton()->isend(new Message(nre, 0));
-//		mPriMissingIdsInFrustum.clear();
-//		frustReq = nre.getIdxCount();
-//	}
-//
-//	// now dealing with extended frustum
-//	mPriMissingIdsInFrustum.clear();
-//	missingQuintuple.clear();
-//	uniqueElements(mPriIdsInFrustum, mPriIdsInExtFrustum, mPriMissingIdsInFrustum);
-//	stripDoublesFromRight(mPriOfflineVbosInFrustum, mPriMissingIdsInFrustum);
-//	stripDoublesFromRight(mPriRequestedVboList, mPriMissingIdsInFrustum);
-//
-//	if (mPriMissingIdsInFrustum.size()>0){
-//		// calc eyeDistances
-//		reqCount = 0;
-//		for (setIt = mPriMissingIdsInFrustum.begin(); setIt != mPriMissingIdsInFrustum.end() && reqCount < MAX_LOADS_PER_FRAME; ++setIt){
-//			ooctools::V3f center = ooctools::V3f();
-//			currentNode = mPriIdLoMap[*setIt];
-//			currentNode->getBb().computeCenter(center);
-//			// -------------------------------------------------------
-//			missingQuintuple.insert(ooctools::Quintuple(currentNode->getLevel(), mPriEyePosition.calcDistance(center), MpiControl::getSingleton()->getRank(), *setIt, true));
-////			Quintuple q;
-////			q.lvl = currentNode->getLevel();
-////			q.dist = mPriEyePosition.calcDistance(center);
-////			q.destId = MpiControl::getSingleton()->getRank();
-////			q.id = *setIt;
-////			q.isExt = 1;
-////			missingQuintuple.insert(q);
-//			// -------------------------------------------------------
-//
-//			mPriRequestedVboList.insert(*setIt);
-//			reqCount++;
-//		}
-//
-//		//TODO do something about the loadPerFrame limit
-//		NodeRequestEvent nre = NodeRequestEvent(missingQuintuple);
-//		MpiControl::getSingleton()->isend(new Message(nre, 0));
-////		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
-//		extFrustReq = nre.getIdxCount();
-//		missingQuintuple.clear();
-//		mPriMissingIdsInFrustum.clear();
-//
-//	}
-//
-//	EndTransmissionEvent ete = EndTransmissionEvent();
-//	MpiControl::getSingleton()->send(new Message(ete, 0));
-////	cout << "renderer finalized nodeRequests" << endl;
-//
-//}
-
-void
-RenderCoreGlFrame::divideIdList()
-{
-	IdSetIter setIt, reqIt;
-	IdVboMapIter mapIt;
-
-	// iterator over idList and save every id that is not loaded in a new list
-	for (setIt=mPriIdsInFrustum.begin(); setIt!=mPriIdsInFrustum.end(); ++setIt){
-		mapIt = mPriVbosInFrustum.find(*setIt);
-		if (mapIt == mPriVbosInFrustum.end()){
-			reqIt = mPriRequestedVboList.find(*setIt);
-			if (reqIt == mPriRequestedVboList.end()){
-				mPriMissingIdsInFrustum.insert(*setIt);
-			}
-		}
-	}
-
-	//iterate over loadedVboList and save an iterator for each one that is obsolete
-	for (mapIt = mPriVbosInFrustum.begin(); mapIt!= mPriVbosInFrustum.end(); ++mapIt){
-		setIt = mPriIdsInFrustum.find(mapIt->first);
-		if (setIt == mPriIdsInFrustum.end()){
-			mPriObsoleteVbos.push_back(mapIt);
-		}
-	}
-}
-
-void
-RenderCoreGlFrame::uniqueElements(const std::set<uint64_t>& leftSet, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
-{
-	CIdSetIter leftIt = leftSet.begin();
-	CIdSetIter rightIt = rightSet.begin();
-	IdSetIter uniqueIt = uniqueSet.begin();
-
-	// 1 2 3
-	// 1 2 3 4
-	bool debug = false;
-//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
-
-	while (leftIt != leftSet.end() && rightIt != rightSet.end()){
-		if (debug) cout << "comparing elements " << (*leftIt) << " and " << (*rightIt) << endl;
-		if (*leftIt < *rightIt){
-			if (debug) cout << *leftIt << " l < r " << *rightIt << endl;
-			uniqueSet.insert(uniqueIt, *leftIt);
-			uniqueIt++;
-			leftIt++;
-		}
-		else if (*leftIt > *rightIt){
-			if (debug) cout << *rightIt << " r < l " << *leftIt << endl;
-			uniqueSet.insert(uniqueIt, *rightIt);
-			uniqueIt++;
-			rightIt++;
-		}
-		else { // elements are equal
-			if (debug) cout << *leftIt << " == " << *rightIt << endl;
-			++rightIt;
-			++leftIt;
-		}
-	}
-	if (leftIt == leftSet.end() && rightIt != rightSet.end()){
-		if (debug) cout << "L-equality insert" << endl;
-		uniqueSet.insert(rightIt, rightSet.end());
-	}
-	else if (rightIt == rightSet.end() && leftIt != leftSet.end()){
-		if (debug) cout << "R-equality insert" << endl;
-		uniqueSet.insert(leftIt, leftSet.end());
-	}
-
-}
-
-void
-RenderCoreGlFrame::uniqueElements(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, const std::set<uint64_t>& rightSet, std::set<uint64_t>& uniqueSet)
-{
-	CIdVboMapIter leftIt = leftMap.begin();
-	CIdSetIter rightIt = rightSet.begin();
-	IdSetIter uniqueIt = uniqueSet.begin();
-
-	// 1 2 3
-	// 1 2 3 4
-	bool debug = false;
-//	if (MpiControl::getSingleton()->getRank() == 1) debug = true;
-
-	while (leftIt != leftMap.end() && rightIt != rightSet.end()){
-		if (debug) cout << "comparing elements " << leftIt->first << " and " << (*rightIt) << endl;
-		if (leftIt->first < *rightIt){
-			if (debug) cout << leftIt->first << " l < r " << *rightIt << endl;
-			uniqueSet.insert(uniqueIt, leftIt->first);
-			uniqueIt++;
-			leftIt++;
-		}
-		else if (leftIt->first > *rightIt){
-			if (debug) cout << *rightIt << " r < l " << leftIt->first << endl;
-			uniqueSet.insert(uniqueIt, *rightIt);
-			uniqueIt++;
-			rightIt++;
-		}
-		else { // elements are equal
-			if (debug) cout << leftIt->first << " == " << *rightIt << endl;
-			++rightIt;
-			++leftIt;
-		}
-	}
-	if (leftIt == leftMap.end() && rightIt != rightSet.end()){
-		if (debug) cout << "L-equality insert" << endl;
-		uniqueSet.insert(rightIt, rightSet.end());
-	}
-	else if (rightIt == rightSet.end() && leftIt != leftMap.end()){
-		if (debug) cout << "R-equality insert" << endl;
-		while(leftIt != leftMap.end()){
-			uniqueSet.insert(uniqueIt, leftIt->first);
-			uniqueIt++;
-			leftIt++;
-		}
-	}
-
-}
-
-void
-RenderCoreGlFrame::stripDoublesFromRight(const std::set<uint64_t>& leftSet, std::set<uint64_t>& rightSet)
-{
-	//TODO test
-	// removes from right side all entries which are also in the left side
-	CIdSetIter leftIt = leftSet.begin();
-	CIdSetIter rightIt = rightSet.begin();
-
-	for (; rightIt != rightSet.end();) {
-		leftIt = leftSet.find(*rightIt);
-	  if (leftIt != leftSet.end())
-		  rightSet.erase(rightIt++);
-	  else ++rightIt;
-	}
-}
-
-void
-RenderCoreGlFrame::stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, std::set<uint64_t>& rightSet)
-{
-	//TODO
-	// removes from right side all entries which are also in the left side
-	CIdVboMapIter leftIt = leftMap.begin();
-	CIdSetIter rightIt = rightSet.begin();
-
-	for (; rightIt != rightSet.end();) {
-		leftIt = leftMap.find(*rightIt);
-	  if (leftIt != leftMap.end())
-		  rightSet.erase(rightIt++);
-	  else ++rightIt;
-	}
-}
-
-void RenderCoreGlFrame::trimCacheMap()
-{
-	unsigned cacheSize = mPriOfflineVbosInFrustum.size();
-	if (cacheSize > MAX_OFFLINE_VBOS){
-		unsigned diff = cacheSize - MAX_OFFLINE_VBOS;
-		multimap<float, IdVboMapIter> distMap = multimap<float, IdVboMapIter>();
-		V3f center = V3f();
-		IdVboMapIter mapIt = mPriOfflineVbosInFrustum.begin();
-		for (; mapIt != mPriOfflineVbosInFrustum.end(); ++mapIt){
-			mPriIdLoMap[mapIt->first]->getBb().computeCenter(center);
-			distMap.insert(make_pair(mPriEyePosition.calcDistance(center), mapIt));
-		}
-		unsigned counter = 0;
-		multimap<float, IdVboMapIter>::reverse_iterator rIt = distMap.rbegin();
-		for (; rIt != distMap.rend() && counter < diff; rIt++, counter++){
-//			mPriTriCount -= rIt->second->second->getTriCount();
-			delete rIt->second->second;
-			rIt->second->second = 0;
-			mPriOfflineVbosInFrustum.erase(rIt->second);
-		}
-		distMap.clear();
-	}
-}
-
-void
-RenderCoreGlFrame::compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap2)
-{
-	if (vboMap->size() != vboMap2->size()){
-		cout << "Vbo-Count Miss Match!!!" << endl;
-		cout << vboMap->size() << " vs " << vboMap2->size() << endl;
-
-		unsigned exitCount = (vboMap->size() > vboMap2->size()) ? vboMap->size() : vboMap2->size();
-		IdVboMapIter it1 = vboMap->begin();
-		IdVboMapIter it2 = vboMap2->begin();
-		for (unsigned i=0; i < exitCount; ++i){
-			if (i+1 < vboMap->size()){
-				cout << "ID: " << it1->first;
-				it1++;
-			}
-			else {
-				cout << "NONE    ";
-			}
-			cout << " \t - \t ";
-			if (i+1 < vboMap2->size()){
-				cout << "" << it2->first;
-				it2++;
-			}
-			else {
-				cout << "NONE    ";
-			}
-			cout << endl;
-		}
-
-		exit(0);
-	}
-	IdVboMapIter mapIt = vboMap->begin();
-	for(; mapIt != vboMap->end(); ++mapIt){
-		if (mapIt->second->getIndexCount() != (*vboMap2)[mapIt->first]->getIndexCount()){
-			cout << "Index-Count Miss Match!!!" << endl;
-			exit(0);
-		}
-		if (mapIt->second->getVertexCount() != (*vboMap2)[mapIt->first]->getVertexCount()){
-			cout << "Vertex-Count Miss Match!!!" << endl;
-			exit(0);
-		}
-		for (unsigned i=0; i < mapIt->second->getIndexCount(); ++i){
-			if (mapIt->second->getIndexData()[i] != (*vboMap2)[mapIt->first]->getIndexData()[i]){
-				cout << "Index-Value Miss Match!!!" << endl;
-				exit(0);
-			}
-		}
-		for (unsigned i=0; i < mapIt->second->getVertexCount(); ++i){
-			for (unsigned j=0; j<4; ++j){
-				if (mapIt->second->getVertexData()[i].v[j] != (*vboMap2)[mapIt->first]->getVertexData()[i].v[j] ||
-						mapIt->second->getVertexData()[i].n[j] != (*vboMap2)[mapIt->first]->getVertexData()[i].n[j]){
-					cout << "Vertex-Value Miss Match!!!" << endl;
-					exit(0);
-				}
-			}
-		}
-	}
-}
-
-void RenderCoreGlFrame::setupTexture()
-{
-	if (mPriDepthTexture == 0){
-		mPriDepthTexture = new GLfloat[mProWindowWidth*mProWindowHeight*4];
-	}
-	if (mPriDepthBufferD == 0){
-		mPriDepthBufferD = new GLfloat[mProWindowWidth*mProWindowHeight];
-	}
-	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBufferD, 0, 0, mProWindowWidth, mProWindowHeight);
-//	cout << "(render) depth at " << 62981 << ": " << mPriDepthBufferD[62981] << endl;
-
-//	for(int i=0; i< mPriWindowWidth*mPriWindowHeight*4; i+=4){
-//		mPriDepthTexture[i] = 1000.0-(mPriDepthBufferD[i/4]*1000.0);
-//		mPriDepthTexture[i+1] = mPriDepthTexture[i];
-//		mPriDepthTexture[i+2] = mPriDepthTexture[i];
-//		mPriDepthTexture[i+3] = 255;
-//	}
-	GET_GLERROR(0);
-//	glActiveTexture(GL_TEXTURE2);
-	GET_GLERROR(0);
-	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
-	GET_GLERROR(0);
-	glEnable(GL_TEXTURE_2D);
-	GET_GLERROR(0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_ALPHA);
-//	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-	GET_GLERROR(0);
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, mPriWindowWidth, mPriWindowHeight, 0, GL_BGRA, GL_FLOAT, mPriDepthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, mProWindowWidth, mProWindowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, mPriDepthBufferD);
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA16, mPriWindowWidth, mPriWindowHeight, 0, GL_ALPHA, GL_FLOAT, mPriDepthBufferD);
-	GET_GLERROR(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_TEXTURE_2D);
-}
-
 void RenderCoreGlFrame::drawDepthTex()
 {
 	glBindTexture(GL_TEXTURE_2D, mPriDepthTexId);
@@ -1043,13 +596,8 @@ void RenderCoreGlFrame::depthPass()
 		}
 	}
 
-//	for (IdVboMapIter it = mPriVbosInFrustum.begin(); it!=mPriVbosInFrustum.end(); ++it){
-//		it->second->managedDraw(true);
-//	}
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	GET_GLERROR(0);
-//	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth, mPriTileHeight);
-//	DepthBufferEvent dbe = DepthBufferEvent(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
 	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth+(2*mProFrustumExtensionX_px), mPriTileHeight+(2*mProFrustumExtensionY_px));
 	DepthBufferEvent dbe = DepthBufferEvent(Tile(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, 0.0),
 			mPriTileXPos,mPriTileYPos,mPriTileWidth+(2*mProFrustumExtensionX_px),mPriTileHeight+(2*mProFrustumExtensionY_px),
@@ -1057,10 +605,7 @@ void RenderCoreGlFrame::depthPass()
 	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
 	Message* msg = new Message(dbe, 0, MpiControl::DATA);
 	MpiControl::getSingleton()->send(msg);
-//	cout << MpiControl::getSingleton()->getRank() << " has sent depthbuffer" << endl;
-//	mPriRequestedVboList.clear();
 	clearRequests();
-//	setupTexture();
 	mPriFbo->unbind();
 	glPolygonMode(GL_FRONT, polyMode);
 	GET_GLERROR(0);
@@ -1119,17 +664,13 @@ void RenderCoreGlFrame::cullFrustum()
 //	GET_GLERROR(0);
 
 	getFrustum();
-//	mPriIdsInExtFrustum.clear();
 	//TODO umstellen auf ne list
-//	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInExtFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, true);
 	// original frustum
 	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
 
 
 	getFrustum();
-//	mPriIdsInFrustum.clear();
-//	mPriLo->isInFrustum_orig(priFrustum, &mPriIdsInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel);
 	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, false);
 
 	if (mPriShowOffset){
@@ -1272,12 +813,10 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			case 'F': // increase far-clipping plane
 				mProFarClippingPlane*=2.0f;
 				reshape(mProWindowWidth, mProWindowHeight);
-				mPriCamHasMoved = true;
 			break;
 			case 'N': // decrease far-clipping plane
 				mProFarClippingPlane = max(mProFarClippingPlane/2.0f, 50.0f);
 				reshape(mProWindowWidth, mProWindowHeight);
-				mPriCamHasMoved = true;
 			break;
 			default:
 			break;
@@ -1310,26 +849,26 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		}
 		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
 		cout << headerS.str() << "currently loaded tris: " << mPriTriCount << endl;
-		cout << headerS.str() << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
-		cout << headerS.str() << "total requested vbos: " << mPriRequestedVboList.size() << endl;
-		cout << headerS.str() << "loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
-		cout << headerS.str() << "total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
-		cout << headerS.str() << "VBOs in cache: " << mPriOfflineVbosInFrustum.size() << "/" << MAX_OFFLINE_VBOS<< endl;
+//		cout << headerS.str() << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
+//		cout << headerS.str() << "total requested vbos: " << mPriRequestedVboList.size() << endl;
+//		cout << headerS.str() << "loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
+//		cout << headerS.str() << "total vbos in frustum: " << mPriIdsInFrustum.size() << endl;
+//		cout << headerS.str() << "VBOs in cache: " << mPriOfflineVbosInFrustum.size() << "/" << MAX_OFFLINE_VBOS<< endl;
 		unsigned tCount = 0;
 		unsigned iCount = 0;
-		IdVboMapIter mIt = mPriVbosInFrustum.begin();
-		for (; mIt!=mPriVbosInFrustum.end(); ++mIt){
-			tCount += mIt->second->getTriCount();
-			iCount += mIt->second->getIndexCount();
-		}
+//		IdVboMapIter mIt = mPriVbosInFrustum.begin();
+//		for (; mIt!=mPriVbosInFrustum.end(); ++mIt){
+//			tCount += mIt->second->getTriCount();
+//			iCount += mIt->second->getIndexCount();
+//		}
 		cout << headerS.str() << "loaded online tris (counted): " << tCount << endl;
 		cout << headerS.str() << "loaded online indices (counted): " << iCount << endl;
 		tCount = 0;
 		iCount = 0;
-		for (mIt = mPriOfflineVbosInFrustum.begin(); mIt!=mPriOfflineVbosInFrustum.end(); ++mIt){
-			tCount += mIt->second->getTriCount();
-			iCount += mIt->second->getIndexCount();
-		}
+//		for (mIt = mPriOfflineVbosInFrustum.begin(); mIt!=mPriOfflineVbosInFrustum.end(); ++mIt){
+//			tCount += mIt->second->getTriCount();
+//			iCount += mIt->second->getIndexCount();
+//		}
 		cout << headerS.str() << "loaded offline tris (counted): " << tCount << endl;
 		cout << headerS.str() << "loaded offline indices (counted): " << iCount << endl;
 

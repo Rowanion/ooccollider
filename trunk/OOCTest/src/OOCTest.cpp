@@ -33,6 +33,26 @@ int main(int argc, char *argv[]) {
 	if (mpic->getRank() == 0) {
 
 
+		cerr << "size of LooseRenderOctree: " << sizeof(oocformats::LooseRenderOctree) << endl;
+
+		cerr << "size of components: " << endl;
+		cerr << "BB: " << sizeof(ooctools::BoundingBox) << endl;
+		cerr << "exBB: " << sizeof(ooctools::BoundingBox) << endl;
+		cerr << "string: " << sizeof(std::string) << endl;
+		cerr << "id: " << sizeof(uint64_t) << endl;
+		cerr << "WrappedNode" << sizeof(oocformats::WrappedOcNode) << endl;
+		cerr << "int: " << sizeof(int) << endl;
+		cerr << "int: " << sizeof(int) << endl;
+		cerr << "children: " << sizeof(LooseRenderOctree*)*8 << endl;
+		cerr << "fatherPtr: " << sizeof(LooseRenderOctree*) << endl << endl;
+		cerr << "unsigned: " << sizeof(unsigned) << endl;
+		cerr << "sum of components: " << sizeof(ooctools::BoundingBox)*2 + sizeof(std::string) + sizeof(int64_t) + sizeof(unsigned int) + sizeof(oocformats::WrappedOcNode) + sizeof(int)*2 + sizeof(LooseRenderOctree*)*8 + sizeof(LooseRenderOctree*)<< endl;
+		cerr << "v3f: " << sizeof(ooctools::V3f) << endl;
+		cerr << "v3f*10: " << sizeof(ooctools::V3f)*10 << endl;
+		cerr << "triboxtest: " << sizeof(ooctools::TriBoxTest) << endl;
+
+
+
 
 
 //		   set<int*, IntPtrLess > ssp;
@@ -82,8 +102,8 @@ int main(int argc, char *argv[]) {
 
 		OctreeHandler oh = OctreeHandler();
 		CCollisionProtocol ccp = CCollisionProtocol(PRESELECTED_SEED, 2);
-		LooseOctree* lo = oh.loadLooseOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
-		map<uint64_t, LooseOctree*> idLoMap = map<uint64_t, LooseOctree*>();
+		LooseRenderOctree* lo = oh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
+		map<uint64_t, LooseRenderOctree*> idLoMap = map<uint64_t, LooseRenderOctree*>();
 		oh.generateIdLoMap(lo, idLoMap);
 
 

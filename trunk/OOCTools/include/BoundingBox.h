@@ -228,12 +228,6 @@ private:
 	V3f mPriMax;
 	V3f mPriEdgeSizes;
 	V3f* mPriCenter;
-	V3f mPriCenterLeft;
-	V3f mPriCenterRight;
-	V3f mPriCenterTop;
-	V3f mPriCenterBottom;
-	V3f mPriCenterFront;
-	V3f mPriCenterBack;
 	TriBoxTest mTriBoxTest;
 
 	// member methods

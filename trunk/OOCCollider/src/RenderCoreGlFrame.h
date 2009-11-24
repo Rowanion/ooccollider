@@ -49,7 +49,6 @@ public:
 		return avgFps;
 	}
 	;
-	void debug();
 	void notify(oocframework::IEvent& event);
 	void getFrustum();
 	void setTileDimensions(int xPos, int yPos, int width, int height);
@@ -60,7 +59,6 @@ public:
 	void cullFrustum();
 	void manageCaching();
 	void clearRequests();
-//	void initTiles();
 
 
 protected:
@@ -79,19 +77,16 @@ protected:
 	float frustTemp;
 
 private:
-	float scale;
 	float fps[10];
 	float avgFps;
 	double time;
 	unsigned frame;
 	float lightPos[3];
-	ooctools::VboManager* mPriVboMan;
 	ooctools::CgToolkit* mPriCgt;
 
 	float mPriModelViewMatrix[16];
 	ooctools::V3f mPriEyePosition;
 	ooctools::V3f mPriViewVector;
-	bool mPriCamHasMoved;
 	unsigned mPriBBMode;
 
 	float mPriAspectRatio;
@@ -111,8 +106,6 @@ private:
 
 	GLubyte* mPriPixelBuffer;
 	GLfloat* mPriDepthBuffer;
-	GLfloat* mPriDepthBufferD;
-	GLfloat* mPriDepthTexture;
 	GLuint mPriDepthTexId;
 
 	unsigned mPriTriCount;
@@ -125,15 +118,7 @@ private:
 	float** priFrustum;
 	float priFrustTemp;
 
-	std::map<uint64_t, std::string> mPriIdPathMap;
 	std::map<uint64_t, oocformats::LooseRenderOctree*> mPriIdLoMap;
-	std::set<uint64_t> mPriIdsInFrustum;
-	std::map<uint64_t, int> mPriIdLvlInFrustum;
-	std::set<uint64_t> mPriIdsInExtFrustum;
-	std::map<uint64_t, ooctools::IndexedVbo*> mPriVbosInFrustum;
-	std::map<uint64_t, ooctools::IndexedVbo*> mPriOfflineVbosInFrustum;
-	std::set<uint64_t> mPriMissingIdsInFrustum;
-	std::list< std::map<uint64_t, ooctools::IndexedVbo*>::iterator > mPriObsoleteVbos;
 
 	std::list<oocformats::WrappedOcNode*> mPriWrapperInFrustum;
 	std::set<ooctools::Quintuple> mPriRequests;
@@ -141,8 +126,6 @@ private:
 	unsigned int mPriL2Cache;
 
 	bool mPriUseWireFrame;
-
-	std::set<uint64_t> mPriRequestedVboList;
 
 	OOCCamera mPriCamera;
 
@@ -227,7 +210,6 @@ private:
 	 */
 	void trimCacheMap();
 
-	void setupTexture();
 	void drawDepthTex();
 
 	/**
