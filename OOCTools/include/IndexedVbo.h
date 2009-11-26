@@ -27,16 +27,19 @@ friend class VboManager;
 public:
 	IndexedVbo(const unsigned* _idxData, unsigned _idxCount, const V4N4* _vertexData, unsigned _vertexCount, bool initiateOnline=true);
 	IndexedVbo(fs::path path, uint64_t id, bool initiateOnline=true);
+	IndexedVbo(fs::ifstream* _iStream, unsigned _pos = 0, bool initiateOnline=true);
+	IndexedVbo(ooctools::Location _loc, bool initiateOnline = true);
 	virtual ~IndexedVbo();
 	void managedDraw(bool dataNodeMode = false);
 	void setOnline();
 	void setOffline();
-	inline const V4N4* getVertexData() const {return (const V4N4*)mPriVertexData;};
-	inline const unsigned* getIndexData() const {return (const unsigned*)mPriIndexData;};
-	inline unsigned getVertexCount() const {return mPriVertexCount;};
-	inline unsigned getTriCount() const {return mPriIndexCount/3;};
-	inline unsigned getIndexCount() const {return mPriIndexCount;};
-	inline uint64_t getId() const {return mPriId;};
+	const V4N4* getVertexData() const {return (const V4N4*)mPriVertexData;};
+	const unsigned* getIndexData() const {return (const unsigned*)mPriIndexData;};
+	unsigned getVertexCount() const {return mPriVertexCount;};
+	unsigned getTriCount() const {return mPriIndexCount/3;};
+	unsigned getIndexCount() const {return mPriIndexCount;};
+	uint64_t getId() const {return mPriId;};
+	void next();
 
 private:
 	V4N4* mPriVertexData;
@@ -48,6 +51,8 @@ private:
 	GLuint mPriIdxId;
 	bool mPriIsGpuOnly;
 	uint64_t mPriId;
+	fs::ifstream* mPriIStream;
+	unsigned mPriFPos;
 };
 
 }

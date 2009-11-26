@@ -99,6 +99,7 @@ private:
 
 	std::map<uint64_t, std::string> mPriIdPathMap;
 	std::map<uint64_t, oocformats::LooseRenderOctree*> mPriIdLoMap;
+	std::map<uint64_t, ooctools::Location> mPriIdLocMap;
 	std::set<uint64_t> mPriIdsInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVboMap;
 	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;

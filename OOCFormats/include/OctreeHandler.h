@@ -88,6 +88,7 @@ class OctreeHandler
 
 		void generateIdPathMap(const LooseOctree* lo, std::map<uint64_t, std::string>& idPathMap) const;
 		void generateIdPathMap(const LooseRenderOctree* lo, std::map<uint64_t, std::string>& idPathMap) const;
+		void generateIdLocMap(fs::path _path, std::map<uint64_t, ooctools::Location>& _idLocMap) const;
 		void generateIdLoMap(LooseOctree* lo, std::map<uint64_t, oocformats::LooseOctree*>& idLoMap) const;
 		void generateIdLoMap(LooseRenderOctree* lo, std::map<uint64_t, oocformats::LooseRenderOctree*>& idLoMap) const;
 

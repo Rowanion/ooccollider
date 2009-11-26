@@ -19,8 +19,8 @@
 #include "FileIO.h"
 #include "StructDefs.h"
 
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
-#define BASE_DEST_PATH "/home/ava/Diplom/Model/Test"
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model/Octree"
+#define BASE_DEST_PATH "/home/ava/Diplom/Model/Octree_packed"
 #define BYTE_LIMIT 500000000
 
 namespace fs = boost::filesystem;

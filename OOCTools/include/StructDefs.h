@@ -131,6 +131,10 @@ struct Quintuple{
 	bool operator<(const Quintuple& rhs) const;
 };
 
+struct Location{
+	fs::path path;
+	unsigned position;
+};
 //bool operator<(const Quintuple& lhs, const Quintuple& rhs);
 } // end of namespace OOCTools
 #endif /* STRUCTDEFS_H_ */
