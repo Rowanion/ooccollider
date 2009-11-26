@@ -126,6 +126,8 @@ void DataCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
+	mPriOh.generateIdLocMap(fs::path("/home/ava/Diplom/Model/SampleTree_packed/"), mPriIdLocMap);
+
 	mPriCCol.generateDistribution(mPriLo);
 	reshape(mProWindowWidth, mProWindowHeight);
 	mPriByteSize = 0;
@@ -188,7 +190,8 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
-		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
+//		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
+		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(mPriIdLocMap[currQuintuple->id], false)));
 //		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
 //		mPriQuadSet.insert(currQuadruple);
 //		cout << nre.getDistance(i) << endl;

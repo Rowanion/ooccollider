@@ -88,6 +88,83 @@ IndexedVbo::IndexedVbo(fs::path path, uint64_t id, bool initiateOnline) :
 		setOnline();
 }
 
+IndexedVbo::IndexedVbo(fs::ifstream* _iStream, unsigned _pos, bool initiateOnline) :
+	 mPriVertexData(0), mPriVertexCount(0),
+	 mPriIndexData(0), mPriIndexCount(0), mPriIsOffline(false),
+	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false), mPriId(0), mPriFPos(_pos)
+
+{
+	mPriIStream = _iStream;
+	mPriIStream->seekg(mPriFPos, ios::beg);
+	mPriIStream->read((char*)&mPriId, sizeof(uint64_t));
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t), ios::beg);
+	mPriIStream->read((char*)&mPriIndexCount, sizeof(unsigned));
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+sizeof(unsigned), ios::beg);
+	mPriIStream->read((char*)&mPriVertexCount, sizeof(unsigned));
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2), ios::beg);
+
+
+	mPriIndexData = new unsigned[mPriIndexCount];
+	mPriVertexData = new V4N4[mPriVertexCount];
+
+	mPriIStream->read((char*)mPriIndexData, sizeof(unsigned)*mPriIndexCount);
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount), ios::beg);
+
+	mPriIStream->read((char*)mPriVertexData, sizeof(V4N4)*mPriVertexCount);
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
+	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
+
+	cerr << "ID: " << mPriId << endl;
+	cerr << "indexcount: " << mPriIndexCount << endl;
+	cerr << "vertexcount: " << mPriVertexCount << endl;
+//	for (unsigned i =0; i< mPriIndexCount; ++i){
+//		cerr << mPriIndexData[i] << endl;
+//	}
+//	exit(0);
+	if (initiateOnline)
+		setOnline();
+}
+
+IndexedVbo::IndexedVbo(ooctools::Location _loc, bool initiateOnline) :
+	 mPriVertexData(0), mPriVertexCount(0),
+	 mPriIndexData(0), mPriIndexCount(0), mPriIsOffline(false),
+	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false), mPriId(0), mPriFPos(_loc.position)
+
+{
+
+	fs::ifstream inFile;
+	inFile.open(_loc.path, ios::binary);
+	inFile.seekg(mPriFPos, ios::beg);
+	inFile.read((char*)&mPriId, sizeof(uint64_t));
+	inFile.seekg(mPriFPos+sizeof(uint64_t), ios::beg);
+	inFile.read((char*)&mPriIndexCount, sizeof(unsigned));
+	inFile.seekg(mPriFPos+sizeof(uint64_t)+sizeof(unsigned), ios::beg);
+	inFile.read((char*)&mPriVertexCount, sizeof(unsigned));
+	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2), ios::beg);
+
+
+	mPriIndexData = new unsigned[mPriIndexCount];
+	mPriVertexData = new V4N4[mPriVertexCount];
+
+	inFile.read((char*)mPriIndexData, sizeof(unsigned)*mPriIndexCount);
+	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount), ios::beg);
+
+	inFile.read((char*)mPriVertexData, sizeof(V4N4)*mPriVertexCount);
+	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
+	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
+
+//	cerr << "ID: " << mPriId << endl;
+//	cerr << "indexcount: " << mPriIndexCount << endl;
+//	cerr << "vertexcount: " << mPriVertexCount << endl;
+//	for (unsigned i =0; i< mPriIndexCount; ++i){
+//		cerr << mPriIndexData[i] << endl;
+//	}
+//	exit(0);
+	if (initiateOnline)
+		setOnline();
+	inFile.close();
+}
+
 IndexedVbo::~IndexedVbo() {
 	setOffline();
 	delete[] mPriVertexData;
@@ -203,5 +280,33 @@ IndexedVbo::setOffline()
 	}
 }
 
+void
+IndexedVbo::next()
+{
+	setOffline();
+	delete[] mPriIndexData;
+	mPriIndexData = 0;
+	delete[] mPriVertexData;
+	mPriVertexData = 0;
+
+	mPriIStream->read((char*)&mPriId, sizeof(uint64_t));
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t), ios::beg);
+	mPriIStream->read((char*)&mPriIndexCount, sizeof(unsigned));
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+sizeof(unsigned), ios::beg);
+	mPriIStream->read((char*)&mPriVertexCount, sizeof(unsigned));
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2), ios::beg);
+
+	mPriIndexData = new unsigned[mPriIndexCount];
+	mPriVertexData = new V4N4[mPriVertexCount];
+
+	mPriIStream->read((char*)mPriIndexData, sizeof(unsigned)*mPriIndexCount);
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount), ios::beg);
+
+	mPriIStream->read((char*)mPriVertexData, sizeof(V4N4)*mPriVertexCount);
+	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
+	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
+
+	setOnline();
+}
 
 } //ooctools

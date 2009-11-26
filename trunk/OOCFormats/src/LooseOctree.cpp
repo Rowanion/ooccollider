@@ -54,8 +54,9 @@ LooseOctree* LooseOctree::pubRoot = 0;
 
 LooseOctree::LooseOctree(LooseOctree* _father, const BoundingBox& _bb, int64_t _id) :
 	mTriList(std::list<Triangle>()), mBb(_bb), mExtBb(extendBb(_bb)),
-			mPriLevel(0), mPriId(_id), mPriTriCount(0), mPriAreaSum(0.0), mPriDataLoaded(false),
-			mPriDistance(0.0), mFather(_father)
+	mPriId(_id), mPriTriCount(0), mPriAreaSum(0.0),
+	mPriDistance(0.0), mPriLevel(0), mPriDataLoaded(false),
+			 mFather(_father)
 {
 	if (mFather != 0) {
 		mPriLevel = mFather->getLevel() + 1;
@@ -71,8 +72,8 @@ LooseOctree::LooseOctree(LooseOctree* _father, const BoundingBox& _bb, int64_t _
 }
 
 LooseOctree::LooseOctree(const char* nodeSkel) :
-	mBb(0.0), mPriLevel(0), mPriId(0), mPriTriCount(0),
-	 mPriDistanceUpdateKey(-1), mFather(0)
+	mBb(0.0), mPriId(0), mPriTriCount(0),
+	 mPriDistanceUpdateKey(-1), mPriLevel(0), mFather(0)
 {
 //	cerr << "constructing looseoctree" << endl;
 	const char* count = nodeSkel;

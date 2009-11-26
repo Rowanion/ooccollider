@@ -1019,4 +1019,52 @@ OctreeHandler::generateIdLoMap(LooseRenderOctree* lo, std::map<uint64_t, oocform
 	}
 }
 
+void
+OctreeHandler::generateIdLocMap(fs::path _path, std::map<uint64_t, ooctools::Location>& _idLocMap) const
+{
+	fs::ifstream inFile;
+	unsigned pos = 0;
+	unsigned size=0;
+	ooctools::Location loc;
+	uint64_t id = 0;
+	unsigned indexCount = 0;
+	unsigned vertexCount = 0;
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+	for (fs::directory_iterator itr(_path); itr != end_itr; ++itr) {
+		if (fs::is_directory(itr->status())) {
+			generateIdLocMap(itr->path(),_idLocMap);
+		}
+		else if (itr->path().extension() == ".bin") {
+			inFile.open(itr->path(), ios::binary);
+			inFile.seekg(0, ios::end);
+			loc.path = itr->path();
+			size = inFile.tellg();
+			inFile.seekg(0, ios::beg);
+			pos = 0;
+			while (pos < size){
+				inFile.read((char*)&id, sizeof(uint64_t));
+
+				loc.position = pos;
+//				cerr << "path " << loc.path << endl;
+//				cerr << "pos " << loc.position << endl;
+//				cerr << "size " << size << endl;
+				_idLocMap.insert(make_pair(id, loc));
+
+				inFile.seekg(pos+sizeof(uint64_t), ios::beg);
+				inFile.read((char*)&indexCount, sizeof(unsigned));
+				inFile.seekg(pos+sizeof(uint64_t)+(sizeof(unsigned)), ios::beg);
+				inFile.read((char*)&vertexCount, sizeof(unsigned));
+				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
+
+//				cerr << "indices: " << indexCount << endl;
+//				cerr << "vertices: " << vertexCount << endl;
+//				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
+//				cerr << "new position: " << pos << endl;
+				inFile.seekg(pos, ios::beg);
+			}
+			inFile.close();
+		}
+	}
+}
+
 } // oocformats
