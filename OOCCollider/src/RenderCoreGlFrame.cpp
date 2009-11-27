@@ -206,6 +206,12 @@ void RenderCoreGlFrame::display()
 #endif
 
 	double f = glfwGetTime();  // Time (in seconds)
+	if (mPriShowOffset){
+		resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, 2000.0f);
+	}
+	else {
+		resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, 2000.0f);
+	}
 
 	cgGLSetParameter3fv(g_cgLightPosition,lightPos);
 	cgGLSetParameter3fv(g_cgEyePosition,lightPos);
@@ -245,8 +251,11 @@ void RenderCoreGlFrame::display()
 				mPriColorTable.unbindTex();
 
 
-				//TODO new function to iterate over list<Wrapper>
 				// ---------------------------------
+//				if (mPriFrameTick%50 == 0){
+//					cerr << " -----> current ListSize: " << mPriWrapperInFrustum.size() << endl;
+//				}
+				unsigned onlineCount = 0;
 				for (RWrapperListIter wIt = mPriWrapperInFrustum.rbegin(); wIt != mPriWrapperInFrustum.rend(); ++wIt){
 					if (mPriBBMode == 0){
 						mPriColorTable.bindTex();
@@ -259,16 +268,22 @@ void RenderCoreGlFrame::display()
 							//TODO request
 							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
 							(*wIt)->state = WrappedOcNode::REQUESTED;
-							(*wIt)->timeStamp = glfwGetTime();
+//							(*wIt)->timeStamp = glfwGetTime();
 							break;
-						case WrappedOcNode::SET_ONLINE:
-							(*wIt)->timeStamp = glfwGetTime();
+						case WrappedOcNode::SET_ONLINE:{
+							++onlineCount;
+//							(*wIt)->timeStamp = glfwGetTime();
+							unsigned delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+							mPriL2Cache -= delta;
+							mPriL1Cache += delta;
+
 							(*wIt)->iVbo->setOnline();
 							(*wIt)->state = WrappedOcNode::ONLINE;
 							(*wIt)->iVbo->managedDraw();
-							break;
+							break;}
 						case WrappedOcNode::ONLINE:
-							(*wIt)->timeStamp = glfwGetTime();
+							++onlineCount;
+//							(*wIt)->timeStamp = glfwGetTime();
 							(*wIt)->iVbo->managedDraw();
 							break;
 						default:
@@ -331,6 +346,9 @@ void RenderCoreGlFrame::display()
 				if (mPriBBMode>0){
 					mPriColorTable.drawLegend();
 				}
+//				if (mPriFrameTick%50 == 0){
+//					cerr << "VBOs on GPU: " << onlineCount << endl;
+//				}
 				GET_GLERROR(0);
 				// DRAW an orientation line
 
@@ -576,7 +594,7 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 
 void RenderCoreGlFrame::depthPass()
 {
-	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
 	glLoadIdentity();
 	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
 	mPriCamera.calcMatrix();
@@ -643,7 +661,7 @@ void RenderCoreGlFrame::cullFrustum()
 	double newTime = glfwGetTime();
 #endif
 
-	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
 
 	// light blue
 	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
@@ -667,14 +685,14 @@ void RenderCoreGlFrame::cullFrustum()
 	//TODO umstellen auf ne list
 	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, true);
 	// original frustum
-	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
 
 
 	getFrustum();
 	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, false);
 
 	if (mPriShowOffset){
-		resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight);
+		resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
 	}
 
 #ifdef DEBUG_FRUSTUMCULLING
@@ -711,14 +729,37 @@ void RenderCoreGlFrame::manageCaching()
 	unsigned int delta = 0;
 	WrapperListIter wIt = mPriWrapperInFrustum.begin();
 
+	unsigned onlineCount = 0;
+	for (; wIt != mPriWrapperInFrustum.end(); ++wIt){
+		if ((*wIt)->state == WrappedOcNode::ONLINE){
+			if ((*wIt)->timeStamp != mPriFrameTick){
+//				cerr << (*wIt)->timeStamp << " vs " << mPriFrameTick << endl;
+				(*wIt)->iVbo->setOffline();
+				(*wIt)->state = WrappedOcNode::OFFLINE;
+				delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+				mPriL2Cache += delta;
+				mPriL1Cache -= delta;
+			}
+			else {
+				onlineCount++;
+			}
+		}
+	}
+
+//	cerr << "l1 cache: " << mPriL1Cache << endl;
+//	cerr << "l2 cache: " << mPriL2Cache << endl;
+//	cerr << "----------------------" << endl;
 	// L1-Cache cleaning
-	while (mPriL1Cache>L1_CACHE_THRESHOLD && wIt != mPriWrapperInFrustum.end()){
+	wIt = mPriWrapperInFrustum.begin();
+	while ((mPriL1Cache>L1_CACHE_THRESHOLD || onlineCount>L1_CACHE_VBO_LIMIT) && wIt != mPriWrapperInFrustum.end()){
 		// letzen eincachen
 		if ((*wIt)->state == WrappedOcNode::ONLINE){
 			(*wIt)->iVbo->setOffline();
+			(*wIt)->state = WrappedOcNode::OFFLINE;
 			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
 			mPriL2Cache += delta;
 			mPriL1Cache -= delta;
+			onlineCount--;
 		}
 		++wIt;
 	}

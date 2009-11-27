@@ -162,7 +162,7 @@ void DataCoreGlFrame::display()
 void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintList)
 {
 	GET_GLERROR(0);
-	resizeFrustumExt(mPriTileMap[_destId].xPos, mPriTileMap[_destId].yPos, mPriTileMap[_destId].width, mPriTileMap[_destId].height);
+	resizeFrustumExt(mPriTileMap[_destId].xPos, mPriTileMap[_destId].yPos, mPriTileMap[_destId].width, mPriTileMap[_destId].height, mProFarClippingPlane);
 //	cout << "data resizing frustum to " << mPriTileMap[nre.getRecepient()].xPos << ", " << mPriTileMap[nre.getRecepient()].yPos << ", " << mPriTileMap[nre.getRecepient()].width << ", " << mPriTileMap[nre.getRecepient()].height << endl;
 //	resizeWindow(height, width);
 //	cout << "starting display of DataCore" << endl;
@@ -511,7 +511,7 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 		GET_GLERROR(0);
 //		cout << "(" << dbe.getMpiRank() << ") Tile: " << dbe.getTile().xPos << ", " << dbe.getTile().yPos << ", " << dbe.getTile().width << ", " <<dbe.getTile().height << endl;
 //		cout << "(" << dbe.getMpiRank() << ") Depthbuffer: " << 0 << ", " << 0 << ", " << dbe.getWidth() << ", " <<dbe.getHeight() << endl;
-		resizeFrustumExt(dbe.getTile().xPos, dbe.getTile().yPos, dbe.getTile().width, dbe.getTile().height);
+		resizeFrustumExt(dbe.getTile().xPos, dbe.getTile().yPos, dbe.getTile().width, dbe.getTile().height, mProFarClippingPlane);
 		GET_GLERROR(0);
 		mPriFbo->clearDepth();
 		GET_GLERROR(0);

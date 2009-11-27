@@ -127,14 +127,28 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 
 	do {
+#ifdef DEBUG_INITIAL_SEND
+			double newTime = glfwGetTime();
+#endif
+
 //		cout << "master sends outQueue and matrix" << endl;
 		while (!mPriMpiCon->outQueueEmpty()) {
 			//			cout << "master found that his outqueue is not empty.....sending...." << endl;
 			mPriMpiCon->send();
 		}
-
+#ifdef DEBUG_INITIAL_SEND
+			double newerTime = glfwGetTime();
+			mPriCCollisionTime += (newerTime-newTime);
+			if (mPriFrameTick % CCOLLISION_AVG == 0){
+				cout << "(" << mPriMpiCon->getRank() << ") initial send took " << mPriCCollisionTime/CCOLLISION_AVG << " secs avg. over " << CCOLLISION_AVG << " frames." << endl;
+				mPriCCollisionTime = 0.0;
+			}
+#endif
 		if (!mTerminateApplication) {
 			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
+#ifdef DEBUG_DEPTH_RESEND
+			double newTime = glfwGetTime();
+#endif
 				newTime = glfwGetTime();
 				mPriCamHasMoved = false;
 				mPriFrameCount = 0;
@@ -148,13 +162,21 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 				}
 				newerTime = glfwGetTime();
 //				cout << "[0] time between depthbuffer renewal: " << newerTime-newTime<< endl;
+#ifdef DEBUG_DEPTH_RESEND
+			double newerTime = glfwGetTime();
+			mPriCCollisionTime += (newerTime-newTime);
+			if (mPriFrameTick % DEPTH_AVG == 0){
+				cout << "(" << mPriMpiCon->getRank() << ") Depth-resend took " << mPriCCollisionTime/DEPTH_AVG << " secs avg. over " << DEPTH_AVG << " frames." << endl;
+				mPriCCollisionTime = 0.0;
+			}
+#endif
 			}
 
 			//send matrix/camera to when the out-queue is empty
 			//			cout << "---master sending matrix" << endl;
 			//			for (int i=1; i<mPriMpiCon->getSize(); ++i){
 			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix());
-			mPriMpiCon->send(new Message(mve, 0, MpiControl::ALL));
+			mPriMpiCon->send(new Message(mve, 0, MpiControl::RENDERER));
 //			for (unsigned i = 0; i < mPriMpiCon->getGroupSize(
 //					MpiControl::DATA); ++i) { // send the matrix to all data-nodes
 //				Message* msg = new Message(ModelViewMatrixEvent::classid()->getShortId(),16*sizeof(float),MpiControl::getSingleton()->getDataGroup()[i],(char*)mPriGlFrame->getMvMatrix());
@@ -366,7 +388,7 @@ void RenderMasterCore::manageCCollision()
 		mPriCCol.doCCollision(&mPriQuintVec, &mPriNodeReqMap);
 		map<int, set<Quintuple> >::iterator intQuintIt = mPriNodeReqMap.begin();
 		for (; intQuintIt != mPriNodeReqMap.end(); ++intQuintIt){
-			NodeRequestEvent nre = NodeRequestEvent(intQuintIt->second);
+			NodeRequestEvent nre = NodeRequestEvent(intQuintIt->second, mPriGlFrame->getMvMatrix());
 			mPriMpiCon->isend(new Message(nre,intQuintIt->first));
 			mPriDataLoad[intQuintIt->first]+=nre.getIdxCount();
 		}

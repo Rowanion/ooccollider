@@ -64,7 +64,6 @@ DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidt
 	// Main rendering loop
 
 	mPriMpiCon->barrier();
-
 	do {
 //		cout << "2 waiting for any..." << endl;
 		mPriMpiCon->ireceive(MPI::ANY_SOURCE);
@@ -166,6 +165,8 @@ void DataCore::handleMsg(Message* msg){
 			double newTime = glfwGetTime();
 #endif
 			NodeRequestEvent nre = NodeRequestEvent(msg);
+			mGlFrame->setMvMatrix(nre.getMatrix());
+
 			// fetch/reload VBOs and send back
 //			cout << "starting " << nre.getIdxCount() << " jobs" << endl;
 

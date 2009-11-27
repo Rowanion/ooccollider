@@ -41,7 +41,7 @@ NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet
 	std::set<ooctools::Quintuple>::const_iterator quintIt;
 
 	// #of nodes, recipientId, isExtFrus, distance of each node, id of each node
-	mProByteSize = sizeof(unsigned) + setSize*(sizeof(ooctools::Quintuple));
+	mProByteSize = sizeof(unsigned) + setSize*(sizeof(ooctools::Quintuple)) + sizeof(float)*16;
 	mProData = new char[mProByteSize];
 	((unsigned*)mProData)[0] = setSize;
 	unsigned elementCount = 0;
@@ -56,9 +56,31 @@ NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet
 	init();
 }
 
+NodeRequestEvent::NodeRequestEvent(const std::set<ooctools::Quintuple>& _quintSet, const float* _matrix)
+{
+	unsigned setSize = _quintSet.size();
+	std::set<ooctools::Quintuple>::const_iterator quintIt;
+
+	// #of nodes, recipientId, isExtFrus, distance of each node, id of each node
+	mProByteSize = sizeof(unsigned) + setSize*(sizeof(ooctools::Quintuple)) + sizeof(float)*16;
+	mProData = new char[mProByteSize];
+	((unsigned*)mProData)[0] = setSize;
+	unsigned elementCount = 0;
+//	std::cout << "list of node-requests inside the Event: " << std::endl;
+	for (quintIt = _quintSet.begin(); quintIt!= _quintSet.end(); ++quintIt){
+//		std::cout << mapIt->second << std::endl;
+		((ooctools::Quintuple*)(mProData+sizeof(unsigned)))[elementCount] = *quintIt;
+//		std::cout << ((uint64_t*)(mProData+sizeof(unsigned)+sizeof(int)))[elementCount] << std::endl;
+
+		elementCount++;
+	}
+	memcpy(((float*)(mProData + sizeof(unsigned) + sizeof(ooctools::Quintuple)*setSize)), _matrix, sizeof(float)*16);
+	init();
+}
+
 NodeRequestEvent::NodeRequestEvent(std::set<ooctools::Quintuple>::iterator _begin, std::set<ooctools::Quintuple>::iterator _end, unsigned int _count)
 {
-	mProByteSize = sizeof(unsigned) + _count*(sizeof(ooctools::Quintuple));
+	mProByteSize = sizeof(unsigned) + _count*(sizeof(ooctools::Quintuple) + sizeof(float)*16);
 	mProData = new char[mProByteSize];
 
 	std::set<ooctools::Quintuple>::const_iterator quintIt;
