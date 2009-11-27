@@ -32,12 +32,17 @@
  * That's because a Render-Node doesen't have sufficient information on where the node are stored.
  * So one node has to take the manager-role and resubmit the requests to the relevant nodes.
  *
+ * Data:
+ * |float[16]|unsigned  |Quintuple  |Quintuple  |..|Quintuple  |
+ * |mvpMatrix|quintCount|Quintuple_0|Quintuple_1|..|Quintuple_n|
+ *
  */
 class NodeRequestEvent : public oocframework::IEvent{
 public:
 //	NodeRequestEvent();
 	NodeRequestEvent(const NodeRequestEvent& _nre);
 	NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet);
+	NodeRequestEvent(const std::set<ooctools::Quintuple>& _quintSet, const float* _matrix);
 	NodeRequestEvent(std::set<ooctools::Quintuple>::iterator _begin, std::set<ooctools::Quintuple>::iterator _end, unsigned int _count);
 
 	NodeRequestEvent(const oocframework::Message* msg);
@@ -65,6 +70,14 @@ public:
 	 */
 	unsigned getIdxCount() const {
 		return ((unsigned*)mProData)[0];
+	};
+
+	/**
+	 * @brief Returns the ModelViewProjection Matrix for these requests.
+	 */
+	const float* getMatrix() const {
+		return (((float*)(mProData + sizeof(unsigned) + sizeof(ooctools::Quintuple)*getIdxCount())));
+
 	};
 
 	const NodeRequestEvent& operator=(const NodeRequestEvent& _rhs);

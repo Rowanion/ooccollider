@@ -577,13 +577,16 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 			aPosCounter--;
 			aIPtIn = 0;
 		}
-		if (aPosCounter == 0) //exclude
-		return;
+		if (aPosCounter == 0){ //exclude
+
+			return;
+		}
 		else
 			aTotalIn += aIPtIn;
 	}
 
 	if (this->hasData()) {
+		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && mPriWrapper.state == WrappedOcNode::MISSING){
 			_nodes->push_back(&this->mPriWrapper);
 		}
@@ -595,7 +598,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 	LooseRenderOctree* child = 0;
 
 	if (aTotalIn == 6) { //include
-		//vollständig drin
+		//completely inside
 		for (unsigned i = 0; i < 8; i++) {  //intersect
 			child = this->mChildren[LooseRenderOctree::orderLUT[orderIdx][i]];
 			if (child != 0) {
@@ -652,6 +655,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 
 void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool _isExt){
 	if (this->hasData()){
+		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
 		}
@@ -669,11 +673,14 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool
 
 void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray, bool _isExt){
 	if (this->hasData()){
+		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
 		}
 		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
 			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
+		}
+		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::ONLINE) {
 		}
 	}
 	LooseRenderOctree* child = 0;

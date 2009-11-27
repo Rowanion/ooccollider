@@ -52,14 +52,14 @@ void AbstractGlFrame::initTiles()
 }
 
 void AbstractGlFrame::resizeFrustum() {
-	this->resizeFrustum(0, 0, mProWindowWidth, mProWindowHeight);
+	this->resizeFrustum(0, 0, mProWindowWidth, mProWindowHeight, mProFarClippingPlane);
 }
 
 void AbstractGlFrame::resizeFrustum(unsigned _width, unsigned _height) {
-	this->resizeFrustum(0, 0, _width, _height);
+	this->resizeFrustum(0, 0, _width, _height, mProFarClippingPlane);
 }
 
-void AbstractGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight)
+void AbstractGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight, float _farClipPlane)
 {
 	if (tileHeight == 0)
 		tileHeight = 1;
@@ -105,13 +105,13 @@ void AbstractGlFrame::resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsign
 
 
 	glFrustum(mProWorldLeftLine, mProWorldRightLine, mProWorldTopLine, mProWorldBottomLine,
-			mProNearClippingPlane, mProFarClippingPlane);
+			mProNearClippingPlane, _farClipPlane);
 
 
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void AbstractGlFrame::resizeFrustumExt(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight)
+void AbstractGlFrame::resizeFrustumExt(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight, float _farClipPlane)
 {
 	if (tileHeight == 0)
 		tileHeight = 1;
@@ -157,7 +157,7 @@ void AbstractGlFrame::resizeFrustumExt(unsigned tileXPos, unsigned tileYPos, uns
 
 	GET_GLERROR(0);
 	glFrustum(mProWorldLeftLine, mProWorldRightLine, mProWorldTopLine, mProWorldBottomLine,
-			mProNearClippingPlane, mProFarClippingPlane);
+			mProNearClippingPlane, _farClipPlane);
 	GET_GLERROR(0);
 
 

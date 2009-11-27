@@ -38,46 +38,55 @@ struct WrappedOcNode{
 
 	WrappedOcNode()
 	{
-		timeStamp = 0.0;
 		octreeNode = 0;
 		iVbo = 0;
 		dist = 0.0;
 		state = MISSING;
+		timeStamp = 0;
 	}
 
-	WrappedOcNode(double _time, LooseRenderOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, float _dist, State _state)
+	WrappedOcNode(LooseRenderOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, float _dist, State _state, unsigned _time)
 	{
-		timeStamp = _time;
 		octreeNode = _octreeNode;
 		iVbo = _iVbo;
 		dist = _dist;
 		state = _state;
+		timeStamp = _time;
 	}
 
 	WrappedOcNode(LooseRenderOctree* _octreeNode)
 	{
-		timeStamp = 0.0;
 		octreeNode = _octreeNode;
 		iVbo = 0;
 		dist = 0.0;
 		state = MISSING;
+		timeStamp = 0;
 	}
 
 	bool operator<(const WrappedOcNode& rhs) const
 	{
-		return (timeStamp < rhs.timeStamp);
+		if (timeStamp == rhs.timeStamp){
+			if (dist == rhs.dist){
+				return (octreeNode > rhs.octreeNode);
+			}
+			else {
+				return (dist > rhs.dist);
+			}
+		}
+		else {
+			return (timeStamp > rhs.timeStamp);
+		}
 	}
 
 //	void set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt);
 //	void set(WrappedOcNode rhs);
 //	void set(const WrappedOcNode* rhs);
 
-	double timeStamp;     // octree-level of this node
 	LooseRenderOctree* octreeNode;  // mpi-rank of requesting node
 	ooctools::IndexedVbo* iVbo;	 // states wheather this node is in the extended frustum or not.
 	State state;
 	float dist;
-
+	unsigned timeStamp;
 };
 
 

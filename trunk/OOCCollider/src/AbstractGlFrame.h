@@ -35,12 +35,12 @@ protected:
 	/**
 	 * @brief As the name suggests, this resizes the frustum to the given tile-position and dimension.
 	 */
-	virtual void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight);
+	virtual void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight, float _farClipPlane);
 
 	/**
 	 * @brief This also resizes the frustum but this time to the extended size.
 	 */
-	virtual void resizeFrustumExt(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight);
+	virtual void resizeFrustumExt(unsigned tileXPos, unsigned tileYPos, unsigned tileWidth, unsigned tileHeight, float _farClipPlane);
 
 	/**
 	 * mProWindowHeight / mProWindowWidth;
