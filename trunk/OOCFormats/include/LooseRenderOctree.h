@@ -33,7 +33,8 @@ struct WrappedOcNode{
 		REQUESTED = 1,
 		ONLINE = 2,
 		MISSING = 3,
-		OFFLINE =4
+		OFFLINE = 4,
+		RETEST = 5
 	};
 
 	WrappedOcNode()
@@ -43,15 +44,17 @@ struct WrappedOcNode{
 		dist = 0.0;
 		state = MISSING;
 		timeStamp = 0;
+		usageCount = 0;
 	}
 
-	WrappedOcNode(LooseRenderOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, float _dist, State _state, unsigned _time)
+	WrappedOcNode(LooseRenderOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, float _dist, State _state, unsigned _time, unsigned _usageCount)
 	{
 		octreeNode = _octreeNode;
 		iVbo = _iVbo;
 		dist = _dist;
 		state = _state;
 		timeStamp = _time;
+		usageCount = _usageCount;
 	}
 
 	WrappedOcNode(LooseRenderOctree* _octreeNode)
@@ -61,6 +64,7 @@ struct WrappedOcNode{
 		dist = 0.0;
 		state = MISSING;
 		timeStamp = 0;
+		usageCount = 0;
 	}
 
 	bool operator<(const WrappedOcNode& rhs) const
@@ -87,6 +91,7 @@ struct WrappedOcNode{
 	State state;
 	float dist;
 	unsigned timeStamp;
+	unsigned usageCount;
 };
 
 

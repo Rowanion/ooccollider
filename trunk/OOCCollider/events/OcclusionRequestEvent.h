@@ -1,13 +1,13 @@
 /**
- * @file	NodeRequestEvent.cpp
+ * @file	OcclusionRequestEvent.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 12.05.2009
- * @brief 	NodeRequestEvent class declaration.
+ * @brief 	OcclusionRequestEvent class declaration.
  */
 
-#ifndef NODEREQUESTEVENT_H_
-#define NODEREQUESTEVENT_H_
+#ifndef OCCLUSIONREQUESTEVENT_H_
+#define OCCLUSIONREQUESTEVENT_H_
 
 #include <vector>
 #include <map>
@@ -20,7 +20,7 @@
 #include "StructDefs.h"
 
 /**
- * @class NodeRequestEvent
+ * @class OcclusionRequestEvent
  *
  * @brief This event is generated when a Render-Node has determined, which nodes are visible this frame
  * and which of these need to be loaded by the Render-Node. Happens right before the actual
@@ -37,16 +37,16 @@
  * |quintCount|Quintuple_0|Quintuple_1|..|Quintuple_n|mvpMatrix|
  *
  */
-class NodeRequestEvent : public oocframework::IEvent{
+class OcclusionRequestEvent : public oocframework::IEvent{
 public:
-//	NodeRequestEvent();
-	NodeRequestEvent(const NodeRequestEvent& _nre);
-	NodeRequestEvent(const std::set<ooctools::Quintuple>& quintSet);
-	NodeRequestEvent(const std::set<ooctools::Quintuple>& _quintSet, const float* _matrix);
-	NodeRequestEvent(std::set<ooctools::Quintuple>::iterator _begin, std::set<ooctools::Quintuple>::iterator _end, unsigned int _count);
+//	OcclusionRequestEvent();
+	OcclusionRequestEvent(const OcclusionRequestEvent& _nre);
+	OcclusionRequestEvent(const std::set<ooctools::Quintuple>& quintSet);
+	OcclusionRequestEvent(const std::set<ooctools::Quintuple>& _quintSet, const float* _matrix);
+	OcclusionRequestEvent(std::set<ooctools::Quintuple>::iterator _begin, std::set<ooctools::Quintuple>::iterator _end, unsigned int _count);
 
-	NodeRequestEvent(const oocframework::Message* msg);
-	virtual ~NodeRequestEvent();
+	OcclusionRequestEvent(const oocframework::Message* msg);
+	virtual ~OcclusionRequestEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
@@ -80,7 +80,7 @@ public:
 
 	};
 
-	const NodeRequestEvent& operator=(const NodeRequestEvent& _rhs);
+	const OcclusionRequestEvent& operator=(const OcclusionRequestEvent& _rhs);
 //	/**
 //	 * @brief Returns the id of the mpi-node which requested these vbos.
 //	 */
@@ -94,4 +94,4 @@ protected:
 private:
 };
 
-#endif /* NodeRequestEVENT_H_ */
+#endif /* OCCLUSIONREQUESTEVENT_H_ */

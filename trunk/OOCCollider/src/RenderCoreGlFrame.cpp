@@ -279,6 +279,7 @@ void RenderCoreGlFrame::display()
 
 							(*wIt)->iVbo->setOnline();
 							(*wIt)->state = WrappedOcNode::ONLINE;
+							(*wIt)->usageCount = 0;
 							(*wIt)->iVbo->managedDraw();
 							break;}
 						case WrappedOcNode::ONLINE:
@@ -740,6 +741,13 @@ void RenderCoreGlFrame::manageCaching()
 				mPriL2Cache += delta;
 				mPriL1Cache -= delta;
 			}
+			else if ((*wIt)->usageCount > OCCLUSION_RETEST_THRESHOLD){
+				(*wIt)->iVbo->setOffline();
+				(*wIt)->state = WrappedOcNode::RETEST;
+				delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+				mPriL2Cache += delta;
+				mPriL1Cache -= delta;
+			}
 			else {
 				onlineCount++;
 			}
@@ -767,15 +775,17 @@ void RenderCoreGlFrame::manageCaching()
 	// L2 cache cleaning
 	wIt = mPriWrapperInFrustum.begin();
 	while (mPriL2Cache>L2_CACHE_THRESHOLD && wIt != mPriWrapperInFrustum.end()){
-		if ((*wIt)->state == WrappedOcNode::OFFLINE){
+		if ((*wIt)->state == WrappedOcNode::OFFLINE || (*wIt)->state == WrappedOcNode::RETEST){
 			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
 			mPriL2Cache -= delta;
 			delete (*wIt)->iVbo;
 			(*wIt)->iVbo = 0;
 			(*wIt)->state = WrappedOcNode::MISSING;
+			(*wIt)->usageCount = 0;
 			mPriWrapperInFrustum.erase(wIt++);
 		}
 		else if ((*wIt)->state == WrappedOcNode::MISSING){
+			(*wIt)->usageCount = 0;
 			mPriWrapperInFrustum.erase(wIt++);
 		}
 		else {
