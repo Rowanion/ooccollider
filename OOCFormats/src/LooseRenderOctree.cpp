@@ -23,6 +23,8 @@ using namespace std;
 using namespace ooctools;
 namespace oocformats {
 
+#define RETEST_THRESHOLD 20
+
 unsigned LooseRenderOctree::descendantCount[8] = {0,0,0,0,0,0,0,0};
 unsigned LooseRenderOctree::maxTriCount = 0;
 unsigned LooseRenderOctree::totalTriCount = 0;
@@ -591,10 +593,10 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 			_nodes->push_back(&this->mPriWrapper);
 		}
 		else if (!_isExt && mPriWrapper.state == WrappedOcNode::OFFLINE){
-			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
-		}
-		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::ONLINE) {
 			this->mPriWrapper.usageCount++;
+			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
+				this->mPriWrapper.state = WrappedOcNode::RETEST_OFFLINE;
+			}
 		}
 	}
 
@@ -663,10 +665,10 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool
 			_nodes->push_back(&this->mPriWrapper);
 		}
 		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
-			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
-		}
-		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::ONLINE) {
 			this->mPriWrapper.usageCount++;
+			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
+				this->mPriWrapper.state = WrappedOcNode::RETEST_OFFLINE;
+			}
 		}
 	}
 
@@ -684,10 +686,12 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsi
 			_nodes->push_back(&this->mPriWrapper);
 		}
 		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
-			this->mPriWrapper.state = WrappedOcNode::SET_ONLINE;
+			this->mPriWrapper.usageCount++;
+			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
+				this->mPriWrapper.state = WrappedOcNode::RETEST_OFFLINE;
+			}
 		}
 		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::ONLINE) {
-			this->mPriWrapper.usageCount++;
 		}
 	}
 	LooseRenderOctree* child = 0;

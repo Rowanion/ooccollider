@@ -135,6 +135,12 @@ struct Location{
 	fs::path path;
 	unsigned position;
 };
+
+struct Visibility{
+	Visibility(uint64_t _id, char _vis);
+	uint64_t id;
+	char visible;
+};
 //bool operator<(const Quintuple& lhs, const Quintuple& rhs);
 } // end of namespace OOCTools
 #endif /* STRUCTDEFS_H_ */

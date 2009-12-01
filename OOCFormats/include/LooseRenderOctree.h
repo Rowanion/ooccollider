@@ -34,7 +34,10 @@ struct WrappedOcNode{
 		ONLINE = 2,
 		MISSING = 3,
 		OFFLINE = 4,
-		RETEST = 5
+		RETEST_OFFLINE = 5,
+		RETEST_ONLINE = 6,
+		REQUESTED_OFFLINE = 7,
+		REQUESTED_ONLINE = 8
 	};
 
 	WrappedOcNode()

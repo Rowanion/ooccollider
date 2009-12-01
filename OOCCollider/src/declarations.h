@@ -31,7 +31,6 @@
 #define BASE_FOVY 70.0
 #define PRESELECTED_SEED 670274678
 #define MODULO_FRAMECOUNT 5000
-#define OCCLUSION_RETEST_THRESHOLD 40
 #define CCOLLISION_AVG 50
 #define DISPLAY_AVG 50
 #define OCULLING_AVG 50
@@ -100,6 +99,7 @@ class MouseDraggedEvent;
 class MouseMovedEvent;
 class MouseWheelEvent;
 class NodeRequestEvent;
+class OcclusionRequestEvent;
 class RandomSeedEvent;
 class VboEvent;
 class WindowClosedEvent;

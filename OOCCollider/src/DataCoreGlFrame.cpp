@@ -31,6 +31,7 @@
 #include "VboEvent.h"
 #include "EndTransmissionEvent.h"
 #include "InfoRequestEvent.h"
+#include "OcclusionResultsEvent.h"
 
 using namespace std;
 using namespace ooctools;
@@ -288,6 +289,166 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 		mPriVboMap.begin()->second->setOffline();
 		delete mPriVboMap.begin()->second;
 		mPriVboMap.erase(mPriVboMap.begin());
+	}
+	mPriVboMap.clear();
+	mPriQuintSet.clear();
+	mPriVisibleVbosVec.clear();
+	mPriVisibleDistExtVec.clear();
+
+	mPriOccResults.clear();
+
+	if (_destId == 1){
+		// draw the result for debugging
+		reshape(mProWindowWidth,mProWindowHeight);
+		cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
+		cgGLEnableTextureParameter(cgTexture);
+		mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertexProg);
+		mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragmentProg);
+
+		mPriFbo->drawDepthFSQuad();
+
+		mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+		mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+		cgGLDisableTextureParameter(cgTexture);
+		GET_GLERROR(0);
+	}
+}
+
+void DataCoreGlFrame::occlusionTest(int _destId, std::list<const Quintuple*>* _quintList)
+{
+	// --------------------------------
+	cerr << "testing " << _quintList->size() << " vbos for node " << _destId << endl;
+	list<const Quintuple*>::const_iterator cInt = _quintList->begin();
+	for (; cInt != _quintList->end(); ++cInt){
+		cerr << "ID " << (*cInt)->id << endl;
+	}
+	cerr << "1" << endl;
+	// --------------------------------
+	GET_GLERROR(0);
+	resizeFrustumExt(mPriTileMap[_destId].xPos, mPriTileMap[_destId].yPos, mPriTileMap[_destId].width, mPriTileMap[_destId].height, mProFarClippingPlane);
+//	cout << "data resizing frustum to " << mPriTileMap[nre.getRecepient()].xPos << ", " << mPriTileMap[nre.getRecepient()].yPos << ", " << mPriTileMap[nre.getRecepient()].width << ", " << mPriTileMap[nre.getRecepient()].height << endl;
+//	resizeWindow(height, width);
+//	cout << "starting display of DataCore" << endl;
+	// light blue
+	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
+	GET_GLERROR(0);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	GET_GLERROR(0);
+	glLoadIdentity();
+	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
+	mPriCamera.calcMatrix();
+	GET_GLERROR(0);
+
+	cerr << "2" << endl;
+	// load all requested vbos
+//	cout << "DataCore Loading VBOs:" << endl;
+	const ooctools::Quintuple* currQuintuple; //= ooctools::Quadruple();
+	std::list<const Quintuple*>::iterator quintIt = _quintList->begin();
+	for (; quintIt != _quintList->end(); ++quintIt){
+		currQuintuple = *quintIt;
+		map<uint64_t, std::string>::iterator IT = mPriIdPathMap.find(currQuintuple->id);
+		cerr << "3" << endl;
+		if(IT == mPriIdPathMap.end()) {
+			cerr << "ID " << currQuintuple->id << " not in pathmap!" << endl;
+			exit(0);
+		}
+		cerr << "4" << endl;
+
+//		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
+//		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
+//		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
+		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(mPriIdLocMap[currQuintuple->id], false)));
+//		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
+//		mPriQuadSet.insert(currQuadruple);
+//		cout << nre.getDistance(i) << endl;
+//		exit(0);
+	}
+	cerr << "5" << endl;
+
+
+
+//	normalizeFrustum();
+//	glLoadIdentity();
+//	gluLookAt( // Set camera position and orientation
+//			0.0, 0.0, 10.0, // Camera position (x,y,z)
+//			0.0, 0.0, 0.0, // View point (x,y,z)
+//			0.0, 1.0, 0.0 // Up-vector (x,y,z)
+//	);
+	glPushMatrix();
+		glPushMatrix();
+			glPushMatrix();
+				glColor3f(1.0f,0.0f,0.0f);
+				mPriFbo->setDepthTex(mPriDepthTextures[_destId]);
+				mPriFbo->bind();
+//				mPriFbo->clearColor();
+//				cout << "Number of VBOs: " << mPriVbosInFrustum.size()<< endl;
+//				for (std::set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!= mPriIdsInFrustum.end(); ++it){
+////					cout << "drawing box with id: " << *it << endl;
+////					cout << "in in node: " << mPriIdLoMap[(*it)]->getIdString() << endl;
+//					mPriIdLoMap[(*it)]->getBb().draw();
+//				}
+
+				// performing the depthtest
+				std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
+//				std::set<ooctools::Quadruple>::iterator quadIterator = mPriQuadSet.begin();
+//				std::list<const ooctools::Quadruple*>::iterator quadIterator = mPriQuadSet.begin();
+
+				unsigned queryCount = 0;
+				glDepthMask(GL_FALSE);
+				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+				for(quintIt = _quintList->begin(); quintIt != _quintList->end(); ++quintIt){
+					glBeginQuery(GL_SAMPLES_PASSED, mPriOccQueries[queryCount]);
+						mPriIdLoMap[(*quintIt)->id]->getBb().drawSolidTriFan();
+					glEndQuery(GL_SAMPLES_PASSED);
+					queryCount++;
+				}
+				glDepthMask(GL_TRUE);
+
+				// handle query-results
+
+				unsigned byteSize = 0;
+				queryCount = 0;
+				for(quintIt = _quintList->begin(); quintIt != _quintList->end(); ++quintIt){
+					GLint queryState = GL_FALSE;
+					while(queryState != GL_TRUE){
+					  glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT_AVAILABLE, &queryState);
+					}
+
+					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[(*quintIt)->id]);
+//					if (true){
+
+					if (mPriOccResults[(*quintIt)->id]>0){
+						mPriVisibilityList.push_back(ooctools::Visibility((*quintIt)->id, 1));
+					}
+					else {
+						mPriVisibilityList.push_back(ooctools::Visibility((*quintIt)->id, 0));
+					}
+					queryCount++;
+				}
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//				setupTexture();
+				mPriFbo->unbind();
+			glPopMatrix();
+		glPopMatrix();
+	glPopMatrix();
+
+	mPriByteSize = max(mPriByteSize, byteSize);
+
+	if (!mPriVisibilityList.empty()){
+		// send the visible object to the requester
+		OcclusionResultsEvent orlte = OcclusionResultsEvent(mPriVisibilityList);
+
+		Message* msg = new Message(orlte, (*_quintList->begin())->destId);
+		MpiControl::getSingleton()->push(msg);
+		//  MpiControl::getSingleton()->isend();
+	}
+	// cleanup
+	map<uint64_t, ooctools::IndexedVbo*>::iterator vboIt = mPriVboMap.begin();
+	for (; vboIt != mPriVboMap.end(); ){
+		vboIt->second->setOffline();
+		delete vboIt->second;
+		mPriVboMap.erase(vboIt++);
 	}
 	mPriVboMap.clear();
 	mPriQuintSet.clear();

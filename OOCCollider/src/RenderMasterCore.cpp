@@ -41,6 +41,7 @@
 #include "NodeRequestEvent.h"
 #include "EndTransmissionEvent.h"
 #include "JobDoneEvent.h"
+#include "OcclusionRequestEvent.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -56,7 +57,8 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			OctreeHandler()), mPriLo(0), mPriSTree(0),
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
 			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriFrameTick(0), mPriCCollisionTime(0.0),
-			mPriQuintVec(std::vector<Quintuple>()), mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, 2),
+			mPriQuintVec(std::vector<Quintuple>()), mPriOcclusionVec(std::vector<Quintuple>()),
+			mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, 2),
 			mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
@@ -348,6 +350,15 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 				mPriQuintVec.push_back(*nre.getQuintuple(i));
 			}
 		}
+		else if (msg->getType() == OcclusionRequestEvent::classid()->getShortId()) {
+//			cout << "NodeRequest" << endl;
+			//TODO implement c-Collision
+			// at the moment it just passes the request to the only datanode
+			OcclusionRequestEvent ore = OcclusionRequestEvent(msg);
+			for (unsigned i = 0; i< ore.getIdxCount(); ++i){
+				mPriOcclusionVec.push_back(*ore.getQuintuple(i));
+			}
+		}
 		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()) {
 //			cout << "EndTransmission" << endl;
 			mPriRendererDoneCount++;
@@ -369,7 +380,7 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 void RenderMasterCore::manageCCollision()
 {
 	mPriRendererDoneCount = 0;
-	while (mPriRendererDoneCount<mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
+	while (mPriRendererDoneCount < (mPriMpiCon->getGroupSize(MpiControl::RENDERER)*2)){
 		mPriMpiCon->ireceive(MpiControl::ANY);
 		while(!mPriMpiCon->inQueueEmpty()){
 			handleMsg(mPriMpiCon->pop());
@@ -394,32 +405,21 @@ void RenderMasterCore::manageCCollision()
 		}
 		mPriNodeReqMap.clear();
 		mPriQuintVec.clear();
-
-//		// simple netdistribution with modulo 2
-//		vector<Quintuple> quintSet0 = vector<Quintuple>();
-//		vector<Quintuple> quintSet1 = vector<Quintuple>();
-//		vector<Quintuple>::iterator quintIt = mPriQuintVec.begin();
-//		for (; quintIt != mPriQuintVec.end(); ++quintIt){
-//			if (quintIt->id%2 == 0){
-//				quintSet0.push_back(*quintIt);
-//			}
-//			else {
-//				quintSet1.push_back(*quintIt);
-//			}
-//		}
-//		if (!quintSet0.empty()){
-//			NodeRequestEvent nre = NodeRequestEvent(quintSet0);
-//			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[0]));
-//			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
-//		}
-//		if (!quintSet1.empty()){
-//			NodeRequestEvent nre = NodeRequestEvent(quintSet1);
-//			mPriMpiCon->isend(new Message(nre,mPriMpiCon->getDataGroup()[1]));
-//			mPriDataLoad[mPriMpiCon->getDataGroup()[0]]+=nre.getIdxCount();
-//		}
-////		cout << "assigning " << nre.getIdxCount() << " jobs" << endl;
-//		mPriQuintVec.clear();
 	}
+
+	// distribution of re-requests from here
+	if (!mPriOcclusionVec.empty()){
+		mPriCCol.doCCollision(&mPriOcclusionVec, &mPriOcclusionReqMap);
+		map<int, set<Quintuple> >::iterator intQuintIt = mPriOcclusionReqMap.begin();
+		for (; intQuintIt != mPriOcclusionReqMap.end(); ++intQuintIt){
+			OcclusionRequestEvent ore = OcclusionRequestEvent(intQuintIt->second, mPriGlFrame->getMvMatrix());
+			mPriMpiCon->isend(new Message(ore,intQuintIt->first));
+			mPriDataLoad[intQuintIt->first]+=ore.getIdxCount();
+		}
+		mPriOcclusionReqMap.clear();
+		mPriOcclusionVec.clear();
+	}
+
 #ifdef DEBUG_CCOLLISION
 			double newerTime = glfwGetTime();
 			mPriCCollisionTime += (newerTime-newTime);
