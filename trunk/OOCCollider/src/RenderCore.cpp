@@ -32,6 +32,7 @@
 #include "DepthBufferRequestEvent.h"
 #include "ChangeTileDimensionsEvent.h"
 #include "AccumulatedRendertimeEvent.h"
+#include "OcclusionResultsEvent.h"
 
 
 using namespace std;
@@ -192,6 +193,10 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 		else if (msg->getType() == VboEvent::classid()->getShortId()){
 			VboEvent ve = VboEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(ve);
+		}
+		else if (msg->getType() == OcclusionResultsEvent::classid()->getShortId()){
+			OcclusionResultsEvent ore = OcclusionResultsEvent(msg);
+			oocframework::EventManager::getSingleton()->fire(ore);
 		}
 		else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
 			InfoRequestEvent ire = InfoRequestEvent();

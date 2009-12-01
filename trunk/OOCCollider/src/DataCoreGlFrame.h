@@ -59,6 +59,7 @@ public:
 //	void resizeFrustum(unsigned tileXPos, unsigned tileYPos, unsigned tileswidth, unsigned tilesheight, bool extendFrustum=false);
 	void debug();
 	void notify(oocframework::IEvent& event);
+	void occlusionTest(int _destId, std::list<const Quintuple*>* _quintList);
 
 protected:
 private:
@@ -105,6 +106,7 @@ private:
 	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;
 	std::vector<DistExtPair> mPriVisibleDistExtVec;
 	std::set<ooctools::Quintuple> mPriQuintSet;
+	std::list<ooctools::Visibility> mPriVisibilityList;
 	oocframework::CCollisionProtocol mPriCCol;
 
 

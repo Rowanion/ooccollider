@@ -59,6 +59,7 @@ public:
 	void cullFrustum();
 	void manageCaching();
 	void clearRequests();
+	void reRequestVbos();
 
 
 protected:
@@ -122,6 +123,7 @@ private:
 
 	std::list<oocformats::WrappedOcNode*> mPriWrapperInFrustum;
 	std::set<ooctools::Quintuple> mPriRequests;
+	std::set<ooctools::Quintuple> mPriReRequests;
 	unsigned int mPriL1Cache;
 	unsigned int mPriL2Cache;
 

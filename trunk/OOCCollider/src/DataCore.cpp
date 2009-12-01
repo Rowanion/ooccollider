@@ -30,6 +30,7 @@
 #include "InfoRequestEvent.h"
 #include "DepthBufferRequestEvent.h"
 #include "JobDoneEvent.h"
+#include "OcclusionRequestEvent.h"
 
 #define RENDER_NODES 1
 
@@ -199,6 +200,38 @@ void DataCore::handleMsg(Message* msg){
 				mPriRequestTime = 0.0;
 			}
 #endif
+			++mPriFrameTick;
+			mPriFrameTick %= MODULO_FRAMECOUNT;
+		}
+		else if (msg->getType() == OcclusionRequestEvent::classid()->getShortId()){
+			cerr << "" << endl;
+			OcclusionRequestEvent ore = OcclusionRequestEvent(msg);
+			mGlFrame->setMvMatrix(ore.getMatrix());
+
+			// fetch/reload VBOs and send back
+//			cout << "starting " << nre.getIdxCount() << " jobs" << endl;
+
+			// sort Quadruples into map based on their destination id
+			for (unsigned i=0; i< ore.getIdxCount(); ++i){
+				Quintuple* quint = ore.getQuintuple(i);
+				mPriQuintMapList[quint->destId].push_back(quint);
+			}
+			// call display for each entry in map and clear list afterwards
+			map<int, list<const Quintuple*> >::iterator mapListIt = mPriQuintMapList.begin();
+			for (; mapListIt != mPriQuintMapList.end(); ++mapListIt){
+				if (!mapListIt->second.empty()){
+					mGlFrame->occlusionTest(mapListIt->first, &(mapListIt->second));
+				}
+				mapListIt->second.clear();
+			}
+//			cout << "finished " << nre.getIdxCount() << " jobs" << endl;
+//			JobDoneEvent jde = JobDoneEvent(nre.getIdxCount());
+//			mPriMpiCon->isend(new Message(jde, 0));
+			// clear the lists in the map;
+			// for each non-empty map -> call display with ref toi this map
+			GET_GLERROR(0);
+//			mGlFrame->display(nre);
+
 			++mPriFrameTick;
 			mPriFrameTick %= MODULO_FRAMECOUNT;
 		}

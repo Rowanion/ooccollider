@@ -179,6 +179,9 @@ bool Quintuple::operator<(const Quintuple& rhs) const
 	}
 }
 
+Visibility::Visibility(uint64_t _id, char _vis) : id(_id), visible(_vis)
+{
+}
 //bool operator<(const Quintuple& lhs, const Quintuple& rhs)
 //{
 //	if (lhs.destId == rhs.destId){
