@@ -60,6 +60,7 @@ public:
 	void manageCaching();
 	void clearRequests();
 	void reRequestVbos();
+	void advTick();
 
 
 protected:

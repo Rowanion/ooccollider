@@ -9,15 +9,20 @@
 
 #include <iostream>
 
-#include "ClassId.h"
-#include "IEvent.h"
-
 oocframework::ClassId* DepthBufferRequestEvent::mClassId = new oocframework::ClassId("DepthBufferRequestEvent");
 
-DepthBufferRequestEvent::DepthBufferRequestEvent() {
-	mProByteSize = 1;
+DepthBufferRequestEvent::DepthBufferRequestEvent(const float* _matrix) {
+	mProByteSize = sizeof(float)*16;
 	mProData = new char[mProByteSize];
+	memcpy(mProData, _matrix, sizeof(float)*16);
 	init();
+}
+
+DepthBufferRequestEvent::DepthBufferRequestEvent(const oocframework::Message* msg)
+{
+	mProByteSize = sizeof(float)*16;
+	mProData = new char[mProByteSize];
+	memcpy(mProData, msg->getData(),msg->getLength());
 }
 
 DepthBufferRequestEvent::~DepthBufferRequestEvent() {

@@ -147,14 +147,15 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			}
 #endif
 		if (!mTerminateApplication) {
-			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
+//			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
+			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1)){
 #ifdef DEBUG_DEPTH_RESEND
 			double newTime = glfwGetTime();
 #endif
 				newTime = glfwGetTime();
 				mPriCamHasMoved = false;
 				mPriFrameCount = 0;
-				DepthBufferRequestEvent dbre = DepthBufferRequestEvent();
+				DepthBufferRequestEvent dbre = DepthBufferRequestEvent(mPriGlFrame->createMvMatrix());
 				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
 				mPriMpiCon->barrier();
 				// go into listenmode to receive the rendering-times
@@ -177,7 +178,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			//send matrix/camera to when the out-queue is empty
 			//			cout << "---master sending matrix" << endl;
 			//			for (int i=1; i<mPriMpiCon->getSize(); ++i){
-			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->getMvMatrix());
+			ModelViewMatrixEvent mve = ModelViewMatrixEvent(mPriGlFrame->createMvMatrix());
 			mPriMpiCon->send(new Message(mve, 0, MpiControl::RENDERER));
 //			for (unsigned i = 0; i < mPriMpiCon->getGroupSize(
 //					MpiControl::DATA); ++i) { // send the matrix to all data-nodes

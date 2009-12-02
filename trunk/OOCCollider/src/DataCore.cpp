@@ -204,7 +204,6 @@ void DataCore::handleMsg(Message* msg){
 			mPriFrameTick %= MODULO_FRAMECOUNT;
 		}
 		else if (msg->getType() == OcclusionRequestEvent::classid()->getShortId()){
-			cerr << "" << endl;
 			OcclusionRequestEvent ore = OcclusionRequestEvent(msg);
 			mGlFrame->setMvMatrix(ore.getMatrix());
 

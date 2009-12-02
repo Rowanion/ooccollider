@@ -39,7 +39,7 @@ OcclusionResultsEvent::OcclusionResultsEvent(const OcclusionResultsEvent& _ore)
 OcclusionResultsEvent::OcclusionResultsEvent(const std::list<ooctools::Visibility>& _pairList)
 {
 	unsigned listSize = _pairList.size();
-	mProByteSize = listSize*sizeof(uint64_t) + listSize*sizeof(char);
+	mProByteSize = sizeof(unsigned) + listSize*sizeof(uint64_t) + listSize*sizeof(char);
 	mProData = new char[mProByteSize];
 
 	((unsigned*)(mProData))[0] = listSize;

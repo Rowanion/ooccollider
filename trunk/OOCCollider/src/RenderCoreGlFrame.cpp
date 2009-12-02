@@ -399,9 +399,6 @@ void RenderCoreGlFrame::display()
 	glPolygonMode(GL_FRONT, polyMode);
 	GET_GLERROR(0);
 
-	++mPriFrameTick %= MODULO_FRAMECOUNT;
-	mPriLo->pubTick = mPriFrameTick;
-
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
 	time = t;
@@ -644,7 +641,7 @@ void RenderCoreGlFrame::depthPass()
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	RWrapperListIter wIt = mPriWrapperInFrustum.rbegin();
 	for (; wIt != mPriWrapperInFrustum.rend(); ++wIt){
-		if((*wIt)->state == WrappedOcNode::ONLINE){
+		if((*wIt)->state == WrappedOcNode::ONLINE || (*wIt)->state == WrappedOcNode::RETEST_ONLINE || (*wIt)->state == WrappedOcNode::REQUESTED_ONLINE){
 			(*wIt)->iVbo->managedDraw(true);
 		}
 	}
@@ -768,7 +765,7 @@ void RenderCoreGlFrame::manageCaching()
 	unsigned onlineCount = 0;
 	for (; wIt != mPriWrapperInFrustum.end(); ++wIt){
 		if ((*wIt)->state == WrappedOcNode::ONLINE){
-			if ((*wIt)->timeStamp != mPriFrameTick){
+			if (mPriFrameTick != (*wIt)->timeStamp){
 //				cerr << (*wIt)->timeStamp << " vs " << mPriFrameTick << endl;
 				(*wIt)->iVbo->setOffline();
 				(*wIt)->state = WrappedOcNode::OFFLINE;
@@ -780,10 +777,14 @@ void RenderCoreGlFrame::manageCaching()
 				onlineCount++;
 			}
 		}
+		else if ((*wIt)->state == WrappedOcNode::RETEST_ONLINE){
+			onlineCount++;
+		}
 	}
 
-//	cerr << "l1 cache: " << mPriL1Cache << endl;
-//	cerr << "l2 cache: " << mPriL2Cache << endl;
+	cerr << "VBOS online: " << onlineCount << endl;
+	cerr << "l1 cache: " << mPriL1Cache << endl;
+	cerr << "l2 cache: " << mPriL2Cache << endl;
 //	cerr << "----------------------" << endl;
 	// L1-Cache cleaning
 	wIt = mPriWrapperInFrustum.begin();
@@ -849,17 +850,45 @@ void RenderCoreGlFrame::clearRequests()
 			(*wIt)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wIt++);
 		}
+		else if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE || (*wIt)->state == WrappedOcNode::RETEST_ONLINE){
+			(*wIt)->state = WrappedOcNode::ONLINE;
+			(*wIt)->usageCount = 0;
+			++wIt;
+		}
+		else if ((*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE || (*wIt)->state == WrappedOcNode::RETEST_OFFLINE){
+			(*wIt)->state = WrappedOcNode::OFFLINE;
+			(*wIt)->usageCount = 0;
+			++wIt;
+		}
 		else{
 			++wIt;
 		}
 	}
 	mPriRequests.clear();
+	mPriReRequests.clear();
 }
+
+void RenderCoreGlFrame::advTick(){
+	++mPriFrameTick %= MODULO_FRAMECOUNT;
+	mPriLo->pubTick = mPriFrameTick;
+
+};
 
 void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
 		ModelViewMatrixEvent& mve = (ModelViewMatrixEvent&)event;
+		for (unsigned i=0; i<16; ++i){
+			if (mPriModelViewMatrix[i] != mve.getMatrix()[i]){
+				for (RWrapperListIter wIt = mPriWrapperInFrustum.rbegin(); wIt != mPriWrapperInFrustum.rend(); ++wIt){
+					if ((*wIt)->state== WrappedOcNode::RETEST_ONLINE || (*wIt)->state== WrappedOcNode::REQUESTED_ONLINE){
+						(*wIt)->state = WrappedOcNode::ONLINE;
+						(*wIt)->usageCount = 0;
+					}
+				}
+				break;
+			}
+		}
 		memcpy(mPriModelViewMatrix, mve.getMatrix(), sizeof(float)*16);
 	}
 	else if (event.instanceOf(KeyPressedEvent::classid())){
