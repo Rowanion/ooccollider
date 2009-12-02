@@ -114,6 +114,7 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 		mWindow->flip();
 		mWindow->poll();
 
+		mPriGlFrame->advTick();
 		++frames;
 		if (frames >= 100){
 			frames = 0;
@@ -203,6 +204,9 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 			oocframework::EventManager::getSingleton()->fire(ire);
 		}
 		else if (msg->getType() == DepthBufferRequestEvent::classid()->getShortId()){
+			DepthBufferRequestEvent dbre = DepthBufferRequestEvent(msg);
+			ModelViewMatrixEvent mve = ModelViewMatrixEvent(dbre.getMatrix());
+			oocframework::EventManager::getSingleton()->fire(mve);
 			mPriMpiCon->barrier();
 			AccumulatedRendertimeEvent arte = AccumulatedRendertimeEvent(mPriGlFrame->getRenderTime());
 			mPriMpiCon->send(new Message(arte, 0));

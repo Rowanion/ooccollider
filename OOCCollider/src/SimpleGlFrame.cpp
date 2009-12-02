@@ -116,9 +116,10 @@ void SimpleGlFrame::setupCg()
 }
 void SimpleGlFrame::display()
 {
+	glLoadMatrixf(mPriModelViewMatrix);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+////	glLoadIdentity();
 
 	if (mPriButtonActions[0] == GLFW_PRESS && mPriButtonActions[1] == GLFW_PRESS){
     	mPriCamera.decZMove(0.1*walkingSpeed);
@@ -127,7 +128,7 @@ void SimpleGlFrame::display()
 		mPriCamera.incZMove(0.1*walkingSpeed);
 	}
 //	camObj.applyToGL();
-	mPriCamera.calcMatrix();
+////	mPriCamera.calcMatrix();
 
 //	char* data = new char[16*sizeof(float)];
 //	glGetFloatv(GL_MODELVIEW_MATRIX, (float*)data);
@@ -145,7 +146,7 @@ void SimpleGlFrame::display()
 	double t = glfwGetTime();  // Time (in seconds)
 
 	pollSpaceNav();
-	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
+////	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
@@ -295,6 +296,14 @@ void SimpleGlFrame::cameraInit()
 		}
 	}
 	writeCameraPositions();
+}
+
+const float* SimpleGlFrame::createMvMatrix()
+{
+	glLoadIdentity();
+	mPriCamera.calcMatrix();
+	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
+	return mPriModelViewMatrix;
 }
 
 void SimpleGlFrame::notify(oocframework::IEvent& event)

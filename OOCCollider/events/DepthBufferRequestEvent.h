@@ -12,6 +12,7 @@
 #include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
+#include "Message.h"
 
 /**
  * @class DepthBufferRequestEvent
@@ -23,11 +24,14 @@
  */
 class DepthBufferRequestEvent : public oocframework::IEvent{
 public:
-	DepthBufferRequestEvent();
+	DepthBufferRequestEvent(const float* _matrix);
+	DepthBufferRequestEvent(const oocframework::Message* msg);
 	virtual ~DepthBufferRequestEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
+
+	const float* getMatrix() const {return ((const float*)mProData);};
 
 protected:
 	static oocframework::ClassId* mClassId;
