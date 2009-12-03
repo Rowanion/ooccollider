@@ -99,9 +99,10 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 				handleMsg(msg);
 			}
 			//		cout << "waiting for matrix from 0..." << endl;
-			//		receiveMethod(0);
+			//		receiveMethod(0);Offli
 			GET_GLERROR(0);
 			mPriGlFrame->display();
+			mPriGlFrame->occlusionTest();
 			//			cout << "sending the outqueue of renderer" << endl;
 //			cout << "renderer sending outqueue" << endl;
 			while(!mPriMpiCon->outQueueEmpty()){ // send everything
@@ -220,7 +221,7 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 //			cout << "render " << mPriMpiCon->getRank() << " waiting at barrier before deptbuffers" << endl;
 			mPriMpiCon->barrier();
 //			cout << "render " << mPriMpiCon->getRank() << " continuing" << endl;
-			mPriGlFrame->depthPass();
+			mPriGlFrame->depthPass(true);
 		}
 		delete msg;
 		msg = 0;

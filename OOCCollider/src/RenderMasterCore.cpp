@@ -381,7 +381,8 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 void RenderMasterCore::manageCCollision()
 {
 	mPriRendererDoneCount = 0;
-	while (mPriRendererDoneCount < (mPriMpiCon->getGroupSize(MpiControl::RENDERER)*2)){
+	while (mPriRendererDoneCount < (mPriMpiCon->getGroupSize(MpiControl::RENDERER))){
+//	while (mPriRendererDoneCount < (mPriMpiCon->getGroupSize(MpiControl::RENDERER)*2)){
 		mPriMpiCon->ireceive(MpiControl::ANY);
 		while(!mPriMpiCon->inQueueEmpty()){
 			handleMsg(mPriMpiCon->pop());
@@ -409,17 +410,17 @@ void RenderMasterCore::manageCCollision()
 	}
 
 	// distribution of re-requests from here
-	if (!mPriOcclusionVec.empty()){
-		mPriCCol.doCCollision(&mPriOcclusionVec, &mPriOcclusionReqMap);
-		map<int, set<Quintuple> >::iterator intQuintIt = mPriOcclusionReqMap.begin();
-		for (; intQuintIt != mPriOcclusionReqMap.end(); ++intQuintIt){
-			OcclusionRequestEvent ore = OcclusionRequestEvent(intQuintIt->second, mPriGlFrame->getMvMatrix());
-			mPriMpiCon->isend(new Message(ore,intQuintIt->first));
-			mPriDataLoad[intQuintIt->first]+=ore.getIdxCount();
-		}
-		mPriOcclusionReqMap.clear();
-		mPriOcclusionVec.clear();
-	}
+//	if (!mPriOcclusionVec.empty()){
+//		mPriCCol.doCCollision(&mPriOcclusionVec, &mPriOcclusionReqMap);
+//		map<int, set<Quintuple> >::iterator intQuintIt = mPriOcclusionReqMap.begin();
+//		for (; intQuintIt != mPriOcclusionReqMap.end(); ++intQuintIt){
+//			OcclusionRequestEvent ore = OcclusionRequestEvent(intQuintIt->second, mPriGlFrame->getMvMatrix());
+//			mPriMpiCon->isend(new Message(ore,intQuintIt->first));
+//			mPriDataLoad[intQuintIt->first]+=ore.getIdxCount();
+//		}
+//		mPriOcclusionReqMap.clear();
+//		mPriOcclusionVec.clear();
+//	}
 
 #ifdef DEBUG_CCOLLISION
 			double newerTime = glfwGetTime();
