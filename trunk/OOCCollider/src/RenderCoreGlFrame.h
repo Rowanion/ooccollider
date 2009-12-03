@@ -43,6 +43,7 @@ public:
 	virtual void init();
 	virtual void setupCg();
 	virtual void display();
+	void occlusionTest();
 	virtual void reshape(int width, int height);
 	virtual void reshape(int width, int height, float farPlane);
 	float getFrames() const {
@@ -54,7 +55,12 @@ public:
 	void setTileDimensions(int xPos, int yPos, int width, int height);
 	inline double getRenderTime()const {return mPriRenderTimeSum;};
 	inline void resetRenderTime() {mPriRenderTimeSum = 0.0;};
-	void depthPass();
+
+	/**
+	 * @brief Why a special Depth pass? Why not use the already written Buffer? Because we need this directly after
+	 * a tile-dimension change. This would wreak havoc on our depth-buffer reading.
+	 */
+	void depthPass(bool _send);
 	ColorBufferEvent& getColorBufferEvent() {return mPriColorBufferEvent;};
 	void cullFrustum();
 	void manageCaching();
@@ -125,6 +131,7 @@ private:
 	std::list<oocformats::WrappedOcNode*> mPriWrapperInFrustum;
 	std::set<ooctools::Quintuple> mPriRequests;
 	std::set<ooctools::Quintuple> mPriReRequests;
+	std::list<oocformats::WrappedOcNode*> mPriReRequestList;
 	unsigned int mPriL1Cache;
 	unsigned int mPriL2Cache;
 
@@ -146,6 +153,9 @@ private:
 	double mPriDisplayTime;
 	double mPriFrustumCullingTime;
 	double mPriRequestDataTime;
+
+	GLuint mPriOccQueries[L1_CACHE_VBO_LIMIT];
+	std::map<uint64_t, GLint> mPriOccResults;
 
 	CGprogram g_cgVertexProg;
 	CGparameter g_cgGlobalAmbient;

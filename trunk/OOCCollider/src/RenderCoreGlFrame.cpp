@@ -42,6 +42,12 @@ using namespace ooctools;
 using namespace oocformats;
 using namespace oocframework;
 
+bool compListFarToNear (const WrappedOcNode* _lhs, const WrappedOcNode* _rhs)
+{
+	return (_lhs->dist < _rhs->dist);
+}
+
+
 RenderCoreGlFrame::RenderCoreGlFrame(int winWidth, int winHeight, int targetWinWidth, int targetWinHeight) :
 AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), avgFps(0.0f), time(0.0), frame(0), mPriCgt(0),
 			mPriEyePosition(ooctools::V3f()), mPriViewVector(ooctools::V3f()),
@@ -108,6 +114,7 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	mPriFbo = 0;
 	delete[] mPriMaxDistPerLevel;
 	mPriMaxDistPerLevel = 0;
+	glDeleteQueries(L1_CACHE_VBO_LIMIT, mPriOccQueries);
 }
 
 void RenderCoreGlFrame::init() {
@@ -125,6 +132,7 @@ void RenderCoreGlFrame::init() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT, GL_FILL);
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
 	glGenTextures(1, &mPriDepthTexId);
@@ -162,6 +170,8 @@ void RenderCoreGlFrame::init() {
 	mPriSceneBB.computeCenter(mPriSceneCenter);
 	cout << "(" << MpiControl::getSingleton()->getRank() << ") render window resolution: " << mProWindowWidth << ", " << mProWindowHeight << endl;
 	cout << "(" << MpiControl::getSingleton()->getRank() << ") tile: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
+
+	glGenQueries(L1_CACHE_VBO_LIMIT, mPriOccQueries);
 
 }
 
@@ -274,7 +284,8 @@ void RenderCoreGlFrame::display()
 							break;
 						case WrappedOcNode::RETEST_OFFLINE:
 							//TODO re-request
-							mPriReRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+//							mPriReRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+							mPriReRequestList.push_back((*wIt));
 							(*wIt)->state = WrappedOcNode::REQUESTED_OFFLINE;
 							break;
 						case WrappedOcNode::SET_ONLINE:{
@@ -294,7 +305,8 @@ void RenderCoreGlFrame::display()
 						case WrappedOcNode::RETEST_ONLINE:
 							++onlineCount;
 							(*wIt)->iVbo->managedDraw();
-							mPriReRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+//							mPriReRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+							mPriReRequestList.push_back((*wIt));
 							(*wIt)->state = WrappedOcNode::REQUESTED_ONLINE;
 							break;
 						case WrappedOcNode::REQUESTED_ONLINE:
@@ -407,6 +419,123 @@ void RenderCoreGlFrame::display()
 		frame = 0;
 	}
 	calcFPS();
+}
+
+
+void RenderCoreGlFrame::occlusionTest()
+{
+	depthPass(false);
+	mPriReRequestList.sort(compListFarToNear);
+	unsigned delta = 0;
+	glDisable(GL_CULL_FACE);
+	GLint polyMode;
+	glGetIntegerv(GL_POLYGON_MODE, &polyMode);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
+//	glLoadIdentity();
+//	mPriCamera.setRotationMatrix(mPriModelViewMatrix);
+//	mPriCamera.calcMatrix();
+
+//	cout << "data resizing frustum to " << mPriTileMap[nre.getRecepient()].xPos << ", " << mPriTileMap[nre.getRecepient()].yPos << ", " << mPriTileMap[nre.getRecepient()].width << ", " << mPriTileMap[nre.getRecepient()].height << endl;
+//	resizeWindow(height, width);
+//	cout << "starting display of DataCore" << endl;
+	// light blue
+	glPushMatrix();
+		glPushMatrix();
+			glPushMatrix();
+				glColor3f(1.0f,0.0f,0.0f);
+				mPriFbo->bind();
+//				mPriFbo->clearColor();
+//				cout << "Number of VBOs: " << mPriVbosInFrustum.size()<< endl;
+//				for (std::set<uint64_t>::iterator it = mPriIdsInFrustum.begin(); it!= mPriIdsInFrustum.end(); ++it){
+////					cout << "drawing box with id: " << *it << endl;
+////					cout << "in in node: " << mPriIdLoMap[(*it)]->getIdString() << endl;
+//					mPriIdLoMap[(*it)]->getBb().draw();
+//				}
+
+				// performing the depthtest
+//				std::set<ooctools::Quadruple>::iterator quadIterator = mPriQuadSet.begin();
+//				std::list<const ooctools::Quadruple*>::iterator quadIterator = mPriQuadSet.begin();
+
+				unsigned queryCount = 0;
+				glDepthMask(GL_FALSE);
+				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+				WrapperListIter wIt = mPriReRequestList.begin();
+				for (; wIt != mPriReRequestList.end(); ++wIt, queryCount++){
+					glBeginQuery(GL_SAMPLES_PASSED, mPriOccQueries[queryCount]);
+						mPriIdLoMap[(*wIt)->octreeNode->getId()]->getBb().drawSolidTriFan();
+					glEndQuery(GL_SAMPLES_PASSED);
+				}
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				glDepthMask(GL_TRUE);
+
+				// handle query-results
+				queryCount = 0;
+				GLint queryState;
+				for(wIt = mPriReRequestList.begin(); wIt != mPriReRequestList.end(); ++wIt, queryCount++){
+					queryState = GL_FALSE;
+					while(queryState != GL_TRUE){
+					  glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT_AVAILABLE, &queryState);
+					}
+
+					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[(*wIt)->octreeNode->getId()]);
+
+					// -----------------------------------------------
+//					if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE ){
+//						(*wIt)->state = WrappedOcNode::ONLINE;
+//						(*wIt)->usageCount = 0;
+//					}
+//					else if ((*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE){
+//						(*wIt)->state = WrappedOcNode::ONLINE;
+//						(*wIt)->iVbo->setOnline();
+//						(*wIt)->usageCount = 0;
+//						delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+//						mPriL2Cache -= delta;
+//						mPriL1Cache += delta;
+//					}
+
+					// -----------------------------------------------
+					if (mPriOccResults[(*wIt)->octreeNode->getId()] <= 0){
+						if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE ){
+							(*wIt)->state = WrappedOcNode::OFFLINE;
+							(*wIt)->iVbo->setOffline();
+							(*wIt)->usageCount = 0;
+							delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+							mPriL2Cache += delta;
+							mPriL1Cache -= delta;
+						}
+						else if ((*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE){
+							(*wIt)->state = WrappedOcNode::OFFLINE;
+							(*wIt)->usageCount = 0;
+						}
+					}
+					else {
+						if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE ){
+							(*wIt)->state = WrappedOcNode::ONLINE;
+							(*wIt)->usageCount = 0;
+						}
+						else if ((*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE){
+							(*wIt)->state = WrappedOcNode::ONLINE;
+							(*wIt)->iVbo->setOnline();
+							(*wIt)->usageCount = 0;
+							delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+							mPriL2Cache -= delta;
+							mPriL1Cache += delta;
+						}
+					}
+				}
+				mPriFbo->unbind();
+			glPopMatrix();
+		glPopMatrix();
+	glPopMatrix();
+
+
+	mPriOccResults.clear();
+	mPriReRequestList.clear();
+	glPolygonMode(GL_FRONT, polyMode);
+	glEnable(GL_CULL_FACE);
+
 }
 
 void RenderCoreGlFrame::reshape(int width, int height)
@@ -624,7 +753,7 @@ RenderCoreGlFrame::setTileDimensions(int xPos, int yPos, int width, int height)
 
 }
 
-void RenderCoreGlFrame::depthPass()
+void RenderCoreGlFrame::depthPass(bool _send)
 {
 	resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
 	glLoadIdentity();
@@ -648,14 +777,16 @@ void RenderCoreGlFrame::depthPass()
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	GET_GLERROR(0);
-	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth+(2*mProFrustumExtensionX_px), mPriTileHeight+(2*mProFrustumExtensionY_px));
-	DepthBufferEvent dbe = DepthBufferEvent(Tile(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, 0.0),
-			mPriTileXPos,mPriTileYPos,mPriTileWidth+(2*mProFrustumExtensionX_px),mPriTileHeight+(2*mProFrustumExtensionY_px),
-			MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
-	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
-	Message* msg = new Message(dbe, 0, MpiControl::DATA);
-	MpiControl::getSingleton()->send(msg);
-	clearRequests();
+	if (_send){
+		FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth+(2*mProFrustumExtensionX_px), mPriTileHeight+(2*mProFrustumExtensionY_px));
+		DepthBufferEvent dbe = DepthBufferEvent(Tile(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, 0.0),
+				mPriTileXPos,mPriTileYPos,mPriTileWidth+(2*mProFrustumExtensionX_px),mPriTileHeight+(2*mProFrustumExtensionY_px),
+				MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
+		MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
+		Message* msg = new Message(dbe, 0, MpiControl::DATA);
+		MpiControl::getSingleton()->send(msg);
+		clearRequests();
+	}
 	mPriFbo->unbind();
 	glPolygonMode(GL_FRONT, polyMode);
 	GET_GLERROR(0);
@@ -741,8 +872,8 @@ void RenderCoreGlFrame::cullFrustum()
 #endif
 
 	manageCaching();
-//	divideIdList();
-	reRequestVbos();
+//	reRequestVbos();
+//	occlusionTest();
 	requestMissingVbos();
 
 
@@ -777,7 +908,7 @@ void RenderCoreGlFrame::manageCaching()
 				onlineCount++;
 			}
 		}
-		else if ((*wIt)->state == WrappedOcNode::RETEST_ONLINE){
+		else if ((*wIt)->state == WrappedOcNode::RETEST_ONLINE || (*wIt)->state == WrappedOcNode::REQUESTED_ONLINE){
 			onlineCount++;
 		}
 	}
@@ -850,22 +981,22 @@ void RenderCoreGlFrame::clearRequests()
 			(*wIt)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wIt++);
 		}
-		else if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE || (*wIt)->state == WrappedOcNode::RETEST_ONLINE){
-			(*wIt)->state = WrappedOcNode::ONLINE;
-			(*wIt)->usageCount = 0;
-			++wIt;
-		}
-		else if ((*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE || (*wIt)->state == WrappedOcNode::RETEST_OFFLINE){
-			(*wIt)->state = WrappedOcNode::OFFLINE;
-			(*wIt)->usageCount = 0;
-			++wIt;
-		}
+//		else if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE || (*wIt)->state == WrappedOcNode::RETEST_ONLINE){
+//			(*wIt)->state = WrappedOcNode::ONLINE;
+//			(*wIt)->usageCount = 0;
+//			++wIt;
+//		}
+//		else if ((*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE || (*wIt)->state == WrappedOcNode::RETEST_OFFLINE){
+//			(*wIt)->state = WrappedOcNode::OFFLINE;
+//			(*wIt)->usageCount = 0;
+//			++wIt;
+//		}
 		else{
 			++wIt;
 		}
 	}
 	mPriRequests.clear();
-	mPriReRequests.clear();
+//	mPriReRequests.clear();
 }
 
 void RenderCoreGlFrame::advTick(){
@@ -878,17 +1009,17 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
 		ModelViewMatrixEvent& mve = (ModelViewMatrixEvent&)event;
-		for (unsigned i=0; i<16; ++i){
-			if (mPriModelViewMatrix[i] != mve.getMatrix()[i]){
-				for (RWrapperListIter wIt = mPriWrapperInFrustum.rbegin(); wIt != mPriWrapperInFrustum.rend(); ++wIt){
-					if ((*wIt)->state== WrappedOcNode::RETEST_ONLINE || (*wIt)->state== WrappedOcNode::REQUESTED_ONLINE){
-						(*wIt)->state = WrappedOcNode::ONLINE;
-						(*wIt)->usageCount = 0;
-					}
-				}
-				break;
-			}
-		}
+//		for (unsigned i=0; i<16; ++i){
+//			if (mPriModelViewMatrix[i] != mve.getMatrix()[i]){
+//				for (RWrapperListIter wIt = mPriWrapperInFrustum.rbegin(); wIt != mPriWrapperInFrustum.rend(); ++wIt){
+//					if ((*wIt)->state== WrappedOcNode::RETEST_ONLINE || (*wIt)->state== WrappedOcNode::REQUESTED_ONLINE){
+//						(*wIt)->state = WrappedOcNode::ONLINE;
+//						(*wIt)->usageCount = 0;
+//					}
+//				}
+//				break;
+//			}
+//		}
 		memcpy(mPriModelViewMatrix, mve.getMatrix(), sizeof(float)*16);
 	}
 	else if (event.instanceOf(KeyPressedEvent::classid())){
