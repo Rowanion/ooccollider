@@ -221,7 +221,8 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 //			cout << "render " << mPriMpiCon->getRank() << " waiting at barrier before deptbuffers" << endl;
 			mPriMpiCon->barrier();
 //			cout << "render " << mPriMpiCon->getRank() << " continuing" << endl;
-			mPriGlFrame->depthPass(true);
+//			mPriGlFrame->depthPass(true);
+			mPriGlFrame->readAndSendDepth();
 		}
 		delete msg;
 		msg = 0;

@@ -793,6 +793,20 @@ void RenderCoreGlFrame::depthPass(bool _send)
 
 }
 
+void RenderCoreGlFrame::readAndSendDepth()
+{
+	mPriFbo->bind();
+	FboFactory::getSingleton()->readDepthFromFb(mPriDepthBuffer, 0, 0, mPriTileWidth+(2*mProFrustumExtensionX_px), mPriTileHeight+(2*mProFrustumExtensionY_px));
+	DepthBufferEvent dbe = DepthBufferEvent(Tile(mPriTileXPos,mPriTileYPos,mPriTileWidth,mPriTileHeight, 0.0),
+			mPriTileXPos,mPriTileYPos,mPriTileWidth+(2*mProFrustumExtensionX_px),mPriTileHeight+(2*mProFrustumExtensionY_px),
+			MpiControl::getSingleton()->getRank(), mPriDepthBuffer);
+	MpiControl::getSingleton()->clearOutQueue(MpiControl::DATA);
+	Message* msg = new Message(dbe, 0, MpiControl::DATA);
+	MpiControl::getSingleton()->send(msg);
+	clearRequests();
+	mPriFbo->unbind();
+}
+
 void RenderCoreGlFrame::cullFrustum()
 {
 	//TODO create lookuptable
@@ -851,8 +865,8 @@ void RenderCoreGlFrame::cullFrustum()
 	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
 
 
-	getFrustum();
-	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, false);
+//	getFrustum();
+//	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, false);
 
 	if (mPriShowOffset){
 		resizeFrustumExt(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
@@ -913,9 +927,9 @@ void RenderCoreGlFrame::manageCaching()
 		}
 	}
 
-	cerr << "VBOS online: " << onlineCount << endl;
-	cerr << "l1 cache: " << mPriL1Cache << endl;
-	cerr << "l2 cache: " << mPriL2Cache << endl;
+//	cerr << "VBOS online: " << onlineCount << endl;
+//	cerr << "l1 cache: " << mPriL1Cache/1048576 << "Mb" << endl;
+//	cerr << "l2 cache: " << mPriL2Cache/1048576 << "Mb" << endl;
 //	cerr << "----------------------" << endl;
 	// L1-Cache cleaning
 	wIt = mPriWrapperInFrustum.begin();
@@ -1122,8 +1136,49 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		for (int i=0; i < MpiControl::getSingleton()->getRank()*2 + 1; ++i){
 			headerS << "-";
 		}
+		unsigned triCount = 0;
+		unsigned triCount_online = 0;
+		unsigned triCount_offline = 0;
+		unsigned l1Cache = 0;
+		unsigned l2Cache = 0;
+		unsigned vboCount = 0;
+		unsigned vboCount_online = 0;
+		unsigned vboCount_offline = 0;
+		unsigned vboCount_missing = 0;
+
+		WrapperListIter wli = mPriWrapperInFrustum.begin();
+		for(; wli != mPriWrapperInFrustum.end(); ++wli){
+			if ((*wli)->state == WrappedOcNode::ONLINE || (*wli)->state == WrappedOcNode::RETEST_ONLINE || (*wli)->state == WrappedOcNode::REQUESTED_ONLINE){
+				++vboCount;
+				vboCount_online++;
+				triCount += (*wli)->octreeNode->getTriangleCount();
+				triCount_online += (*wli)->octreeNode->getTriangleCount();
+				l1Cache += ((*wli)->iVbo->getIndexCount()*sizeof(unsigned)) + ((*wli)->iVbo->getVertexCount()*sizeof(V4N4));
+			}
+			else if((*wli)->state == WrappedOcNode::OFFLINE || (*wli)->state == WrappedOcNode::RETEST_OFFLINE || (*wli)->state == WrappedOcNode::REQUESTED_OFFLINE){
+				++vboCount;
+				vboCount_offline++;
+				triCount += (*wli)->octreeNode->getTriangleCount();
+				triCount_offline += (*wli)->octreeNode->getTriangleCount();
+				l2Cache += ((*wli)->iVbo->getIndexCount()*sizeof(unsigned)) + ((*wli)->iVbo->getVertexCount()*sizeof(V4N4));
+			}
+			else if((*wli)->state == WrappedOcNode::MISSING || (*wli)->state == WrappedOcNode::REQUESTED){
+				vboCount_missing++;
+			}
+		}
+
 		headerS << "> (" << MpiControl::getSingleton()->getRank() << ") - ";
-		cout << headerS.str() << "currently loaded tris: " << mPriTriCount << endl;
+		cout << headerS.str() << "Tris in RAM: " << triCount << endl;
+		cout << headerS.str() << "Tris on GPU: " << triCount_online << endl;
+		cout << headerS.str() << "Tris only in RAM: " << triCount_offline << endl;
+		cout << headerS.str() << "VBOs in RAM: " << vboCount << endl;
+		cout << headerS.str() << "VBOs offline: " << vboCount_offline << endl;
+		cout << headerS.str() << "VBOs online: " << vboCount_online << endl;
+		cout << headerS.str() << "VBOs missing: " << vboCount_missing << endl;
+		cout << headerS.str() << "L1_Cache: " << l1Cache/1048576 << "Mb / " << L1_CACHE_THRESHOLD/1048576 << "Mb" << endl;
+		cout << headerS.str() << "L2_Cache: " << l2Cache/1048576 << "Mb / " << L2_CACHE_THRESHOLD/1048576 << "Mb" << endl;
+		cout << headerS.str() << "L1_Cache (offi): " << mPriL1Cache/1048576 << "Mb / " << L1_CACHE_THRESHOLD/1048576 << "Mb" << endl;
+		cout << headerS.str() << "L2_Cache (offi): " << mPriL2Cache/1048576 << "Mb / " << L2_CACHE_THRESHOLD/1048576 << "Mb" << endl;
 //		cout << headerS.str() << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
 //		cout << headerS.str() << "total requested vbos: " << mPriRequestedVboList.size() << endl;
 //		cout << headerS.str() << "loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;
@@ -1136,16 +1191,16 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 //			tCount += mIt->second->getTriCount();
 //			iCount += mIt->second->getIndexCount();
 //		}
-		cout << headerS.str() << "loaded online tris (counted): " << tCount << endl;
-		cout << headerS.str() << "loaded online indices (counted): " << iCount << endl;
+//		cout << headerS.str() << "loaded online tris (counted): " << tCount << endl;
+//		cout << headerS.str() << "loaded online indices (counted): " << iCount << endl;
 		tCount = 0;
 		iCount = 0;
 //		for (mIt = mPriOfflineVbosInFrustum.begin(); mIt!=mPriOfflineVbosInFrustum.end(); ++mIt){
 //			tCount += mIt->second->getTriCount();
 //			iCount += mIt->second->getIndexCount();
 //		}
-		cout << headerS.str() << "loaded offline tris (counted): " << tCount << endl;
-		cout << headerS.str() << "loaded offline indices (counted): " << iCount << endl;
+//		cout << headerS.str() << "loaded offline tris (counted): " << tCount << endl;
+//		cout << headerS.str() << "loaded offline indices (counted): " << iCount << endl;
 
 		cout << headerS.str() << "nearPlane: " << mProNearClippingPlane << endl;
 		cout << headerS.str() << "farPlane: " << mProFarClippingPlane << endl;

@@ -62,6 +62,7 @@ public:
 	 */
 	void depthPass(bool _send);
 	ColorBufferEvent& getColorBufferEvent() {return mPriColorBufferEvent;};
+	void readAndSendDepth();
 	void cullFrustum();
 	void manageCaching();
 	void clearRequests();
