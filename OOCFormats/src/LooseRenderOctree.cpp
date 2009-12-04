@@ -592,13 +592,13 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 		if (_isExt && mPriWrapper.state == WrappedOcNode::MISSING){
 			_nodes->push_back(&this->mPriWrapper);
 		}
-		else if (!_isExt && mPriWrapper.state == WrappedOcNode::OFFLINE){
+		else if (_isExt && mPriWrapper.state == WrappedOcNode::OFFLINE){
 			this->mPriWrapper.usageCount++;
 			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
 				this->mPriWrapper.state = WrappedOcNode::RETEST_OFFLINE;
 			}
 		}
-		else if (!_isExt && mPriWrapper.state == WrappedOcNode::ONLINE){
+		else if (_isExt && mPriWrapper.state == WrappedOcNode::ONLINE){
 			this->mPriWrapper.usageCount++;
 			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
 				this->mPriWrapper.state = WrappedOcNode::RETEST_ONLINE;
@@ -670,13 +670,13 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
 		}
-		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
+		else if (_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
 			this->mPriWrapper.usageCount++;
 			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
 				this->mPriWrapper.state = WrappedOcNode::RETEST_OFFLINE;
 			}
 		}
-		else if (!_isExt && mPriWrapper.state == WrappedOcNode::ONLINE){
+		else if (_isExt && mPriWrapper.state == WrappedOcNode::ONLINE){
 			this->mPriWrapper.usageCount++;
 			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
 				this->mPriWrapper.state = WrappedOcNode::RETEST_ONLINE;
@@ -697,13 +697,13 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsi
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
 		}
-		else if (!_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
+		else if (_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
 			this->mPriWrapper.usageCount++;
 			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
 				this->mPriWrapper.state = WrappedOcNode::RETEST_OFFLINE;
 			}
 		}
-		else if (!_isExt && mPriWrapper.state == WrappedOcNode::ONLINE){
+		else if (_isExt && mPriWrapper.state == WrappedOcNode::ONLINE){
 			this->mPriWrapper.usageCount++;
 			if (this->mPriWrapper.usageCount > RETEST_THRESHOLD){
 				this->mPriWrapper.state = WrappedOcNode::RETEST_ONLINE;

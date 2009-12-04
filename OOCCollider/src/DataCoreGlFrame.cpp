@@ -43,7 +43,7 @@ DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsign
 		frame(0), mPriVboMan(0), mPriCgt(0),
 		mPriDepthBuffer(0), mPriNewDepthBuf(false),
 		mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
-		mPriCCol(PRESELECTED_SEED, 2), mPriFbo(0), mPriCamera(OOCCamera())
+		mPriCCol(PRESELECTED_SEED, LVL_OF_REDUNDANCY), mPriFbo(0), mPriCamera(OOCCamera())
 {
 
 	for (unsigned i = 0; i < 10; ++i) {
@@ -128,9 +128,22 @@ void DataCoreGlFrame::init() {
 	mPriLo = mPriOh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
-	mPriOh.generateIdLocMap(fs::path("/home/ava/Diplom/Model/SampleTree_packed/"), mPriIdLocMap);
 
 	mPriCCol.generateDistribution(mPriLo);
+#ifdef KEEP_VBOS_RESIDENT
+	//TODO
+	parseAndLoadVBOs(mPriCCol.getMyNodeSet());
+//	set<uint64_t>::const_iterator sIt = mPriCCol.getMyNodeSet().begin();
+//	for(; sIt != mPriCCol.getMyNodeSet().end(); ++sIt){
+//		mPriVboMap.insert(make_pair(*sIt, new IndexedVbo(mPriIdLocMap[*sIt], false)));
+//	}
+	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data to RAM!" << endl;
+	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " having " << mPriCCol.getMyNodeSet().size() << " VBOS resident." << endl;
+	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " thus having " << mPriVboMap.size() << " VBOS resident." << endl;
+#else
+	mPriOh.generateIdLocMap(fs::path("/home/ava/Diplom/Model/SampleTree_packed/"), mPriIdLocMap);
+#endif
+
 	reshape(mProWindowWidth, mProWindowHeight);
 	mPriByteSize = 0;
 }
@@ -191,7 +204,9 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
 //		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
+#ifndef KEEP_VBOS_RESIDENT
 		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(mPriIdLocMap[currQuintuple->id], false)));
+#endif
 //		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
 //		mPriQuadSet.insert(currQuadruple);
 //		cout << nre.getDistance(i) << endl;
@@ -222,7 +237,6 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 //				}
 
 				// performing the depthtest
-				std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
 //				std::set<ooctools::Quadruple>::iterator quadIterator = mPriQuadSet.begin();
 //				std::list<const ooctools::Quadruple*>::iterator quadIterator = mPriQuadSet.begin();
 
@@ -258,6 +272,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 						// add visible VBO to the current DepthBuffer
 						mPriVboMap[(*quintIt)->id]->setOnline();
 						mPriVboMap[(*quintIt)->id]->managedDraw(true);
+						mPriVboMap[(*quintIt)->id]->setOffline();
 //						mPriIdLoMap[tripIterator->id]->getBb().drawSolidTriFan();
 						mPriVisibleVbosVec.push_back(mPriVboMap[(*quintIt)->id]);
 						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->priority));
@@ -286,13 +301,16 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 		//  MpiControl::getSingleton()->isend();
 	}
 	// cleanup
-	unsigned vboMapSize = mPriVboMap.size();
-	for (unsigned i=0; i< vboMapSize; ++i){
-		mPriVboMap.begin()->second->setOffline();
-		delete mPriVboMap.begin()->second;
-		mPriVboMap.erase(mPriVboMap.begin());
+
+#ifndef KEEP_VBOS_RESIDENT
+	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
+	for (; vboIterator != mPriVboMap.end();){
+		vboIterator->second->setOffline();
+		delete vboIterator->second;
+		mPriVboMap.erase(vboIterator++);
 	}
 	mPriVboMap.clear();
+#endif
 	mPriQuintSet.clear();
 	mPriVisibleVbosVec.clear();
 	mPriVisibleDistExtVec.clear();
@@ -567,6 +585,58 @@ void DataCoreGlFrame::calcFPS() {
 	}
 	avgFps /= 10.0f;
 
+}
+
+void DataCoreGlFrame::parseAndLoadVBOs(const std::set<uint64_t>& _idSet)
+{
+	fs::path path = fs::path("/home/ava/Diplom/Model/SampleTree_packed/");
+	fs::ifstream inFile;
+	unsigned pos = 0;
+	unsigned size=0;
+	ooctools::Location loc;
+	uint64_t id = 0;
+	unsigned indexCount = 0;
+	unsigned vertexCount = 0;
+	set<uint64_t>::iterator idIt;
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+	for (fs::directory_iterator itr(path); itr != end_itr; ++itr) {
+		if (fs::is_directory(itr->status())) {
+			parseAndLoadVBOs(_idSet);
+		}
+		else if (itr->path().extension() == ".bin") {
+			inFile.open(itr->path(), ios::binary);
+			inFile.seekg(0, ios::end);
+			loc.path = itr->path();
+			size = inFile.tellg();
+			inFile.seekg(0, ios::beg);
+			pos = 0;
+			while (pos < size){
+				inFile.read((char*)&id, sizeof(uint64_t));
+
+				loc.position = pos;
+//				cerr << "path " << loc.path << endl;
+//				cerr << "pos " << loc.position << endl;
+//				cerr << "size " << size << endl;
+				idIt = _idSet.find(id);
+				if (idIt != _idSet.end()){
+					mPriVboMap.insert(make_pair(id, new IndexedVbo(loc, false)));
+				}
+
+				inFile.seekg(pos+sizeof(uint64_t), ios::beg);
+				inFile.read((char*)&indexCount, sizeof(unsigned));
+				inFile.seekg(pos+sizeof(uint64_t)+(sizeof(unsigned)), ios::beg);
+				inFile.read((char*)&vertexCount, sizeof(unsigned));
+				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
+
+//				cerr << "indices: " << indexCount << endl;
+//				cerr << "vertices: " << vertexCount << endl;
+//				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
+//				cerr << "new position: " << pos << endl;
+				inFile.seekg(pos, ios::beg);
+			}
+			inFile.close();
+		}
+	}
 }
 
 void DataCoreGlFrame::setMvMatrix(const float* matrix)

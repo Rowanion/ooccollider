@@ -58,7 +58,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			mPriRenderTimes(vector<double> (MpiControl::getSingleton()->getGroupSize(MpiControl::RENDERER), 0.5)),
 			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriFrameTick(0), mPriCCollisionTime(0.0),
 			mPriQuintVec(std::vector<Quintuple>()), mPriOcclusionVec(std::vector<Quintuple>()),
-			mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, 2),
+			mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, LVL_OF_REDUNDANCY),
 			mPriWindowWidth(_width), mPriWindowHeight(_height) {
 
 	RenderMasterCore::instance = this;
