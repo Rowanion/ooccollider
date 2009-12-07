@@ -16,8 +16,10 @@
 #include <cstring>
 #include <sstream>
 
+#ifndef PC2
 #include <X11/Xlib.h>
 #include <spnav.h>
+#endif
 
 #include "GeometricOps.h"
 #include "V3f.h"
@@ -89,12 +91,16 @@ void SimpleGlFrame::init() {
 	mPriCamera.calcMatrix();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
 
+#ifndef PC2
 	if(spnav_open()==-1) {
 		fprintf(stderr, "failed to connect to the space navigator daemon\n");
 	}
 	else{
 		mPriUseSpaceNav=true;
 	}
+#elif
+	mPriUseSpaceNav=false;
+#endif
 	loadCameraPositions();
 	mPriFbo = FboFactory::getSingleton()->createCompleteFbo(mPriCBufWidth,mPriCBufHeight);
 	mPriCgt = ooctools::CgToolkit::getSingleton();
@@ -200,6 +206,7 @@ void SimpleGlFrame::calcFPS() {
 
 void SimpleGlFrame::pollSpaceNav()
 {
+#ifndef PC2
 	spnav_event sev;
 	if (mPriUseSpaceNav){
 		while(spnav_poll_event(&sev)) {
@@ -223,6 +230,7 @@ void SimpleGlFrame::pollSpaceNav()
 		}
 
 	}
+#endif
 }
 
 void SimpleGlFrame::loadCameraPositions()
