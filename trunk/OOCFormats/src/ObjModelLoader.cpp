@@ -288,7 +288,7 @@ ObjModelLoader::secondPass()
 			}
 			longName.erase(longName.end() - 1);
 			if (mPriMatMap.find(longName) != mPriMatMap.end())
-				mPriModelPtr->getCurrentGrpPtr()->setMat(*mPriMatMap.at(longName));
+				mPriModelPtr->getCurrentGrpPtr()->setMat(*mPriMatMap[longName]);
 			lastType = "usemtl";
 		}
 		else if (tokens[0] == ("f")) {
