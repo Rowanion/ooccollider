@@ -98,7 +98,7 @@ void SimpleGlFrame::init() {
 	else{
 		mPriUseSpaceNav=true;
 	}
-#elif
+#else
 	mPriUseSpaceNav=false;
 #endif
 	loadCameraPositions();
