@@ -459,7 +459,8 @@ V3f::dot(const V3f& rhs)const
 float
 V3f::calcDistance(const V3f& point) const
 {
-	return sqrt(pow((getX() - point.getX()), 2.0) + pow((getY() - point.getY()), 2.0) + pow((getZ() - point.getZ()), 2.0));
+	V3f aVec = *this-point;
+	return sqrt((aVec.getX()*aVec.getX()) + (aVec.getY()*aVec.getY()) + (aVec.getZ()*aVec.getZ()));
 }
 
 float
@@ -473,7 +474,8 @@ V3f::calcSimpleDistance(const V3f& point) const
 float
 V3f::calcSimpleDistance(const V3f& p1, const V3f& p2)
 {
-	return pow((p2.getX() - p1.getX()), 2.0) + pow((p2.getY() - p1.getY()), 2.0) + pow((p2.getZ() - p1.getZ()), 2.0);
+	V3f aVec = p1-p2;
+	return (aVec.getX()*aVec.getX()) + (aVec.getY()*aVec.getY()) + (aVec.getZ()*aVec.getZ());
 }
 
 V3f
