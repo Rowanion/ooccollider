@@ -127,7 +127,7 @@ ObjModelLoader::extractFaceComponents(const string& s)
 	int componentCount = 0;
 	while (getline(isstream, token, '/')) {
 		if (!token.empty()) {
-			bitField |= (int) (pow(2, 2 - componentCount));
+			bitField |= (int) (pow((double)2, (double)2 - componentCount));
 			result[componentCount + 1] = atoi(token.c_str());
 			//cout <<  result[componentCount+1] << "/";
 		}
