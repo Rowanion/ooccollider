@@ -17,6 +17,7 @@
 #include "ClassId.h"
 #include "Message.h"
 #include "IndexedVbo.h"
+#include "IndexedVertexArray.h"
 #include "StructDefs.h"
 #include "Structs.h"
 
@@ -41,6 +42,8 @@ public:
 	VboEvent(const ooctools::IndexedVbo* vbo);
 	VboEvent(std::string path, uint64_t nodeId);
 	VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::vector<DistExtPair>& distExtVec);
+	VboEvent(const std::vector<ooctools::IndexedVertexArray*>& vArrVec, const std::vector<DistExtPair>& distExtVec);
+
 	VboEvent(const oocframework::Message* msg);
 	virtual ~VboEvent();
 	static const oocframework::ClassId* classid();

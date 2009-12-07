@@ -68,6 +68,7 @@ public:
 	void clearRequests();
 	void reRequestVbos();
 	void advTick();
+	void clearCache();
 
 
 protected:

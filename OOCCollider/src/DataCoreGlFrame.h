@@ -33,6 +33,7 @@
 #include "OOCCamera.h"
 #include "Structs.h"
 #include "CCollisionProtocol.h"
+#include "IndexedVertexArray.h"
 
 
 
@@ -61,6 +62,7 @@ public:
 	void notify(oocframework::IEvent& event);
 	void occlusionTest(int _destId, std::list<const Quintuple*>* _quintList);
 	void parseAndLoadVBOs(const std::set<uint64_t>& _idSet);
+	void parseAndLoadVArrays(const std::set<uint64_t>& _idSet);
 
 protected:
 private:
@@ -104,7 +106,9 @@ private:
 	std::map<uint64_t, ooctools::Location> mPriIdLocMap;
 	std::set<uint64_t> mPriIdsInFrustum;
 	std::map<uint64_t, ooctools::IndexedVbo*> mPriVboMap;
+	std::map<uint64_t, ooctools::IndexedVertexArray*> mPriVArrayMap;
 	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;
+	std::vector<ooctools::IndexedVertexArray*> mPriVisibleVArraysVec;
 	std::vector<DistExtPair> mPriVisibleDistExtVec;
 	std::set<ooctools::Quintuple> mPriQuintSet;
 	std::list<ooctools::Visibility> mPriVisibilityList;

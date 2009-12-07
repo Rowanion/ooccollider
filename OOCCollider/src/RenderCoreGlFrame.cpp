@@ -283,21 +283,9 @@ void RenderCoreGlFrame::display()
 							(*wIt)->state = WrappedOcNode::REQUESTED;
 							break;
 						case WrappedOcNode::RETEST_OFFLINE:
-							//TODO re-request
-//							mPriReRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
 							mPriReRequestList.push_back((*wIt));
 							(*wIt)->state = WrappedOcNode::REQUESTED_OFFLINE;
 							break;
-						case WrappedOcNode::SET_ONLINE:{
-							++onlineCount;
-							unsigned delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
-							mPriL2Cache -= delta;
-							mPriL1Cache += delta;
-
-							(*wIt)->iVbo->setOnline();
-							(*wIt)->state = WrappedOcNode::ONLINE;
-							(*wIt)->iVbo->managedDraw();
-							break;}
 						case WrappedOcNode::ONLINE:
 							++onlineCount;
 							(*wIt)->iVbo->managedDraw();
@@ -305,7 +293,6 @@ void RenderCoreGlFrame::display()
 						case WrappedOcNode::RETEST_ONLINE:
 							++onlineCount;
 							(*wIt)->iVbo->managedDraw();
-//							mPriReRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
 							mPriReRequestList.push_back((*wIt));
 							(*wIt)->state = WrappedOcNode::REQUESTED_ONLINE;
 							break;
@@ -324,36 +311,101 @@ void RenderCoreGlFrame::display()
 						cgGLDisableTextureParameter(cgFragLUT);
 						mPriColorTable.unbindTex();
 					}
-//					else if (mPriBBMode == 1){
-//						mPriColorTable.bindTex();
-//						cgGLEnableTextureParameter(cgFragLUT);
-//						cgGLEnableTextureParameter(cgNoLightLUT);
-//						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
-//						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
-//						it->second->managedDraw();
-//						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-//						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-//
-//						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-//						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-//						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-//						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-//						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-//						cgGLDisableTextureParameter(cgNoLightLUT);
-//						cgGLDisableTextureParameter(cgFragLUT);
-//						mPriColorTable.unbindTex();
-//					}
-//					else if (mPriBBMode == 2){
-//						mPriColorTable.bindTex();
-//						cgGLEnableTextureParameter(cgNoLightLUT);
-//						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
-//						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
-//						mPriIdLoMap[it->first]->getBb().draw(mPriColorTable.calculateTexCoord(mPriIdLoMap[it->first]->getLevel()));
-//						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
-//						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
-//						cgGLDisableTextureParameter(cgNoLightLUT);
-//						mPriColorTable.unbindTex();
-//					}
+					else if (mPriBBMode == 1){
+						mPriColorTable.bindTex();
+						cgGLEnableTextureParameter(cgFragLUT);
+						cgGLEnableTextureParameter(cgNoLightLUT);
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+						switch ((*wIt)->state) {
+						case WrappedOcNode::MISSING:
+							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+							(*wIt)->state = WrappedOcNode::REQUESTED;
+							break;
+						case WrappedOcNode::RETEST_OFFLINE:
+							mPriReRequestList.push_back((*wIt));
+							(*wIt)->state = WrappedOcNode::REQUESTED_OFFLINE;
+							break;
+						case WrappedOcNode::ONLINE:
+							++onlineCount;
+							(*wIt)->iVbo->managedDraw();
+							break;
+						case WrappedOcNode::RETEST_ONLINE:
+							++onlineCount;
+							mPriReRequestList.push_back((*wIt));
+							(*wIt)->state = WrappedOcNode::REQUESTED_ONLINE;
+							(*wIt)->iVbo->managedDraw();
+							break;
+						case WrappedOcNode::REQUESTED_ONLINE:
+							++onlineCount;
+							(*wIt)->iVbo->managedDraw();
+							break;
+						default:
+							break;
+
+						}
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						switch ((*wIt)->state) {
+						case WrappedOcNode::ONLINE:
+							(*wIt)->octreeNode->getBb().draw(mPriColorTable.calculateTexCoord((*wIt)->octreeNode->getLevel()));
+							break;
+						case WrappedOcNode::RETEST_ONLINE:
+							(*wIt)->octreeNode->getBb().draw(mPriColorTable.calculateTexCoord((*wIt)->octreeNode->getLevel()));
+							break;
+						case WrappedOcNode::REQUESTED_ONLINE:
+							(*wIt)->octreeNode->getBb().draw(mPriColorTable.calculateTexCoord((*wIt)->octreeNode->getLevel()));
+							break;
+						default:
+							break;
+
+						}
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+						cgGLDisableTextureParameter(cgNoLightLUT);
+						cgGLDisableTextureParameter(cgFragLUT);
+						mPriColorTable.unbindTex();
+					}
+					else if (mPriBBMode == 2){
+						mPriColorTable.bindTex();
+						cgGLEnableTextureParameter(cgNoLightLUT);
+						mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertNoLight);
+						mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragNoLight);
+						switch ((*wIt)->state) {
+						case WrappedOcNode::MISSING:
+							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+							(*wIt)->state = WrappedOcNode::REQUESTED;
+							break;
+						case WrappedOcNode::RETEST_OFFLINE:
+							mPriReRequestList.push_back((*wIt));
+							(*wIt)->state = WrappedOcNode::REQUESTED_OFFLINE;
+							break;
+						case WrappedOcNode::ONLINE:
+							++onlineCount;
+							(*wIt)->octreeNode->getBb().draw(mPriColorTable.calculateTexCoord((*wIt)->octreeNode->getLevel()));
+							break;
+						case WrappedOcNode::RETEST_ONLINE:
+							++onlineCount;
+							mPriReRequestList.push_back((*wIt));
+							(*wIt)->state = WrappedOcNode::REQUESTED_ONLINE;
+							(*wIt)->octreeNode->getBb().draw(mPriColorTable.calculateTexCoord((*wIt)->octreeNode->getLevel()));
+							break;
+						case WrappedOcNode::REQUESTED_ONLINE:
+							++onlineCount;
+							(*wIt)->octreeNode->getBb().draw(mPriColorTable.calculateTexCoord((*wIt)->octreeNode->getLevel()));
+							break;
+						default:
+							break;
+
+						}
+						mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+						mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+						cgGLDisableTextureParameter(cgNoLightLUT);
+						mPriColorTable.unbindTex();
+					}
 //					else if (mPriBBMode == 3){
 //						mPriColorTable.bindTex();
 //						cgGLEnableTextureParameter(cgNoLightLUT);
@@ -906,41 +958,55 @@ void RenderCoreGlFrame::manageCaching()
 	mPriWrapperInFrustum.sort();
 	unsigned int delta = 0;
 	WrapperListIter wIt = mPriWrapperInFrustum.begin();
+	unsigned cache1 = 0;
+	unsigned cache2 = 0;
 
 	unsigned onlineCount = 0;
 	for (; wIt != mPriWrapperInFrustum.end(); ++wIt){
 		if ((*wIt)->state == WrappedOcNode::ONLINE){
+			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*sizeof(unsigned));
 			if (mPriFrameTick != (*wIt)->timeStamp){
 //				cerr << (*wIt)->timeStamp << " vs " << mPriFrameTick << endl;
 				(*wIt)->iVbo->setOffline();
 				(*wIt)->state = WrappedOcNode::OFFLINE;
-				delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
 				mPriL2Cache += delta;
 				mPriL1Cache -= delta;
+				cache2 += delta;
 			}
 			else {
 				onlineCount++;
+				cache1 += delta;
 			}
 		}
 		else if ((*wIt)->state == WrappedOcNode::RETEST_ONLINE || (*wIt)->state == WrappedOcNode::REQUESTED_ONLINE){
+			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*sizeof(unsigned));
 			onlineCount++;
+			cache1 += delta;
+		}
+		else if ((*wIt)->state == WrappedOcNode::RETEST_OFFLINE || (*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE || (*wIt)->state == WrappedOcNode::OFFLINE){
+			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*sizeof(unsigned));
+			cache2 += delta;
 		}
 	}
 
-//	cerr << "VBOS online: " << onlineCount << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - l1 cache (counted): " << cache1/1048576 << "Mb" << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - l2 cache (counted): " << cache2/1048576 << "Mb" << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - VBOS online: " << onlineCount << endl;
 //	cerr << "l1 cache: " << mPriL1Cache/1048576 << "Mb" << endl;
 //	cerr << "l2 cache: " << mPriL2Cache/1048576 << "Mb" << endl;
 //	cerr << "----------------------" << endl;
 	// L1-Cache cleaning
 	wIt = mPriWrapperInFrustum.begin();
-	while ((mPriL1Cache>L1_CACHE_THRESHOLD || onlineCount>L1_CACHE_VBO_LIMIT) && wIt != mPriWrapperInFrustum.end()){
+	while ((cache1>L1_CACHE_THRESHOLD || onlineCount>L1_CACHE_VBO_LIMIT) && wIt != mPriWrapperInFrustum.end()){
 		// letzen eincachen
 		if ((*wIt)->state == WrappedOcNode::ONLINE){
 			(*wIt)->iVbo->setOffline();
 			(*wIt)->state = WrappedOcNode::OFFLINE;
-			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*sizeof(unsigned));
 			mPriL2Cache += delta;
 			mPriL1Cache -= delta;
+			cache1 -= delta;
+			cache2 += delta;
 			onlineCount--;
 		}
 		++wIt;
@@ -948,10 +1014,11 @@ void RenderCoreGlFrame::manageCaching()
 
 	// L2 cache cleaning
 	wIt = mPriWrapperInFrustum.begin();
-	while (mPriL2Cache>L2_CACHE_THRESHOLD && wIt != mPriWrapperInFrustum.end()){
+	while (cache2>L2_CACHE_THRESHOLD && wIt != mPriWrapperInFrustum.end()){
 		if ((*wIt)->state == WrappedOcNode::OFFLINE){
-			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*sizeof(unsigned));
 			mPriL2Cache -= delta;
+			cache2 -= delta;
 			delete (*wIt)->iVbo;
 			(*wIt)->iVbo = 0;
 			(*wIt)->state = WrappedOcNode::MISSING;
@@ -1013,13 +1080,82 @@ void RenderCoreGlFrame::clearRequests()
 //	mPriReRequests.clear();
 }
 
-void RenderCoreGlFrame::advTick(){
+void
+RenderCoreGlFrame::advTick(){
 	++mPriFrameTick %= MODULO_FRAMECOUNT;
 	mPriLo->pubTick = mPriFrameTick;
 
 };
 
-void RenderCoreGlFrame::notify(oocframework::IEvent& event)
+void
+RenderCoreGlFrame::clearCache()
+{
+	WrapperListIter wli = mPriWrapperInFrustum.begin();
+	for (; wli != mPriWrapperInFrustum.end(); ){
+		switch ((*wli)->state){
+		case WrappedOcNode::MISSING:
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::ONLINE:
+			(*wli)->iVbo->setOffline();
+			wli++;
+			break;
+		case WrappedOcNode::RETEST_ONLINE:
+			(*wli)->iVbo->setOffline();
+			wli++;
+			break;
+		case WrappedOcNode::REQUESTED_ONLINE:
+			(*wli)->iVbo->setOffline();
+			wli++;
+			break;
+		case WrappedOcNode::OFFLINE:
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			(*wli)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::REQUESTED_OFFLINE:
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			(*wli)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::RETEST_OFFLINE:
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			(*wli)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		default:
+			wli++;
+			break;
+		}
+	}
+
+	wli = mPriWrapperInFrustum.begin();
+	for (; wli != mPriWrapperInFrustum.end(); ){
+		switch ((*wli)->state){
+		case WrappedOcNode::ONLINE:
+			(*wli)->iVbo->setOnline();
+			wli++;
+			break;
+		case WrappedOcNode::RETEST_ONLINE:
+			(*wli)->iVbo->setOnline();
+			wli++;
+			break;
+		case WrappedOcNode::REQUESTED_ONLINE:
+			(*wli)->iVbo->setOnline();
+			wli++;
+			break;
+		default:
+			wli++;
+			break;
+		}
+	}
+}
+
+void
+RenderCoreGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
 		ModelViewMatrixEvent& mve = (ModelViewMatrixEvent&)event;
@@ -1068,6 +1204,9 @@ void RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			case 'N': // decrease far-clipping plane
 				mProFarClippingPlane = max(mProFarClippingPlane/2.0f, 50.0f);
 				reshape(mProWindowWidth, mProWindowHeight);
+			break;
+			case 'X': // clear cache
+				clearCache();
 			break;
 			default:
 			break;
