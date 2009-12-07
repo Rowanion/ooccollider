@@ -131,15 +131,9 @@ void DataCoreGlFrame::init() {
 
 	mPriCCol.generateDistribution(mPriLo);
 #ifdef KEEP_VBOS_RESIDENT
-	//TODO
-	parseAndLoadVBOs(mPriCCol.getMyNodeSet());
-//	set<uint64_t>::const_iterator sIt = mPriCCol.getMyNodeSet().begin();
-//	for(; sIt != mPriCCol.getMyNodeSet().end(); ++sIt){
-//		mPriVboMap.insert(make_pair(*sIt, new IndexedVbo(mPriIdLocMap[*sIt], false)));
-//	}
-	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data to RAM!" << endl;
-	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " having " << mPriCCol.getMyNodeSet().size() << " VBOS resident." << endl;
-	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " thus having " << mPriVboMap.size() << " VBOS resident." << endl;
+	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
+//	parseAndLoadVBOs(mPriCCol.getMyNodeSet());
+	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
 #else
 	mPriOh.generateIdLocMap(fs::path("/home/ava/Diplom/Model/SampleTree_packed/"), mPriIdLocMap);
 #endif
@@ -205,7 +199,8 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
 //		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
 #ifndef KEEP_VBOS_RESIDENT
-		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(mPriIdLocMap[currQuintuple->id], false)));
+//		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(mPriIdLocMap[currQuintuple->id], false)));
+		mPriVArrayMap.insert(make_pair(currQuintuple->id, new IndexedVertexArray(mPriIdLocMap[currQuintuple->id])));
 #endif
 //		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
 //		mPriQuadSet.insert(currQuadruple);
@@ -270,13 +265,14 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 
 					if (mPriOccResults[(*quintIt)->id]>0){
 						// add visible VBO to the current DepthBuffer
-						mPriVboMap[(*quintIt)->id]->setOnline();
-						mPriVboMap[(*quintIt)->id]->managedDraw(true);
-						mPriVboMap[(*quintIt)->id]->setOffline();
-//						mPriIdLoMap[tripIterator->id]->getBb().drawSolidTriFan();
-						mPriVisibleVbosVec.push_back(mPriVboMap[(*quintIt)->id]);
+						mPriVArrayMap[(*quintIt)->id]->managedDraw();
+//						mPriVboMap[(*quintIt)->id]->setOnline();
+//						mPriVboMap[(*quintIt)->id]->managedDraw(true);
+//						mPriVboMap[(*quintIt)->id]->setOffline();
+//						mPriVisibleVabosVec.push_back(mPriVArrayMap[(*quintIt)->id]);
+						mPriVisibleVArraysVec.push_back(mPriVArrayMap[(*quintIt)->id]);
 						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->priority));
-						byteSize = mPriVboMap[(*quintIt)->id]->getIndexCount()*sizeof(unsigned)+mPriVboMap[(*quintIt)->id]->getVertexCount()*sizeof(V4N4);
+						byteSize = mPriVArrayMap[(*quintIt)->id]->getIndexCount()*sizeof(unsigned)+mPriVArrayMap[(*quintIt)->id]->getVertexCount()*sizeof(V4N4);
 					}
 					queryCount++;
 				}
@@ -291,7 +287,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 
 	if (mPriVisibleDistExtVec.size() > 0){
 		// send the visible object to the requester
-		VboEvent ve = VboEvent(mPriVisibleVbosVec, mPriVisibleDistExtVec);
+		VboEvent ve = VboEvent(mPriVisibleVArraysVec, mPriVisibleDistExtVec);
 		if ((*_quintList->begin())->priority){
 //			cout << "sending CacheVBOS: (" << ve.getNodeId(0) << ") - " << ve.getVboCount() << endl;
 		}
@@ -303,16 +299,15 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 	// cleanup
 
 #ifndef KEEP_VBOS_RESIDENT
-	std::map<uint64_t, ooctools::IndexedVbo*>::iterator vboIterator = mPriVboMap.begin();
-	for (; vboIterator != mPriVboMap.end();){
-		vboIterator->second->setOffline();
-		delete vboIterator->second;
-		mPriVboMap.erase(vboIterator++);
+	std::map<uint64_t, ooctools::IndexedVertexArray*>::iterator vArrIterator = mPriVArrayMap.begin();
+	for (; vArrIterator != mPriVArrayMap.end();){
+		delete vArrIterator->second;
+		mPriVArrayMap.erase(vArrIterator++);
 	}
-	mPriVboMap.clear();
+	mPriVArrayMap.clear();
 #endif
 	mPriQuintSet.clear();
-	mPriVisibleVbosVec.clear();
+	mPriVisibleVArraysVec.clear();
 	mPriVisibleDistExtVec.clear();
 
 	mPriOccResults.clear();
@@ -620,6 +615,58 @@ void DataCoreGlFrame::parseAndLoadVBOs(const std::set<uint64_t>& _idSet)
 				idIt = _idSet.find(id);
 				if (idIt != _idSet.end()){
 					mPriVboMap.insert(make_pair(id, new IndexedVbo(loc, false)));
+				}
+
+				inFile.seekg(pos+sizeof(uint64_t), ios::beg);
+				inFile.read((char*)&indexCount, sizeof(unsigned));
+				inFile.seekg(pos+sizeof(uint64_t)+(sizeof(unsigned)), ios::beg);
+				inFile.read((char*)&vertexCount, sizeof(unsigned));
+				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
+
+//				cerr << "indices: " << indexCount << endl;
+//				cerr << "vertices: " << vertexCount << endl;
+//				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
+//				cerr << "new position: " << pos << endl;
+				inFile.seekg(pos, ios::beg);
+			}
+			inFile.close();
+		}
+	}
+}
+
+void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
+{
+	fs::path path = fs::path("/home/ava/Diplom/Model/SampleTree_packed/");
+	fs::ifstream inFile;
+	unsigned pos = 0;
+	unsigned size=0;
+	ooctools::Location loc;
+	uint64_t id = 0;
+	unsigned indexCount = 0;
+	unsigned vertexCount = 0;
+	set<uint64_t>::iterator idIt;
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+	for (fs::directory_iterator itr(path); itr != end_itr; ++itr) {
+		if (fs::is_directory(itr->status())) {
+			parseAndLoadVArrays(_idSet);
+		}
+		else if (itr->path().extension() == ".bin") {
+			inFile.open(itr->path(), ios::binary);
+			inFile.seekg(0, ios::end);
+			loc.path = itr->path();
+			size = inFile.tellg();
+			inFile.seekg(0, ios::beg);
+			pos = 0;
+			while (pos < size){
+				inFile.read((char*)&id, sizeof(uint64_t));
+
+				loc.position = pos;
+//				cerr << "path " << loc.path << endl;
+//				cerr << "pos " << loc.position << endl;
+//				cerr << "size " << size << endl;
+				idIt = _idSet.find(id);
+				if (idIt != _idSet.end()){
+					mPriVArrayMap.insert(make_pair(id, new IndexedVertexArray(&inFile, pos)));
 				}
 
 				inFile.seekg(pos+sizeof(uint64_t), ios::beg);

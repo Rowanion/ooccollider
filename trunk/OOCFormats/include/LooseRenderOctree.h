@@ -29,7 +29,6 @@ namespace oocformats {
 
 struct WrappedOcNode{
 	enum State{
-		SET_ONLINE = 0,
 		REQUESTED = 1,
 		ONLINE = 2,
 		MISSING = 3,

@@ -47,7 +47,7 @@
 #undef DEBUG_REQUESTDATA
 #undef DEBUG_INITIAL_SEND
 #define DEBUG_DEPTH_RESEND
-#define KEEP_VBOS_RESIDENT
+#undef KEEP_VBOS_RESIDENT
 
 #ifdef OFFICE
 #define MAX_OFFLINE_VBOS 4000
@@ -55,7 +55,17 @@
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
 #define L1_CACHE_THRESHOLD 412000000
 #define L1_CACHE_VBO_LIMIT 10000
-#define L2_CACHE_THRESHOLD 1073741824
+//#define L2_CACHE_THRESHOLD 1073741824
+#define L2_CACHE_THRESHOLD 736870912
+#endif
+#ifdef PC2
+#define MAX_OFFLINE_VBOS 4000
+#define MAX_LOADS_PER_FRAME 1000
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
+#define L1_CACHE_THRESHOLD 412000000
+#define L1_CACHE_VBO_LIMIT 10000
+//#define L2_CACHE_THRESHOLD 1073741824
+#define L2_CACHE_THRESHOLD 536870912
 #endif
 #ifdef HOME
 #define MAX_OFFLINE_VBOS 1500
@@ -85,6 +95,7 @@ class Splittree;
 class AccumulatedRendertimeEvent;
 class CameraMovedEvent;
 class ChangeTileDimensionsEvent;
+class ClearCacheEvent;
 class ColorBufferEvent;
 class DepthBufferEvent;
 class DepthBufferRequestEvent;

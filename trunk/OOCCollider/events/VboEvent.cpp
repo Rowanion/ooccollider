@@ -82,6 +82,36 @@ VboEvent::VboEvent(const std::vector<ooctools::IndexedVbo*>& vboVec, const std::
 	}
 }
 
+VboEvent::VboEvent(const std::vector<ooctools::IndexedVertexArray*>& vArrVec, const std::vector<DistExtPair>& distExtVec) // multiple vArrays
+{
+	unsigned vboCount = vArrVec.size();
+	unsigned bytePrefixSums[vboCount+1];
+	bytePrefixSums[0] = 0;
+	for (unsigned i=1; i <= vboCount; ++i){
+		bytePrefixSums[i] = bytePrefixSums[i-1] + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair) + sizeof(unsigned)*vArrVec[i-1]->getIndexCount() + sizeof(V4N4)*vArrVec[i-1]->getVertexCount();
+	}
+	// vbocount + bytePrefixSums+1 + sum of bytes
+	mProByteSize = sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[vboCount];
+	mProData = new char[mProByteSize];
+
+	((unsigned*)mProData)[0] = vboCount;
+
+	memcpy(((mProData + sizeof(unsigned) )), bytePrefixSums, sizeof(unsigned)*(vboCount+1));
+
+	for (unsigned i=0; i < vboCount; ++i){
+		char* tempPt =  (mProData + sizeof(unsigned) + sizeof(unsigned)*(vboCount+1) + bytePrefixSums[i]);
+		unsigned iCount = vArrVec[i]->getIndexCount();
+		unsigned vCount = vArrVec[i]->getVertexCount();
+
+		((uint64_t*)tempPt)[0] = vArrVec[i]->getId();
+		((unsigned*)(tempPt + sizeof(uint64_t)))[0] = iCount;
+		((unsigned*)(tempPt + sizeof(uint64_t)))[1] = vCount;
+		((DistExtPair*)(tempPt + sizeof(uint64_t) + sizeof(unsigned)*2))[0] = distExtVec[i];
+		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2) + sizeof(DistExtPair), vArrVec[i]->getIndexData(), sizeof(unsigned)*iCount);
+		memcpy((tempPt + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair) + sizeof(unsigned)*iCount), vArrVec[i]->getVertexData(), sizeof(float)*vCount*4 + sizeof(char)*vCount*4);
+	}
+}
+
 const ooctools::V4N4* VboEvent::getVertexArray(unsigned idx) const
 {
 	return ((ooctools::V4N4*)(mProData + sizeof(unsigned) + sizeof(unsigned)*(getVboCount()+1) + getBytePrefixSum(idx) + sizeof(uint64_t) + sizeof(unsigned)*2 + sizeof(DistExtPair) + sizeof(unsigned)*getIndexCount(idx)));
