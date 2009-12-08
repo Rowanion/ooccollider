@@ -105,9 +105,9 @@ IndexedVertexArray::IndexedVertexArray(fs::ifstream* _iStream, unsigned _pos) :
 	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
 	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
 
-	cerr << "ID: " << mPriId << endl;
-	cerr << "indexcount: " << mPriIndexCount << endl;
-	cerr << "vertexcount: " << mPriVertexCount << endl;
+//	cerr << "ID: " << mPriId << endl;
+//	cerr << "indexcount: " << mPriIndexCount << endl;
+//	cerr << "vertexcount: " << mPriVertexCount << endl;
 //	for (unsigned i =0; i< mPriIndexCount; ++i){
 //		cerr << mPriIndexData[i] << endl;
 //	}

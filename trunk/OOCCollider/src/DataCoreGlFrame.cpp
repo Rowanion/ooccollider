@@ -40,8 +40,7 @@ using namespace oocframework;
 DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight) :
 		AbstractGlFrame(_winWidth, _winHeight, _targetWidth, _targetHeight),
 		scale(1.0f), avgFps(0.0f), time(0.0),
-		frame(0), mPriVboMan(0), mPriCgt(0),
-		mPriDepthBuffer(0), mPriNewDepthBuf(false),
+		frame(0), mPriCgt(0), mPriDepthBuffer(0), mPriNewDepthBuf(false),
 		mPriOccResults(std::map<uint64_t, GLint>()), mPriIdPathMap(std::map<uint64_t, std::string>()),
 		mPriCCol(PRESELECTED_SEED, LVL_OF_REDUNDANCY), mPriFbo(0), mPriCamera(OOCCamera())
 {
@@ -49,8 +48,6 @@ DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsign
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
 	}
-	mPriVboMan = VboManager::getSingleton();
-	mPriVboMan->setColorTable(ColorTable(string(BASE_MODEL_PATH) + string("/colortable.bin")));
 	mPriCgt = CgToolkit::getSingleton();
 	myGlobalAmbient[0] = 0.1f;
 	myGlobalAmbient[1] = 0.1f;
@@ -132,7 +129,6 @@ void DataCoreGlFrame::init() {
 	mPriCCol.generateDistribution(mPriLo);
 #ifdef KEEP_VBOS_RESIDENT
 	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
-//	parseAndLoadVBOs(mPriCCol.getMyNodeSet());
 	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
 #else
 	mPriOh.generateIdLocMap(fs::path("/home/ava/Diplom/Model/SampleTree_packed/"), mPriIdLocMap);
@@ -144,21 +140,14 @@ void DataCoreGlFrame::init() {
 
 void DataCoreGlFrame::setupCg()
 {
+#ifdef SHOW_DEPTH_IMAGE
 	mPriCgt->initCG(true);
 	cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_depth2color.cg", true, "");
 	cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_depth2color.cg", true, "");
 
 	cgTexture = cgGetNamedParameter(cgFragmentProg, "depthTex");
 //	cgGLSetTextureParameter(cgTexture, mPriFbo->getDepthTexId());
-}
-
-void DataCoreGlFrame::loadAssignedVbos()
-{
-	set<uint64_t> nodes = mPriCCol.getMyNodeSet();
-	set<uint64_t>::iterator setIt = nodes.begin();
-	for (; setIt != nodes.end(); ++setIt){
-		mPriVboMap.insert(make_pair(*setIt, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[*setIt]+".idx"), *setIt, false)));
-	}
+#endif
 }
 
 void DataCoreGlFrame::display()
@@ -199,7 +188,6 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
 //		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
 #ifndef KEEP_VBOS_RESIDENT
-//		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(mPriIdLocMap[currQuintuple->id], false)));
 		mPriVArrayMap.insert(make_pair(currQuintuple->id, new IndexedVertexArray(mPriIdLocMap[currQuintuple->id])));
 #endif
 //		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
@@ -266,10 +254,6 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 					if (mPriOccResults[(*quintIt)->id]>0){
 						// add visible VBO to the current DepthBuffer
 						mPriVArrayMap[(*quintIt)->id]->managedDraw();
-//						mPriVboMap[(*quintIt)->id]->setOnline();
-//						mPriVboMap[(*quintIt)->id]->managedDraw(true);
-//						mPriVboMap[(*quintIt)->id]->setOffline();
-//						mPriVisibleVabosVec.push_back(mPriVArrayMap[(*quintIt)->id]);
 						mPriVisibleVArraysVec.push_back(mPriVArrayMap[(*quintIt)->id]);
 						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->priority));
 						byteSize = mPriVArrayMap[(*quintIt)->id]->getIndexCount()*sizeof(unsigned)+mPriVArrayMap[(*quintIt)->id]->getVertexCount()*sizeof(V4N4);
@@ -312,6 +296,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 
 	mPriOccResults.clear();
 
+#ifdef SHOW_DEPTH_IMAGE
 	if (_destId == 1){
 		// draw the result for debugging
 		reshape(mProWindowWidth,mProWindowHeight);
@@ -327,6 +312,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 		cgGLDisableTextureParameter(cgTexture);
 		GET_GLERROR(0);
 	}
+#endif
 }
 
 void DataCoreGlFrame::occlusionTest(int _destId, std::list<const Quintuple*>* _quintList)
@@ -580,58 +566,6 @@ void DataCoreGlFrame::calcFPS() {
 	}
 	avgFps /= 10.0f;
 
-}
-
-void DataCoreGlFrame::parseAndLoadVBOs(const std::set<uint64_t>& _idSet)
-{
-	fs::path path = fs::path("/home/ava/Diplom/Model/SampleTree_packed/");
-	fs::ifstream inFile;
-	unsigned pos = 0;
-	unsigned size=0;
-	ooctools::Location loc;
-	uint64_t id = 0;
-	unsigned indexCount = 0;
-	unsigned vertexCount = 0;
-	set<uint64_t>::iterator idIt;
-	fs::directory_iterator end_itr; // default construction yields past-the-end
-	for (fs::directory_iterator itr(path); itr != end_itr; ++itr) {
-		if (fs::is_directory(itr->status())) {
-			parseAndLoadVBOs(_idSet);
-		}
-		else if (itr->path().extension() == ".bin") {
-			inFile.open(itr->path(), ios::binary);
-			inFile.seekg(0, ios::end);
-			loc.path = itr->path();
-			size = inFile.tellg();
-			inFile.seekg(0, ios::beg);
-			pos = 0;
-			while (pos < size){
-				inFile.read((char*)&id, sizeof(uint64_t));
-
-				loc.position = pos;
-//				cerr << "path " << loc.path << endl;
-//				cerr << "pos " << loc.position << endl;
-//				cerr << "size " << size << endl;
-				idIt = _idSet.find(id);
-				if (idIt != _idSet.end()){
-					mPriVboMap.insert(make_pair(id, new IndexedVbo(loc, false)));
-				}
-
-				inFile.seekg(pos+sizeof(uint64_t), ios::beg);
-				inFile.read((char*)&indexCount, sizeof(unsigned));
-				inFile.seekg(pos+sizeof(uint64_t)+(sizeof(unsigned)), ios::beg);
-				inFile.read((char*)&vertexCount, sizeof(unsigned));
-				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
-
-//				cerr << "indices: " << indexCount << endl;
-//				cerr << "vertices: " << vertexCount << endl;
-//				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
-//				cerr << "new position: " << pos << endl;
-				inFile.seekg(pos, ios::beg);
-			}
-			inFile.close();
-		}
-	}
 }
 
 void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)

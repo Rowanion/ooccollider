@@ -1,15 +1,15 @@
 CC=mpic++
 LD=$(CC)
 HOMEDIR=/home-pc2/user/ava
-CPPFLAGS = -Wall -Wno-deprecated -O3 -fPIC -ffast-math -funroll-loops -msse2 -I../include -I$(HOMEDIR)/Diplom/usr/include -I$(HOMEDIR)/Diplom/usr/include/ooctools -I/home-pc2/user/ava/Diplom/include
+CPPFLAGS = -Wall -Wno-deprecated -O3 -fPIC -ffast-math -funroll-loops -msse2 -I../include -I$(HOMEDIR)/Diplom/usr/include -I../../OOCTools/include/ -I/home-pc2/user/ava/Diplom/include
 # `sdl-config --cflags`
 LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools 
 
-HEADERFILES = declarations.h FileHeader.h FileIO.h IModelLoader.h ModelWriter.h ObjModelLoader.h OctreeHandler.h RawModelLoader.h RawModelWriter.h 
+HEADERFILES = declarations.h FileHeader.h FileIO.h IModelLoader.h LooseOctree.h LooseProcessingOctree.h LooseRenderOctree.h ModelWriter.h ObjModelLoader.h OctreeHandler.h RawModelHandler.h RawModelLoader.h RawModelWriter.h TriangleStream.h 
 
-OBJS = FileHeader.o FileIO.o IModelLoader.o ModelWriter.o ObjModelLoader.o OctreeHandler.o RawModelLoader.o RawModelWriter.o
+OBJS = FileHeader.o FileIO.o IModelLoader.o LooseOctree.o LooseProcessingOctree.o LooseRenderOctree.o ObjModelLoader.o OctreeHandler.o RawModelHandler.o TriangleStream.o
 
-SRCS = FileHeader.cpp FileIO.cpp IModelLoader.cpp ModelWriter.cpp ObjModelLoader.cpp OctreeHandler.cpp RawModelLoader.cpp RawModelWriter.cpp
+SRCS = FileHeader.cpp FileIO.cpp IModelLoader.cpp LooseOctree.cpp LooseProcessingOctree.cpp LooseRenderOctree.cpp ObjModelLoader.cpp OctreeHandler.cpp RawModelHandler.cpp TriangleStream.cpp
 
 all : liboocformats.so 
 	chmod g+rw *.o

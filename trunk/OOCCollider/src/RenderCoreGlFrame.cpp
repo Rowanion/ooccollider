@@ -452,6 +452,7 @@ void RenderCoreGlFrame::display()
 	}
 #endif
 
+#ifdef SHOW_RENDER_IMAGE
 	// restore normal frustum before drawing
 	// NOTE: will be removed in final version because there is no need to visibly draw for a slave. (...in computer-scientist way of meaning.)
 	reshape(mProWindowWidth,mProWindowHeight);
@@ -462,6 +463,7 @@ void RenderCoreGlFrame::display()
 //	drawDepthTex();
 	glPolygonMode(GL_FRONT, polyMode);
 	GET_GLERROR(0);
+#endif
 
 	double diff = t-time;
 	fps[frame%10] = 1.0/diff;
@@ -471,6 +473,15 @@ void RenderCoreGlFrame::display()
 		frame = 0;
 	}
 	calcFPS();
+
+	// ---------------------------------------
+	cerr << MpiControl::getSingleton()->getRank() << " - mPriIdLoMap: " << mPriIdLoMap.size() << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - mPriWrapperInFrustum: " << mPriWrapperInFrustum.size() << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - mPriRequests: " << mPriRequests.size() << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - mPriReRequests: " << mPriReRequests.size() << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - mPriReRequestList: " << mPriReRequestList.size() << endl;
+	cerr << MpiControl::getSingleton()->getRank() << " - mPriOccResults: " << mPriOccResults.size() << endl;
+	// ---------------------------------------
 }
 
 
@@ -532,20 +543,6 @@ void RenderCoreGlFrame::occlusionTest()
 					}
 
 					glGetQueryObjectiv(mPriOccQueries[queryCount], GL_QUERY_RESULT, &mPriOccResults[(*wIt)->octreeNode->getId()]);
-
-					// -----------------------------------------------
-//					if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE ){
-//						(*wIt)->state = WrappedOcNode::ONLINE;
-//						(*wIt)->usageCount = 0;
-//					}
-//					else if ((*wIt)->state == WrappedOcNode::REQUESTED_OFFLINE){
-//						(*wIt)->state = WrappedOcNode::ONLINE;
-//						(*wIt)->iVbo->setOnline();
-//						(*wIt)->usageCount = 0;
-//						delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
-//						mPriL2Cache -= delta;
-//						mPriL1Cache += delta;
-//					}
 
 					// -----------------------------------------------
 					if (mPriOccResults[(*wIt)->octreeNode->getId()] <= 0){
@@ -989,9 +986,9 @@ void RenderCoreGlFrame::manageCaching()
 		}
 	}
 
-	cerr << MpiControl::getSingleton()->getRank() << " - l1 cache (counted): " << cache1/1048576 << "Mb" << endl;
-	cerr << MpiControl::getSingleton()->getRank() << " - l2 cache (counted): " << cache2/1048576 << "Mb" << endl;
-	cerr << MpiControl::getSingleton()->getRank() << " - VBOS online: " << onlineCount << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - l1 cache (counted): " << cache1/1048576 << "Mb" << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - l2 cache (counted): " << cache2/1048576 << "Mb" << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - VBOS online: " << onlineCount << endl;
 //	cerr << "l1 cache: " << mPriL1Cache/1048576 << "Mb" << endl;
 //	cerr << "l2 cache: " << mPriL2Cache/1048576 << "Mb" << endl;
 //	cerr << "----------------------" << endl;
@@ -1155,6 +1152,67 @@ RenderCoreGlFrame::clearCache()
 }
 
 void
+RenderCoreGlFrame::clearEverything()
+{
+	WrapperListIter wli = mPriWrapperInFrustum.begin();
+	for (; wli != mPriWrapperInFrustum.end(); ){
+		switch ((*wli)->state){
+		case WrappedOcNode::MISSING:
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::ONLINE:
+			(*wli)->iVbo->setOffline();
+			(*wli)->state = WrappedOcNode::MISSING;
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::RETEST_ONLINE:
+			(*wli)->iVbo->setOffline();
+			(*wli)->state = WrappedOcNode::MISSING;
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::REQUESTED_ONLINE:
+			(*wli)->iVbo->setOffline();
+			(*wli)->state = WrappedOcNode::MISSING;
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::OFFLINE:
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			(*wli)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::REQUESTED_OFFLINE:
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			(*wli)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::RETEST_OFFLINE:
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			(*wli)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		case WrappedOcNode::REQUESTED:
+			delete (*wli)->iVbo;
+			(*wli)->iVbo = 0;
+			(*wli)->state = WrappedOcNode::MISSING;
+			mPriWrapperInFrustum.erase(wli++);
+			break;
+		default:
+			wli++;
+			break;
+		}
+	}
+}
+
+void
 RenderCoreGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(ModelViewMatrixEvent::classid())){
@@ -1173,8 +1231,8 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		memcpy(mPriModelViewMatrix, mve.getMatrix(), sizeof(float)*16);
 	}
 	else if (event.instanceOf(KeyPressedEvent::classid())){
-		KeyPressedEvent& mde = (KeyPressedEvent&)event;
-	    switch (mde.getKey()) {
+		KeyPressedEvent& kpe = (KeyPressedEvent&)event;
+	    switch (kpe.getKey()) {
 			case GLFW_KEY_PAGEUP: // tilt up
 			break;
 			case GLFW_KEY_KP_SUBTRACT:
@@ -1205,9 +1263,14 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 				mProFarClippingPlane = max(mProFarClippingPlane/2.0f, 50.0f);
 				reshape(mProWindowWidth, mProWindowHeight);
 			break;
-			case 'X': // clear cache
-				clearCache();
-			break;
+			case 'X':{ // clear cache
+				if (kpe.isCtrl()){
+					clearEverything();
+				}
+				else {
+					clearCache();
+				}
+			break;}
 			default:
 			break;
 		}
@@ -1228,44 +1291,6 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
 					mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
 					mPriWrapperInFrustum.push_back(idLoIt->second->getWrapper());
-				}
-			}
-		}
-	}
-	else if (event.instanceOf(OcclusionResultsEvent::classid())){
-		OcclusionResultsEvent& ore = (OcclusionResultsEvent&)event;
-		std::map<uint64_t, oocformats::LooseRenderOctree*>::iterator idLoIt;
-		unsigned delta = 0;
-		for (unsigned i=0; i< ore.getIdxCount(); ++i){
-			idLoIt = mPriIdLoMap.find(ore.getId(i));
-			if (idLoIt != mPriIdLoMap.end()){
-				if (idLoIt->second->getWrapper()->state == WrappedOcNode::REQUESTED_ONLINE){
-					if (ore.getVisibility(i)>0){
-						idLoIt->second->getWrapper()->state = WrappedOcNode::ONLINE;
-						idLoIt->second->getWrapper()->usageCount = 0;
-					}
-					else {
-						idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
-						idLoIt->second->getWrapper()->iVbo->setOffline();
-						idLoIt->second->getWrapper()->usageCount = 0;
-						delta = (idLoIt->second->getWrapper()->iVbo->getVertexCount()*20) + (idLoIt->second->getWrapper()->iVbo->getIndexCount()*4);
-						mPriL2Cache += delta;
-						mPriL1Cache -= delta;
-					}
-				}
-				else if (idLoIt->second->getWrapper()->state == WrappedOcNode::REQUESTED_OFFLINE){
-					if (ore.getVisibility(i)>0){
-						idLoIt->second->getWrapper()->state = WrappedOcNode::ONLINE;
-						idLoIt->second->getWrapper()->iVbo->setOnline();
-						idLoIt->second->getWrapper()->usageCount = 0;
-						delta = (idLoIt->second->getWrapper()->iVbo->getVertexCount()*20) + (idLoIt->second->getWrapper()->iVbo->getIndexCount()*4);
-						mPriL2Cache -= delta;
-						mPriL1Cache += delta;
-					}
-					else {
-						idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
-						idLoIt->second->getWrapper()->usageCount = 0;
-					}
 				}
 			}
 		}

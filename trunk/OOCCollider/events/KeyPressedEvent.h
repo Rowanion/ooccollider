@@ -12,6 +12,7 @@
 #include "declarations.h"
 #include "IEvent.h"
 #include "ClassId.h"
+#include "Message.h"
 
 /**
  * @class KeyPressedEvent
@@ -24,7 +25,8 @@
 class KeyPressedEvent : public oocframework::IEvent{
 public:
 	KeyPressedEvent();
-	KeyPressedEvent(int key);
+	KeyPressedEvent(int key, char _lShift, char _rShift, char _lCtrl, char _rCtrl, char _lAlt, char _rAlt);
+	KeyPressedEvent(const oocframework::Message* msg);
 	virtual ~KeyPressedEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
@@ -38,6 +40,16 @@ public:
 	 * GLFW seems always to submit the upper-case versions.
 	 */
 	int getKey() const {return ((int*)mProData)[0];};
+
+	bool isLShift();
+	bool isRShift();
+	bool isShift();
+	bool isLCtrl();
+	bool isRCtrl();
+	bool isCtrl();
+	bool isLAlt();
+	bool isRAlt();
+	bool isAlt();
 
 protected:
 	static oocframework::ClassId* mClassId;

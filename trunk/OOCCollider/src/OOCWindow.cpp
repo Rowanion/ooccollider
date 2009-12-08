@@ -118,7 +118,10 @@ OOCWindow::Key_Callback(int key, int action)
 	// If there is an event handler, tell it about this key (second
 	// parameter indicates whether the key was pressed or released).
 	if (action == GLFW_PRESS){
-		KeyPressedEvent kpe = KeyPressedEvent(key);
+		// ----------------------------------------------
+//		glfwGetKey(GLFW_KEY_LCTRL) == GLFW_PRESS || glfwGetKey(GLFW_KEY_RCTRL) == GLFW_PRESS
+		// ----------------------------------------------
+		KeyPressedEvent kpe = KeyPressedEvent(key, (glfwGetKey(GLFW_KEY_LSHIFT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RSHIFT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_LCTRL) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RCTRL) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_LALT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RALT) == GLFW_PRESS));
 		oocframework::EventManager::getSingleton()->fire(kpe);
 	}
 	if (OOCWindow::instance->mHandler != 0)

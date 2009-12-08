@@ -69,6 +69,7 @@ public:
 	void reRequestVbos();
 	void advTick();
 	void clearCache();
+	void clearEverything();
 
 
 protected:
