@@ -181,8 +181,7 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 			mWindow->resize(w,h);
 		}
 		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
-			int key = ((int*) msg->getData())[0];
-			KeyPressedEvent kpe = KeyPressedEvent(key);
+			KeyPressedEvent kpe = KeyPressedEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(kpe);
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){

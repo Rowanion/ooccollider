@@ -142,8 +142,7 @@ void DataCore::handleMsg(Message* msg){
 		//			oocframework::EventManager::getSingleton()->fire(mde);
 		//		}
 		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
-			int key = ((int*) msg->getData())[0];
-			KeyPressedEvent kpe = KeyPressedEvent(key);
+			KeyPressedEvent kpe = KeyPressedEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(kpe);
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){

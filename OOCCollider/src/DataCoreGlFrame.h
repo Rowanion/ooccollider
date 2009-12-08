@@ -19,11 +19,8 @@
 
 #include "declarations.h"
 #include "AbstractGlFrame.h"
-#include "VboManager.h"
-#include "IndexedVbo.h"
 #include "Camera.h"
 #include "Quaternion.h"
-#include "IndexedVbo.h"
 #include "AbstractEventListener.h"
 #include "Fbo.h"
 #include "LooseRenderOctree.h"
@@ -34,6 +31,7 @@
 #include "Structs.h"
 #include "CCollisionProtocol.h"
 #include "IndexedVertexArray.h"
+#include "CgToolkit.h"
 
 
 
@@ -61,7 +59,6 @@ public:
 	void debug();
 	void notify(oocframework::IEvent& event);
 	void occlusionTest(int _destId, std::list<const Quintuple*>* _quintList);
-	void parseAndLoadVBOs(const std::set<uint64_t>& _idSet);
 	void parseAndLoadVArrays(const std::set<uint64_t>& _idSet);
 
 protected:
@@ -71,7 +68,6 @@ private:
 	float avgFps;
 	double time;
 	unsigned frame;
-	ooctools::VboManager* mPriVboMan;
 	ooctools::CgToolkit* mPriCgt;
 
 	float mPriModelViewMatrix[16];
@@ -105,9 +101,7 @@ private:
 	std::map<uint64_t, oocformats::LooseRenderOctree*> mPriIdLoMap;
 	std::map<uint64_t, ooctools::Location> mPriIdLocMap;
 	std::set<uint64_t> mPriIdsInFrustum;
-	std::map<uint64_t, ooctools::IndexedVbo*> mPriVboMap;
 	std::map<uint64_t, ooctools::IndexedVertexArray*> mPriVArrayMap;
-	std::vector<ooctools::IndexedVbo*> mPriVisibleVbosVec;
 	std::vector<ooctools::IndexedVertexArray*> mPriVisibleVArraysVec;
 	std::vector<DistExtPair> mPriVisibleDistExtVec;
 	std::set<ooctools::Quintuple> mPriQuintSet;
@@ -167,13 +161,11 @@ private:
 //	double screenYMaxH;
 //	double screenYMinH;
 
-	typedef std::map<uint64_t, ooctools::IndexedVbo*>::iterator VboMapIter;
+	typedef std::map<uint64_t, ooctools::IndexedVertexArray*>::iterator VArrMapIter;
 	typedef std::map<int, ooctools::Fbo*>::iterator IntFboMapIter;
 
 	void calcFPS();
-	void loadMissingVbos(std::set<uint64_t>* idList, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap);
 	void setupCg();
-	void loadAssignedVbos();
 };
 
 #endif /* DATACOREGLFRAME_H_ */

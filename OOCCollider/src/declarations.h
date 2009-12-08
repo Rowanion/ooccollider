@@ -20,6 +20,8 @@
                  fflush(stderr); \
          } \
 }
+#undef SHOW_RENDER_IMAGE
+#undef SHOW_DEPTH_IMAGE
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 #define TARGET_WIDTH 640
@@ -47,35 +49,43 @@
 #undef DEBUG_REQUESTDATA
 #undef DEBUG_INITIAL_SEND
 #define DEBUG_DEPTH_RESEND
-#undef KEEP_VBOS_RESIDENT
+#define KEEP_VBOS_RESIDENT
 
 #ifdef OFFICE
+#undef SHOW_RENDER_IMAGE
+#undef SHOW_DEPTH_IMAGE
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 1000
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
+#define L1_CACHE_THRESHOLD 412000000
+#define L1_CACHE_VBO_LIMIT 20000
+//#define L2_CACHE_THRESHOLD 1073741824
+#define L2_CACHE_THRESHOLD 736870912
+#endif
+
+#ifdef PC2
+#undef SHOW_RENDER_IMAGE
+#undef SHOW_DEPTH_IMAGE
+#define KEEP_VBOS_RESIDENT
+#define MAX_OFFLINE_VBOS 4000
+#define MAX_LOADS_PER_FRAME 1000
+//#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
+#define BASE_MODEL_PATH "/home-pc2/user/ava/Diplom/Model/SampleTree"
 #define L1_CACHE_THRESHOLD 412000000
 #define L1_CACHE_VBO_LIMIT 10000
 //#define L2_CACHE_THRESHOLD 1073741824
 #define L2_CACHE_THRESHOLD 736870912
 #endif
-#ifdef PC2
-#define MAX_OFFLINE_VBOS 4000
-#define MAX_LOADS_PER_FRAME 1000
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
-#define L1_CACHE_THRESHOLD 412000000
-#define L1_CACHE_VBO_LIMIT 10000
-//#define L2_CACHE_THRESHOLD 1073741824
-#define L2_CACHE_THRESHOLD 536870912
-#endif
+
 #ifdef HOME
+#define SHOW_RENDER_IMAGE
+#define SHOW_DEPTH_IMAGE
 #define MAX_OFFLINE_VBOS 1500
 #define MAX_LOADS_PER_FRAME 40
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
 #define L1_CACHE_THRESHOLD 153600
 #define L1_CACHE_VBO_LIMIT 3000
 #define L2_CACHE_THRESHOLD 268435456
-#endif
-#ifdef CLUSTER
 #endif
 
 // class declarations
