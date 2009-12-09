@@ -1,0 +1,18 @@
+ftur8r	TUSerif		"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerif.pfb
+fturi8r	TUSerifIta	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerifIta.pfb
+ftub8r	TUSerifBol	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerifBol.pfb
+ftubi8r	TUSerifBolIta	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerifBolIta.pfb
+ftul8r	TUSerifLig	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerifLig.pfb
+ftuli8r	TUSerifLigIta	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerifLigita.pfb
+fturo8r	TUSerif		"0.167 SlantFont TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerif.pfb
+ftubo8r	TUSerifBol	"0.167 SlantFont TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerifBol.pfb
+ftulo8r	TUSerifLig	"0.167 SlantFont TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSerifLig.pfb
+ftsr8r	TUSans		"TeXBase1Encoding ReEncodeFont" <8r.enc <TUSan.pfb
+ftsri8r	TUSansIta	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSanIta.pfb
+ftsb8r	TUSansBol	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSansBol.pfb
+ftsbi8r	TUSansBolIta	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSanBolIta.pfb
+ftsd8r	TUSansDem	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSansDem.pfb
+ftsdi8r	TUSansDemIta	"TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSanDemIta.pfb
+ftsro8r	TUSans		"0.167 SlantFont TeXBase1Encoding ReEncodeFont" <8r.enc <TUSan.pfb
+ftsbo8r	TUSansBol	"0.167 SlantFont TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSansBol.pfb
+ftsdo8r	TUSansDem	"0.167 SlantFont TeXBase1Encoding ReEncodeFont"	<8r.enc <TUSansDem.pfb

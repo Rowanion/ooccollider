@@ -1,0 +1,56 @@
+%Filename: 8rftu.fd
+%Created by: tex fontinst
+%Created using fontinst v1.801
+
+%THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
+
+\ProvidesFile{8rftu.fd}
+   [2002/12/16 Fontinst v1.801 font definitions for 8r/ftu.]
+
+\DeclareFontFamily{8r}{ftu}{}
+
+\DeclareFontShape{8r}{ftu}{m}{n}{
+   <-> ftur8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{m}{sl}{
+   <-> fturo8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{m}{it}{
+   <-> fturi8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{b}{n}{
+   <-> ftub8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{b}{sl}{
+   <-> ftubo8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{b}{it}{
+   <-> ftubi8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{l}{n}{
+   <-> ftul8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{l}{sl}{
+   <-> ftulo8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{l}{it}{
+   <-> ftuli8r
+}{}
+
+\DeclareFontShape{8r}{ftu}{db}{n}{<->ssub * ftu/b/n}{}
+\DeclareFontShape{8r}{ftu}{db}{sl}{<->ssub * ftu/b/sl}{}
+\DeclareFontShape{8r}{ftu}{db}{it}{<->ssub * ftu/b/it}{}
+
+\DeclareFontShape{8r}{ftu}{bx}{n}{<->ssub * ftu/b/n}{}
+\DeclareFontShape{8r}{ftu}{bx}{sl}{<->ssub * ftu/b/sl}{}
+\DeclareFontShape{8r}{ftu}{bx}{it}{<->ssub * ftu/b/it}{}
+
+\endinput

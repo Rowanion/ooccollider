@@ -1,0 +1,70 @@
+%Filename: ot1fts.fd
+%Created by: tex fontinst
+%Created using fontinst v1.801
+
+%THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
+
+\ProvidesFile{ot1fts.fd}
+   [2002/12/16 Fontinst v1.801 font definitions for OT1/fts.]
+
+\DeclareFontFamily{OT1}{fts}{}
+
+\DeclareFontShape{OT1}{fts}{m}{n}{
+   <-> ftsr7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{m}{sc}{
+   <-> ftsrc7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{m}{sl}{
+   <-> ftsro7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{m}{it}{
+   <-> ftsri7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{b}{n}{
+   <-> ftsb7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{b}{sc}{
+   <-> ftsbc7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{b}{sl}{
+   <-> ftsbo7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{b}{it}{
+   <-> ftsbi7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{db}{n}{
+   <-> ftsd7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{db}{sc}{
+   <-> ftsdc7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{db}{sl}{
+   <-> ftsdo7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{db}{it}{
+   <-> ftsdi7t
+}{}
+
+\DeclareFontShape{OT1}{fts}{l}{n}{<->ssub * fts/m/n}{}
+\DeclareFontShape{OT1}{fts}{l}{sc}{<->ssub * fts/m/sc}{}
+\DeclareFontShape{OT1}{fts}{l}{sl}{<->ssub * fts/m/sl}{}
+\DeclareFontShape{OT1}{fts}{l}{it}{<->ssub * fts/m/it}{}
+
+\DeclareFontShape{OT1}{fts}{bx}{n}{<->ssub * fts/b/n}{}
+\DeclareFontShape{OT1}{fts}{bx}{sc}{<->ssub * fts/b/sc}{}
+\DeclareFontShape{OT1}{fts}{bx}{sl}{<->ssub * fts/b/sl}{}
+\DeclareFontShape{OT1}{fts}{bx}{it}{<->ssub * fts/b/it}{}
+
+\endinput
