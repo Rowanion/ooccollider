@@ -1,0 +1,56 @@
+%Filename: 8rfts.fd
+%Created by: tex fontinst
+%Created using fontinst v1.801
+
+%THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
+
+\ProvidesFile{8rfts.fd}
+   [2002/12/16 Fontinst v1.801 font definitions for 8r/fts.]
+
+\DeclareFontFamily{8r}{fts}{}
+
+\DeclareFontShape{8r}{fts}{m}{n}{
+   <-> ftsr8r
+}{}
+
+\DeclareFontShape{8r}{fts}{m}{sl}{
+   <-> ftsro8r
+}{}
+
+\DeclareFontShape{8r}{fts}{m}{it}{
+   <-> ftsri8r
+}{}
+
+\DeclareFontShape{8r}{fts}{b}{n}{
+   <-> ftsb8r
+}{}
+
+\DeclareFontShape{8r}{fts}{b}{sl}{
+   <-> ftsbo8r
+}{}
+
+\DeclareFontShape{8r}{fts}{b}{it}{
+   <-> ftsbi8r
+}{}
+
+\DeclareFontShape{8r}{fts}{db}{n}{
+   <-> ftsd8r
+}{}
+
+\DeclareFontShape{8r}{fts}{db}{sl}{
+   <-> ftsdo8r
+}{}
+
+\DeclareFontShape{8r}{fts}{db}{it}{
+   <-> ftsdi8r
+}{}
+
+\DeclareFontShape{8r}{fts}{l}{n}{<->ssub * fts/m/n}{}
+\DeclareFontShape{8r}{fts}{l}{sl}{<->ssub * fts/m/sl}{}
+\DeclareFontShape{8r}{fts}{l}{it}{<->ssub * fts/m/it}{}
+
+\DeclareFontShape{8r}{fts}{bx}{n}{<->ssub * fts/b/n}{}
+\DeclareFontShape{8r}{fts}{bx}{sl}{<->ssub * fts/b/sl}{}
+\DeclareFontShape{8r}{fts}{bx}{it}{<->ssub * fts/b/it}{}
+
+\endinput

@@ -1,0 +1,22 @@
+
+TU Fonts für LaTeX auf Ubuntu (8.04) installieren in 43 simple steps
+--------------------------------------------------------------------
+
+Config-Dateien mit Map-Einträgen zuzupflastern (wie die beiliegende Original-
+Anleitungs-PDF vorschlägt) ist deprecated, und wird spätestens für pdflatex
+nicht funktionieren, da sich die Config-Datei mitsamt Syntax inzwischen
+geändert hat.
+
+Siehe http://groups.google.com/group/comp.text.tex/browse_thread/thread/53a0fc18e28a2e31/bc8c01dcc8416931
+
+Deshalb folgende Kurzanleitung, sollte in ähnlicher Form auch für andere
+Linux- bzw. Tex-Distributionen funktionieren.
+
+1. tu.map nach /usr/share/texmf-texlive/fonts/map/dvips/tu.map kopieren
+2. Den Rest ("texmf"-Ordner) nach /usr/local/share/texmf kopieren
+3. (sudo) mktexlsr
+4. (sudo) updmap-sys --enable Map tu.map
+
+Funktioniert dann hoffentlich beim nächsten LaTeX-Aufruf. Der vom
+Anleitungs-PDF genannte "texhash"-Befehl ist, soweit ich sehen kann,
+bei mktexlsr dabei. Notfalls nochmal wild herumprobieren.

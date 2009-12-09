@@ -1,0 +1,56 @@
+%Filename: ts1fts.fd
+%Created by: tex fontinst
+%Created using fontinst v1.801
+
+%THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
+
+\ProvidesFile{ts1fts.fd}
+   [2002/12/16 Fontinst v1.801 font definitions for TS1/fts.]
+
+\DeclareFontFamily{TS1}{fts}{}
+
+\DeclareFontShape{TS1}{fts}{m}{n}{
+   <-> ftsr8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{m}{sl}{
+   <-> ftsro8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{m}{it}{
+   <-> ftsri8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{b}{n}{
+   <-> ftsb8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{b}{sl}{
+   <-> ftsbo8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{b}{it}{
+   <-> ftsbi8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{db}{n}{
+   <-> ftsd8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{db}{sl}{
+   <-> ftsdo8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{db}{it}{
+   <-> ftsdi8c
+}{}
+
+\DeclareFontShape{TS1}{fts}{l}{n}{<->ssub * fts/m/n}{}
+\DeclareFontShape{TS1}{fts}{l}{sl}{<->ssub * fts/m/sl}{}
+\DeclareFontShape{TS1}{fts}{l}{it}{<->ssub * fts/m/it}{}
+
+\DeclareFontShape{TS1}{fts}{bx}{n}{<->ssub * fts/b/n}{}
+\DeclareFontShape{TS1}{fts}{bx}{sl}{<->ssub * fts/b/sl}{}
+\DeclareFontShape{TS1}{fts}{bx}{it}{<->ssub * fts/b/it}{}
+
+\endinput

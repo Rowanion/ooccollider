@@ -1,0 +1,70 @@
+%Filename: ot1ftu.fd
+%Created by: tex fontinst
+%Created using fontinst v1.801
+
+%THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
+
+\ProvidesFile{ot1ftu.fd}
+   [2002/12/16 Fontinst v1.801 font definitions for OT1/ftu.]
+
+\DeclareFontFamily{OT1}{ftu}{}
+
+\DeclareFontShape{OT1}{ftu}{m}{n}{
+   <-> ftur7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{m}{sc}{
+   <-> fturc7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{m}{sl}{
+   <-> fturo7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{m}{it}{
+   <-> fturi7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{b}{n}{
+   <-> ftub7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{b}{sc}{
+   <-> ftubc7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{b}{sl}{
+   <-> ftubo7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{b}{it}{
+   <-> ftubi7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{l}{n}{
+   <-> ftul7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{l}{sc}{
+   <-> ftulc7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{l}{sl}{
+   <-> ftulo7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{l}{it}{
+   <-> ftuli7t
+}{}
+
+\DeclareFontShape{OT1}{ftu}{db}{n}{<->ssub * ftu/b/n}{}
+\DeclareFontShape{OT1}{ftu}{db}{sc}{<->ssub * ftu/b/sc}{}
+\DeclareFontShape{OT1}{ftu}{db}{sl}{<->ssub * ftu/b/sl}{}
+\DeclareFontShape{OT1}{ftu}{db}{it}{<->ssub * ftu/b/it}{}
+
+\DeclareFontShape{OT1}{ftu}{bx}{n}{<->ssub * ftu/b/n}{}
+\DeclareFontShape{OT1}{ftu}{bx}{sc}{<->ssub * ftu/b/sc}{}
+\DeclareFontShape{OT1}{ftu}{bx}{sl}{<->ssub * ftu/b/sl}{}
+\DeclareFontShape{OT1}{ftu}{bx}{it}{<->ssub * ftu/b/it}{}
+
+\endinput

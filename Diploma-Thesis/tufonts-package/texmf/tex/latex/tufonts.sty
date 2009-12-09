@@ -1,0 +1,56 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{tufonts}
+             [2003/01/31
+		LaTeX2e package to use TU Wien fonts]
+\renewcommand{\rmdefault}{ftu}
+\renewcommand{\sfdefault}{fts}
+%\renewcommand{\bfdefault}{b} % not necessary
+%demi font - works only for tu sans serif
+\newcommand\dmseries{\fontseries{db}\selectfont}
+\DeclareTextFontCommand{\textdm}{\dmseries}
+%light font - works only for tu serif
+\newcommand\lgseries{\fontseries{l}\selectfont}
+\DeclareTextFontCommand{\textlg}{\lgseries}
+
+%% rudimentary math support
+%%
+%% best is, to copy the lines you need to your document
+%%
+%% digits and letters for operators like \max, \sin are taken from the
+%% font called 'operators':
+%%   like this, digits are taken from tu serif, not computer modern
+%\SetSymbolFont{operators}{normal}{OT1}{ftu}{m}{n}
+%% after \boldmath or \mathversion{bold}
+%%   - gives tu serif bold digits
+%\SetSymbolFont{operators}{bold}{OT1}{ftu}{b}{n}
+%% letters for variables are taken from the font called 'letters'
+%%   this would give variables in tu serif light, but symbols like \rho
+%%   etc. do not work!
+%\SetSymbolFont{letters}{normal}{OT1}{ftu}{l}{n}
+%%
+%% alternatively, declare as math alphabet:
+%%\DeclareMathAlphabet{\mathrm}{OT1}{ftu}{m}{n}
+%
+%%math support for tu sans: use \mathversion{sans}
+%\DeclareMathVersion{sans}
+%\SetSymbolFont{operators}{sans}{OT1}{fts}{m}{n}
+%
+%%math support for tu serif light: use \mathversion{light}
+%\DeclareMathVersion{light}
+%\SetSymbolFont{operators}{light}{OT1}{ftu}{l}{n}
+%
+%%and fixed fonts
+%\DeclareMathAlphabet{\mathbf}{OT1}{ftu}{b}{n}
+%\DeclareMathAlphabet{\mathit}{OT1}{ftu}{m}{it}
+%\DeclareMathAlphabet{\mathsf}{OT1}{fts}{m}{n}
+%\DeclareMathAlphabet{\mathlg}{OT1}{ftu}{l}{n}
+%\DeclareMathAlphabet{\mathdm}{OT1}{fts}{db}{n}
+%
+%% comment out, if you need more variation
+%%\DeclareMathAlphabet{\mathbfit}{OT1}{ftu}{b}{it}
+%%\DeclareMathAlphabet{\mathlgit}{OT1}{ftu}{l}{it}
+%%\DeclareMathAlphabet{\mathsfit}{OT1}{fts}{m}{it}
+%%\DeclareMathAlphabet{\mathsbit}{OT1}{fts}{b}{it}
+%%\DeclareMathAlphabet{\mathdmit}{OT1}{fts}{db}{it}
+
+\endinput

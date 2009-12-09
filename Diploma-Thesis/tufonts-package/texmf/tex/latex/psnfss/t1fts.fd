@@ -1,0 +1,70 @@
+%Filename: t1fts.fd
+%Created by: tex fontinst
+%Created using fontinst v1.801
+
+%THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
+
+\ProvidesFile{t1fts.fd}
+   [2002/12/16 Fontinst v1.801 font definitions for T1/fts.]
+
+\DeclareFontFamily{T1}{fts}{}
+
+\DeclareFontShape{T1}{fts}{m}{n}{
+   <-> ftsr8t
+}{}
+
+\DeclareFontShape{T1}{fts}{m}{sc}{
+   <-> ftsrc8t
+}{}
+
+\DeclareFontShape{T1}{fts}{m}{sl}{
+   <-> ftsro8t
+}{}
+
+\DeclareFontShape{T1}{fts}{m}{it}{
+   <-> ftsri8t
+}{}
+
+\DeclareFontShape{T1}{fts}{b}{n}{
+   <-> ftsb8t
+}{}
+
+\DeclareFontShape{T1}{fts}{b}{sc}{
+   <-> ftsbc8t
+}{}
+
+\DeclareFontShape{T1}{fts}{b}{sl}{
+   <-> ftsbo8t
+}{}
+
+\DeclareFontShape{T1}{fts}{b}{it}{
+   <-> ftsbi8t
+}{}
+
+\DeclareFontShape{T1}{fts}{db}{n}{
+   <-> ftsd8t
+}{}
+
+\DeclareFontShape{T1}{fts}{db}{sc}{
+   <-> ftsdc8t
+}{}
+
+\DeclareFontShape{T1}{fts}{db}{sl}{
+   <-> ftsdo8t
+}{}
+
+\DeclareFontShape{T1}{fts}{db}{it}{
+   <-> ftsdi8t
+}{}
+
+\DeclareFontShape{T1}{fts}{l}{n}{<->ssub * fts/m/n}{}
+\DeclareFontShape{T1}{fts}{l}{sc}{<->ssub * fts/m/sc}{}
+\DeclareFontShape{T1}{fts}{l}{sl}{<->ssub * fts/m/sl}{}
+\DeclareFontShape{T1}{fts}{l}{it}{<->ssub * fts/m/it}{}
+
+\DeclareFontShape{T1}{fts}{bx}{n}{<->ssub * fts/b/n}{}
+\DeclareFontShape{T1}{fts}{bx}{sc}{<->ssub * fts/b/sc}{}
+\DeclareFontShape{T1}{fts}{bx}{sl}{<->ssub * fts/b/sl}{}
+\DeclareFontShape{T1}{fts}{bx}{it}{<->ssub * fts/b/it}{}
+
+\endinput
