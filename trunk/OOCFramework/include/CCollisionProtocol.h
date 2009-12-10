@@ -52,7 +52,7 @@ public:
 	 *
 	 */
 	void solveCCollision(unsigned _cConst, unsigned int _assignedValue = 0);
-	void debug(unsigned nodeCount);
+	void debug();
 private:
 	oocframework::MpiControl* mPriMpiCon;
 	std::map<uint64_t, std::set<int> > mPriIdToNodeMap;

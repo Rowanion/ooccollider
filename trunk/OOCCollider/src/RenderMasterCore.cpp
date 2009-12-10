@@ -42,6 +42,7 @@
 #include "EndTransmissionEvent.h"
 #include "JobDoneEvent.h"
 #include "OcclusionRequestEvent.h"
+#include "MemTools.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -147,8 +148,8 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			}
 #endif
 		if (!mTerminateApplication) {
-//			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
-			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1)){
+			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1) && mPriCamHasMoved == true){
+//			if (mPriFrameCount >= (DEPTHBUFFER_INTERVAL - 1)){
 #ifdef DEBUG_DEPTH_RESEND
 			double newTime = glfwGetTime();
 #endif
@@ -232,7 +233,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			ss << "MasterNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
-
+//		mPriCCol.debug();
 	}while (mRunning);
 	cout << "end of display loop." << endl;
 }

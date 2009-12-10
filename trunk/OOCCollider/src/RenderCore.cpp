@@ -33,6 +33,7 @@
 #include "ChangeTileDimensionsEvent.h"
 #include "AccumulatedRendertimeEvent.h"
 #include "OcclusionResultsEvent.h"
+#include "MemTools.h"
 
 
 using namespace std;
@@ -75,6 +76,8 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 
 	// Main rendering loop
 	unsigned frames = 0;
+
+	cerr << "Mem BEFORE start " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
 
 	mPriMpiCon->barrier();
 	do {
@@ -123,6 +126,7 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 			ss << "RenderNode (" << mPriMpiCon->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
+
 	} while (mRunning);
 	cout << "RC constructor ended" << endl;
 }
@@ -194,10 +198,6 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 		else if (msg->getType() == VboEvent::classid()->getShortId()){
 			VboEvent ve = VboEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(ve);
-		}
-		else if (msg->getType() == OcclusionResultsEvent::classid()->getShortId()){
-			OcclusionResultsEvent ore = OcclusionResultsEvent(msg);
-			oocframework::EventManager::getSingleton()->fire(ore);
 		}
 		else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
 			InfoRequestEvent ire = InfoRequestEvent();
