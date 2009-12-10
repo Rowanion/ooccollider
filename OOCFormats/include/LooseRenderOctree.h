@@ -84,12 +84,8 @@ struct WrappedOcNode{
 		}
 	}
 
-//	void set(int _lvl, float _dist, int _destId, uint64_t _id, int _isExt);
-//	void set(WrappedOcNode rhs);
-//	void set(const WrappedOcNode* rhs);
-
-	LooseRenderOctree* octreeNode;  // mpi-rank of requesting node
-	ooctools::IndexedVbo* iVbo;	 // states wheather this node is in the extended frustum or not.
+	LooseRenderOctree* octreeNode;
+	ooctools::IndexedVbo* iVbo;
 	State state;
 	float dist;
 	unsigned timeStamp;

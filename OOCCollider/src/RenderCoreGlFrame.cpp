@@ -35,6 +35,7 @@
 #include "InfoRequestEvent.h"
 #include "OcclusionRequestEvent.h"
 #include "OcclusionResultsEvent.h"
+#include "MemTools.h"
 
 
 using namespace std;
@@ -278,10 +279,10 @@ void RenderCoreGlFrame::display()
 						mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
 						// -------------------------------------
 						switch ((*wIt)->state) {
-						case WrappedOcNode::MISSING:
-							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
-							(*wIt)->state = WrappedOcNode::REQUESTED;
-							break;
+//						case WrappedOcNode::MISSING:
+//							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+//							(*wIt)->state = WrappedOcNode::REQUESTED;
+//							break;
 						case WrappedOcNode::RETEST_OFFLINE:
 							mPriReRequestList.push_back((*wIt));
 							(*wIt)->state = WrappedOcNode::REQUESTED_OFFLINE;
@@ -475,12 +476,12 @@ void RenderCoreGlFrame::display()
 	calcFPS();
 
 	// ---------------------------------------
-	cerr << MpiControl::getSingleton()->getRank() << " - mPriIdLoMap: " << mPriIdLoMap.size() << endl;
-	cerr << MpiControl::getSingleton()->getRank() << " - mPriWrapperInFrustum: " << mPriWrapperInFrustum.size() << endl;
-	cerr << MpiControl::getSingleton()->getRank() << " - mPriRequests: " << mPriRequests.size() << endl;
-	cerr << MpiControl::getSingleton()->getRank() << " - mPriReRequests: " << mPriReRequests.size() << endl;
-	cerr << MpiControl::getSingleton()->getRank() << " - mPriReRequestList: " << mPriReRequestList.size() << endl;
-	cerr << MpiControl::getSingleton()->getRank() << " - mPriOccResults: " << mPriOccResults.size() << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - mPriIdLoMap: " << mPriIdLoMap.size() << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - mPriWrapperInFrustum: " << mPriWrapperInFrustum.size() << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - mPriRequests: " << mPriRequests.size() << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - mPriReRequests: " << mPriReRequests.size() << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - mPriReRequestList: " << mPriReRequestList.size() << endl;
+//	cerr << MpiControl::getSingleton()->getRank() << " - mPriOccResults: " << mPriOccResults.size() << endl;
 	// ---------------------------------------
 }
 
@@ -550,7 +551,7 @@ void RenderCoreGlFrame::occlusionTest()
 							(*wIt)->state = WrappedOcNode::OFFLINE;
 							(*wIt)->iVbo->setOffline();
 							(*wIt)->usageCount = 0;
-							delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+							delta = ((*wIt)->iVbo->getVertexCount()*sizeof(V4N4)) + ((*wIt)->iVbo->getIndexCount()*4);
 							mPriL2Cache += delta;
 							mPriL1Cache -= delta;
 						}
@@ -568,7 +569,7 @@ void RenderCoreGlFrame::occlusionTest()
 							(*wIt)->state = WrappedOcNode::ONLINE;
 							(*wIt)->iVbo->setOnline();
 							(*wIt)->usageCount = 0;
-							delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*4);
+							delta = ((*wIt)->iVbo->getVertexCount()*sizeof(V4N4)) + ((*wIt)->iVbo->getIndexCount()*4);
 							mPriL2Cache -= delta;
 							mPriL1Cache += delta;
 						}
@@ -728,26 +729,6 @@ RenderCoreGlFrame::requestMissingVbos()
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
 		//		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
 		mPriRequests.erase(mPriRequests.begin(), qIt);
-//		cerr << "requesting " << loadCount << "vbos.." << endl;
-	}
-	EndTransmissionEvent ete = EndTransmissionEvent();
-	MpiControl::getSingleton()->send(new Message(ete, 0));
-
-}
-
-void
-RenderCoreGlFrame::reRequestVbos()
-{
-//	cerr << "size of wrappers in frustum: " << mPriWrapperInFrustum.size() << endl;
-
-	unsigned int loadCount = 0;
-	QuintSetIter qIt = mPriReRequests.begin();
-	if (!mPriReRequests.empty()){
-		// actually request them
-		OcclusionRequestEvent ore = OcclusionRequestEvent(mPriReRequests.begin(), mPriReRequests.end(), mPriReRequests.size());
-		MpiControl::getSingleton()->isend(new Message(ore, 0));
-		//		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
-		mPriReRequests.clear();
 //		cerr << "requesting " << loadCount << "vbos.." << endl;
 	}
 	EndTransmissionEvent ete = EndTransmissionEvent();
@@ -975,6 +956,10 @@ void RenderCoreGlFrame::manageCaching()
 				cache1 += delta;
 			}
 		}
+		else if ((*wIt)->state == WrappedOcNode::MISSING){
+			mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
+			(*wIt)->state = WrappedOcNode::REQUESTED;
+		}
 		else if ((*wIt)->state == WrappedOcNode::RETEST_ONLINE || (*wIt)->state == WrappedOcNode::REQUESTED_ONLINE){
 			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*sizeof(unsigned));
 			onlineCount++;
@@ -1106,19 +1091,19 @@ RenderCoreGlFrame::clearCache()
 			wli++;
 			break;
 		case WrappedOcNode::OFFLINE:
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::REQUESTED_OFFLINE:
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::RETEST_OFFLINE:
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wli++);
@@ -1154,6 +1139,8 @@ RenderCoreGlFrame::clearCache()
 void
 RenderCoreGlFrame::clearEverything()
 {
+	cerr << "Mem BEFORE " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
+
 	WrapperListIter wli = mPriWrapperInFrustum.begin();
 	for (; wli != mPriWrapperInFrustum.end(); ){
 		switch ((*wli)->state){
@@ -1163,44 +1150,44 @@ RenderCoreGlFrame::clearEverything()
 		case WrappedOcNode::ONLINE:
 			(*wli)->iVbo->setOffline();
 			(*wli)->state = WrappedOcNode::MISSING;
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::RETEST_ONLINE:
 			(*wli)->iVbo->setOffline();
 			(*wli)->state = WrappedOcNode::MISSING;
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::REQUESTED_ONLINE:
 			(*wli)->iVbo->setOffline();
 			(*wli)->state = WrappedOcNode::MISSING;
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::OFFLINE:
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::REQUESTED_OFFLINE:
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::RETEST_OFFLINE:
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::REQUESTED:
-			delete (*wli)->iVbo;
+			delete ((*wli)->iVbo);
 			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
 			mPriWrapperInFrustum.erase(wli++);
@@ -1210,6 +1197,15 @@ RenderCoreGlFrame::clearEverything()
 			break;
 		}
 	}
+	mPriReRequestList.clear();
+	mPriWrapperInFrustum.clear();
+	mPriWrapperInFrustum.resize(0);
+	cerr << "Mem AFTER " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
+//	int* test = 0;
+//	for (unsigned i=0; i<500; ++i){
+//		test = new int[125000000];
+//		delete[] test;
+//	}
 }
 
 void
@@ -1270,6 +1266,9 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 				else {
 					clearCache();
 				}
+			case 'M':
+				cerr << "Mem " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
+				break;
 			break;}
 			default:
 			break;
@@ -1283,15 +1282,20 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			if (idLoIt != mPriIdLoMap.end()){
 				if (idLoIt->second->getWrapper()->state == WrappedOcNode::REQUESTED){
 					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
+					idLoIt->second->getWrapper()->usageCount = 0;
+					if (idLoIt->second->getWrapper()->iVbo != 0) {
+						cerr << "requested VBO was not 0 as expected!" << endl;
+						exit(0);
+					}
 					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
 					mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
 				}
-				else if (idLoIt->second->getWrapper()->state == WrappedOcNode::MISSING){
-					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
-					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
-					mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
-					mPriWrapperInFrustum.push_back(idLoIt->second->getWrapper());
-				}
+//				else if (idLoIt->second->getWrapper()->state == WrappedOcNode::MISSING){
+//					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
+//					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
+//					mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
+//					mPriWrapperInFrustum.push_back(idLoIt->second->getWrapper());
+//				}
 			}
 		}
 	}
@@ -1339,10 +1343,11 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << headerS.str() << "VBOs offline: " << vboCount_offline << endl;
 		cout << headerS.str() << "VBOs online: " << vboCount_online << endl;
 		cout << headerS.str() << "VBOs missing: " << vboCount_missing << endl;
-		cout << headerS.str() << "L1_Cache: " << l1Cache/1048576 << "Mb / " << L1_CACHE_THRESHOLD/1048576 << "Mb" << endl;
-		cout << headerS.str() << "L2_Cache: " << l2Cache/1048576 << "Mb / " << L2_CACHE_THRESHOLD/1048576 << "Mb" << endl;
-		cout << headerS.str() << "L1_Cache (offi): " << mPriL1Cache/1048576 << "Mb / " << L1_CACHE_THRESHOLD/1048576 << "Mb" << endl;
-		cout << headerS.str() << "L2_Cache (offi): " << mPriL2Cache/1048576 << "Mb / " << L2_CACHE_THRESHOLD/1048576 << "Mb" << endl;
+		cout << headerS.str() << "L1_Cache: " << l1Cache/1048576 << "Mib / " << L1_CACHE_THRESHOLD/1048576 << "Mib" << endl;
+		cout << headerS.str() << "L2_Cache: " << l2Cache/1048576 << "Mib / " << L2_CACHE_THRESHOLD/1048576 << "Mib" << endl;
+		cout << headerS.str() << "Total Cache: " << (l1Cache+l2Cache)/1048576 << "Mib / " << endl;
+		cout << headerS.str() << "L1_Cache (offi): " << mPriL1Cache/1048576 << "Mib / " << L1_CACHE_THRESHOLD/1048576 << "Mib" << endl;
+		cout << headerS.str() << "L2_Cache (offi): " << mPriL2Cache/1048576 << "Mib / " << L2_CACHE_THRESHOLD/1048576 << "Mib" << endl;
 //		cout << headerS.str() << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
 //		cout << headerS.str() << "total requested vbos: " << mPriRequestedVboList.size() << endl;
 //		cout << headerS.str() << "loaded + requested: " << mPriVbosInFrustum.size()+ mPriRequestedVboList.size()<< endl;

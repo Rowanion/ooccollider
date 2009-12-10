@@ -268,8 +268,17 @@ void CCollisionProtocol::searchEqualNodes(vector<VirtualNode>::reverse_iterator 
 	}
 }
 
-void CCollisionProtocol::debug(unsigned nodeCount)
+void CCollisionProtocol::debug()
 {
+		cerr << "mPriIdToNodeMap: " << mPriIdToNodeMap.size() << endl;
+		cerr << "mPriNodeToIdMap: " << mPriNodeToIdMap.size() << endl;
+		cerr << "mPriRndNodeSet: " << mPriRndNodeSet.size() << endl;
+		cerr << "mPriNodeLoad: " << mPriNodeLoad.size() << endl;
+		cerr << "mPriTriCount: " << mPriTriCount.size() << endl;
+		cerr << "mPriRequestCount: " << mPriRequestCount.size() << endl;
+		cerr << "mPriVirtualNodes: " << mPriVirtualNodes.size() << endl;
+		cerr << "mPriVirtualRequests: " << mPriVirtualRequests.size() << endl;
+		cerr << "mPriLoTriMap: " << mPriLoTriMap.size() << endl;
 
 
 }

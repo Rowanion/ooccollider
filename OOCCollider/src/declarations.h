@@ -93,6 +93,7 @@ class AbstractEventHandler;
 class AbstractGlFrame;
 class DataCore;
 class DataCoreGlFrame;
+class MemTools;
 class OOCCamera;
 class OOCWindow;
 class RenderCore;
