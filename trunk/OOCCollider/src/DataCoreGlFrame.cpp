@@ -131,7 +131,7 @@ void DataCoreGlFrame::init() {
 	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
 	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
 #else
-	mPriOh.generateIdLocMap(fs::path("/home/ava/Diplom/Model/SampleTree_packed/"), mPriIdLocMap);
+	mPriOh.generateIdLocMap(fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR)), mPriIdLocMap);
 #endif
 
 	reshape(mProWindowWidth, mProWindowHeight);
@@ -570,7 +570,7 @@ void DataCoreGlFrame::calcFPS() {
 
 void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 {
-	fs::path path = fs::path("/home/ava/Diplom/Model/SampleTree_packed/");
+	fs::path path = fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR));
 	fs::ifstream inFile;
 	unsigned pos = 0;
 	unsigned size=0;

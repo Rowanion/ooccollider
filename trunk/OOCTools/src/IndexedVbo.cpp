@@ -18,10 +18,12 @@ namespace fs = boost::filesystem;
 using namespace std;
 namespace ooctools {
 
+
+
 IndexedVbo::IndexedVbo(const unsigned* _idxData, unsigned _idxCount, const V4N4* _vertexData, unsigned _vertexCount, bool initiateOnline) :
-	 mPriVertexData(0), mPriVertexCount(_vertexCount),
-	 mPriIndexData(0), mPriIndexCount(_idxCount), mPriIsOffline(false),
-	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false)
+	 mPriVertexData(0), mPriIndexData(0), mPriVertexCount(_vertexCount),
+	 mPriIndexCount(_idxCount), mPriVertexId(0), mPriIdxId(0),
+	 mPriIsGpuOnly(false), mPriIsOffline(false)
 {
 	mPriIndexData = new unsigned[_idxCount];
 	mPriVertexData = new V4N4[_vertexCount];
@@ -37,9 +39,9 @@ IndexedVbo::IndexedVbo(const unsigned* _idxData, unsigned _idxCount, const V4N4*
 }
 
 IndexedVbo::IndexedVbo(fs::path path, uint64_t id, bool initiateOnline) :
-	 mPriVertexData(0), mPriVertexCount(0),
-	 mPriIndexData(0), mPriIndexCount(0), mPriIsOffline(false),
-	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false), mPriId(id)
+	 mPriVertexData(0), mPriIndexData(0), mPriId(id), mPriVertexCount(0),
+	 mPriIndexCount(0), mPriVertexId(0), mPriIdxId(0),
+	 mPriIsGpuOnly(false), mPriIsOffline(false)
 {
 	fs::ifstream dataFile;
 	fs::ifstream idxFile;
@@ -57,6 +59,7 @@ IndexedVbo::IndexedVbo(fs::path path, uint64_t id, bool initiateOnline) :
 	dataFile.seekg(0, ios::beg);
 	dataFile.read((char*)&mPriVertexCount, sizeof(unsigned));
 	dataFile.seekg(4, ios::beg);
+
 
 	mPriIndexData = new unsigned[mPriIndexCount];
 	mPriVertexData = new V4N4[mPriVertexCount];
@@ -86,15 +89,16 @@ IndexedVbo::IndexedVbo(fs::path path, uint64_t id, bool initiateOnline) :
 
 	if (initiateOnline)
 		setOnline();
+
 }
 
 IndexedVbo::IndexedVbo(fs::ifstream* _iStream, unsigned _pos, bool initiateOnline) :
-	 mPriVertexData(0), mPriVertexCount(0),
-	 mPriIndexData(0), mPriIndexCount(0), mPriIsOffline(false),
-	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false), mPriId(0), mPriFPos(_pos)
+	 mPriVertexData(0), mPriIndexData(0), mPriIStream(_iStream), mPriId(0), mPriVertexCount(0),
+	 mPriIndexCount(0), mPriVertexId(0), mPriIdxId(0), mPriFPos(_pos),
+	 mPriIsGpuOnly(false), mPriIsOffline(false)
 
 {
-	mPriIStream = _iStream;
+
 	mPriIStream->seekg(mPriFPos, ios::beg);
 	mPriIStream->read((char*)&mPriId, sizeof(uint64_t));
 	mPriIStream->seekg(mPriFPos+sizeof(uint64_t), ios::beg);
@@ -103,9 +107,16 @@ IndexedVbo::IndexedVbo(fs::ifstream* _iStream, unsigned _pos, bool initiateOnlin
 	mPriIStream->read((char*)&mPriVertexCount, sizeof(unsigned));
 	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2), ios::beg);
 
+	static unsigned blaCounter = 0;
+	blaCounter++;
 
 	mPriIndexData = new unsigned[mPriIndexCount];
 	mPriVertexData = new V4N4[mPriVertexCount];
+
+	if (blaCounter == 501){
+		cerr << "indxPtr(new): " << (uint64_t)mPriIndexData << endl;
+		cerr << "vertPtr(new): " << (uint64_t)mPriVertexData << endl;
+	}
 
 	mPriIStream->read((char*)mPriIndexData, sizeof(unsigned)*mPriIndexCount);
 	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount), ios::beg);
@@ -114,21 +125,27 @@ IndexedVbo::IndexedVbo(fs::ifstream* _iStream, unsigned _pos, bool initiateOnlin
 	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
 	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
 
-	cerr << "ID: " << mPriId << endl;
-	cerr << "indexcount: " << mPriIndexCount << endl;
-	cerr << "vertexcount: " << mPriVertexCount << endl;
+//	cerr << "ID: " << mPriId << endl;
+//	cerr << "indexcount: " << mPriIndexCount << endl;
+//	cerr << "vertexcount: " << mPriVertexCount << endl;
 //	for (unsigned i =0; i< mPriIndexCount; ++i){
 //		cerr << mPriIndexData[i] << endl;
 //	}
 //	exit(0);
 	if (initiateOnline)
 		setOnline();
+
+	if (blaCounter == 501){
+		cerr << "indxPtr(EndOfNew): " << (uint64_t)mPriIndexData << endl;
+		cerr << "vertPtr(EndOfNew): " << (uint64_t)mPriVertexData << endl;
+	}
+
 }
 
 IndexedVbo::IndexedVbo(ooctools::Location _loc, bool initiateOnline) :
-	 mPriVertexData(0), mPriVertexCount(0),
-	 mPriIndexData(0), mPriIndexCount(0), mPriIsOffline(false),
-	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false), mPriId(0), mPriFPos(_loc.position)
+	 mPriVertexData(0), mPriIndexData(0), mPriId(0), mPriVertexCount(0), mPriIndexCount(0),
+	 mPriVertexId(0), mPriIdxId(0), mPriFPos(_loc.position),
+	 mPriIsGpuOnly(false), mPriIsOffline(false)
 
 {
 
@@ -167,6 +184,14 @@ IndexedVbo::IndexedVbo(ooctools::Location _loc, bool initiateOnline) :
 
 IndexedVbo::~IndexedVbo() {
 	setOffline();
+
+	static unsigned blaCounter2 = 0;
+	blaCounter2++;
+	if (blaCounter2 == 501){
+		cerr << "indxPtr(DESTRUCT): " << (uint64_t)mPriIndexData << endl;
+		cerr << "vertPtr(DESTRUCT): " << (uint64_t)mPriVertexData << endl;
+	}
+
 	delete[] mPriVertexData;
 	mPriVertexData = 0;
 	delete[] mPriIndexData;

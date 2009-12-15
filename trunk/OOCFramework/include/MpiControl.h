@@ -78,11 +78,6 @@ public:
 	Group getGroup() const {return mGroup;};
 	void barrier() const {MPI_Barrier(MPI::COMM_WORLD);};
 	void iCheck();
-	std::queue<Message*> mInQueue;
-	std::queue<Message*> mOutQueue;
-
-	std::queue<Message*> mPriInRequests;
-	std::queue<Message*> mPriOutRequests;
 
 
 private:
@@ -99,11 +94,11 @@ private:
 	std::vector<int> mPriRenderNodes;
 	std::vector<int> mPriDataNodes;
 
-//	std::queue<Message*> mInQueue;
-//	std::queue<Message*> mOutQueue;
-//
-//	std::queue<Message*> mPriInRequests;
-//	std::queue<Message*> mPriOutRequests;
+	std::queue<Message*> mInQueue;
+	std::queue<Message*> mOutQueue;
+
+	std::queue<Message*> mPriInRequests;
+	std::queue<Message*> mPriOutRequests;
 
 	static MpiControl* instance;
 

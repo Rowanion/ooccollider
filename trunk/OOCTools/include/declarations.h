@@ -38,11 +38,13 @@ namespace ooctools{
 	class FboFactory;
 	class GeometricOps;
 	class IndexedVbo;
+	class IndexedVertexArray;
 	class MetaGroup;
 	class MTRand;
 	class Model;
 	class Quaternion;
 	class Vbo;
+	class VboFactory;
 	class VboManager;
 	template<typename T> class VertexArray;
 	class V3b;

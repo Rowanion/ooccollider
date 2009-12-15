@@ -408,6 +408,7 @@ void RenderMasterCore::manageCCollision()
 		}
 		mPriNodeReqMap.clear();
 		mPriQuintVec.clear();
+		mPriQuintVec.resize(0);
 	}
 
 	// distribution of re-requests from here
