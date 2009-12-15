@@ -23,6 +23,7 @@ namespace ooctools {
 class IndexedVbo {
 
 friend class VboManager;
+friend class VboFactory;
 
 public:
 	IndexedVbo(const unsigned* _idxData, unsigned _idxCount, const V4N4* _vertexData, unsigned _vertexCount, bool initiateOnline=true);
@@ -43,16 +44,16 @@ public:
 
 private:
 	V4N4* mPriVertexData;
-	unsigned mPriVertexCount;
 	unsigned* mPriIndexData;
+	fs::ifstream* mPriIStream;
+	uint64_t mPriId;
+	unsigned mPriVertexCount;
 	unsigned mPriIndexCount;
-	bool mPriIsOffline;
 	GLuint mPriVertexId;
 	GLuint mPriIdxId;
-	bool mPriIsGpuOnly;
-	uint64_t mPriId;
-	fs::ifstream* mPriIStream;
 	unsigned mPriFPos;
+	bool mPriIsGpuOnly;
+	bool mPriIsOffline;
 };
 
 }

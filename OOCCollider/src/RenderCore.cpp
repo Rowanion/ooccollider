@@ -192,16 +192,6 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 		}
 		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
 			KeyPressedEvent kpe = KeyPressedEvent(msg);
-			if (kpe.getKey() == 'T' && mPriMpiCon->getRank() == 1){
-				cerr << "Current InRequests: " << endl;
-				unsigned len = mPriMpiCon->mPriInRequests.size();
-				for (unsigned i=0; i< len; ++i){
-					Message* msg = mPriMpiCon->mPriInRequests.front();
-					mPriMpiCon->mPriInRequests.pop();
-					cerr << msg->getType() << ", " << msg->getSrc() << ", " << msg->getDst() << ", " << msg->getLength()<< endl;
-					mPriMpiCon->mPriInRequests.push(msg);
-				}
-			}
 			oocframework::EventManager::getSingleton()->fire(kpe);
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){

@@ -41,6 +41,7 @@
 #define DEPTH_AVG 10
 #define DISTANCE_RENEWAL 10
 #define LVL_OF_REDUNDANCY 1
+#define MODEL_DIR "/SampleTree_packed"
 
 #undef DEBUG_CCOLLISION
 #undef DEBUG_RENDERLOOP
@@ -56,7 +57,7 @@
 #undef SHOW_DEPTH_IMAGE
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 1000
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model"
 #define L1_CACHE_THRESHOLD 412000000
 #define L1_CACHE_VBO_LIMIT 20000
 //#define L2_CACHE_THRESHOLD 1073741824
@@ -70,7 +71,7 @@
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 1000
 //#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
-#define BASE_MODEL_PATH "/home-pc2/user/ava/Diplom/Model/SampleTree"
+#define BASE_MODEL_PATH "/home-pc2/user/ava/Diplom/Model"
 #define L1_CACHE_THRESHOLD 412000000
 #define L1_CACHE_VBO_LIMIT 10000
 //#define L2_CACHE_THRESHOLD 1073741824
@@ -82,7 +83,7 @@
 #define SHOW_DEPTH_IMAGE
 #define MAX_OFFLINE_VBOS 1500
 #define MAX_LOADS_PER_FRAME 40
-#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model"
 #define L1_CACHE_THRESHOLD 153600
 #define L1_CACHE_VBO_LIMIT 3000
 #define L2_CACHE_THRESHOLD 268435456
