@@ -17,13 +17,21 @@
 
 #include <set>
 
+// make sure to use the correct pointer-width
+#ifdef __X86_64__
+typedef uint64_t mem_t;
+#else
+typedef unsigned mem_t;
+#endif
+
+
 namespace ooctools {
 class VboFactory;
 
 struct Memory{
-	Memory(unsigned _size, uint64_t* _addr);
+	Memory(unsigned _size, mem_t* _addr);
 	unsigned size;
-	uint64_t* address;
+	mem_t* address;
 	bool operator<(const Memory& _rhs) const;
 };
 
@@ -52,10 +60,16 @@ struct IVbo{
 	char mPriFree;
 };
 
+struct IVboWrap{
+	IVboWrap(IVbo** _iVbo);
+	IVbo** iVbo;
+	bool operator<(const IVboWrap& _rhs) const;
+};
+
 class VboFactory {
 public:
 	virtual ~VboFactory();
-	IVbo* newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos);
+	IVbo** newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos);
 	MemIt findFirstFit(const unsigned _byteSize);
 
 	static VboFactory* getSingleton();
@@ -65,11 +79,11 @@ public:
 private:
 	VboFactory();
 	static VboFactory* mPriInstancePtr;
-	uint64_t* mPriMem;
+	mem_t* mPriMem;
 	std::set<Memory> mPriFreeMap;
 	std::set<IVbo*> mPriIVboMap;
 
-	std::set<IVbo**> mPriIVboRegistry;
+	std::set<IVboWrap> mPriIVboRegistry;
 
 };
 
