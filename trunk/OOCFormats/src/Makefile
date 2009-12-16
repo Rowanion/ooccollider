@@ -3,7 +3,7 @@ LD=$(CC)
 HOMEDIR=/home-pc2/user/ava
 CPPFLAGS = -Wall -Wno-deprecated -O3 -fPIC -ffast-math -funroll-loops -msse2 -I../include -I$(HOMEDIR)/Diplom/usr/include -I../../OOCTools/include/ -I/home-pc2/user/ava/Diplom/include
 # `sdl-config --cflags`
-LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools 
+LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lmpi -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools 
 
 HEADERFILES = declarations.h FileHeader.h FileIO.h IModelLoader.h LooseOctree.h LooseProcessingOctree.h LooseRenderOctree.h ModelWriter.h ObjModelLoader.h OctreeHandler.h RawModelHandler.h RawModelLoader.h RawModelWriter.h TriangleStream.h 
 
