@@ -3,7 +3,7 @@ LD=$(CC)
 HOMEDIR=/home-pc2/user/ava
 CPPFLAGS = -Wall -Wno-deprecated -O3 -fPIC -ffast-math -funroll-loops -msse2 -I../include -I$(HOMEDIR)/Diplom/usr/include -I../../OOCTools/include/ -I/home-pc2/user/ava/Diplom/include -I../../OOCFormats/include/
 # `sdl-config --cflags`
-LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools -loocformats
+LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib -L/usr/lib64 -L/usr/X11R6/lib -lmpi -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools -loocformats
 
 HEADERFILES = AbstractEventListener.h CCollisionProtocol.h ClassId.h declarations.h EventManager.h IEvent.h Message.h MpiControl.h VirtualNode.h VirtualRequest.h
 

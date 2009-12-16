@@ -3,7 +3,7 @@ LD=$(CC)
 HOMEDIR=/home-pc2/user/ava
 CPPFLAGS = -Wall -Wno-deprecated -O3 -fPIC -ffast-math -funroll-loops -msse2 -DPC2 -I../events -I$(HOMEDIR)/Diplom/usr/include -I../../OOCTools/include/ -I/home-pc2/user/ava/Diplom/include -I../../OOCFormats/include/ -I../../OOCFramework/include/ -I./
 # `sdl-config --cflags`
-LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lglfw -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools -loocformats -loocframework
+LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lmpi -lglfw -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools -loocformats -loocframework
 
 HEADERFILES = MemTools.h AccumulatedRendertimeEvent.h ClearCacheEvent.h DepthBufferRequestEvent.h InfoRequestEvent.h KillApplicationEvent.h MouseButtonStateChangeEvent.h MouseWheelEvent.h OcclusionResultsEvent.h WindowClosedEvent.h CameraMovedEvent.h ColorBufferEvent.h EndOfFrameEvent.h JobDoneEvent.h ModelViewMatrixEvent.h MouseDraggedEvent.h NodeRequestEvent.h RandomSeedEvent.h WindowResizedEvent.h ChangeTileDimensionsEvent.h DepthBufferEvent.h EndTransmissionEvent.h KeyPressedEvent.h MouseButtonEvent.h MouseMovedEvent.h OcclusionRequestEvent.h VboEvent.h AbstractEventHandler.h AbstractGlFrame.h DataCoreGlFrame.h DataCore.h declarations.h error.h OOCCamera.h OOCWindow.h RenderCoreGlFrame.h RenderCore.h RenderMasterCore.h SimpleGlFrame.h Splittree.h Structs.h TestEventHandler.h
 

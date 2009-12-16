@@ -3,7 +3,7 @@ LD=$(CC)
 HOMEDIR = /home-pc2/user/ava
 CPPFLAGS = -Wall -Wno-deprecated -O3 -DCLUSTER -fPIC -ffast-math -funroll-loops -msse2 -I$(HOMEDIR)/Diplom/include -I$(HOME)/Diplom/usr/include -I/usr/include -I../include -I../../OOCFormats/include
 
-LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread 
+LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lmpi -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread 
 
 HEADERFILES = ../include/BoundingBox.h ../include/declarations.h ../include/Fbo.h ../include/GlToolkit.h ../include/MetaGroup.h ../include/StructDefs.h ../include/V3f_class.h ../include/Vbo.h ../include/Camera.h ../include/ExternalFunctions.h ../include/GeometricOps.h ../include/IndexedVbo.h ../include/Model.h ../include/Triangle.h ../include/V3f.h ../include/VboManager.h ../include/CgToolkit.h ../include/Face.h ../include/glCamera.h ../include/IndexedVertexArray.h ../include/OOCTools.h ../include/TriBoxTest.h ../include/V3ub.h ../include/VertexArray.h ../include/ColorTable.h ../include/FboFactory.h ../include/glQuaternion.h ../include/MersenneTwister.h ../include/Quaternion.h ../include/V3b.h ../include/V4f.h .. /include/OctreeNode.h
 
