@@ -49,7 +49,7 @@ struct WrappedOcNode{
 		usageCount = 0;
 	}
 
-	WrappedOcNode(LooseRenderOctree* _octreeNode, ooctools::IndexedVbo* _iVbo, float _dist, State _state, unsigned _time, unsigned _usageCount)
+	WrappedOcNode(LooseRenderOctree* _octreeNode, ooctools::IVbo* _iVbo, float _dist, State _state, unsigned _time, unsigned _usageCount)
 	{
 		octreeNode = _octreeNode;
 		iVbo = _iVbo;
@@ -85,7 +85,7 @@ struct WrappedOcNode{
 	}
 
 	LooseRenderOctree* octreeNode;
-	ooctools::IndexedVbo* iVbo;
+	ooctools::IVbo* iVbo;
 	State state;
 	float dist;
 	unsigned timeStamp;

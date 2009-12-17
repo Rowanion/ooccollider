@@ -182,6 +182,49 @@ bool Quintuple::operator<(const Quintuple& rhs) const
 Visibility::Visibility(uint64_t _id, char _vis) : id(_id), visible(_vis)
 {
 }
+
+void IVbo::debug()
+{
+	std::cerr << "iID " << mPriId << " - " << ((mem_t)&mPriId) - ((mem_t)this) << std::endl;
+	std::cerr << "iIdxc " << mPriIndexCount << " - " << ((mem_t)&mPriIndexCount) - ((mem_t)this) << std::endl;
+	std::cerr << "iVertc " << mPriVertexCount << " - " << ((uint64_t)&mPriVertexCount) - ((mem_t)this) << std::endl;
+	std::cerr << "iSize " << mPriByteSize << " - " << ((mem_t)&mPriByteSize) - ((mem_t)this) << std::endl;
+	std::cerr << "iIdx " << " - " << (mem_t)(indexData())-((mem_t)this) << std::endl;
+	std::cerr << "iVert " << " - " << ((mem_t)vertexData())-((mem_t)this) << std::endl;
+	std::cerr << "indices " << indexData()[0] << ", " << indexData()[1] << ", " << indexData()[2] << std::endl;
+	std::cerr << "vertices " << vertexData()[0].v[0] << ", " << vertexData()[0].v[1] << ", " << vertexData()[0].v[2] << std::endl;
+}
+
+unsigned* IVbo::indexData()
+{
+	return (unsigned*)(this+1);
+}
+
+V4N4* IVbo::vertexData()
+{
+	return (V4N4*) (((char*)(this+1)) + (mPriIndexCount*sizeof(unsigned)));
+}
+
+uint64_t IVbo::getId()
+{
+	return mPriId;
+}
+
+unsigned IVbo::getIndexCount()
+{
+	return mPriIndexCount;
+}
+
+unsigned IVbo::getVertexCount()
+{
+	return mPriVertexCount;
+}
+
+unsigned IVbo::getByteSize()
+{
+	return mPriByteSize;
+}
+
 //bool operator<(const Quintuple& lhs, const Quintuple& rhs)
 //{
 //	if (lhs.destId == rhs.destId){

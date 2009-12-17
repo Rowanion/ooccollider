@@ -23,6 +23,14 @@
 
 namespace ooctools {
 
+#ifndef MEMORY_TYPE
+#ifdef __X86_64__
+typedef uint64_t mem_t;
+#else
+typedef unsigned mem_t;
+#endif
+#define MEMORY_TYPE
+#endif
 //struct Material{
 //	std::string name;
 //	V3f *Ka; // ambient color r|g|b
@@ -141,6 +149,27 @@ struct Visibility{
 	uint64_t id;
 	char visible;
 };
+
+struct IVbo{
+//	friend class VboFactory;
+	static uint64_t getAddi();
+	void debug();
+	unsigned* indexData();
+	ooctools::V4N4* vertexData();
+	uint64_t getId();
+	unsigned getIndexCount();
+	unsigned getVertexCount();
+	unsigned getByteSize();
+
+//private:
+	uint64_t mPriId;
+	unsigned mPriIndexCount;
+	unsigned mPriVertexCount;
+	unsigned mPriByteSize;
+	char mPriIsOffline;
+	char mPriFree;
+};
+
 //bool operator<(const Quintuple& lhs, const Quintuple& rhs);
 } // end of namespace OOCTools
 #endif /* STRUCTDEFS_H_ */
