@@ -28,11 +28,12 @@
  * like Interface-Definitions, the EventManager, AbstractEvents, etc.
  */
 namespace oocframework{
+class AbstractEventListener;
 	class CCollisionProtocol;
-	class IEvent;
-	class AbstractEventListener;
 	class ClassId;
 	class EventManager;
+	class IEvent;
+	class VboFactory;
 	class Message;
 	class MpiControl;
 	class VirtualNode;

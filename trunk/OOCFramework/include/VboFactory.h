@@ -9,23 +9,26 @@
 #ifndef VBOFACTORY_H_
 #define VBOFACTORY_H_
 
-#include "IndexedVbo.h"
-
 #include <boost/system/config.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include <set>
+#include <list>
+
+#include "StructDefs.h"
+#include "LooseRenderOctree.h"
 
 // make sure to use the correct pointer-width
+
+namespace oocframework {
+
 #ifdef __X86_64__
 typedef uint64_t mem_t;
 #else
 typedef unsigned mem_t;
 #endif
 
-
-namespace ooctools {
 class VboFactory;
 
 struct Memory{
@@ -39,51 +42,28 @@ typedef std::set<Memory>::iterator MemIt;
 typedef std::set<Memory>::const_iterator MemCIt;
 typedef std::set<Memory>::reverse_iterator MemRIt;
 
-struct IVbo{
-//	friend class VboFactory;
-	static uint64_t getAddi();
-	void debug();
-	unsigned* indexData();
-	V4N4* vertexData();
-	uint64_t getId();
-	unsigned getIndexCount();
-	unsigned getVertexCount();
-	unsigned getByteSize();
-
-//private:
-	uint64_t mPriId;
-	unsigned mPriIndexCount;
-	unsigned mPriVertexCount;
-	IVbo** mPriRegistryPtr;
-	unsigned mPriByteSize;
-	char mPriIsOffline;
-	char mPriFree;
-};
-
-struct IVboWrap{
-	IVboWrap(IVbo** _iVbo);
-	IVbo** iVbo;
-	bool operator<(const IVboWrap& _rhs) const;
-};
 
 class VboFactory {
 public:
 	virtual ~VboFactory();
-	IVbo** newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos);
+	ooctools::IVbo* newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos);
 	MemIt findFirstFit(const unsigned _byteSize);
 
 	static VboFactory* getSingleton();
-	IVbo** getNewRegistryPtr();
-	IVbo** insertIntoRegistry(IVbo* _iVbo);
+	void defrag(std::list<oocformats::WrappedOcNode*>* _wNodeList);
+	void freeVbo(ooctools::IVbo* _iVbo);
+	void freeVbo(oocformats::WrappedOcNode* _wNode);
+	void debug();
 
 private:
 	VboFactory();
 	static VboFactory* mPriInstancePtr;
 	mem_t* mPriMem;
+	mem_t* mPriEndOfSpace;
 	std::set<Memory> mPriFreeMap;
-	std::set<IVbo*> mPriIVboMap;
+	std::set<ooctools::IVbo*> mPriIVboMap;
 
-	std::set<IVboWrap> mPriIVboRegistry;
+	std::list<ooctools::IVbo*> mPriIVboRegistry;
 
 };
 

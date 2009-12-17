@@ -44,7 +44,6 @@ namespace ooctools{
 	class Model;
 	class Quaternion;
 	class Vbo;
-	class VboFactory;
 	class VboManager;
 	template<typename T> class VertexArray;
 	class V3b;

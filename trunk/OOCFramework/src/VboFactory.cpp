@@ -10,6 +10,8 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
+
 
 #ifdef __X86_64__
 #define MEM_BLOCK_SIZE 1024*1024*8
@@ -18,9 +20,16 @@
 #endif
 
 using namespace std;
+using namespace ooctools;
+
 namespace fs=boost::filesystem;
 
-namespace ooctools {
+namespace oocframework {
+
+bool compListAddressAsc (const oocformats::WrappedOcNode* _lhs, const oocformats::WrappedOcNode* _rhs)
+{
+	return (_lhs->iVbo < _rhs->iVbo);
+}
 
 VboFactory* VboFactory::mPriInstancePtr = 0;
 
@@ -37,10 +46,11 @@ VboFactory::VboFactory() :	mPriMem(0)
 {
 	mPriMem = new mem_t[MEM_BLOCK_SIZE];
 	mPriFreeMap.insert(Memory(MEM_BLOCK_SIZE*sizeof(mem_t), mPriMem));
+	mPriEndOfSpace = mPriMem + MEM_BLOCK_SIZE;
 	cerr << "sizeof iVBO: " << sizeof(IVbo)<< endl;
 
 	cerr << "first addr: " << (mem_t)mPriMem << endl;
-	cerr << "sum: " << sizeof(V4N4*)+sizeof(unsigned)+sizeof(unsigned*)+sizeof(unsigned)+sizeof(bool)+(sizeof(GLuint)*2)+sizeof(bool)+sizeof(uint64_t)+sizeof(fs::ifstream*)+sizeof(unsigned) << endl;
+	cerr << "freespace: " << mPriFreeMap.begin()->size << endl;
 
 	cerr << "sizeof bool " << sizeof(bool) << endl;
 
@@ -64,7 +74,7 @@ MemIt VboFactory::findFirstFit(const unsigned _byteSize)
 /**
  * @warning Beware, he, who treads lightly in those uncharted and freakishly dangerous waters!
  */
-IVbo** VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
+IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 {
 
 	uint64_t tmpId;
@@ -102,12 +112,6 @@ IVbo** VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 	memPos->mPriIndexCount = tmpIdxCount;
 	memPos->mPriVertexCount = tmpVertCount;
 	memPos->mPriByteSize = tmpSize;
-	memPos->mPriRegistryPtr = insertIntoRegistry(memPos);
-	IVbo** bla = memPos->mPriRegistryPtr;
-	cerr << "xPtr Addr: " << (mem_t)memPos << " vs " << (mem_t)(*(memPos->mPriRegistryPtr)) << endl;
-	cerr << "xPtr Addr: " << (mem_t)bla << " vs " << (mem_t)(memPos->mPriRegistryPtr) << endl;
-	cerr << "xPtr Addr: " << (mem_t)memPos << " vs " << (mem_t)(*(memPos->mPriRegistryPtr)) << endl;
-	cerr << "xPtr Addr: " << (mem_t)(*bla) << " vs " << (mem_t)(*memPos->mPriRegistryPtr) << endl;
 
 	_inFile->read((char*)memPos->indexData(), sizeof(unsigned)*tmpIdxCount);
 	_inFile->seekg(_pos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*tmpIdxCount), ios::beg);
@@ -116,73 +120,60 @@ IVbo** VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 	mPriIVboMap.insert(memPos);
 //	((IVbo*)memPos)->debug();
 //	return (IVbo*)memPos;
-	return memPos->mPriRegistryPtr;
+	return memPos;
 }
 
-IVbo** VboFactory::getNewRegistryPtr()
+//TODO concatenate adjacent free space
+//TODO auf multiset umstellen!!
+void VboFactory::freeVbo(IVbo* _iVbo)
 {
-	//TODO
-	pair<set<IVbo**>::iterator,bool> result;
-	result = mPriIVboRegistry.insert(new IVbo*());
-	return (*result.first);
-//	return 0;
-}
-
-IVbo** VboFactory::insertIntoRegistry(IVbo* _iVbo)
-{
-	//TODO
-	pair<set<IVboWrap>::iterator, bool> result;
-	result = mPriIVboRegistry.insert(IVboWrap(&_iVbo));
-//	*(*result.first) = _iVbo;
-	if (result.second){
-		return result.first->iVbo;
+	// find adjacent free space after this
+	set<Memory>::iterator chkIt = mPriFreeMap.find(Memory(0, (mem_t*)((char*)_iVbo)+_iVbo->mPriByteSize));
+	if (chkIt != mPriFreeMap.end()){ //found some
+		//TODO find adjacent space before current
+		mPriFreeMap.insert(Memory(_iVbo->mPriByteSize+chkIt->size, (mem_t*)_iVbo));
+		mPriFreeMap.erase(chkIt);
 	}
-	else {
-		return 0;
+	else { // no free space after this one
+		mPriFreeMap.insert(Memory(_iVbo->mPriByteSize, (mem_t*)_iVbo));
 	}
-
+	memset(_iVbo, 0, _iVbo->mPriByteSize);
 }
 
-void IVbo::debug()
+void VboFactory::freeVbo(oocformats::WrappedOcNode* _wNode)
 {
-	cerr << "iID " << mPriId << " - " << ((mem_t)&mPriId) - ((mem_t)this) << endl;
-	cerr << "iIdxc " << mPriIndexCount << " - " << ((mem_t)&mPriIndexCount) - ((mem_t)this) << endl;
-	cerr << "iVertc " << mPriVertexCount << " - " << ((uint64_t)&mPriVertexCount) - ((mem_t)this) << endl;
-	cerr << "iSize " << mPriByteSize << " - " << ((mem_t)&mPriByteSize) - ((mem_t)this) << endl;
-	cerr << "iIdx " << " - " << (mem_t)(indexData())-((mem_t)this) << endl;
-	cerr << "iVert " << " - " << ((mem_t)vertexData())-((mem_t)this) << endl;
-	cerr << "indices " << indexData()[0] << ", " << indexData()[1] << ", " << indexData()[2] << endl;
-	cerr << "vertices " << vertexData()[0].v[0] << ", " << vertexData()[0].v[1] << ", " << vertexData()[0].v[2] << endl;
+	mPriFreeMap.insert(Memory(_wNode->iVbo->mPriByteSize, (mem_t*)_wNode->iVbo));
+	memset(_wNode->iVbo, 0, _wNode->iVbo->mPriByteSize);
+	_wNode->iVbo = 0;
 }
 
-unsigned* IVbo::indexData()
+void VboFactory::defrag(list<oocformats::WrappedOcNode*>* _wNodeList)
 {
-	return (unsigned*)(this+1);
+	// fetch first free entry
+	// find first vbo >= this space
+	// move vbo into free space and advance pointer by
+	_wNodeList->sort(compListAddressAsc);
+	char* currentFreeAddress = (char*)mPriFreeMap.begin()->address;
+	list<oocformats::WrappedOcNode*>::iterator wnIt = _wNodeList->begin();
+	for (; wnIt != _wNodeList->end(); ++wnIt){
+		if ((*wnIt)->iVbo >= (IVbo*)currentFreeAddress){
+			(*wnIt)->iVbo = (IVbo*)memmove((char*)currentFreeAddress, (char*)(*wnIt)->iVbo, (*wnIt)->iVbo->mPriByteSize);
+			currentFreeAddress+=(*wnIt)->iVbo->mPriByteSize;
+		}
+	}
+	mPriFreeMap.clear();
+	mPriFreeMap.insert(Memory((mem_t)mPriEndOfSpace-((mem_t)currentFreeAddress), (mem_t*)currentFreeAddress));
 }
 
-V4N4* IVbo::vertexData()
+void VboFactory::debug()
 {
-	return (V4N4*) (((char*)(this+1)) + (mPriIndexCount*sizeof(unsigned)));
-}
-
-uint64_t IVbo::getId()
-{
-	return mPriId;
-}
-
-unsigned IVbo::getIndexCount()
-{
-	return mPriIndexCount;
-}
-
-unsigned IVbo::getVertexCount()
-{
-	return mPriVertexCount;
-}
-
-unsigned IVbo::getByteSize()
-{
-	return mPriByteSize;
+	cerr << "FreeListSize: " << mPriFreeMap.size() << endl;
+	unsigned newFree = 0;
+	for (set<Memory>::iterator freeIt = mPriFreeMap.begin(); freeIt != mPriFreeMap.end(); ++freeIt){
+		cerr << "freePoint: " << (mem_t)freeIt->address << ": " << freeIt->size << endl;
+		newFree += freeIt->size;
+	}
+	cerr << "Free Sum: " << newFree << endl;
 }
 
 Memory::Memory(unsigned _size, mem_t* _addr) :
@@ -193,16 +184,6 @@ Memory::Memory(unsigned _size, mem_t* _addr) :
 bool Memory::operator<(const Memory& _rhs) const
 {
 	return (address < _rhs.address);
-}
-
-IVboWrap::IVboWrap(IVbo** _iVbo) :
-	iVbo(_iVbo)
-{
-}
-
-bool IVboWrap::operator<(const IVboWrap& _rhs) const
-{
-	return (iVbo < _rhs.iVbo);
 }
 
 }
