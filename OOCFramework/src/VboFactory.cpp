@@ -47,6 +47,8 @@ VboFactory::VboFactory() :	mPriMem(0)
 	mPriMem = new mem_t[MEM_BLOCK_SIZE];
 	mPriFreeMap.insert(Memory(MEM_BLOCK_SIZE*sizeof(mem_t), mPriMem));
 	mPriEndOfSpace = mPriMem + MEM_BLOCK_SIZE;
+	//TODO maybe remove in final....
+	memset(mPriMem, 0, MEM_BLOCK_SIZE*sizeof(mem_t));
 	cerr << "sizeof iVBO: " << sizeof(IVbo)<< endl;
 
 	cerr << "first addr: " << (mem_t)mPriMem << endl;
@@ -123,23 +125,62 @@ IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 	return memPos;
 }
 
-//TODO concatenate adjacent free space
-//TODO auf multiset umstellen!!
 void VboFactory::freeVbo(IVbo* _iVbo)
 {
+	Memory m = Memory(_iVbo->mPriByteSize, (mem_t*)_iVbo);
+	set<Memory>::iterator freeBeforeIt;
+	set<Memory>::iterator freeAfterIt;
 	// find adjacent free space after this
-	set<Memory>::iterator chkIt = mPriFreeMap.find(Memory(0, (mem_t*)((char*)_iVbo)+_iVbo->mPriByteSize));
-	if (chkIt != mPriFreeMap.end()){ //found some
-		//TODO find adjacent space before current
-		mPriFreeMap.insert(Memory(_iVbo->mPriByteSize+chkIt->size, (mem_t*)_iVbo));
-		mPriFreeMap.erase(chkIt);
+	char* temp = (char*)_iVbo;
+	temp += _iVbo->mPriByteSize;
+	freeAfterIt = mPriFreeMap.find(Memory(0,(mem_t*)temp));
+	if (freeAfterIt == mPriFreeMap.begin()){
+		//no free space before, but after
+		m.size+=freeAfterIt->size;
+		mPriFreeMap.insert(m);
+		mPriFreeMap.erase(freeAfterIt);
 	}
-	else { // no free space after this one
-		mPriFreeMap.insert(Memory(_iVbo->mPriByteSize, (mem_t*)_iVbo));
+	else if (freeAfterIt == mPriFreeMap.end()){
+		// looking in front of the vbo.....
+		//TODO the case that the freeList is empty is not covered here.
+		// It would cause a segfault or worse because .begin would be empty.
+		do{
+			freeAfterIt--;
+			temp = (char*)freeAfterIt->address;
+			temp += freeAfterIt->size;
+			if (temp == (char*)_iVbo){
+				m.size+=freeAfterIt->size;
+				m.address = freeAfterIt->address;
+				mPriFreeMap.erase(freeAfterIt);
+				break; // no need to look further
+			}
+		}while(temp > (char*)_iVbo && freeAfterIt != mPriFreeMap.begin());
+		mPriFreeMap.insert(m);
 	}
+	else {
+		freeBeforeIt = freeAfterIt;
+		freeBeforeIt--;
+		if (((char*)freeBeforeIt->address)+freeBeforeIt->size == (char*)_iVbo){
+			m.size+=freeBeforeIt->size;
+			m.address = freeBeforeIt->address;
+			mPriFreeMap.erase(freeBeforeIt);
+		}
+
+		if (freeAfterIt != mPriFreeMap.end()){
+			// free space before and after
+			m.size+=freeAfterIt->size;
+			mPriFreeMap.erase(freeAfterIt);
+		}
+		mPriFreeMap.insert(m);
+	}
+
+	// TODO maybe remove the memset, because the memory is already in freelist
+	// and there are no pointers anymore pointing to this location.
 	memset(_iVbo, 0, _iVbo->mPriByteSize);
+	_iVbo = 0;
 }
 
+//TODO fit this method to above one
 void VboFactory::freeVbo(oocformats::WrappedOcNode* _wNode)
 {
 	mPriFreeMap.insert(Memory(_wNode->iVbo->mPriByteSize, (mem_t*)_wNode->iVbo));
@@ -163,6 +204,14 @@ void VboFactory::defrag(list<oocformats::WrappedOcNode*>* _wNodeList)
 	}
 	mPriFreeMap.clear();
 	mPriFreeMap.insert(Memory((mem_t)mPriEndOfSpace-((mem_t)currentFreeAddress), (mem_t*)currentFreeAddress));
+}
+
+void VboFactory::clear()
+{
+	mPriFreeMap.clear();
+	mPriFreeMap.insert(Memory(MEM_BLOCK_SIZE*sizeof(mem_t), mPriMem));
+	//TODO maybe remove in final.....see freeVBO
+	memset(mPriMem, 0, MEM_BLOCK_SIZE*sizeof(mem_t));
 }
 
 void VboFactory::debug()
