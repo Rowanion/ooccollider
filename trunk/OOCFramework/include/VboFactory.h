@@ -53,6 +53,7 @@ public:
 	void defrag(std::list<oocformats::WrappedOcNode*>* _wNodeList);
 	void freeVbo(ooctools::IVbo* _iVbo);
 	void freeVbo(oocformats::WrappedOcNode* _wNode);
+	void clear();
 	void debug();
 
 private:
