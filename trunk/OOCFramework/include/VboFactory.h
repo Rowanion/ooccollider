@@ -47,6 +47,8 @@ class VboFactory {
 public:
 	virtual ~VboFactory();
 	ooctools::IVbo* newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos);
+	ooctools::IVbo* newVbo(unsigned _iCount, const unsigned* _iArray, unsigned _vCount, const ooctools::V4N4* _vArray);
+	//new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
 	MemIt findFirstFit(const unsigned _byteSize);
 
 	static VboFactory* getSingleton();
@@ -55,6 +57,10 @@ public:
 	void freeVbo(oocformats::WrappedOcNode* _wNode);
 	void clear();
 	void debug();
+	void setOnline(ooctools::IVbo* _iVbo);
+	void setOffline(ooctools::IVbo* _iVbo);
+	void draw(ooctools::IVbo* _iVbo, bool _dataNodeMode = false);
+	void drawAlt(ooctools::IVbo* _iVbo);
 
 private:
 	VboFactory();
@@ -62,10 +68,6 @@ private:
 	mem_t* mPriMem;
 	mem_t* mPriEndOfSpace;
 	std::set<Memory> mPriFreeMap;
-	std::set<ooctools::IVbo*> mPriIVboMap;
-
-	std::list<ooctools::IVbo*> mPriIVboRegistry;
-
 };
 
 }

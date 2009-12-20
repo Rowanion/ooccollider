@@ -79,6 +79,7 @@
 #endif
 
 #ifdef HOME
+#undef KEEP_VBOS_RESIDENT
 #define SHOW_RENDER_IMAGE
 #define SHOW_DEPTH_IMAGE
 #define MAX_OFFLINE_VBOS 1500
