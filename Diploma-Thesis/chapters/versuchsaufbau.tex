@@ -1,0 +1,36 @@
+\chapter{Versuchsaufbau}
+\section{Das Programm}
+
+\label{masternode}
+MasterNode:
+\begin{itemize}
+ \item verschicke Kameraposition und Tasteneingabe
+ \item warte auf Objektanfragen von allen RenderNodes
+ \item führe c-Collision Protokoll auf diesen aus, gebündelt zu Anfrangen der Menge an DataNodes
+ \item sende die Anfragen an die ausgewählten DataNodes weiter
+ \item warte auf Kacheln von allen RenderNodes
+\end{itemize}
+
+\label{rendernode}
+RenderNode:
+\begin{itemize}
+ \item warte auf Tasteneingaben und Kameraposition
+ \item Erweitere das Frustum und parse den Octree/Sampletree
+ \item Jeder Knoten im Frustum bekommt einen Zeitstempel
+ \item sollte ein Knoten schon länger online oder offline sein, tagge den Knoten für eine erneute Überbprüfung.
+ \item schicke Anfragen über fehlende Objekte an den MasterNode
+ \item Rendere eine Kachel mit allen verfügbaren Knoten, die online sind.
+ \item Beginne Empfang aller anstehenden Knoten.
+ \item verschicke die Kachel an den MasterNode
+\end{itemize}
+
+\label{datanode}
+DataNode:
+\begin{itemize}
+ \item warte auf irgendeine ankommende Nachricht
+ \item Ist es ein Request, sortiere die Requests nach RenderNode und beginne mit den Occlusion-Tests
+ \item Bei erfolgreichen Tests wird das Objekt vollständig in den Tiefenbuffer gerendert
+ \item Verschicke alle positiv getesteten Objekte an die anfordernden RenderNodes
+ \item Ist es ein Tiefenbuffer, schreibe den Buffer für den jeweiligen RenderNode in den FrameBuffer
+\end{itemize}
+

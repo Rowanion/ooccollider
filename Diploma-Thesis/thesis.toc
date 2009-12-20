@@ -14,7 +14,9 @@
 \contentsline {subsection}{\numberline {2.2.1}Octree}{4}{subsection.2.2.1}
 \contentsline {subsection}{\numberline {2.2.2}Randomized Sampletree}{4}{subsection.2.2.2}
 \contentsline {section}{\numberline {2.3}Algorithmen}{4}{section.2.3}
-\contentsline {chapter}{\numberline {3}Ergebnisse}{5}{chapter.3}
-\contentsline {chapter}{\numberline {4}Conclusion and Outlook}{6}{chapter.4}
-\contentsline {chapter}{\numberline {A}Acronyms}{7}{appendix.A}
-\contentsline {chapter}{\numberline {B}Bibliography}{8}{appendix.B}
+\contentsline {chapter}{\numberline {3}Versuchsaufbau}{5}{chapter.3}
+\contentsline {section}{\numberline {3.1}Das Programm}{5}{section.3.1}
+\contentsline {chapter}{\numberline {4}Ergebnisse}{7}{chapter.4}
+\contentsline {chapter}{\numberline {5}Conclusion and Outlook}{8}{chapter.5}
+\contentsline {chapter}{\numberline {A}Acronyms}{9}{appendix.A}
+\contentsline {chapter}{\numberline {B}Bibliography}{10}{appendix.B}

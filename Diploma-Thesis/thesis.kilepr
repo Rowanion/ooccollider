@@ -4,7 +4,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=thesis.tex
+lastDocument=chapters/versuchsaufbau.tex
 masterDocument=
 name=Thesis
 pkg_extIsRegExp=false
@@ -58,17 +58,17 @@ column=12
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
-order=1
+open=true
+order=9
 
 [item:chapters/conclusion.tex]
 archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=0
-open=false
-order=3
+line=32
+open=true
+order=10
 
 [item:chapters/introduction.tex]
 archive=true
@@ -97,6 +97,15 @@ line=52
 open=true
 order=3
 
+[item:chapters/versuchsaufbau.tex]
+archive=true
+column=16
+encoding=UTF-8
+highlight=LaTeX
+line=31
+open=true
+order=8
+
 [item:thesis.kilepr]
 archive=true
 column=9
@@ -108,9 +117,9 @@ order=-1
 
 [item:thesis.tex]
 archive=true
-column=40
+column=30
 encoding=UTF-8
 highlight=LaTeX
-line=37
+line=266
 open=true
 order=7
