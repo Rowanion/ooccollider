@@ -18,6 +18,7 @@
 #include "V3ub.h"
 #include "V3f.h"
 #include "BoundingBox.h"
+#include "GlToolkit.h"
 
 #include "declarations.h"
 
@@ -152,7 +153,7 @@ struct Visibility{
 
 struct IVbo{
 //	friend class VboFactory;
-	static uint64_t getAddi();
+	IVbo();
 	void debug();
 	unsigned* indexData();
 	ooctools::V4N4* vertexData();
@@ -160,14 +161,18 @@ struct IVbo{
 	unsigned getIndexCount();
 	unsigned getVertexCount();
 	unsigned getByteSize();
+	void setOnline();
+	void setOffline();
+	void draw(bool dataNodeMode = false);
 
 //private:
-	uint64_t mPriId;
 	unsigned mPriIndexCount;
 	unsigned mPriVertexCount;
 	unsigned mPriByteSize;
-	char mPriIsOffline;
-	char mPriFree;
+	GLuint mPriVertexId;
+	GLuint mPriIdxId;
+	bool mPriIsOffline;
+	bool mPriFree;
 };
 
 //bool operator<(const Quintuple& lhs, const Quintuple& rhs);

@@ -183,9 +183,15 @@ Visibility::Visibility(uint64_t _id, char _vis) : id(_id), visible(_vis)
 {
 }
 
+IVbo::IVbo() : mPriIndexCount(0), mPriVertexCount(0), mPriByteSize(0),
+	mPriVertexId(0), mPriIdxId(0), mPriIsOffline(true), mPriFree(false)
+
+{
+
+}
+
 void IVbo::debug()
 {
-	std::cerr << "iID " << mPriId << " - " << ((mem_t)&mPriId) - ((mem_t)this) << std::endl;
 	std::cerr << "iIdxc " << mPriIndexCount << " - " << ((mem_t)&mPriIndexCount) - ((mem_t)this) << std::endl;
 	std::cerr << "iVertc " << mPriVertexCount << " - " << ((uint64_t)&mPriVertexCount) - ((mem_t)this) << std::endl;
 	std::cerr << "iSize " << mPriByteSize << " - " << ((mem_t)&mPriByteSize) - ((mem_t)this) << std::endl;
@@ -205,11 +211,6 @@ V4N4* IVbo::vertexData()
 	return (V4N4*) (((char*)(this+1)) + (mPriIndexCount*sizeof(unsigned)));
 }
 
-uint64_t IVbo::getId()
-{
-	return mPriId;
-}
-
 unsigned IVbo::getIndexCount()
 {
 	return mPriIndexCount;
@@ -225,24 +226,88 @@ unsigned IVbo::getByteSize()
 	return mPriByteSize;
 }
 
-//bool operator<(const Quintuple& lhs, const Quintuple& rhs)
-//{
-//	if (lhs.destId == rhs.destId){
-//		if (lhs.lvl == rhs.lvl){
-//			if (lhs.dist == rhs.dist){
-//				return (lhs.id < rhs.id);
-//			}
-//			else {
-//				return (lhs.dist < rhs.dist);
-//			}
-//		}
-//		else {
-//			return (lhs.lvl < rhs.lvl);
-//		}
-//	}
-//	else{
-//		return lhs.destId < rhs.destId;
-//	}
-//}
+void IVbo::setOnline()
+{
+	std::cerr << " -------------------------------------- setting vbo online...." << std::endl;
+	if (mPriIsOffline){
+
+		// do stuff to normals
+		if (mPriVertexId==0){
+			std::cerr << "generating vertexBuffer4VBO...." << std::endl;
+			glGenBuffers(1, &mPriVertexId);
+		}
+		else {
+			std::cerr << "somewhow we already have a vertexBuffer4VBO.... " << mPriVertexId << std::endl;
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, mPriVertexId);
+		glBufferData(GL_ARRAY_BUFFER, mPriVertexCount*sizeof(V4N4), vertexData(), GL_STATIC_DRAW);
+		glVertexPointer(4, GL_FLOAT, sizeof(V4N4), bufferOffset(0));
+		glNormalPointer(GL_BYTE, sizeof(V4N4), bufferOffset(0));
+		// do stuff to indices
+		if (mPriIdxId==0){
+			std::cerr << "generating indexBuffer4VBO...." << std::endl;
+			glGenBuffers(1, &mPriIdxId);
+		}
+		else {
+			std::cerr << "somewhow we already have a indexBuffer4VBO.... " << mPriIdxId << std::endl;
+		}
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIdxId);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mPriIndexCount*sizeof(unsigned), indexData(), GL_STATIC_DRAW);
+		mPriIsOffline = false;
+	}
+}
+
+void IVbo::setOffline()
+{
+	if (!mPriIsOffline){
+		if (mPriVertexId!=0){
+			// do stuff to normals
+			glBindBuffer(GL_ARRAY_BUFFER, mPriVertexId);
+			glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+		}
+		if (mPriIdxId!=0){
+			// do stuff to indices
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIdxId);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+		}
+		mPriIsOffline=true;
+	}
+}
+
+void IVbo::draw(bool dataNodeMode)
+{
+	if (dataNodeMode){
+		glEnableClientState(GL_VERTEX_ARRAY);
+
+		if (!mPriIsOffline){
+			if (mPriVertexId!=0) {
+				glBindBuffer(GL_ARRAY_BUFFER, mPriVertexId);
+				glVertexPointer(3, GL_FLOAT, sizeof(V4N4), bufferOffset(0));
+			}
+			if (mPriIdxId!=0) {
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIdxId);
+			}
+
+			glDrawElements(GL_TRIANGLES, mPriIndexCount, GL_UNSIGNED_INT, bufferOffset(0));
+		}
+	}
+	else {
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+
+		if (!mPriIsOffline){
+			if (mPriVertexId!=0) {
+				glBindBuffer(GL_ARRAY_BUFFER, mPriVertexId);
+				glVertexPointer(4, GL_FLOAT, sizeof(V4N4), bufferOffset(0));
+				glNormalPointer(GL_BYTE, sizeof(V4N4), bufferOffset(4*sizeof(float)));
+			}
+			if (mPriIdxId!=0) {
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIdxId);
+			}
+
+			glDrawElements(GL_TRIANGLES, mPriIndexCount, GL_UNSIGNED_INT, bufferOffset(0));
+		}
+	}
+}
 
 } // end of namespace OOCTools

@@ -12,6 +12,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <iostream>
 #include "LooseRenderOctree.h"
+#include <limits>
 
 
 namespace fs=boost::filesystem;
@@ -30,6 +31,7 @@ int main(int argc, char* argv[]){
 	inFile.open("/home/ava/Diplom/Model/SampleTree_packed/Data0.bin", ios::binary);
 	IVbo* iVbo = vf->newVbo(&inFile, 0);
 	cerr << "ivbo: " << iVbo->getByteSize()<< endl;
+
 	int count = 1;
 	while(iVbo != 0){
 		won = new oocformats::WrappedOcNode();
@@ -60,6 +62,7 @@ int main(int argc, char* argv[]){
 //		cerr << "vertexCount: " << iVbo->getVertexCount()<< endl;
 		iVbo = vf->newVbo(&inFile, 0);
 	}
+	cerr << "count: " << count << endl;
 	vf->debug();
 	unsigned i =0;
 	for (list<oocformats::WrappedOcNode*>::iterator wIt = myList.begin(); wIt != myList.end(); ++wIt, ++i){
@@ -112,5 +115,6 @@ int main(int argc, char* argv[]){
 
 	vf->defrag(&myList);
 	vf->debug();
+	cerr << "size_t: " << numeric_limits<size_t>::max() << endl;
 	return 0;
 }

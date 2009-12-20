@@ -14,9 +14,9 @@
 
 
 #ifdef __X86_64__
-#define MEM_BLOCK_SIZE 1024*1024*8
+#define MEM_BLOCK_SIZE 1024*1024*64 // 512
 #else
-#define MEM_BLOCK_SIZE 1024*1024*16
+#define MEM_BLOCK_SIZE 1024*1024*128 // 512
 #endif
 
 using namespace std;
@@ -79,11 +79,8 @@ MemIt VboFactory::findFirstFit(const unsigned _byteSize)
 IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 {
 
-	uint64_t tmpId;
 	unsigned tmpIdxCount, tmpVertCount, tmpSize;
 
-	_inFile->seekg(_pos, ios::beg);
-	_inFile->read((char*)&tmpId, sizeof(uint64_t));
 	_inFile->seekg(_pos+sizeof(uint64_t), ios::beg);
 	_inFile->read((char*)&tmpIdxCount, sizeof(unsigned));
 	_inFile->seekg(_pos+sizeof(uint64_t)+sizeof(unsigned), ios::beg);
@@ -110,16 +107,57 @@ IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 	}
 	// ------------------------
 
-	memPos->mPriId = tmpId;
 	memPos->mPriIndexCount = tmpIdxCount;
 	memPos->mPriVertexCount = tmpVertCount;
 	memPos->mPriByteSize = tmpSize;
+	memPos->mPriIdxId = 0;
+	memPos->mPriVertexId = 0;
+	memPos->mPriIsOffline = true;
 
 	_inFile->read((char*)memPos->indexData(), sizeof(unsigned)*tmpIdxCount);
 	_inFile->seekg(_pos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*tmpIdxCount), ios::beg);
 
 	_inFile->read((char*)memPos->vertexData(), sizeof(V4N4)*tmpVertCount);
-	mPriIVboMap.insert(memPos);
+//	((IVbo*)memPos)->debug();
+//	return (IVbo*)memPos;
+	return memPos;
+}
+
+ooctools::IVbo* VboFactory::newVbo(unsigned _iCount, const unsigned* _iArray, unsigned _vCount, const ooctools::V4N4* _vArray)
+{
+//	cerr << "creating new vbo w " << _iCount << " indices and " << _vCount << " vertices." << endl;
+	unsigned tmpSize;
+
+	tmpSize = sizeof(IVbo) + sizeof(unsigned)*_iCount + sizeof(V4N4)*_vCount;
+
+	//TODO find fitting memory block, repack otherwise
+	// ------------------------
+	IVbo* memPos;
+	MemIt it = findFirstFit(tmpSize);
+	if (it == mPriFreeMap.end()){
+		//TODO resize/decache
+		cerr << "last size: " << mPriFreeMap.rbegin()->size << endl;
+		cerr << "last addr: " << (mem_t)mPriFreeMap.rbegin()->address << endl;
+		return 0;
+	}
+	else { // found a matching chunk norris. Now get new free ptr
+		mem_t* newAddr = ((mem_t*)(((char*)it->address)+tmpSize));
+		Memory m = Memory(it->size-tmpSize, newAddr);
+		memPos = (IVbo*)it->address;
+		mPriFreeMap.erase(it);
+		mPriFreeMap.insert(m);
+	}
+	// ------------------------
+
+	memcpy(memPos->indexData(), _iArray, sizeof(unsigned)*_iCount);
+	memcpy(memPos->vertexData(), _vArray, sizeof(V4N4)*_vCount);
+	memPos->mPriIndexCount = _iCount;
+	memPos->mPriVertexCount = _vCount;
+	memPos->mPriByteSize = tmpSize;
+	memPos->mPriIdxId = 0;
+	memPos->mPriVertexId = 0;
+	memPos->mPriIsOffline = true;
+
 //	((IVbo*)memPos)->debug();
 //	return (IVbo*)memPos;
 	return memPos;
@@ -127,6 +165,16 @@ IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 
 void VboFactory::freeVbo(IVbo* _iVbo)
 {
+	_iVbo->setOffline();
+	if (_iVbo->mPriVertexId != 0){
+		glDeleteBuffers(1, &_iVbo->mPriVertexId);
+		_iVbo->mPriVertexId = 0;
+	}
+	if (_iVbo->mPriIdxId != 0){
+		glDeleteBuffers(1, &_iVbo->mPriIdxId);
+		_iVbo->mPriIdxId = 0;
+	}
+
 	Memory m = Memory(_iVbo->mPriByteSize, (mem_t*)_iVbo);
 	set<Memory>::iterator freeBeforeIt;
 	set<Memory>::iterator freeAfterIt;
@@ -223,6 +271,101 @@ void VboFactory::debug()
 		newFree += freeIt->size;
 	}
 	cerr << "Free Sum: " << newFree << endl;
+}
+
+void VboFactory::setOnline(ooctools::IVbo* _iVbo)
+{
+//	std::cerr << " -------------------------------------- setting vbo online...." << std::endl;
+	if (_iVbo->mPriIsOffline){
+
+		// do stuff to normals
+		if (_iVbo->mPriVertexId==0){
+//			std::cerr << "generating vertexBuffer4VBO...." << std::endl;
+			glGenBuffers(1, &_iVbo->mPriVertexId);
+		}
+		else {
+//			std::cerr << "somewhow we already have a vertexBuffer4VBO.... " << _iVbo->mPriVertexId << std::endl;
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, _iVbo->mPriVertexId);
+		glBufferData(GL_ARRAY_BUFFER, _iVbo->mPriVertexCount*sizeof(V4N4), _iVbo->vertexData(), GL_STATIC_DRAW);
+		glVertexPointer(4, GL_FLOAT, sizeof(V4N4), bufferOffset(0));
+		glNormalPointer(GL_BYTE, sizeof(V4N4), bufferOffset(0));
+		// do stuff to indices
+		if (_iVbo->mPriIdxId==0){
+//			std::cerr << "generating indexBuffer4VBO...." << std::endl;
+			glGenBuffers(1, &_iVbo->mPriIdxId);
+		}
+		else {
+//			std::cerr << "somewhow we already have a indexBuffer4VBO.... " << _iVbo->mPriIdxId << std::endl;
+		}
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _iVbo->mPriIdxId);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _iVbo->mPriIndexCount*sizeof(unsigned), _iVbo->indexData(), GL_STATIC_DRAW);
+		_iVbo->mPriIsOffline = false;
+	}
+
+}
+
+void VboFactory::setOffline(ooctools::IVbo* _iVbo)
+{
+	if (!_iVbo->mPriIsOffline){
+		if (_iVbo->mPriVertexId!=0){
+			// do stuff to normals
+			glBindBuffer(GL_ARRAY_BUFFER, _iVbo->mPriVertexId);
+			glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+		}
+		if (_iVbo->mPriIdxId!=0){
+			// do stuff to indices
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _iVbo->mPriIdxId);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+		}
+		_iVbo->mPriIsOffline=true;
+	}
+
+}
+
+void
+VboFactory::draw(ooctools::IVbo* _iVbo, bool _dataNodeMode)
+{
+	if (_dataNodeMode){
+		glEnableClientState(GL_VERTEX_ARRAY);
+
+		if (!_iVbo->mPriIsOffline){
+			if (_iVbo->mPriVertexId!=0) {
+				glBindBuffer(GL_ARRAY_BUFFER, _iVbo->mPriVertexId);
+				glVertexPointer(3, GL_FLOAT, sizeof(V4N4), bufferOffset(0));
+			}
+			if (_iVbo->mPriIdxId!=0) {
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _iVbo->mPriIdxId);
+			}
+
+			glDrawElements(GL_TRIANGLES, _iVbo->mPriIndexCount, GL_UNSIGNED_INT, bufferOffset(0));
+		}
+	}
+	else {
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+
+		if (!_iVbo->mPriIsOffline){
+			if (_iVbo->mPriVertexId!=0) {
+				glBindBuffer(GL_ARRAY_BUFFER, _iVbo->mPriVertexId);
+				glVertexPointer(4, GL_FLOAT, sizeof(V4N4), bufferOffset(0));
+				glNormalPointer(GL_BYTE, sizeof(V4N4), bufferOffset(4*sizeof(float)));
+			}
+			if (_iVbo->mPriIdxId!=0) {
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _iVbo->mPriIdxId);
+			}
+
+			glDrawElements(GL_TRIANGLES, _iVbo->mPriIndexCount, GL_UNSIGNED_INT, bufferOffset(0));
+		}
+	}
+}
+
+void VboFactory::drawAlt(ooctools::IVbo* _iVbo)
+{
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, sizeof(V4N4), _iVbo->vertexData());
+	glDrawElements(GL_TRIANGLES, _iVbo->mPriIndexCount, GL_UNSIGNED_INT, _iVbo->indexData());
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 Memory::Memory(unsigned _size, mem_t* _addr) :
