@@ -1,0 +1,35 @@
+\chapter{Versuchsaufbau}
+\section{Das Programm}
+
+\label{masternode}
+MasterNode:
+\begin{itemize}
+ \item verschicke Kameraposition und Tasteneingabe
+ \item warte auf Objektanfragen von allen RenderNodes
+ \item führe c-Collision Protokoll auf diesen aus, gebündelt zu Anfrangen der Menge an DataNodes
+ \item sende die Anfragen an die ausgewählten DataNodes weiter
+ \item warte auf Kacheln von allen RenderNodes
+\end{itemize}
+
+\label{rendernode}
+RenderNode:
+\begin{itemize}
+ \item warte auf Tasteneingaben und Kameraposition
+ \item Erweitere das Frustum und parse den Octree/Sampletree
+  \item fgdfg
+ \item warte auf Objektanfragen von allen RenderNodes
+ \item führe c-Collision Protokoll auf diesen aus, gebündelt zu Anfrangen der Menge an DataNodes
+ \item sende die Anfragen an die ausgewählten DataNodes weiter
+ \item warte auf Kacheln von allen RenderNodes
+\end{itemize}
+
+\label{datanode}
+DataNode:
+\begin{itemize}
+ \item verschicke Kameraposition und Tasteneingabe
+ \item warte auf Objektanfragen von allen RenderNodes
+ \item führe c-Collision Protokoll auf diesen aus, gebündelt zu Anfrangen der Menge an DataNodes
+ \item sende die Anfragen an die ausgewählten DataNodes weiter
+ \item warte auf Kacheln von allen RenderNodes
+\end{itemize}
+
