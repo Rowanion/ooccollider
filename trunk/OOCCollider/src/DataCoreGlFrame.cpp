@@ -128,7 +128,7 @@ void DataCoreGlFrame::init() {
 
 	mPriCCol.generateDistribution(mPriLo);
 #ifdef KEEP_VBOS_RESIDENT
-	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " now loading " << mPriCCol.getMyNodeSet().size() << "Vbos...." << endl;
+//	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " now loading " << mPriCCol.getMyNodeSet().size() << "Vbos...." << endl;
 	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
 	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
 #else
@@ -162,7 +162,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 {
 	// ------------------------
 
-	std::map<uint64_t, ooctools::IndexedVertexArray*>::iterator testIt = mPriVArrayMap.find((*quintIt)->id);
+//	std::map<uint64_t, ooctools::IndexedVertexArray*>::iterator testIt = mPriVArrayMap.find((*quintIt)->id);
 	// ------------------------
 	GET_GLERROR(0);
 	resizeFrustumExt(mPriTileMap[_destId].xPos, mPriTileMap[_destId].yPos, mPriTileMap[_destId].width, mPriTileMap[_destId].height, mProFarClippingPlane);
@@ -260,8 +260,8 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 						// add visible VBO to the current DepthBuffer
 						cerr << "b4 draw into DepthBuffer: " << endl;
 						cerr << "drawing id " << (*quintIt)->id << "..." << endl;
-						cerr << "after draw into DepthBuffer" << endl;
 						mPriVArrayMap[(*quintIt)->id]->managedDraw();
+						cerr << "after draw into DepthBuffer" << endl;
 						mPriVisibleVArraysVec.push_back(mPriVArrayMap[(*quintIt)->id]);
 						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->priority));
 						byteSize = mPriVArrayMap[(*quintIt)->id]->getIndexCount()*sizeof(unsigned)+mPriVArrayMap[(*quintIt)->id]->getVertexCount()*sizeof(V4N4);
@@ -593,7 +593,7 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 			parseAndLoadVArrays(_idSet);
 		}
 		else if (itr->path().extension() == ".bin") {
-			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " parsing file " << itr->path() << "..." << endl;
+//			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " parsing file " << itr->path() << "..." << endl;
 			inFile.open(itr->path(), ios::binary);
 			inFile.seekg(0, ios::end);
 			loc.path = itr->path();
@@ -625,7 +625,7 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 				inFile.seekg(pos, ios::beg);
 			}
 			inFile.close();
-			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " DONE with " << itr->path() << "..." << endl;
+//			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " DONE with " << itr->path() << "..." << endl;
 		}
 	}
 }
