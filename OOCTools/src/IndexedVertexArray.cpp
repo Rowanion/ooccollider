@@ -170,10 +170,11 @@ IndexedVertexArray::~IndexedVertexArray() {
 void
 IndexedVertexArray::managedDraw()
 {
-	glEnableClientState(GL_VERTEX_ARRAY_EXT);
-	glVertexPointerEXT(3, GL_FLOAT, sizeof(V4N4), mPriVertexData);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, sizeof(float) + 4*sizeof(char), mPriVertexData);
+//	glVertexPointer(3, GL_FLOAT, sizeof(V4N4), mPriVertexData);
 	glDrawElements(GL_TRIANGLES, mPriIndexCount, GL_UNSIGNED_INT, mPriIndexData);
-	glDisableClientState(GL_VERTEX_ARRAY_EXT);
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void
