@@ -128,6 +128,7 @@ void DataCoreGlFrame::init() {
 
 	mPriCCol.generateDistribution(mPriLo);
 #ifdef KEEP_VBOS_RESIDENT
+	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " now loading " << mPriCCol.getMyNodeSet().size() << "Vbos...." << endl;
 	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
 	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
 #else
