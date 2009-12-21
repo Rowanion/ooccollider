@@ -26,3 +26,4 @@ depend :
 
 install :
 	cp ooccollider $(HOMEDIR)/Diplom/usr/bin
+	cp ../shader $(HOMEDIR)/Diplom/usr/ -R
