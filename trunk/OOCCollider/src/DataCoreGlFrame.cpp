@@ -160,6 +160,10 @@ void DataCoreGlFrame::display()
 
 void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintList)
 {
+	// ------------------------
+
+	std::map<uint64_t, ooctools::IndexedVertexArray*>::iterator testIt = mPriVArrayMap.find((*quintIt)->id);
+	// ------------------------
 	GET_GLERROR(0);
 	resizeFrustumExt(mPriTileMap[_destId].xPos, mPriTileMap[_destId].yPos, mPriTileMap[_destId].width, mPriTileMap[_destId].height, mProFarClippingPlane);
 //	cout << "data resizing frustum to " << mPriTileMap[nre.getRecepient()].xPos << ", " << mPriTileMap[nre.getRecepient()].yPos << ", " << mPriTileMap[nre.getRecepient()].width << ", " << mPriTileMap[nre.getRecepient()].height << endl;
@@ -254,6 +258,9 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 
 					if (mPriOccResults[(*quintIt)->id]>0){
 						// add visible VBO to the current DepthBuffer
+						cerr << "b4 draw into DepthBuffer: " << endl;
+						cerr << "drawing id " << (*quintIt)->id << "..." << endl;
+						cerr << "after draw into DepthBuffer" << endl;
 						mPriVArrayMap[(*quintIt)->id]->managedDraw();
 						mPriVisibleVArraysVec.push_back(mPriVArrayMap[(*quintIt)->id]);
 						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->priority));
@@ -591,14 +598,8 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 			inFile.seekg(0, ios::end);
 			loc.path = itr->path();
 			size = fs::file_size(itr->path());
-//			size = inFile.tellg();
 			inFile.seekg(0, ios::beg);
 			pos = 0;
-			bool testNode = false;
-			if (MpiControl::getSingleton()->getRank() == 7 && (itr->path().filename() == "Data0.bin" || itr->path().filename() == "Data0." || itr->path().filename() == "Data0")){
-				testNode = true;
-				cerr << "TESTNODE: filesize " << size << endl;
-			}
 			while (pos < size){
 				inFile.read((char*)&id, sizeof(uint64_t));
 
@@ -615,20 +616,12 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 				inFile.read((char*)&indexCount, sizeof(unsigned));
 				inFile.seekg(pos+sizeof(uint64_t)+(sizeof(unsigned)), ios::beg);
 				inFile.read((char*)&vertexCount, sizeof(unsigned));
-				if (testNode){
-					cerr << "TESTNODE: filePosition " << pos << endl;
-					cerr << "TESTNODE: indexCount " << indexCount << endl;
-					cerr << "TESTNODE: vertexCount " << vertexCount << endl;
-				}
 				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
 
 //				cerr << "indices: " << indexCount << endl;
 //				cerr << "vertices: " << vertexCount << endl;
 //				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
 //				cerr << "new position: " << pos << endl;
-				if (testNode){
-					cerr << "TESTNODE: now jumping to position " << pos << "/" << size << endl;
-				}
 				inFile.seekg(pos, ios::beg);
 			}
 			inFile.close();
