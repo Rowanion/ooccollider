@@ -586,6 +586,7 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 			parseAndLoadVArrays(_idSet);
 		}
 		else if (itr->path().extension() == ".bin") {
+			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " parsing file " << itr->path() << "..." << endl;
 			inFile.open(itr->path(), ios::binary);
 			inFile.seekg(0, ios::end);
 			loc.path = itr->path();
@@ -617,6 +618,7 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 				inFile.seekg(pos, ios::beg);
 			}
 			inFile.close();
+			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " DONE with " << itr->path() << "..." << endl;
 		}
 	}
 }
