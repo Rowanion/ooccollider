@@ -70,8 +70,8 @@
 #define KEEP_VBOS_RESIDENT
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 1000
-//#define BASE_MODEL_PATH "/home/ava/Diplom/Model/SampleTree"
-#define BASE_MODEL_PATH "/home-pc2/user/ava/Diplom/Model"
+//#define BASE_MODEL_PATH "/home-pc2/user/ava/Diplom/Model"
+#define BASE_MODEL_PATH "/scratch/tsuess/ava/Model"
 #define L1_CACHE_THRESHOLD 412000000
 #define L1_CACHE_VBO_LIMIT 10000
 //#define L2_CACHE_THRESHOLD 1073741824
@@ -85,9 +85,9 @@
 #define MAX_OFFLINE_VBOS 1500
 #define MAX_LOADS_PER_FRAME 40
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model"
-#define L1_CACHE_THRESHOLD 153600
+#define L1_CACHE_THRESHOLD 412000000
 #define L1_CACHE_VBO_LIMIT 3000
-#define L2_CACHE_THRESHOLD 268435456
+#define L2_CACHE_THRESHOLD 512*1024*1024
 #endif
 
 // class declarations
