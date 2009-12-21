@@ -149,6 +149,8 @@ private:
 	double mPriRenderTimeSum;
 
 	bool mPriShowOffset;
+	bool mPriClearCache;
+	bool mPriClearAll;
 
 	unsigned mPriFrameTick;
 	double mPriDisplayTime;

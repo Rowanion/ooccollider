@@ -174,6 +174,9 @@ void RenderCoreGlFrame::init() {
 	cout << "(" << MpiControl::getSingleton()->getRank() << ") tile: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
 
 	glGenQueries(L1_CACHE_VBO_LIMIT, mPriOccQueries);
+	bool mPriClearCache = false;
+	bool mPriClearAll = false;
+
 
 }
 
@@ -290,20 +293,20 @@ void RenderCoreGlFrame::display()
 							break;
 						case WrappedOcNode::ONLINE:
 							++onlineCount;
-							VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
+							VboFactory::getSingleton()->draw((*wIt)->iVbo);
 //							(*wIt)->iVbo->draw();
 							break;
 						case WrappedOcNode::RETEST_ONLINE:
 							++onlineCount;
 //							(*wIt)->iVbo->draw();
-							VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
+							VboFactory::getSingleton()->draw((*wIt)->iVbo);
 							mPriReRequestList.push_back((*wIt));
 							(*wIt)->state = WrappedOcNode::REQUESTED_ONLINE;
 							break;
 						case WrappedOcNode::REQUESTED_ONLINE:
 							++onlineCount;
 //							(*wIt)->iVbo->draw();
-							VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
+							VboFactory::getSingleton()->draw((*wIt)->iVbo);
 							break;
 						default:
 							break;
@@ -334,19 +337,19 @@ void RenderCoreGlFrame::display()
 						case WrappedOcNode::ONLINE:
 							++onlineCount;
 //							(*wIt)->iVbo->draw();
-							VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
+							VboFactory::getSingleton()->draw((*wIt)->iVbo);
 							break;
 						case WrappedOcNode::RETEST_ONLINE:
 							++onlineCount;
 							mPriReRequestList.push_back((*wIt));
 							(*wIt)->state = WrappedOcNode::REQUESTED_ONLINE;
 //							(*wIt)->iVbo->draw();
-							VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
+							VboFactory::getSingleton()->draw((*wIt)->iVbo);
 							break;
 						case WrappedOcNode::REQUESTED_ONLINE:
 							++onlineCount;
 //							(*wIt)->iVbo->draw();
-							VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
+							VboFactory::getSingleton()->draw((*wIt)->iVbo);
 							break;
 						default:
 							break;
@@ -812,8 +815,8 @@ void RenderCoreGlFrame::depthPass(bool _send)
 	for (; wIt != mPriWrapperInFrustum.rend(); ++wIt){
 		if((*wIt)->state == WrappedOcNode::ONLINE || (*wIt)->state == WrappedOcNode::RETEST_ONLINE || (*wIt)->state == WrappedOcNode::REQUESTED_ONLINE){
 //			(*wIt)->iVbo->draw(true);
-			VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
-//			VboFactory::getSingleton()->draw((*wIt)->iVbo, true);
+//			VboFactory::getSingleton()->drawAlt((*wIt)->iVbo);
+			VboFactory::getSingleton()->draw((*wIt)->iVbo, true);
 		}
 	}
 
@@ -1028,6 +1031,18 @@ void RenderCoreGlFrame::manageCaching()
 			++wIt;
 		}
 	}
+
+	if (mPriClearCache){
+		clearCache();
+		mPriClearCache = false;
+	}
+	else if (mPriClearAll){
+		clearEverything();
+		mPriClearAll = false;
+	}
+	else {
+		VboFactory::getSingleton()->defrag(&mPriWrapperInFrustum);
+	}
 }
 
 void RenderCoreGlFrame::generateMaxDistPerLevel(unsigned _maxLevel, float _originalSize)
@@ -1091,6 +1106,7 @@ RenderCoreGlFrame::clearCache()
 	for (; wli != mPriWrapperInFrustum.end(); ){
 		switch ((*wli)->state){
 		case WrappedOcNode::MISSING:
+			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::ONLINE:
@@ -1110,6 +1126,7 @@ RenderCoreGlFrame::clearCache()
 			break;
 		case WrappedOcNode::OFFLINE:
 			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
+			(*wli)->iVbo = 0;
 //			delete ((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
@@ -1117,6 +1134,7 @@ RenderCoreGlFrame::clearCache()
 			break;
 		case WrappedOcNode::REQUESTED_OFFLINE:
 			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
+			(*wli)->iVbo = 0;
 //			delete ((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
@@ -1124,6 +1142,7 @@ RenderCoreGlFrame::clearCache()
 			break;
 		case WrappedOcNode::RETEST_OFFLINE:
 			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
+			(*wli)->iVbo = 0;
 //			delete ((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
@@ -1164,20 +1183,20 @@ RenderCoreGlFrame::clearCache()
 void
 RenderCoreGlFrame::clearEverything()
 {
-	cerr << "Mem BEFORE " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
+//	cerr << "Mem BEFORE " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
 
 	WrapperListIter wli = mPriWrapperInFrustum.begin();
 	for (; wli != mPriWrapperInFrustum.end(); ){
 		switch ((*wli)->state){
 		case WrappedOcNode::MISSING:
+			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::ONLINE:
-//			(*wli)->iVbo->setOffline();
 			VboFactory::getSingleton()->setOffline((*wli)->iVbo);
 			(*wli)->state = WrappedOcNode::MISSING;
-			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
-//			delete ((*wli)->iVbo);
+			(*wli)->iVbo = 0;
+//			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
@@ -1185,8 +1204,8 @@ RenderCoreGlFrame::clearEverything()
 //			(*wli)->iVbo->setOffline();
 			VboFactory::getSingleton()->setOffline((*wli)->iVbo);
 			(*wli)->state = WrappedOcNode::MISSING;
-			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
-//			delete ((*wli)->iVbo);
+			(*wli)->iVbo = 0;
+//			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
@@ -1194,37 +1213,37 @@ RenderCoreGlFrame::clearEverything()
 //			(*wli)->iVbo->setOffline();
 			VboFactory::getSingleton()->setOffline((*wli)->iVbo);
 			(*wli)->state = WrappedOcNode::MISSING;
-			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
-//			delete ((*wli)->iVbo);
+			(*wli)->iVbo = 0;
+//			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::OFFLINE:
-			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
-//			delete ((*wli)->iVbo);
+//			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
-			mPriWrapperInFrustum.erase(wli++);
+			(*wli)->iVbo = 0;
+		mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::REQUESTED_OFFLINE:
-			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
-//			delete ((*wli)->iVbo);
+//			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
+			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::RETEST_OFFLINE:
-			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
-//			delete ((*wli)->iVbo);
+//			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
+			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::REQUESTED:
-			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
-//			delete ((*wli)->iVbo);
+//			VboFactory::getSingleton()->freeVbo((*wli)->iVbo);
 //			(*wli)->iVbo = 0;
 			(*wli)->state = WrappedOcNode::MISSING;
+			(*wli)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		default:
@@ -1235,7 +1254,6 @@ RenderCoreGlFrame::clearEverything()
 	mPriReRequestList.clear();
 	mPriWrapperInFrustum.clear();
 	mPriWrapperInFrustum.resize(0);
-	cerr << "Mem AFTER " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
 //	int* test = 0;
 //	for (unsigned i=0; i<500; ++i){
 //		test = new int[125000000];
@@ -1296,10 +1314,12 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			break;
 			case 'X':{ // clear cache
 				if (kpe.isCtrl()){
-					clearEverything();
+					mPriClearAll = true;
+//					clearEverything();
 				}
 				else {
-					clearCache();
+					mPriClearCache = true;
+//					clearCache();
 				}
 			case 'M':
 				cerr << "Mem " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
@@ -1324,12 +1344,13 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 					}
 //					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
 					idLoIt->second->getWrapper()->iVbo = VboFactory::getSingleton()->newVbo(ve.getIndexCount(i), ve.getIndexArray(i), ve.getVertexCount(i), ve.getVertexArray(i));
-					cerr << "vbo just loaded and created" << endl;
-					cerr << "is offline? " << idLoIt->second->getWrapper()->iVbo->mPriIsOffline << endl;
-					cerr << "vertexCount: " << idLoIt->second->getWrapper()->iVbo->mPriVertexCount << endl;
-					cerr << "vertexID: " << idLoIt->second->getWrapper()->iVbo->mPriVertexId << endl;
-					cerr << "indexCount: " << idLoIt->second->getWrapper()->iVbo->mPriIndexCount << endl;
-					cerr << "indexID: " << idLoIt->second->getWrapper()->iVbo->mPriIdxId << endl;
+//					debug(idLoIt->second->getWrapper()->iVbo, &ve, i);
+//					cerr << "vbo just loaded and created" << endl;
+//					cerr << "is offline? " << idLoIt->second->getWrapper()->iVbo->mPriIsOffline << endl;
+//					cerr << "vertexCount: " << idLoIt->second->getWrapper()->iVbo->mPriVertexCount << endl;
+//					cerr << "vertexID: " << idLoIt->second->getWrapper()->iVbo->mPriVertexId << endl;
+//					cerr << "indexCount: " << idLoIt->second->getWrapper()->iVbo->mPriIndexCount << endl;
+//					cerr << "indexID: " << idLoIt->second->getWrapper()->iVbo->mPriIdxId << endl;
 
 					//TODO check for iVbo == 0 if cache is full
 					//new IndexedVbo(ve.getIndexCount(i), ve.getIndexArray(i), ve.getVertexCount(i), ve.getVertexArray(i));
@@ -1426,25 +1447,67 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 }
 
 void RenderCoreGlFrame::debug(ooctools::IVbo* _iVbo, VboEvent* _vE, unsigned _idx){
+	cerr << "checking vbo " << _vE->getNodeId(_idx) << "..." << endl;
+	bool err = false;
 	if (_iVbo->mPriIndexCount != _vE->getIndexCount(_idx)){
-		cerr << "error!" << endl;
-		exit(0);
+		cerr << "error idxcount!" << endl;
+		err = true;
 	}
 	else if (_iVbo->mPriVertexCount != _vE->getVertexCount(_idx)){
-		cerr << "error!" << endl;
-		exit(0);
+		cerr << "error! vertCount" << endl;
+		err = true;
 	}
 	for (unsigned i=0; i< _vE->getIndexCount(_idx); ++i){
 		if (_iVbo->indexData()[i] != _vE->getIndexArray(_idx)[i]){
-			cerr << "error!" << endl;
-			exit(0);
+			err = true;
+			cerr << "error! index" << endl;
+			cerr << "Index " << i << ": " << _iVbo->indexData()[i] << " vs " << _vE->getIndexArray(_idx)[i] << endl;
 		}
 	}
 	for (unsigned i=0; i< _vE->getVertexCount(_idx); ++i){
-		if (_iVbo->vertexData()[i] != _vE->getVertexArray(_idx)[i]){
-			cerr << "error!" << endl;
-			exit(0);
+		if (_iVbo->vertexData()[i].v[0] != _vE->getVertexArray(_idx)[i].v[0]){
+			cerr << "error! v0" << endl;
+			cerr << "v0 " << i << ": " << _iVbo->vertexData()[i].v[0] << " vs " << _vE->getVertexArray(_idx)[i].v[0] << endl;
+			err = true;
 		}
+		else if (_iVbo->vertexData()[i].v[1] != _vE->getVertexArray(_idx)[i].v[1]){
+			cerr << "error! v1" << endl;
+			cerr << "v1 " << i << ": " << _iVbo->vertexData()[i].v[1] << " vs " << _vE->getVertexArray(_idx)[i].v[1] << endl;
+			err = true;
+		}
+		else if (_iVbo->vertexData()[i].v[2] != _vE->getVertexArray(_idx)[i].v[2]){
+			cerr << "error! v2" << endl;
+			cerr << "v2 " << i << ": " << _iVbo->vertexData()[i].v[2] << " vs " << _vE->getVertexArray(_idx)[i].v[2] << endl;
+			err = true;
+		}
+		else if (_iVbo->vertexData()[i].v[3] != _vE->getVertexArray(_idx)[i].v[3]){
+			cerr << "error! v3" << endl;
+			cerr << "v3 " << i << ": " << _iVbo->vertexData()[i].v[3] << " vs " << _vE->getVertexArray(_idx)[i].v[3] << endl;
+			err = true;
+		}
+		else if (_iVbo->vertexData()[i].n[0] != _vE->getVertexArray(_idx)[i].n[0]){
+			cerr << "error! n0" << endl;
+			cerr << "n0 " << i << ": " << _iVbo->vertexData()[i].n[0] << " vs " << _vE->getVertexArray(_idx)[i].n[0] << endl;
+			err = true;
+		}
+		else if (_iVbo->vertexData()[i].n[1] != _vE->getVertexArray(_idx)[i].n[1]){
+			cerr << "error! n1" << endl;
+			err = true;
+			cerr << "n1 " << i << ": " << _iVbo->vertexData()[i].n[1] << " vs " << _vE->getVertexArray(_idx)[i].n[1] << endl;
+		}
+		else if (_iVbo->vertexData()[i].n[2] != _vE->getVertexArray(_idx)[i].n[2]){
+			cerr << "error! n2" << endl;
+			err = true;
+			cerr << "n2 " << i << ": " << _iVbo->vertexData()[i].n[2] << " vs " << _vE->getVertexArray(_idx)[i].n[2] << endl;
+		}
+		else if (_iVbo->vertexData()[i].n[3] != _vE->getVertexArray(_idx)[i].n[3]){
+			cerr << "error! n3" << endl;
+			err = true;
+			cerr << "n3 " << i << ": " << _iVbo->vertexData()[i].n[3] << " vs " << _vE->getVertexArray(_idx)[i].n[3] << endl;
+		}
+	}
+	if (err){
+		exit(0);
 	}
 }
 

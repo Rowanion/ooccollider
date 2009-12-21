@@ -147,16 +147,16 @@ ooctools::IVbo* VboFactory::newVbo(unsigned _iCount, const unsigned* _iArray, un
 		mPriFreeMap.erase(it);
 		mPriFreeMap.insert(m);
 	}
-	// ------------------------
-
-	memcpy(memPos->indexData(), _iArray, sizeof(unsigned)*_iCount);
-	memcpy(memPos->vertexData(), _vArray, sizeof(V4N4)*_vCount);
 	memPos->mPriIndexCount = _iCount;
 	memPos->mPriVertexCount = _vCount;
 	memPos->mPriByteSize = tmpSize;
 	memPos->mPriIdxId = 0;
 	memPos->mPriVertexId = 0;
 	memPos->mPriIsOffline = true;
+
+	// ------------------------
+	memcpy(memPos->indexData(), _iArray, sizeof(unsigned)*_iCount);
+	memcpy(memPos->vertexData(), _vArray, sizeof(V4N4)*_vCount);
 
 //	((IVbo*)memPos)->debug();
 //	return (IVbo*)memPos;
