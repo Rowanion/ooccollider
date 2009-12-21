@@ -69,7 +69,7 @@ public:
 	void advTick();
 	void clearCache();
 	void clearEverything();
-
+	void debug(ooctools::IVbo* _iVbo, VboEvent* _vE, unsigned _idx);
 
 protected:
 

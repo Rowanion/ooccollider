@@ -1423,5 +1423,28 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << "---------------------------------------" << endl;
 	}
 
-
 }
+
+void RenderCoreGlFrame::debug(ooctools::IVbo* _iVbo, VboEvent* _vE, unsigned _idx){
+	if (_iVbo->mPriIndexCount != _vE->getIndexCount(_idx)){
+		cerr << "error!" << endl;
+		exit(0);
+	}
+	else if (_iVbo->mPriVertexCount != _vE->getVertexCount(_idx)){
+		cerr << "error!" << endl;
+		exit(0);
+	}
+	for (unsigned i=0; i< _vE->getIndexCount(_idx); ++i){
+		if (_iVbo->indexData()[i] != _vE->getIndexArray(_idx)[i]){
+			cerr << "error!" << endl;
+			exit(0);
+		}
+	}
+	for (unsigned i=0; i< _vE->getVertexCount(_idx); ++i){
+		if (_iVbo->vertexData()[i] != _vE->getVertexArray(_idx)[i]){
+			cerr << "error!" << endl;
+			exit(0);
+		}
+	}
+}
+
