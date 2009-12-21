@@ -590,7 +590,8 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 			inFile.open(itr->path(), ios::binary);
 			inFile.seekg(0, ios::end);
 			loc.path = itr->path();
-			size = inFile.tellg();
+			size = fs::file_size(itr->path());
+//			size = inFile.tellg();
 			inFile.seekg(0, ios::beg);
 			pos = 0;
 			bool testNode = false;
