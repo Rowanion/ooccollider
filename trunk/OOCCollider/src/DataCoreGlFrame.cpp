@@ -593,6 +593,11 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 			size = inFile.tellg();
 			inFile.seekg(0, ios::beg);
 			pos = 0;
+			bool testNode = false;
+			if (MpiControl::getSingleton()->getRank() == 7 && (itr->path().filename() == "Data0.bin" || itr->path().filename() == "Data0." || itr->path().filename() == "Data0")){
+				testNode = true;
+				cerr << "TESTNODE: filesize " << size << endl;
+			}
 			while (pos < size){
 				inFile.read((char*)&id, sizeof(uint64_t));
 
@@ -609,12 +614,20 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 				inFile.read((char*)&indexCount, sizeof(unsigned));
 				inFile.seekg(pos+sizeof(uint64_t)+(sizeof(unsigned)), ios::beg);
 				inFile.read((char*)&vertexCount, sizeof(unsigned));
+				if (testNode){
+					cerr << "TESTNODE: filePosition " << pos << endl;
+					cerr << "TESTNODE: indexCount " << indexCount << endl;
+					cerr << "TESTNODE: vertexCount " << vertexCount << endl;
+				}
 				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
 
 //				cerr << "indices: " << indexCount << endl;
 //				cerr << "vertices: " << vertexCount << endl;
 //				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
 //				cerr << "new position: " << pos << endl;
+				if (testNode){
+					cerr << "TESTNODE: now jumping to position " << pos << "/" << size << endl;
+				}
 				inFile.seekg(pos, ios::beg);
 			}
 			inFile.close();
