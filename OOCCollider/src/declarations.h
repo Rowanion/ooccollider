@@ -65,7 +65,6 @@
 #endif
 
 #ifdef PC2
-#define KEEP_VBOS_RESIDENT
 #undef SHOW_RENDER_IMAGE
 #undef SHOW_DEPTH_IMAGE
 #define KEEP_VBOS_RESIDENT
