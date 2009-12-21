@@ -630,6 +630,9 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 				inFile.seekg(pos, ios::beg);
 			}
 			inFile.close();
+			if (pos > size){
+				cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " tries to jump to " << pos << "/" << size << endl;
+			}
 //			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " DONE with " << itr->path() << "..." << endl;
 		}
 	}
