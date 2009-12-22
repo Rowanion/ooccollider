@@ -23,7 +23,7 @@ class Logger {
 public:
 	virtual ~Logger();
 	static Logger* getSingleton();
-	Log* newLog(boost::filesystem::path _filename);
+	Log& newLog(boost::filesystem::path _filename);
 	void closeAllHandles();
 private:
 	Logger();

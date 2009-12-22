@@ -39,11 +39,11 @@ void Logger::closeAllHandles()
 	mPriLogList.clear();
 }
 
-Log* Logger::newLog(boost::filesystem::path _filename)
+Log& Logger::newLog(boost::filesystem::path _filename)
 {
 	Log l = Log(_filename);
 	mPriLogList.push_back(l);
-	return &mPriLogList.back();
+	return mPriLogList.back();
 }
 
 } //oocframework

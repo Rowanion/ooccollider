@@ -37,6 +37,8 @@
 #include "OcclusionResultsEvent.h"
 #include "MemTools.h"
 #include "VboFactory.h"
+#include "Logger.h"
+#include "Log.h"
 
 
 using namespace std;
@@ -117,6 +119,7 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	delete[] mPriMaxDistPerLevel;
 	mPriMaxDistPerLevel = 0;
 	glDeleteQueries(L1_CACHE_VBO_LIMIT, mPriOccQueries);
+	Logger::getSingleton()->closeAllHandles();
 }
 
 void RenderCoreGlFrame::init() {
