@@ -43,6 +43,8 @@
 #include "JobDoneEvent.h"
 #include "OcclusionRequestEvent.h"
 #include "MemTools.h"
+#include "Logger.h"
+#include "Log.h"
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -253,6 +255,7 @@ RenderMasterCore::~RenderMasterCore() {
 	mWindow = 0;
 	delete mPriSTree;
 	mPriSTree = 0;
+	Logger::getSingleton()->closeAllHandles();
 }
 
 void RenderMasterCore::Event(int event, bool state) {

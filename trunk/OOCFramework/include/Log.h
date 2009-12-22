@@ -20,6 +20,7 @@ namespace oocframework {
 
 
 //std::ostream& operator<<(std::ostream& _stream);
+#define CSV ";"
 
 class Log {
 	friend class Logger;
@@ -42,12 +43,13 @@ private:
 
 };
 
-//template <class T>
-//Log* operator<<(T& _a, const Log* _log) //C++ function template sample
-//{
-//	_log->mPriOfStream << _a;
-//	return _log;
-//}
+std::ostream& operator<<(Log& out, char c );
+std::ostream& operator<<(Log& out, signed char c );
+std::ostream& operator<<(Log& out, unsigned char c );
+
+std::ostream& operator<<(Log& out, const char* s );
+std::ostream& operator<<(Log& out, const signed char* s );
+std::ostream& operator<<(Log& out, const unsigned char* s );
 
 }
 

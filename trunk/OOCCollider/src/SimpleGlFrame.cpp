@@ -36,6 +36,8 @@
 #include "KillApplicationEvent.h"
 #include "InfoRequestEvent.h"
 #include "CameraMovedEvent.h"
+#include "Logger.h"
+#include "Log.h"
 
 
 using namespace std;
@@ -71,7 +73,7 @@ SimpleGlFrame::~SimpleGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, MouseWheelEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, KeyPressedEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
-
+	Logger::getSingleton()->closeAllHandles();
 }
 
 void SimpleGlFrame::init() {

@@ -31,21 +31,11 @@ void Log::setup(boost::filesystem::path _filename)
 	time(&mPriTime);
     mPriSystemTime = localtime(&mPriTime);
 	stringstream ss;
-	ss << mPriSystemTime->tm_year+1900 << "/" << mPriSystemTime->tm_mon+1 << "/" << mPriSystemTime->tm_mday << "-" << mPriSystemTime->tm_hour << ":" << mPriSystemTime->tm_min << "h";
+	ss << mPriSystemTime->tm_year+1900 << "-" << mPriSystemTime->tm_mon+1 << "-" << mPriSystemTime->tm_mday << "_" << mPriSystemTime->tm_hour << "." << mPriSystemTime->tm_min << "h";
     printf("Aktuelle Zeit: %s", asctime(mPriSystemTime));
+    _filename.replace_extension(ss.str()+_filename.extension());
 
-
-
-//	if (fs::is_directory(_filename)){
-//		if (fs::exists(_filename)){
-//			_filename.replace_extension(ss.str()+_filename.extension());
-//		}
-//		else {
-//
-//		}
-//	}
 	mPriOfStream.open(_filename, ios::out);
-	mPriOfStream << "mtllib " << ss.str() <<  endl;
 }
 
 Log::~Log() {
@@ -75,6 +65,40 @@ std::ostream& Log::operator<< (std::string& val )
 {
 	mPriOfStream << val;
 	return mPriOfStream;
+}
+
+std::ostream& operator<< (Log& out, char c )
+{
+	out.mPriOfStream << c;
+	return out.mPriOfStream;
+}
+std::ostream& operator<< (Log& out, signed char c )
+{
+	out.mPriOfStream << c;
+	return out.mPriOfStream;
+}
+std::ostream& operator<< (Log& out, unsigned char c )
+{
+	out.mPriOfStream << c;
+	return out.mPriOfStream;
+}
+
+std::ostream& operator<< (Log& out, const char* s )
+{
+	out.mPriOfStream << s;
+	return out.mPriOfStream;
+}
+
+std::ostream& operator<< (Log& out, const signed char* s )
+{
+	out.mPriOfStream << s;
+	return out.mPriOfStream;
+}
+
+std::ostream& operator<< (Log& out, const unsigned char* s )
+{
+	out.mPriOfStream << s;
+	return out.mPriOfStream;
 }
 
 }

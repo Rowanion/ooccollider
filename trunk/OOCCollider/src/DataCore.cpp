@@ -31,6 +31,8 @@
 #include "DepthBufferRequestEvent.h"
 #include "JobDoneEvent.h"
 #include "OcclusionRequestEvent.h"
+#include "Logger.h"
+#include "Log.h"
 
 #define RENDER_NODES 1
 
@@ -91,6 +93,7 @@ DataCore::~DataCore() {
 	mGlFrame = 0;
 	delete mWindow;
 	mWindow = 0;
+	Logger::getSingleton()->closeAllHandles();
 }
 
 void DataCore::sendMethod(int dest)

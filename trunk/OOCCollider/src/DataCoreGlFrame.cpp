@@ -32,6 +32,9 @@
 #include "EndTransmissionEvent.h"
 #include "InfoRequestEvent.h"
 #include "OcclusionResultsEvent.h"
+#include "Logger.h"
+#include "Log.h"
+
 
 using namespace std;
 using namespace ooctools;
@@ -81,6 +84,7 @@ DataCoreGlFrame::~DataCoreGlFrame() {
 	delete mPriFbo;
 
 	mPriTileMap.clear();
+	Logger::getSingleton()->closeAllHandles();
 
 }
 

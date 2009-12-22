@@ -34,6 +34,8 @@
 #include "AccumulatedRendertimeEvent.h"
 #include "OcclusionResultsEvent.h"
 #include "MemTools.h"
+#include "Logger.h"
+#include "Log.h"
 
 
 using namespace std;
@@ -142,6 +144,7 @@ RenderCore::~RenderCore() {
 	mRunning = false;
 	delete mWindow;
 	mWindow = 0;
+	Logger::getSingleton()->closeAllHandles();
 }
 
 
