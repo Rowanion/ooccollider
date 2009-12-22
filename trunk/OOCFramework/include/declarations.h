@@ -34,6 +34,7 @@ class AbstractEventListener;
 	class EventManager;
 	class IEvent;
 	class VboFactory;
+	class Logger;
 	class Message;
 	class MpiControl;
 	class VirtualNode;
