@@ -28,7 +28,9 @@ public:
 	Log(const Log& _log);
 	virtual ~Log();
 	std::ostream& operator<< (int& val );
-
+	std::ostream& operator<< (float& val );
+	std::ostream& operator<< (double& val );
+	std::ostream& operator<< (std::string& val );
 
 	boost::filesystem::ofstream mPriOfStream;
 private:

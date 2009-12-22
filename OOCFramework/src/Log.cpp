@@ -59,4 +59,22 @@ std::ostream& Log::operator<< (int& val )
 	return mPriOfStream;
 }
 
+std::ostream& Log::operator<< (float& val )
+{
+	mPriOfStream << val;
+	return mPriOfStream;
+}
+
+std::ostream& Log::operator<< (double& val )
+{
+	mPriOfStream << val;
+	return mPriOfStream;
+}
+
+std::ostream& Log::operator<< (std::string& val )
+{
+	mPriOfStream << val;
+	return mPriOfStream;
+}
+
 }
