@@ -7,6 +7,8 @@
  */
 
 #include "VboFactory.h"
+#include "LowMemoryEvent.h"
+#include "EventManager.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -14,7 +16,7 @@
 
 
 #ifdef __X86_64__
-#define MEM_BLOCK_SIZE 1024*1024*64 // 512
+#define MEM_BLOCK_SIZE 1024*1024*64 // 1024 = 1gb
 #else
 #define MEM_BLOCK_SIZE 1024*1024*128 // 512
 #endif
@@ -42,19 +44,20 @@ VboFactory* VboFactory::getSingleton()
 	return mPriInstancePtr;
 }
 
-VboFactory::VboFactory() :	mPriMem(0)
+VboFactory::VboFactory() :	mPriMem(0), mPriFreeMem(0), mPriUsedMem(0)
 {
 	mPriMem = new mem_t[MEM_BLOCK_SIZE];
 	mPriFreeMap.insert(Memory(MEM_BLOCK_SIZE*sizeof(mem_t), mPriMem));
 	mPriEndOfSpace = mPriMem + MEM_BLOCK_SIZE;
 	//TODO maybe remove in final....
 	memset(mPriMem, 0, MEM_BLOCK_SIZE*sizeof(mem_t));
+	mPriFreeMem = MEM_BLOCK_SIZE*sizeof(mem_t);
+	mPriUsedMem = 0;
+	mPriFreeMemTheshold = mPriFreeMem/20; // 5 percent
 	cerr << "sizeof iVBO: " << sizeof(IVbo)<< endl;
 
 	cerr << "first addr: " << (mem_t)mPriMem << endl;
 	cerr << "freespace: " << mPriFreeMap.begin()->size << endl;
-
-	cerr << "sizeof bool " << sizeof(bool) << endl;
 
 }
 
@@ -103,9 +106,14 @@ IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 		Memory m = Memory(it->size-tmpSize, newAddr);
 		memPos = (IVbo*)it->address;
 		mPriFreeMap.erase(it);
-		mPriFreeMap.insert(m);
+		if (m.size>0){
+			mPriFreeMap.insert(m);
+		}
 	}
 	// ------------------------
+
+	mPriFreeMem -= tmpSize;
+	mPriUsedMem += tmpSize;
 
 	memPos->mPriIndexCount = tmpIdxCount;
 	memPos->mPriVertexCount = tmpVertCount;
@@ -120,6 +128,11 @@ IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 	_inFile->read((char*)memPos->vertexData(), sizeof(V4N4)*tmpVertCount);
 //	((IVbo*)memPos)->debug();
 //	return (IVbo*)memPos;
+
+	if (mPriFreeMem <= mPriFreeMemTheshold){
+		LowMemoryEvent lme = LowMemoryEvent();
+		EventManager::getSingleton()->fire(lme);
+	}
 	return memPos;
 }
 
@@ -145,8 +158,14 @@ ooctools::IVbo* VboFactory::newVbo(unsigned _iCount, const unsigned* _iArray, un
 		Memory m = Memory(it->size-tmpSize, newAddr);
 		memPos = (IVbo*)it->address;
 		mPriFreeMap.erase(it);
-		mPriFreeMap.insert(m);
+		if (m.size>0){
+			mPriFreeMap.insert(m);
+		}
 	}
+
+	mPriFreeMem -= tmpSize;
+	mPriUsedMem += tmpSize;
+
 	memPos->mPriIndexCount = _iCount;
 	memPos->mPriVertexCount = _vCount;
 	memPos->mPriByteSize = tmpSize;
@@ -160,12 +179,20 @@ ooctools::IVbo* VboFactory::newVbo(unsigned _iCount, const unsigned* _iArray, un
 
 //	((IVbo*)memPos)->debug();
 //	return (IVbo*)memPos;
+	if (mPriFreeMem <= mPriFreeMemTheshold){
+		LowMemoryEvent lme = LowMemoryEvent();
+		EventManager::getSingleton()->fire(lme);
+	}
 	return memPos;
 }
 
 void VboFactory::freeVbo(IVbo* _iVbo)
 {
-	_iVbo->setOffline();
+	setOffline(_iVbo);
+
+	mPriFreeMem += _iVbo->mPriByteSize;
+	mPriUsedMem -= _iVbo->mPriByteSize;
+
 	if (_iVbo->mPriVertexId != 0){
 		glDeleteBuffers(1, &_iVbo->mPriVertexId);
 		_iVbo->mPriVertexId = 0;
@@ -245,13 +272,16 @@ void VboFactory::defrag(list<oocformats::WrappedOcNode*>* _wNodeList)
 	char* currentFreeAddress = (char*)mPriFreeMap.begin()->address;
 	list<oocformats::WrappedOcNode*>::iterator wnIt = _wNodeList->begin();
 	for (; wnIt != _wNodeList->end(); ++wnIt){
-		if ((*wnIt)->iVbo >= (IVbo*)currentFreeAddress){
+		if ((*wnIt)->iVbo != 0 && (*wnIt)->iVbo >= (IVbo*)currentFreeAddress){
 			(*wnIt)->iVbo = (IVbo*)memmove((char*)currentFreeAddress, (char*)(*wnIt)->iVbo, (*wnIt)->iVbo->mPriByteSize);
 			currentFreeAddress+=(*wnIt)->iVbo->mPriByteSize;
 		}
 	}
 	mPriFreeMap.clear();
 	mPriFreeMap.insert(Memory((mem_t)mPriEndOfSpace-((mem_t)currentFreeAddress), (mem_t*)currentFreeAddress));
+
+	mPriFreeMem = mPriFreeMap.begin()->size;
+	mPriUsedMem = (MEM_BLOCK_SIZE*sizeof(mem_t)) - mPriFreeMap.begin()->size;
 }
 
 void VboFactory::clear()
@@ -260,6 +290,9 @@ void VboFactory::clear()
 	mPriFreeMap.insert(Memory(MEM_BLOCK_SIZE*sizeof(mem_t), mPriMem));
 	//TODO maybe remove in final.....see freeVBO
 	memset(mPriMem, 0, MEM_BLOCK_SIZE*sizeof(mem_t));
+
+	mPriFreeMem = MEM_BLOCK_SIZE*sizeof(mem_t);
+	mPriUsedMem = 0;
 }
 
 void VboFactory::debug()
@@ -366,6 +399,45 @@ void VboFactory::drawAlt(ooctools::IVbo* _iVbo)
 	glVertexPointer(3, GL_FLOAT, sizeof(V4N4), _iVbo->vertexData());
 	glDrawElements(GL_TRIANGLES, _iVbo->mPriIndexCount, GL_UNSIGNED_INT, _iVbo->indexData());
 	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+unsigned VboFactory::getFreeMem()
+{
+	return mPriFreeMem;
+}
+
+unsigned VboFactory::getUsedMem()
+{
+	return mPriUsedMem;
+}
+
+unsigned VboFactory::getFreeBlocks()
+{
+	return mPriFreeMap.size();
+}
+
+unsigned VboFactory::getLargestFreeBlock()
+{
+	unsigned count = 0;
+	std::set<Memory>::iterator memIt = mPriFreeMap.begin();
+	for (; memIt != mPriFreeMap.end(); ++memIt){
+		if (memIt->size > count){
+			count = memIt->size;
+		}
+	}
+	return count;
+}
+
+unsigned VboFactory::getSmallestFreeBlock()
+{
+	unsigned count = MEM_BLOCK_SIZE*sizeof(mem_t);
+	std::set<Memory>::iterator memIt = mPriFreeMap.begin();
+	for (; memIt != mPriFreeMap.end(); ++memIt){
+		if (memIt->size < count){
+			count = memIt->size;
+		}
+	}
+	return count;
 }
 
 Memory::Memory(unsigned _size, mem_t* _addr) :

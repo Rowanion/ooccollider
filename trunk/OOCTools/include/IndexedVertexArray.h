@@ -28,6 +28,11 @@ public:
 	IndexedVertexArray(fs::ifstream* _iStream, unsigned _pos = 0);
 	IndexedVertexArray(ooctools::Location _loc);
 	virtual ~IndexedVertexArray();
+
+	/**
+	 * @note @Tim: Definition of stride: the byte-distance between two entries.
+	 * array := v1,v2,v3,n1,n2,3 => stride for V3 vertices is sizeof(v)*3 + sizeof(n)*3
+	 */
 	void managedDraw();
 	const V4N4* getVertexData() const {return (const V4N4*)mPriVertexData;};
 	const unsigned* getIndexData() const {return (const unsigned*)mPriIndexData;};

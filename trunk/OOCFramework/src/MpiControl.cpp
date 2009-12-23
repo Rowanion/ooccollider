@@ -42,6 +42,7 @@ MpiControl::MpiControl() :
 	mSize = MPI::COMM_WORLD.Get_size();
 
 	mOrigGroup = MPI::COMM_WORLD.Get_group();
+	mPriMaxMessageSize = 0;
 
 }
 
@@ -150,6 +151,9 @@ void MpiControl::receive(int src)
 	MPI::COMM_WORLD.Recv(msg->mData, count, MPI_CHAR, src, type, stat);
 //	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
 	mInQueue.push(msg);
+	if (msg->getLength()>mPriMaxMessageSize){
+		mPriMaxMessageSize = msg->getLength();
+	}
 }
 
 //TODO this way is not efficient
@@ -189,6 +193,10 @@ Message* MpiControl::directReceive(const oocframework::ClassId* classid)
 		msg->mData = new char[count];
 		MPI::COMM_WORLD.Recv(msg->mData, count, MPI_CHAR, realSrc, type, stat);
 	//	cout << "received " << msg->getType() << " from " << msg->getSrc() << endl;
+		if (msg->getLength()>mPriMaxMessageSize){
+			mPriMaxMessageSize = msg->getLength();
+		}
+
 		return msg;
 }
 
@@ -233,6 +241,9 @@ bool MpiControl::ireceive(int src)
 		msg->setSrc(realSrc);
 		msg->request = req;
 		mPriInRequests.push(msg);
+		if (msg->getLength()>mPriMaxMessageSize){
+			mPriMaxMessageSize = msg->getLength();
+		}
 	}
 
 
@@ -315,6 +326,11 @@ void MpiControl::send(Message* msg)
 //	cout << mRank << " is sending to " << msg->getDst() << "..." << endl;
 	MPI::Status stat;
 	if (msg != 0){
+
+		if (msg->getLength()>mPriMaxMessageSize){
+			mPriMaxMessageSize = msg->getLength();
+		}
+
 		switch (msg->getGroup()){
 		case RENDERER:{
 			for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
@@ -347,6 +363,10 @@ void MpiControl::send(Message* msg)
 	}
 	else if (!mOutQueue.empty()){
 		Message* msg = mOutQueue.front();
+		if (msg->getLength()>mPriMaxMessageSize){
+			mPriMaxMessageSize = msg->getLength();
+		}
+
 		MPI::COMM_WORLD.Ssend(msg->getData(), msg->getLength(), MPI_CHAR,msg->getDst(), msg->getType());
 		mOutQueue.pop();
 //		cout << "send " << msg->getType() << " to " << msg->getDst() << endl;
@@ -362,6 +382,11 @@ void MpiControl::isend(Message* msg)
 {
 	Message* tempMsg = 0;
 	if (msg != 0){
+
+		if (msg->getLength()>mPriMaxMessageSize){
+			mPriMaxMessageSize = msg->getLength();
+		}
+
 		switch (msg->getGroup()){
 		case RENDERER:{
 			for(unsigned i=0; i< mPriRenderNodes.size(); ++i){
@@ -405,6 +430,10 @@ void MpiControl::isend(Message* msg)
 		mOutQueue.pop();
 		msg->request = MPI::COMM_WORLD.Isend(msg->getData(), msg->getLength(), MPI_CHAR, msg->getDst(), msg->getType());
 		mPriOutRequests.push(msg);
+		if (msg->getLength()>mPriMaxMessageSize){
+			mPriMaxMessageSize = msg->getLength();
+		}
+
 //		msg = 0;
 	}
 
@@ -453,6 +482,10 @@ Message* MpiControl::pop()
 
 void MpiControl::push(Message* msg)
 {
+	if (msg->getLength()>mPriMaxMessageSize){
+		mPriMaxMessageSize = msg->getLength();
+	}
+
 	//TODO ensure that all groupings work as they should
 	switch (msg->getGroup()){
 	case DEFAULT:

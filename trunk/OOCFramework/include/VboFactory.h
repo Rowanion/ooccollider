@@ -61,6 +61,11 @@ public:
 	void setOffline(ooctools::IVbo* _iVbo);
 	void draw(ooctools::IVbo* _iVbo, bool _dataNodeMode = false);
 	void drawAlt(ooctools::IVbo* _iVbo);
+	unsigned getFreeMem();
+	unsigned getUsedMem();
+	unsigned getFreeBlocks();
+	unsigned getLargestFreeBlock();
+	unsigned getSmallestFreeBlock();
 
 private:
 	VboFactory();
@@ -68,6 +73,9 @@ private:
 	mem_t* mPriMem;
 	mem_t* mPriEndOfSpace;
 	std::set<Memory> mPriFreeMap;
+	unsigned mPriFreeMem;
+	unsigned mPriUsedMem;
+	unsigned mPriFreeMemTheshold;
 };
 
 }

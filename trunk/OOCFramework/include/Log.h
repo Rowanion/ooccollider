@@ -20,7 +20,8 @@ namespace oocframework {
 
 
 //std::ostream& operator<<(std::ostream& _stream);
-#define CSV ";"
+#define CSV ","
+#define NL "\n"
 
 class Log {
 	friend class Logger;
@@ -28,6 +29,7 @@ public:
 	Log(boost::filesystem::path _filename);
 	Log(const Log& _log);
 	virtual ~Log();
+	void newTest(std::string  _title);
 	std::ostream& operator<< (int& val );
 	std::ostream& operator<< (float& val );
 	std::ostream& operator<< (double& val );

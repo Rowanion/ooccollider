@@ -39,6 +39,7 @@
 #include "VboFactory.h"
 #include "Logger.h"
 #include "Log.h"
+#include "LowMemoryEvent.h"
 
 
 using namespace std;
@@ -87,6 +88,7 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), avgFps(0.
 			VboEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, InfoRequestEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, OcclusionResultsEvent::classid());
+	oocframework::EventManager::getSingleton()->addListener(this, oocframework::LowMemoryEvent::classid());
 
 
 
@@ -107,6 +109,8 @@ RenderCoreGlFrame::~RenderCoreGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, VboEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, OcclusionResultsEvent::classid());
+	oocframework::EventManager::getSingleton()->removeListener(this, oocframework::LowMemoryEvent::classid());
+
 
 	delete[] mPriPixelBuffer;
 	mPriPixelBuffer = 0;
@@ -1056,11 +1060,14 @@ void RenderCoreGlFrame::generateMaxDistPerLevel(unsigned _maxLevel, float _origi
 
 	float halfPixels = 0.5*mProWindowWidth; // half pixel size because half frustum
 	float pixelLength = tan(45.0 * (ooctools::GeometricOps::PI / 180.0))*mProNearClippingPlane;
-	float pixelSize = pixelLength / halfPixels;
+//	float pixelSize = pixelLength / halfPixels;
+	// changed to pixelsize = 2
+	float pixelSize = 2.0*pixelLength / halfPixels;
 	float tanTheta = pixelSize / mProNearClippingPlane; // the smaller angle corresponding to length of 1 pixel
 
 	for (unsigned i =0; i<=_maxLevel; i++){
 		mPriMaxDistPerLevel[i] = tempSize/tanTheta; // the distance at which the diameter is exactly 1
+
 		mPriMaxDistPerLevel[i] *= mPriMaxDistPerLevel[i];
 		cout << "Lvl: " << i << ", size: " << tempSize << ", dist: " << mPriMaxDistPerLevel[i] << endl;
 		tempSize*=0.5;
@@ -1334,19 +1341,34 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 	}
 	else if (event.instanceOf(VboEvent::classid())){
 		VboEvent& ve = (VboEvent&)event;
+		if (VboFactory::getSingleton()->getFreeMem() < ve.getByteSize()){
+			clearCache();
+			VboFactory::getSingleton()->defrag(&mPriWrapperInFrustum);
+		}
 		std::map<uint64_t, oocformats::LooseRenderOctree*>::iterator idLoIt;
 		for (unsigned i=0; i< ve.getVboCount(); ++i){
 			idLoIt = mPriIdLoMap.find(ve.getNodeId(i));
 			if (idLoIt != mPriIdLoMap.end()){
 				if (idLoIt->second->getWrapper()->state == WrappedOcNode::REQUESTED){
-					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
-					idLoIt->second->getWrapper()->usageCount = 0;
 					if (idLoIt->second->getWrapper()->iVbo != 0) {
 						cerr << "requested VBO was not 0 as expected!" << endl;
 						exit(0);
 					}
 //					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
 					idLoIt->second->getWrapper()->iVbo = VboFactory::getSingleton()->newVbo(ve.getIndexCount(i), ve.getIndexArray(i), ve.getVertexCount(i), ve.getVertexArray(i));
+					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
+					idLoIt->second->getWrapper()->usageCount = 0;
+					if (idLoIt->second->getWrapper()->iVbo == 0) {
+						idLoIt->second->getWrapper()->state = WrappedOcNode::MISSING;
+						cerr << "new VBO is 0!!!" << endl;
+						cerr << "free space: " << VboFactory::getSingleton()->getFreeMem() << endl;
+						cerr << "used space: " << VboFactory::getSingleton()->getUsedMem() << endl;
+						cerr << "free blocks: " << VboFactory::getSingleton()->getFreeBlocks() << endl;
+						cerr << "largest free block: " << VboFactory::getSingleton()->getLargestFreeBlock() << endl;
+						cerr << "smallest free block: " << VboFactory::getSingleton()->getSmallestFreeBlock() << endl;
+
+						exit(0);
+					}
 //					debug(idLoIt->second->getWrapper()->iVbo, &ve, i);
 //					cerr << "vbo just loaded and created" << endl;
 //					cerr << "is offline? " << idLoIt->second->getWrapper()->iVbo->mPriIsOffline << endl;
@@ -1446,7 +1468,12 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << headerS.str() << "Tile-Dimensions: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
 		cout << "---------------------------------------" << endl;
 	}
-
+	else if (event.instanceOf(LowMemoryEvent::classid())){
+		cerr << "Warning: Low Memory!!!" << endl;
+		clearCache();
+		VboFactory::getSingleton()->defrag(&mPriWrapperInFrustum);
+//		manageCaching();
+	}
 }
 
 void RenderCoreGlFrame::debug(ooctools::IVbo* _iVbo, VboEvent* _vE, unsigned _idx){
