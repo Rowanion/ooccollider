@@ -262,10 +262,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 
 					if (mPriOccResults[(*quintIt)->id]>0){
 						// add visible VBO to the current DepthBuffer
-						cerr << "b4 draw into DepthBuffer: " << endl;
-						cerr << "drawing id " << (*quintIt)->id << "..." << endl;
 						mPriVArrayMap[(*quintIt)->id]->managedDraw();
-						cerr << "after draw into DepthBuffer" << endl;
 						mPriVisibleVArraysVec.push_back(mPriVArrayMap[(*quintIt)->id]);
 						mPriVisibleDistExtVec.push_back(DistExtPair((*quintIt)->dist, (*quintIt)->priority));
 						byteSize = mPriVArrayMap[(*quintIt)->id]->getIndexCount()*sizeof(unsigned)+mPriVArrayMap[(*quintIt)->id]->getVertexCount()*sizeof(V4N4);
@@ -612,13 +609,10 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 //				cerr << "pos " << loc.position << endl;
 //				cerr << "size " << size << endl;
 				idIt = _idSet.find(id);
-				cerr << "searching for ID " << id << "..." << endl;
+//				cerr << "searching for ID " << id << "..." << endl;
 				if (idIt != _idSet.end()){
 					mPriVArrayMap.insert(make_pair(id, new IndexedVertexArray(&inFile, pos)));
-					cerr << "FOUND!" << endl;
-				}
-				else {
-					cerr << "NOT found!" << endl;
+//					cerr << "FOUND!" << endl;
 				}
 
 				inFile.seekg(pos+sizeof(uint64_t), ios::beg);
@@ -627,10 +621,10 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 				inFile.read((char*)&vertexCount, sizeof(unsigned));
 				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
 //				cerr << itr->path() << ": jumping to position - " << pos << "/" << size << endl;
-				cerr << "indices: " << indexCount << endl;
-				cerr << "vertices: " << vertexCount << endl;
-				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
-				cerr << "new position: " << pos << endl;
+//				cerr << "indices: " << indexCount << endl;
+//				cerr << "vertices: " << vertexCount << endl;
+//				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
+//				cerr << "new position: " << pos << endl;
 				inFile.seekg(pos, ios::beg);
 			}
 			inFile.close();

@@ -35,6 +35,7 @@ class AbstractEventListener;
 	class IEvent;
 	class VboFactory;
 	class Logger;
+	class LowMemoryEvent;
 	class Message;
 	class MpiControl;
 	class VirtualNode;

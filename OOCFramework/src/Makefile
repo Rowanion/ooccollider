@@ -6,11 +6,11 @@ CPPFLAGS = -Wall -Wno-deprecated -D__X86_64__ -O3 -fPIC -ffast-math -funroll-loo
 # `sdl-config --cflags`
 LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib -L/usr/lib64 -L/usr/X11R6/lib -lmpi -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread -looctools -loocformats
 
-HEADERFILES = Log.h Logger.h AbstractEventListener.h CCollisionProtocol.h ClassId.h declarations.h EventManager.h IEvent.h Message.h MpiControl.h VirtualNode.h VirtualRequest.h VboFactory.h
+HEADERFILES = LowMemoryEvent.h Log.h Logger.h AbstractEventListener.h CCollisionProtocol.h ClassId.h declarations.h EventManager.h IEvent.h Message.h MpiControl.h VirtualNode.h VirtualRequest.h VboFactory.h
 
-OBJS = Log.o Logger.o CCollisionProtocol.o ClassId.o EventManager.o IEvent.o Message.o MpiControl.o VirtualNode.o VirtualRequest.o VboFactory.o
+OBJS = LowMemoryEvent.o Log.o Logger.o CCollisionProtocol.o ClassId.o EventManager.o IEvent.o Message.o MpiControl.o VirtualNode.o VirtualRequest.o VboFactory.o
 
-SRCS = Log.cpp Logger.cpp CCollisionProtocol.cpp ClassId.cpp EventManager.cpp IEvent.cpp Message.cpp MpiControl.cpp VirtualNode.cpp VirtualRequest.cpp VboFactory.cpp
+SRCS = LowMemoryEvent.cpp Log.cpp Logger.cpp CCollisionProtocol.cpp ClassId.cpp EventManager.cpp IEvent.cpp Message.cpp MpiControl.cpp VirtualNode.cpp VirtualRequest.cpp VboFactory.cpp
 
 all : liboocframework.so 
 	chmod g+rw *.o

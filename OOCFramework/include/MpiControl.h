@@ -100,6 +100,8 @@ private:
 	std::queue<Message*> mPriInRequests;
 	std::queue<Message*> mPriOutRequests;
 
+	unsigned mPriMaxMessageSize;
+
 	static MpiControl* instance;
 
 };

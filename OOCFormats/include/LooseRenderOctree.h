@@ -226,6 +226,8 @@ class LooseRenderOctree
 		//TODO change to byte
 		int mPriDistanceUpdateKey;
 		int mPriLevel;
+		static unsigned treeTriCount;
+		static unsigned triLimits[15];
 
 		//TODO change to LooseRenderOctree**
 		LooseRenderOctree* mChildren[8];

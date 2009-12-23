@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <cmath>
 
 #include "declarations.h"
 #include "BoundingBox.h"
@@ -24,6 +25,7 @@ using namespace ooctools;
 namespace oocformats {
 
 #define RETEST_THRESHOLD 20
+#define LIMIT_EXPONENT 25
 
 unsigned LooseRenderOctree::descendantCount[8] = {0,0,0,0,0,0,0,0};
 unsigned LooseRenderOctree::maxTriCount = 0;
@@ -52,6 +54,9 @@ unsigned LooseRenderOctree::detailLUT[26][8] = {{14, 14, 14, 14, 7, 7, 7, 7}, {1
 unsigned LooseRenderOctree::pubTick = 0;
 unsigned LooseRenderOctree::pubTickLimit = 0;
 unsigned LooseRenderOctree::pubNodeCount = 0;
+unsigned LooseRenderOctree::treeTriCount = 0;
+unsigned LooseRenderOctree::triLimits[] = {pow(2,(LIMIT_EXPONENT-14)),pow(2,(LIMIT_EXPONENT-13)),pow(2,(LIMIT_EXPONENT-12)),pow(2,(LIMIT_EXPONENT-11)),pow(2,(LIMIT_EXPONENT-10)),pow(2,(LIMIT_EXPONENT-9)),pow(2,(LIMIT_EXPONENT-8)),pow(2,(LIMIT_EXPONENT-7)),pow(2,(LIMIT_EXPONENT-6)),pow(2,(LIMIT_EXPONENT-5)),pow(2,(LIMIT_EXPONENT-4)),pow(2,(LIMIT_EXPONENT-3)),pow(2,(LIMIT_EXPONENT-2)),pow(2,(LIMIT_EXPONENT-1)),pow(2,(LIMIT_EXPONENT))};
+
 LooseRenderOctree* LooseRenderOctree::pubRoot = 0;
 
 LooseRenderOctree::LooseRenderOctree(LooseRenderOctree* _father, const BoundingBox& _bb, int64_t _id) :
@@ -528,6 +533,9 @@ void
 LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray, bool _isExt) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 
+	if (isRoot()){
+		LooseRenderOctree::treeTriCount = 0;
+	}
 	for (unsigned int p = 0; p < 6; ++p) {
 		aPosCounter = 8;
 		aIPtIn = 1;
@@ -588,6 +596,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 	}
 
 	if (this->hasData()) {
+		LooseRenderOctree::treeTriCount+=mPriTriCount;
 		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && mPriWrapper.state == WrappedOcNode::MISSING){
 			_nodes->push_back(&this->mPriWrapper);
@@ -605,6 +614,10 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 			}
 		}
 	}
+
+//	if (LooseRenderOctree::treeTriCount >= LooseRenderOctree::triLimits[mPriLevel]){
+//		return;
+//	}
 
 	LooseRenderOctree* child = 0;
 
@@ -666,6 +679,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 
 void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool _isExt){
 	if (this->hasData()){
+		LooseRenderOctree::treeTriCount+=mPriTriCount;
 		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
@@ -683,6 +697,10 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool
 			}
 		}
 	}
+
+//	if (LooseRenderOctree::treeTriCount >= LooseRenderOctree::triLimits[mPriLevel]){
+//		return;
+//	}
 
 	for (unsigned i = 0; i < 8; i++) {
 		if (this->mChildren[i] != 0) {
@@ -693,6 +711,7 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool
 
 void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray, bool _isExt){
 	if (this->hasData()){
+		LooseRenderOctree::treeTriCount+=mPriTriCount;
 		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
@@ -710,6 +729,11 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsi
 			}
 		}
 	}
+
+//	if (LooseRenderOctree::treeTriCount >= LooseRenderOctree::triLimits[mPriLevel]){
+//		return;
+//	}
+
 	LooseRenderOctree* child = 0;
 	for (unsigned i = 0; i < 8; i++) {
 		child = this->mChildren[LooseRenderOctree::orderLUT[orderIdx][i]];

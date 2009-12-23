@@ -31,11 +31,19 @@ void Log::setup(boost::filesystem::path _filename)
 	time(&mPriTime);
     mPriSystemTime = localtime(&mPriTime);
 	stringstream ss;
-	ss << mPriSystemTime->tm_year+1900 << "-" << mPriSystemTime->tm_mon+1 << "-" << mPriSystemTime->tm_mday << "_" << mPriSystemTime->tm_hour << "." << mPriSystemTime->tm_min << "h";
+//	ss << mPriSystemTime->tm_year+1900 << "-" << mPriSystemTime->tm_mon+1 << "-" << mPriSystemTime->tm_mday << "_" << mPriSystemTime->tm_hour << "." << mPriSystemTime->tm_min << "h";
+	ss << mPriSystemTime->tm_year+1900 << "-" << mPriSystemTime->tm_mon+1 << "-" << mPriSystemTime->tm_mday;
     printf("Aktuelle Zeit: %s", asctime(mPriSystemTime));
     _filename.replace_extension(ss.str()+_filename.extension());
 
-	mPriOfStream.open(_filename, ios::out);
+    //append to existing file
+    if (fs::exists(_filename)){
+    	mPriOfStream.open(_filename, ios::in|ios::out);
+    	mPriOfStream.seekp(0, ios::end);
+    }
+    else {
+    	mPriOfStream.open(_filename, ios::out);
+    }
 }
 
 Log::~Log() {
@@ -43,61 +51,66 @@ Log::~Log() {
 	mPriOfStream.close();
 }
 
+void Log::newTest(std::string  _title)
+{
+	mPriOfStream << endl << _title << CSV;
+}
+
 std::ostream& Log::operator<< (int& val )
 {
-	mPriOfStream << val;
+	mPriOfStream << val << CSV;
 	return mPriOfStream;
 }
 
 std::ostream& Log::operator<< (float& val )
 {
-	mPriOfStream << val;
+	mPriOfStream << val << CSV;
 	return mPriOfStream;
 }
 
 std::ostream& Log::operator<< (double& val )
 {
-	mPriOfStream << val;
+	mPriOfStream << val << CSV;
 	return mPriOfStream;
 }
 
 std::ostream& Log::operator<< (std::string& val )
 {
-	mPriOfStream << val;
+	mPriOfStream << val << CSV;
 	return mPriOfStream;
 }
 
 std::ostream& operator<< (Log& out, char c )
 {
-	out.mPriOfStream << c;
+	out.mPriOfStream << c << CSV;
 	return out.mPriOfStream;
 }
 std::ostream& operator<< (Log& out, signed char c )
 {
-	out.mPriOfStream << c;
+	out.mPriOfStream << c << CSV;
 	return out.mPriOfStream;
 }
 std::ostream& operator<< (Log& out, unsigned char c )
 {
-	out.mPriOfStream << c;
+	out.mPriOfStream << c << CSV;
 	return out.mPriOfStream;
 }
 
 std::ostream& operator<< (Log& out, const char* s )
 {
-	out.mPriOfStream << s;
+	out.mPriOfStream << s << CSV;
 	return out.mPriOfStream;
 }
 
 std::ostream& operator<< (Log& out, const signed char* s )
 {
-	out.mPriOfStream << s;
+	out.mPriOfStream << s << CSV;
 	return out.mPriOfStream;
 }
 
 std::ostream& operator<< (Log& out, const unsigned char* s )
 {
-	out.mPriOfStream << s;
+	out.mPriOfStream << s << CSV;
 	return out.mPriOfStream;
 }
 
