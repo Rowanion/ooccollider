@@ -4,7 +4,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=chapters/versuchsaufbau.tex
+lastDocument=chapters/implementation.tex
 masterDocument=
 name=Thesis
 pkg_extIsRegExp=false
@@ -54,10 +54,10 @@ order=5
 
 [item:chapters/basics.tex]
 archive=true
-column=12
+column=58
 encoding=UTF-8
 highlight=LaTeX
-line=0
+line=43
 open=true
 order=9
 
@@ -70,14 +70,32 @@ line=32
 open=true
 order=10
 
-[item:chapters/introduction.tex]
+[item:chapters/implementation.tex]
 archive=true
-column=20
+column=31
 encoding=UTF-8
 highlight=LaTeX
-line=33
+line=15
+open=true
+order=12
+
+[item:chapters/introduction.tex]
+archive=true
+column=0
+encoding=UTF-8
+highlight=LaTeX
+line=53
 open=true
 order=0
+
+[item:chapters/relatedwork.tex]
+archive=true
+column=0
+encoding=UTF-8
+highlight=LaTeX
+line=11
+open=true
+order=11
 
 [item:chapters/results.tex]
 archive=true
@@ -99,10 +117,10 @@ order=3
 
 [item:chapters/versuchsaufbau.tex]
 archive=true
-column=16
+column=13
 encoding=UTF-8
 highlight=LaTeX
-line=31
+line=34
 open=true
 order=8
 
@@ -120,6 +138,6 @@ archive=true
 column=30
 encoding=UTF-8
 highlight=LaTeX
-line=266
+line=267
 open=true
 order=7
