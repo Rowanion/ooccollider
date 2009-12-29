@@ -39,11 +39,6 @@ Jeweils kurze Einleitung was das ist\\*
 \begin{itemize}
  \item recursive sort-first partitioning
  \item Dynamic Pixel Bucket Partition (DPBP)
- \item flexible Netzwerkumgebung, aka Multi-Cluster, Instituts-Grenzen übergreifend
- \item Benutzt tiled-rendering
- \item \textbf{im Paper bei RelWorks steht einleitung zu sort-first, sort-middle, sort-last!!}
- \item Preprozessing: räumliche Aufteile anhand von Gewichtung in Form von Dreiecküberlagerungen im ScreenSpace (clustering)
- \item Danacher deren die projizierten Boundingboxen in Pixel Buckets sortiert. Teile der Boxen, die au dem Bild herausragen werden weg geclippt.
 \end{itemize}
 
 \cite{humphreys}: \textit{a distributed graphic system for large tiled displays}

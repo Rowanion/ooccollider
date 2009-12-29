@@ -1,11 +1,95 @@
-\begin{thebibliography}{Wil03}
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{ZCWC03}
 
-\bibitem[Wil03]{wilcox}
-Brian.~H. Wilcox.
-\newblock Robotic vehicle system engineering.
-\newblock Internet, April 2003.
-\newblock
-  \href{http://team.caltech.edu/members/RoboticVehicleSystemEngineering3.pdf}{%
-http://team.caltech.edu/members/RoboticVehicleSystemEngineering3.pdf}.
+\bibitem[ACCC04]{abraham}
+Frederico Abraham, Waldemar Celes, Renato Cerqueira, and Joao~Luiz Campos.
+\newblock A load-balancing strategy for sort-first distributed rendering.
+\newblock In {\em SIBGRAPI '04: Proceedings of the Computer Graphics and Image
+  Processing, XVII Brazilian Symposium}, pages 292--299, Washington, DC, USA,
+  2004. IEEE Computer Society.
+
+\bibitem[BSGM02]{baxter}
+William~V. Baxter, III, Avneesh Sud, Naga~K. Govindaraju, and Dinesh Manocha.
+\newblock Gigawalk: interactive walkthrough of complex environments.
+\newblock In {\em EGRW '02: Proceedings of the 13th Eurographics workshop on
+  Rendering}, pages 203--214, Aire-la-Ville, Switzerland, Switzerland, 2002.
+  Eurographics Association.
+
+\bibitem[CKS02]{wagner1}
+Wagner~T. Corr\^{e}a, James~T. Klosowski, and Cl\'{a}udio~T. Silva.
+\newblock Out-of-core sort-first parallel rendering for cluster-based tiled
+  displays.
+\newblock In {\em EGPGV '02: Proceedings of the Fourth Eurographics Workshop on
+  Parallel Graphics and Visualization}, pages 89--96, Aire-la-Ville,
+  Switzerland, Switzerland, 2002. Eurographics Association.
+
+\bibitem[CKS03]{wagner2}
+Wagner~T. Corr\^{e}a, James~T. Klosowski, and Claudio~T. Silva.
+\newblock Visibility-based prefetching for interactive out-of-core rendering.
+\newblock In {\em PVG '03: Proceedings of the 2003 IEEE Symposium on Parallel
+  and Large-Data Visualization and Graphics}, page~2, Washington, DC, USA,
+  2003. IEEE Computer Society.
+
+\bibitem[GDW06]{gao}
+Yu~Gao, Baosong Deng, and Lingda Wu.
+\newblock Efficient view-dependent out-of-core rendering of large-scale and
+  complex scenes.
+\newblock In {\em VRCIA '06: Proceedings of the 2006 ACM international
+  conference on Virtual reality continuum and its applications}, pages
+  297--303, New York, NY, USA, 2006. ACM.
+
+\bibitem[HH99]{humphreys}
+Greg Humphreys and Pat Hanrahan.
+\newblock A distributed graphics system for large tiled displays.
+\newblock In {\em VISUALIZATION '99: Proceedings of the 10th IEEE Visualization
+  1999 Conference (VIS '99)}, Washington, DC, USA, 1999. IEEE Computer Society.
+
+\bibitem[KKF{\etalchar{+}}02]{klein}
+Jan Klein, Jens Krokowski, Matthias Fischer, Michael Wand, Rolf Wanka, and
+  Friedhelm~Meyer auf~der Heide.
+\newblock The randomized sample tree: a data structure for interactive
+  walkthroughs in externally stored virtual environments.
+\newblock In {\em VRST '02: Proceedings of the ACM symposium on Virtual reality
+  software and technology}, pages 137--146, New York, NY, USA, 2002. ACM.
+
+\bibitem[RS99]{DBLP:conf/arcs/RehbergS99}
+Ulrich Rehberg and Klaus Schr{\"o}der.
+\newblock Almost optimal schedules with a simple protocol.
+\newblock In Werner Erhard, Karl-Erwin Gro{\ss}pietsch, W.~Koch, Erik Maehle,
+  and Eberhard Zehendner, editors, {\em ARCS Workshops}, pages 219--228.
+  Universit{\"a}t Jena, Institut f{\"u}r Informatik, 1999.
+
+\bibitem[SFLS00]{samanta}
+Rudrajit Samanta, Thomas Funkhouser, Kai Li, and Jaswinder~Pal Singh.
+\newblock Hybrid sort-first and sort-last parallel rendering with a cluster of
+  pcs.
+\newblock In {\em HWWS '00: Proceedings of the ACM SIGGRAPH/EUROGRAPHICS
+  workshop on Graphics hardware}, pages 97--108, New York, NY, USA, 2000. ACM.
+
+\bibitem[VM02]{manocha}
+Gokul Varadhan and Dinesh Manocha.
+\newblock Out-of-core rendering of massive geometric environments.
+\newblock In {\em VIS '02: Proceedings of the conference on Visualization '02},
+  pages 69--76, Washington, DC, USA, 2002. IEEE Computer Society.
+
+\bibitem[WDS05]{wald}
+Ingo Wald, Andreas Dietrich, and Philipp Slusallek.
+\newblock An interactive out-of-core rendering framework for visualizing
+  massively complex models.
+\newblock In {\em SIGGRAPH '05: ACM SIGGRAPH 2005 Courses}, page~17, New York,
+  NY, USA, 2005. ACM.
+
+\bibitem[YJSZ06]{DBLP:journals/ijvr/YinJSZ06}
+Ping Yin, Xiaohong Jiang, Jiaoying Shi, and Ran Zhou.
+\newblock Multi-screen tiled displayed, parallel rendering system for a large
+  terrain dataset.
+\newblock {\em IJVR}, 5(4):47--54, 2006.
+
+\bibitem[ZCWC03]{dpbp}
+Huabing Zhu, Kai~Yun Chan, Lizhe Wang, and Wentong Cai.
+\newblock Dpbp: a sort-first parallel rendering algorithm for distributed
+  rendering environments.
+\newblock In {\em Cyberworlds, 2003. Proceedings. 2003 International Conference
+  on}, pages 214--220, Dec. 2003.
 
 \end{thebibliography}

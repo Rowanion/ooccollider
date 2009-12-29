@@ -32,10 +32,9 @@
 \chapter{Abk\"{u}rzungen}
 
 \begin{acronym}
-\acro{CAD}{Computer Aided Design}
-\acro{GPU}{Graphics Processing Unit}
 \acro{VHDL}{Very High Speed Integrated Circuit Hardware Description Language}
 \acro{VPMA}{Virtually Parallel Machine Architecture}
+\acro{GPU}{Graphics Processing Unit}
 \end{acronym}
 
 %
