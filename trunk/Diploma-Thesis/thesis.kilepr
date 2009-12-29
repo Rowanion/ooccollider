@@ -4,7 +4,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=chapters/implementation.tex
+lastDocument=thesis.tex
 masterDocument=
 name=Thesis
 pkg_extIsRegExp=false
@@ -23,25 +23,7 @@ encoding=UTF-8
 highlight=BibTeX
 line=0
 open=true
-order=4
-
-[item:chapters/abstract.tex]
-archive=true
-column=36
-encoding=UTF-8
-highlight=LaTeX
-line=44
-open=true
-order=2
-
-[item:chapters/acknowledgements.tex]
-archive=true
-column=0
-encoding=UTF-8
-highlight=LaTeX
-line=0
-open=true
-order=6
+order=3
 
 [item:chapters/appendix-acronyms.tex]
 archive=true
@@ -50,7 +32,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=0
 open=true
-order=5
+order=4
 
 [item:chapters/basics.tex]
 archive=true
@@ -59,7 +41,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=43
 open=true
-order=9
+order=7
 
 [item:chapters/conclusion.tex]
 archive=true
@@ -68,7 +50,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=32
 open=true
-order=10
+order=8
 
 [item:chapters/implementation.tex]
 archive=true
@@ -77,7 +59,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=15
 open=true
-order=12
+order=10
 
 [item:chapters/introduction.tex]
 archive=true
@@ -95,7 +77,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=11
 open=true
-order=11
+order=9
 
 [item:chapters/results.tex]
 archive=true
@@ -113,7 +95,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=52
 open=true
-order=3
+order=2
 
 [item:chapters/versuchsaufbau.tex]
 archive=true
@@ -122,7 +104,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=34
 open=true
-order=8
+order=6
 
 [item:thesis.kilepr]
 archive=true
@@ -135,9 +117,9 @@ order=-1
 
 [item:thesis.tex]
 archive=true
-column=30
+column=20
 encoding=UTF-8
 highlight=LaTeX
-line=267
+line=259
 open=true
-order=7
+order=5
