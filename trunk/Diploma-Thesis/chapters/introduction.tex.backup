@@ -51,7 +51,7 @@
  \item Format
  \item Cluster-Konfiguration
  \item Graphics-Workstations mit SharedMemory, mehreren Prozessoren und mehreren synchronisierten Graphic-Pipelines sind teuer
- \item PC-Cluster ist besser skalierbar als eine ``eng zusammenhängende'' Workstation.
+ \item PC-Cluster ist besser skalierbar als eine ``eng zusammenhängende'' Worstation.
 
 \end{itemize}
 

@@ -17,16 +17,6 @@
  \item -
 \end{itemize}
 
-\cite{baxter}: \textit{Gigawalk: interactive walkthrough of complex environments}
-\begin{itemize}
- \item -
-\end{itemize}
-
-\cite{abraham}: \textit{A load-balancing strategy for sort-first distributed rendering}
-\begin{itemize}
- \item -
-\end{itemize}
-
 In chapter (...), we present existing literature and its implications regarding
 the researched area. Chapter (...) describes our methodology in achieving (...)
 after which... blah, blah ...
@@ -35,10 +25,42 @@ The thesis is concluded with chapter~\ref{conclusion} which dissects our
 findings and compares it with existing work.
 \section{Paralleles Rendering}
 Jeweils kurze Einleitung was das ist\\*
+\cite{abraham}: \textit{A load-balancing strategy for sort-first distributed rendering}
+\begin{itemize}
+ \item Multi-Threaded, Sort-First, prallel
+ \item kein Out-Of-Core
+ \item benutzt Tiling
+ \item Bestimmung der Renderknotenbelastung anhand der letztenn Renderzeit
+ \item Modell wird auf allen Renderknoten vorgehalten
+ \item Multi-Threading: ein Thread rendert während ein Anderer für den Empfang und Versand von Nachrichten zuständig ist
+ \item Der schnellste Knoten einer Runde bekomt in der nächsten Runde diejenige Kachel mit dem größten Aufwand.
+ \item das Kacheltauschen ist für Out-Of-Core ungeeignet und erfordert eine homogene Clusterkonfiguration.
+\end{itemize}
+
+\cite{baxter}: \textit{Gigawalk: interactive walkthrough of complex environments}
+\begin{itemize}
+ \item - Paralleler Algorithmus mit Occlusion Culling und LOD
+ \item Benutzt räumliche Clusterung und Lastbalancierung
+ \item Berechnung der LOD im Preprozessing; Potentially Visible Sets zur Laufzeit durch FrustumCullung und hierarchical Z-Buffer OcclusionCulling
+ \item Benutzt keine Octrees zur Clusterung sondern Minimale Spannbäume um die minimale Ausdehnung eines Cluster zu brechnen um 2 Cluster miteinander verbinden zu können.
+ \item Hierarchie wird erzeugt durch Axis-Aligned BoundingBoxes über die o.g. Cluster wodurch sich ein Szene-Graph ergibt.
+ \item Aus dem Szene-Graph werden Levels-Of-Detail erzeugt und als hierarchische Occluder verwendet
+ \item \textbf{Pixel-Fehler -> Image-vergleich}
+ \item SGI Onyx Workstations, 300MHz, R12000 mit Infinite Reality Grafikboards, 16Gb Ram, 3 CPUs, 2 Grafik-Pipelines
+ \item Getestet mit bis zu 82 Millionen Dreiecken
+ \item 11-50FPS
+ \item Kommunikation über SharedMemory Queues
+\end{itemize}
+
 \cite{dpbp}: \textit{dpdb: a sort-first parallel rendering algorithm for distributed rendering environments}
 \begin{itemize}
  \item recursive sort-first partitioning
  \item Dynamic Pixel Bucket Partition (DPBP)
+ \item flexible Netzwerkumgebung, aka Multi-Cluster, Instituts-Grenzen übergreifend
+ \item Benutzt tiled-rendering
+ \item \textbf{im Paper bei RelWorks steht einleitung zu sort-first, sort-middle, sort-last!!}
+ \item Preprozessing: räumliche Aufteile anhand von Gewichtung in Form von Dreiecküberlagerungen im ScreenSpace (clustering)
+ \item Danacher deren die projizierten Boundingboxen in Pixel Buckets sortiert. Teile der Boxen, die au dem Bild herausragen werden weg geclippt.
 \end{itemize}
 
 \cite{humphreys}: \textit{a distributed graphic system for large tiled displays}

@@ -5,43 +5,43 @@ Database file #1: bib/references.bib
 Warning--I didn't find a database entry for "602108"
 You've used 13 entries,
             2543 wiz_defined-function locations,
-            645 strings with 7856 characters,
-and the built_in function-call counts, 7161 in all, are:
-= -- 746
-> -- 369
-< -- 11
-+ -- 138
-- -- 134
-* -- 503
-:= -- 1117
+            647 strings with 7852 characters,
+and the built_in function-call counts, 7353 in all, are:
+= -- 767
+> -- 381
+< -- 12
++ -- 144
+- -- 140
+* -- 522
+:= -- 1144
 add.period$ -- 50
 call.type$ -- 13
-change.case$ -- 96
+change.case$ -- 98
 chr.to.int$ -- 13
 cite$ -- 13
-duplicate$ -- 301
-empty$ -- 496
-format.name$ -- 146
-if$ -- 1556
+duplicate$ -- 306
+empty$ -- 504
+format.name$ -- 152
+if$ -- 1597
 int.to.chr$ -- 1
 int.to.str$ -- 0
 missing$ -- 13
 newline$ -- 69
 num.names$ -- 41
-pop$ -- 109
+pop$ -- 110
 preamble$ -- 1
-purify$ -- 109
+purify$ -- 111
 quote$ -- 0
-skip$ -- 254
+skip$ -- 260
 stack$ -- 0
-substring$ -- 375
-swap$ -- 98
-text.length$ -- 11
+substring$ -- 394
+swap$ -- 103
+text.length$ -- 12
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 104
 warning$ -- 0
-while$ -- 68
+while$ -- 71
 width$ -- 14
-write$ -- 192
+write$ -- 193
 (There was 1 warning)
