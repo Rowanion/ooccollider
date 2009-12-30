@@ -38,12 +38,6 @@ Yu~Gao, Baosong Deng, and Lingda Wu.
   conference on Virtual reality continuum and its applications}, pages
   297--303, New York, NY, USA, 2006. ACM.
 
-\bibitem[HH99]{humphreys}
-Greg Humphreys and Pat Hanrahan.
-\newblock A distributed graphics system for large tiled displays.
-\newblock In {\em VISUALIZATION '99: Proceedings of the 10th IEEE Visualization
-  1999 Conference (VIS '99)}, Washington, DC, USA, 1999. IEEE Computer Society.
-
 \bibitem[KKF{\etalchar{+}}02]{klein}
 Jan Klein, Jens Krokowski, Matthias Fischer, Michael Wand, Rolf Wanka, and
   Friedhelm~Meyer auf~der Heide.
@@ -51,6 +45,12 @@ Jan Klein, Jens Krokowski, Matthias Fischer, Michael Wand, Rolf Wanka, and
   walkthroughs in externally stored virtual environments.
 \newblock In {\em VRST '02: Proceedings of the ACM symposium on Virtual reality
   software and technology}, pages 137--146, New York, NY, USA, 2002. ACM.
+
+\bibitem[MCEF08]{molnar}
+Steven Molnar, Michael Cox, David Ellsworth, and Henry Fuchs.
+\newblock A sorting classification of parallel rendering.
+\newblock In {\em SIGGRAPH Asia '08: ACM SIGGRAPH ASIA 2008 courses}, pages
+  1--11, New York, NY, USA, 2008. ACM.
 
 \bibitem[RS99]{DBLP:conf/arcs/RehbergS99}
 Ulrich Rehberg and Klaus Schr{\"o}der.
