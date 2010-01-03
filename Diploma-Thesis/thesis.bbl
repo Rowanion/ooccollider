@@ -30,6 +30,19 @@ Wagner~T. Corr\^{e}a, James~T. Klosowski, and Claudio~T. Silva.
   and Large-Data Visualization and Graphics}, page~2, Washington, DC, USA,
   2003. IEEE Computer Society.
 
+\bibitem[Cla76]{hlod}
+James~H. Clark.
+\newblock Hierarchical geometric models for visible surface algorithms.
+\newblock {\em Commun. ACM}, 19(10):547--554, 1976.
+
+\bibitem[CNSD93]{cave}
+Carolina Cruz-Neira, Daniel~J. Sandin, and Thomas~A. DeFanti.
+\newblock Surround-screen projection-based virtual reality: the design and
+  implementation of the cave.
+\newblock In {\em SIGGRAPH '93: Proceedings of the 20th annual conference on
+  Computer graphics and interactive techniques}, pages 135--142, New York, NY,
+  USA, 1993. ACM.
+
 \bibitem[GDW06]{gao}
 Yu~Gao, Baosong Deng, and Lingda Wu.
 \newblock Efficient view-dependent out-of-core rendering of large-scale and

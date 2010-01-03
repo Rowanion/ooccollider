@@ -4,7 +4,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=bib/references.bib
+lastDocument=chapters/results.tex
 masterDocument=
 name=Thesis
 pkg_extIsRegExp=false
@@ -18,10 +18,10 @@ QuickBuild=
 
 [item:bib/references.bib]
 archive=true
-column=20
+column=13
 encoding=UTF-8
 highlight=BibTeX
-line=141
+line=196
 open=true
 order=2
 
@@ -54,12 +54,12 @@ order=9
 
 [item:chapters/implementation.tex]
 archive=true
-column=0
+column=76
 encoding=UTF-8
 highlight=LaTeX
-line=0
-open=false
-order=10
+line=23
+open=true
+order=4
 
 [item:chapters/introduction.tex]
 archive=true
@@ -72,21 +72,21 @@ order=0
 
 [item:chapters/relatedwork.tex]
 archive=true
-column=83
+column=855
 encoding=UTF-8
 highlight=LaTeX
-line=12
-open=false
-order=4
+line=24
+open=true
+order=3
 
 [item:chapters/results.tex]
 archive=true
-column=0
+column=28
 encoding=UTF-8
 highlight=LaTeX
-line=1
-open=false
-order=1
+line=12
+open=true
+order=5
 
 [item:chapters/titlepage.tex]
 archive=true
