@@ -3,45 +3,45 @@ The top-level auxiliary file: thesis.aux
 The style file: alpha.bst
 Database file #1: bib/references.bib
 Warning--I didn't find a database entry for "602108"
-You've used 13 entries,
+You've used 15 entries,
             2543 wiz_defined-function locations,
-            647 strings with 7852 characters,
-and the built_in function-call counts, 7353 in all, are:
-= -- 767
-> -- 381
-< -- 12
-+ -- 144
-- -- 140
-* -- 522
-:= -- 1144
-add.period$ -- 50
-call.type$ -- 13
-change.case$ -- 98
-chr.to.int$ -- 13
-cite$ -- 13
-duplicate$ -- 306
-empty$ -- 504
-format.name$ -- 152
-if$ -- 1597
+            661 strings with 8233 characters,
+and the built_in function-call counts, 8294 in all, are:
+= -- 870
+> -- 414
+< -- 14
++ -- 155
+- -- 151
+* -- 588
+:= -- 1286
+add.period$ -- 57
+call.type$ -- 15
+change.case$ -- 110
+chr.to.int$ -- 15
+cite$ -- 15
+duplicate$ -- 347
+empty$ -- 576
+format.name$ -- 166
+if$ -- 1800
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 13
-newline$ -- 69
-num.names$ -- 41
-pop$ -- 110
+missing$ -- 15
+newline$ -- 79
+num.names$ -- 47
+pop$ -- 121
 preamble$ -- 1
-purify$ -- 111
+purify$ -- 125
 quote$ -- 0
-skip$ -- 260
+skip$ -- 294
 stack$ -- 0
-substring$ -- 394
-swap$ -- 103
-text.length$ -- 12
-text.prefix$ -- 0
+substring$ -- 465
+swap$ -- 114
+text.length$ -- 14
+text.prefix$ -- 1
 top$ -- 0
-type$ -- 104
+type$ -- 120
 warning$ -- 0
-while$ -- 71
-width$ -- 14
-write$ -- 193
+while$ -- 81
+width$ -- 16
+write$ -- 221
 (There was 1 warning)

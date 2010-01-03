@@ -13,84 +13,16 @@ In den letzten Jahren wurden viele Möglichkeiten zur Verteilung der Aufgaben in
 Sort-First-Algorithmen teilen den Bildschirm in disjunkte Regionen ein (Kacheln) und weisen jedem Renderer eine solche Kachel zu. Jeder Render ist für die gesamte Bilderzeugung in diesem einem Bildabschnitt zuständig. Geometrische Objekte werden zu den Renderer übertragen, wenn diese in der jeweiligen Kachel sichtbar sind. Sort-First-Renderer nutzen die Frame-to-Frame Kohärenz gut aus, da nur wenige geometrische Primitive zwischen einzelnen Frames die Bildausschnitte wechseln. Die Rendering-Algorithmen sind bei Sort-First frei wählbar, da jeder Renderer die vollständige Geometrie für seine Kachel besitzen muss. Allerdings kann es sein, dass sich viele geometrische Objekte der gesamten Szene auf wenige Kacheln verteilen, wodurch die Lastverteilung aus dem Gleichgewicht gerät. Ein weiterer Nachteil ist, dass Objekte von mehrern Renderern gezeichnet werden müssen.\linebreak\linebreak
 Sort-Middle-Algorithmen teilen den Rendervorgang in Geometrie- und rasteroperationen auf. Geometrische Objekte werden auf verschiedene Geometrieprozessoeren verteilt und Bildteile werden an Rasterizer verteilt. Transformation und Beleuchtung geschieht auf den Geometrieprozessoren, welche ihre Ergebnisse dann an die entsprechenden Rasterizer schicken. Dieses Verfahren eignet sich am Besten für High-End Grafik-Workstations welche aus eng-gekoppelten Systemen bestehen. Für den Versand der Daten zwischen Geometrieprozessoeren und den Rasterizern ist jedoch eine eine hohe Bandbreite vonnöten.\linebreak\linebreak
 Sort-Last-Algorithmen verteilen geometrische Objekte an einzelne Renderer. Ein Renderer berechnet Pixelwerte für seine Untermenge an Objekten und verteilt die Farb- und Tiefenwerte an Prozesse, die diese dann vereinigen. Bei großen Objektmengen bietet sich dieses Verfahren an, da jedes geometrische Objekt genau einmal gerendert wird. Für den Pixeltransfer wird allerdings eine hohe Bandbreite vom Netzwerk abverlangt. Da die genaue Tiefe eines Pixels erst bei der Vereinigung der Pixel ermittelt werden kann, ist Sort-Last für einige Rendertechniken, wie Transparenz oder Antialiasing, ungeeignet.\linebreak\linebreak
-Samanta et al.\cite{samanta} haben einen hybriden Randerer entwickelt, welcher Sort-First und Sort-Last Ansätze kombiniert. Geometrische Objekte werden gruppiert nach der minimalen Überlappung ihrer Boundingboxen und anschließend auf Sort-Last Rechenknoten verteilt. Besitzen mehrere Knoten überlappende Objekte, werden die berechneten Tiefenwerde ausgetauscht und mit ihren eigenen Ergänzt. So erhält jeder Renderer ein nahezu korrektes Tiefenabbild. Die fertigen Farbpixel werden am Ende an einen speziellen Kachelrenderer weitergeleitet, welcher lediglich die Kacheln zsuammen setzt und darstellt. Der gesamte Pixelversand wird mittels peer-to-peer im Netzwerk verteilt, wodurch sich eine verbesserte Netzlastnutzung mit verringerten Latenzen ergeben.\linebreak
+Samanta et al.\cite{samanta} haben einen hybriden Renderer entwickelt, welcher Sort-First und Sort-Last Ansätze kombiniert. Geometrische Objekte werden gruppiert nach der minimalen Überlappung ihrer Boundingboxen und anschließend auf Sort-Last Rechenknoten verteilt. Besitzen mehrere Knoten überlappende Objekte, werden die berechneten Tiefenwerde ausgetauscht und mit ihren eigenen Ergänzt. So erhält jeder Renderer ein nahezu korrektes Tiefenabbild. Die fertigen Farbpixel werden am Ende an einen speziellen Kachelrenderer weitergeleitet, welcher lediglich die Kacheln zsuammen setzt und darstellt. Der gesamte Pixelversand wird mittels peer-to-peer im Netzwerk verteilt, wodurch eine verbesserte Netzlastnutzung mit verringerten Latenzen möglich ist.\linebreak
+2002 stellten Baxter et al.\cite{baxter} ein paralleles Walkthrough-System ``Gigawalk'' vor. Das System fasst Objekte zu sogenannten Clustern zusammen. In einem Minimalen Spannbaum wird die minimale Ausdehnung eines Clusters berechnet um mehrere Cluster miteinander verbinden zu können. Eine hierarische Gruppierung ergibt sich über die Boundingboxen der einzelnen Cluster, woraus ein Szene-Graph erzeugt wird. Aus dieser Hierarchie werden verschiedene Levels-of-Detail (LOD)\cite{hlod} generiert, um bei komplexen Objekten flexibel bleiben zu können. All dies geschieht im Preprozessing. Druch Frustumculling werden zur Laufzeit Potentially Visible Sets zusammen gestellt, also Mengen an wahrscheinlich sichtbaren Clustern. Um zu verhindern, dass verdeckte Objekte gezeichnet werden wird ein hierrischer Z-Buffer verwendet, welche ein Occlusionculling durchführt. Als hierarchische Occluder kommen dabei die berechneten LODs zum Einsatz. Die gesamte Kommunikation erfolgt durch Shared-Memory-Queues. Dieses System wurde mit SGI Onyx Workstations getestet und kommt bei 80 Millionen Dreiecken auf 11-50 Bilder pro Sekunde.\linebreak
+Ein anderer Ansatz wird von \cite{dpbp} verfolgt um mit Multicluster-Systemen zu arbeiten, also Institutsübergreifend zu rendern. Dabei kommt ein Sort-First-Algorithmus zum Einsatz mit dem auch gekachelte Bildsysteme angesteuert werden können, wie die CAVE \cite{cave} oder die Powerwall am Heinz-Nixdorf Institut. Im Preprocessing wird die räumliche Verteilung von Objekten zu Clustern zusammengefasst. Um eine hierarchische Gewichtung zu erhalten werden die projizierten Cluster-Boundingboxen in sogenannten Pixel-Buckets sortiert und gerendert.\linebreak
+Ähnlich arbeitet man bei \cite{DBLP:journals/ijvr/YinJSZ06}. Da dort Terrain-Daten berechnet werden kommt dieses System ohne Frustum-Culling aus, da solche Daten keine große Tiefenkomplexität besitzen. Bemerkenswert bei dieser Arbeit ist jedoch, dass die Datenstruktur, ein Quadtree, im Preprozessing erzeugt wird und binar auf Festplatte gespeichert wird. Somit wird ein ständiges Erzeugen einer geeigneten räumlichen Aufteilung des Modells hinfällig. Der Fokus der Arbeit liegt allerdings in der Kalibrierung des Beamerystems, welches unter Verwendung von Aplha-Blending sichtbare Kanten zwischen einzelnen Displays entfernt.
 
-\cite{samanta}: \textit{Hybrid sort-first and sort-last parallel rendering with a cluster of pcs}
-\begin{itemize}
- \item Mischung aus Sort-first und sort-last im cluster
- \item 64 PCs im Cluster
- \item Komposition des finalen Bildes erfolgt mittels peer-to-peer Pixel verteilung
- \item Objekte werden gruppiert nach ihrer minimalen BoundingBoxüberlappung. Danach erfolgt ihre Verteilung auf verschiedenen Sort-Last Knoten.
- \item Die Tiefenwerte werden dann über das Netzwerk zu anderen Servern geschickt, welche überlappende Teile besitzen. Diese schreiben nun ihren Tiefenbuffer mittels Tiefenvergleich um ein möglichst vollständiges Tiefenbild zu erhalten.
- \item Am Ende schicken alle ihre Farbpixel an den Kachelrenderer, welche lediglich die entstandenen Bildkacheln zusammen setzt.
- \item Vorteil dieser P2P-Herangehensweise: geringere Latenzen und verbesserete Netzlastnutzung.
- \item 550MHz P3 client, 8x500MHz P3 server mit 256MB RAM und Geforce 256 GPUs.
-\end{itemize}
-
-\cite{baxter}: \textit{Gigawalk: interactive walkthrough of complex environments}
-\begin{itemize}
- \item - Paralleler Algorithmus mit Occlusion Culling und LOD
- \item Benutzt räumliche Clusterung und Lastbalancierung
- \item Berechnung der LOD im Preprozessing; Potentially Visible Sets zur Laufzeit durch FrustumCullung und hierarchical Z-Buffer OcclusionCulling
- \item Benutzt keine Octrees zur Clusterung sondern Minimale Spannbäume um die minimale Ausdehnung eines Cluster zu brechnen um 2 Cluster miteinander verbinden zu können.
- \item Hierarchie wird erzeugt durch Axis-Aligned BoundingBoxes über die o.g. Cluster wodurch sich ein Szene-Graph ergibt.
- \item Aus dem Szene-Graph werden Levels-Of-Detail erzeugt und als hierarchische Occluder verwendet
- \item \textbf{Pixel-Fehler -> Image-vergleich}
- \item SGI Onyx Workstations, 300MHz, R12000 mit Infinite Reality Grafikboards, 16Gb Ram, 3 CPUs, 2 Grafik-Pipelines
- \item Getestet mit bis zu 82 Millionen Dreiecken
- \item 11-50FPS
- \item Kommunikation über SharedMemory Queues
-\end{itemize}
-
-\cite{dpbp}: \textit{dpdb: a sort-first parallel rendering algorithm for distributed rendering environments}
-\begin{itemize}
- \item recursive sort-first partitioning
- \item Dynamic Pixel Bucket Partition (DPBP)
- \item flexible Netzwerkumgebung, aka Multi-Cluster, Instituts-Grenzen übergreifend
- \item Benutzt tiled-rendering
- \item \textbf{im Paper bei RelWorks steht einleitung zu sort-first, sort-middle, sort-last!!}
- \item Preprozessing: räumliche Aufteile anhand von Gewichtung in Form von Dreiecküberlagerungen im ScreenSpace (clustering)
- \item Danacher deren die projizierten Boundingboxen in Pixel Buckets sortiert. Teile der Boxen, die au dem Bild herausragen werden weg geclippt.
-\end{itemize}
-
-\cite{abraham}: \textit{A load-balancing strategy for sort-first distributed rendering}
-\begin{itemize}
- \item Multi-Threaded, Sort-First, prallel
- \item kein Out-Of-Core
- \item benutzt Tiling
- \item Bestimmung der Renderknotenbelastung anhand der letztenn Renderzeit
- \item Modell wird auf allen Renderknoten vorgehalten
- \item Multi-Threading: ein Thread rendert während ein Anderer für den Empfang und Versand von Nachrichten zuständig ist
- \item Der schnellste Knoten einer Runde bekomt in der nächsten Runde diejenige Kachel mit dem größten Aufwand.
- \item das Kacheltauschen ist für Out-Of-Core ungeeignet und erfordert eine homogene Clusterkonfiguration.
- \item 10-Knoten-Netzwerk mit P4, 512MB Ram und GeForce 4, angebunden via GigaBit Ethernet
-\end{itemize}
-
-\cite{DBLP:journals/ijvr/YinJSZ06}: \textit{Multi-screen Tiled Displayed, Parallel Rendering System for a Large Terrain Dataset}
-\begin{itemize}
- \item Sort-First, Out-Of-Core, tiled Display im PC-Cluster
- \item Verwendet Out-Of-Core LODs
- \item Preprozessing: Terrain-Daten im Quadtree organisiert und auf Platte gespeichert
- \item Intel Xeon, 1Gb RAM, Geforce Fx 5950 * 32 Knoten; GigaBit Ethernet
- \item Quadtree als LOD: Wurzel als grobe Auflösung und Blattknoten in der höchsten Auflösung
- \item Frustum-Culling only, da Terraindaten nicht sehr komplex in der Tiefe sind
- \item Focus auf kalibrierung der einzelnen Beamer durch alpfa-blending an den Kanten der einzelnen Beamer-Bilder
-\end{itemize}
+Um der potenziellen ungleich verteilten Last bei Sort-First-Ansätzen entgegen zu wirken, haben Abraham et al. \cite{abraham} einen parallelen Renderer entwickelt der die Kachelgrößen automatisch anhand der letzten Renderzeit der jeweiligen Kachel anpasst. Jedem Renderknoten im Netzwerk liegt dabei das 3D-Modell vollständig vor. Ein Thread ist immer für die Bilderzeugung zuständig, während ein Weiterer sich um den Versand und Empfang von Nachrichten im Netzwerk kümmert. Der Renderknoten, der in einem Frame als erster seine Bildkachel abliefert, bekommt im nächsten Frame die Kachel mit dem höchsten Aufand zugeteilt. Dieses Kacheltauschen ist jedoch für Out-of-Core Systeme ungeeignet, da die Objektdaten dann ebenfalls umverteilt werden müssen. Außerdem ist ein homogener Rechencluster notwendig, damit Unterschiede in den Rechenzeiten nicht bedingt durch unterschiedliche Hardware sind. Das Testsystem besteht aus 10 Pentum 4-PCs mit je 512MB RAM, einer GeForce 4 Grafikkarte und einer GigaBit Ethernet Anbindung.\linebreak
 
 \section{Out-of-core Rendering}
-\textbf{Jeweils kurze Einleitung was das ist}\\*
-\cite{manocha}: \textit{Out of core rendering in massive geometric environments}
-\begin{itemize}
- \item Out-of-Core, Scene-Grapth, diverses Culling
- \item verwendet Prefetching mit LOD-Switching
- \item statische LODs werden vorberechnet
- \item 2 Prozesse: einer render und cullt und der andere kümmert sich um Prefetching und Disk I/O
- \item Nimmt Darstellungsfehler in Kauf, durch noch nicht geladene, jedoch angeforderte Objekte
- \item Vergrößertes Frustum fürs PreCaching. Größ ändert sich dynamisch mit Bewegungsgeschwindigkeit.
- \item Zusätzlich werden Objeke, die nur im erweiterten Frustum liegen durch ihren Blickwinkel priorisiert. D.h. Objekte die näher am Zentrum der Kamera liegen werden bevorzugt.
- \item Ein weiteres Maß für Priorität liefert die Klassifizierung von Objekten durch deren Screen-Space Error
- \item SGI Workstation, 195Mhz, MXI graphics board, 128MB Ram und einer SGI Onyx mit mehreren 500Mhz Prozessoren und Infinite Reality 3 graphics pipelines und 16GB Ram
-\end{itemize}
+Von Out-of-Core Rendering wird gesprochen, wenn ein zu renderndes 3D-Modell nicht vollständig in den Arbeitsspeicher der Grafikkarte passt. Man könnte Teile des Modells entfernen bis der verbleibende Rest nicht mehr zu groß für den Speicher ist. Teilweise wird dies auch gemacht, führt jedoch zu Bildfehlern, da Teile fehlen können, die eigentlich sichtbar sind. Eine weitere Möglichkeit besteht darin, kleinere Mengen des Modells einzeln zu rendern und am Ende die Bilder zu vereinigen. Das resultierende Bild ist so zwar fehlerfrei, allerdings geht dieses Verfahren zulasten der Rendergeschwindigkeit. Interaktive Bildraten können so wahrscheinlich nicht erzielt werden.\linebreak
+Manocha et al. \cite{manocha} stellen ein Out-of-Core System vor mit dem sich interaktive Bildraten in einm Verbund mehrer SGI Workstations erzielen lassen. Ein Prefetching-Thread versucht Objekte im Vorraus zu laden, wodurch Popping-Artefakte reduziert werden. Durch erweiterung des eigentlichen Frustums verhält sich die Kamera ähnlich wie bei einem Weitwinkelobjektiv. Durch diese Technik werden Objekte an den Rändern schon geladen obwohl sie noch nicht sichtbar sind. Somit sind sie im nächsten Frame verfügbar, wo sie vielleicht benötigt werden. Zusätzlich werden beim Prefetching Objekte die nur im erweiterten Frustum liegen durch den Winkel zum Zentrum der Kamera priorisiert, wodurch Objekte, welche näher am Kamerazentrum liegen, bevorzugt werden. Wie viel größer das erweiterte Frustum ist, hängt von der aktuellen Bewegungsgeschwindigkeit ab.
 
 \cite{wagner1}: \textit{out-of-core sort-first parallel rendering for cluster-based tiled displays}
 \begin{itemize}
