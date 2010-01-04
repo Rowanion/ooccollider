@@ -2,46 +2,44 @@ This is BibTeX, Version 0.99c (Web2C 7.5.6)
 The top-level auxiliary file: thesis.aux
 The style file: alpha.bst
 Database file #1: bib/references.bib
-Warning--I didn't find a database entry for "602108"
-You've used 15 entries,
+You've used 23 entries,
             2543 wiz_defined-function locations,
-            661 strings with 8233 characters,
-and the built_in function-call counts, 8294 in all, are:
-= -- 870
-> -- 414
-< -- 14
-+ -- 155
-- -- 151
-* -- 588
-:= -- 1286
-add.period$ -- 57
-call.type$ -- 15
-change.case$ -- 110
-chr.to.int$ -- 15
-cite$ -- 15
-duplicate$ -- 347
-empty$ -- 576
-format.name$ -- 166
-if$ -- 1800
-int.to.chr$ -- 1
+            703 strings with 9197 characters,
+and the built_in function-call counts, 11071 in all, are:
+= -- 1137
+> -- 534
+< -- 19
++ -- 196
+- -- 189
+* -- 759
+:= -- 1743
+add.period$ -- 81
+call.type$ -- 23
+change.case$ -- 151
+chr.to.int$ -- 22
+cite$ -- 23
+duplicate$ -- 476
+empty$ -- 798
+format.name$ -- 216
+if$ -- 2376
+int.to.chr$ -- 2
 int.to.str$ -- 0
-missing$ -- 15
-newline$ -- 79
-num.names$ -- 47
-pop$ -- 121
+missing$ -- 27
+newline$ -- 118
+num.names$ -- 71
+pop$ -- 183
 preamble$ -- 1
-purify$ -- 125
+purify$ -- 179
 quote$ -- 0
-skip$ -- 294
+skip$ -- 393
 stack$ -- 0
-substring$ -- 465
-swap$ -- 114
-text.length$ -- 14
-text.prefix$ -- 1
+substring$ -- 580
+swap$ -- 131
+text.length$ -- 19
+text.prefix$ -- 5
 top$ -- 0
-type$ -- 120
+type$ -- 164
 warning$ -- 0
-while$ -- 81
-width$ -- 16
-write$ -- 221
-(There was 1 warning)
+while$ -- 106
+width$ -- 25
+write$ -- 324
