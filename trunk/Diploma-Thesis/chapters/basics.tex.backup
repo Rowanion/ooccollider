@@ -1,8 +1,64 @@
 \chapter{Grundlagen}
+\label{basics}
+
+\textbf{Hier kommt nur rein was ICH mache!}\\
+An dieser Stelle soll zunächst ein Überblick über die in der vorliegenden Arbeit verwendeten Techniken gegeben werden. Diese beinhalten unter anderem welche Algorithmen der Computergrafik zum Einsatz kommen, warum welche Datenstrukturen benutzt werden und wie die Speicherverwaltung angesprochen wird.
+
 \section{Computergrafik}
+\label{basics:computergrafik}
+\begin{itemize}
+ \item Daten erst in den Hauptspeicher, dann in den GrafikRAM
+\end{itemize}
+
 \section{Datenstrukturen}
-\subsection{Octree}
+\label{basics:datenstrukturen}
+\textbf{Wofür und warum?!}\\
+3D-Modelle aus CAD-Daten werden üblicherweise nach ihrer Funktion gruppiert. Das mag beim Entwurf solcher Systeme auch praktisch sein, beim ihrer Visualisierung kann dies jedoch zu Problemen führen. Bei einem CAD-Modellen in der Größenordnung der Boeing 777 (ca. 350.000.000 Dreiecke) ist es wichtig, dass diese in eine geeignete räumliche Unterteilung überführt werden. Da ein Out-Of-Core-Renderer entwickelt wurde, findet ein ständiges Laden und Verwefen von Teilmodellen statt. Je länger ein Renderer benötigt um herauszufinden, welche Teile des Modells er verwefen kann und welche er als erstes Anfordern sollte, desto länger braucht er auch um ein Bild zu erstellen. In dieser Arbeit wurde als hierarchische räumliche Unterteilung ein Randomized Sampletree\ref{basics:sampletree} und zum Vergleich ein Loose Octree gewählt.
+
+\subsection{Loose Octree}
+\label{basics:octree}
+\textbf{Warum ein Loose Octree?}\\
+\textbf{Bilder!!!}\\
+Zur Erzeugung eines Octrees wird die gesamte Scene in eine minimale Boundingbox eingeschlossen. Rekursiv wird diese Box entlang der drei räumlichen Achsen in der Mitte geteilt, woraus sich acht gleich-große Boundingboxen ergeben. Dieser Vorgang wird so lange wiederholt bis ein Haltekriterium erfüllt ist. Im Falle der Boeing wurde festgelegt, dass nicht mehr als 5.000 Dreiecke in einer Box liegen dürfen und die maximale Tiefe des Baums wurde auf 14 beschränkt. Dies hat zur Folge, dass leere Boundingboxen nicht weiter aufgeteilt werden müssen. Als Spezialfall wurde jedoch eine spezielle Form des Octrees verwendet: der Loose Octree.\\
+Dieser erweitert den Octree um eine weitere Box pro Knoten: die sogenannte Loosebox. Sie teilt sich ihr Zentrum mit der Octree-Boundingbox, besitzt aber doppelte Kantenlängen. Wird nun festgestellt, dass in einem Knoten mehr als 5.000 Dreiecke liegen, wird die größe der einzelnen Dreiecke anhand der Loosebox geprüft. Liegt ein Dreieck vollständig in der Loosebox mit seinem Zentrum in der eigentlichen Boundingbox des Knotens, kann es weiter nach unten gereicht werden. Ist die nicht der Fall, ist das Dreieck zu groß für den aktuellen Knoten und wird an den V
+Octree: \cite{RTR3}
 \subsection{Randomized Sampletree}
+\label{basics:sampletree}
+sampletree: \cite{klein}: \textit{The randomized sample tree: a data structure for interactive walkthroughs in externally stored virtual environments}\\*
+\section{Approximation}
+\label{basics:approximation}
+\begin{itemize}
+ \item Teile können weggelassen werden
+ \item Tiefenbuffer Update nur alle paar Frames
+\end{itemize}
+
 \section{Algorithmen}
+\label{basics:algorithmen}
+\begin{itemize}
+ \item Occlusion Culling \cite{RTR3}
+ \item Frustum Culling \cite{RTR3}
+ \item c-Collision Protokoll zur Lastbalancierung im Netzwerk
+ \item c-Collision?: \cite{DBLP:conf/arcs/RehbergS99}: \textit{Almost optimal schedules with a simple protocol}
+ \item adpative collision / c-Load, gewichtet: \cite{ccol2}: \textit{Allocating weighted jobs in parallel}
+ \begin{itemize}
+  \item auch bälle in Körbe aber diesmal haben die Bälle Gewichte
+ \end{itemize}
 
+ \item c-Collision Basics: \cite{ccol3}: \textit{Parallel Balanced Allocations}
+ \begin{itemize}
+  \item $m$ Bälle in $n$ Körbe
+ \end{itemize}
+\end{itemize}
 
+\subsection{Caching}
+\label{basics:caching}
+\begin{itemize}
+ \item wird über Algos gefüllt
+\end{itemize}
+
+\subsection{Speichermanagement}
+\label{basics:speichermanagement}
+\begin{itemize}
+ \item nicht jeder braucht alles -> Kacheln
+ \item Gewichtung über die Anzahl der Dreiecke pro Request
+\end{itemize}
