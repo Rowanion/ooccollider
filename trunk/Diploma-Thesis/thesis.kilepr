@@ -4,7 +4,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1
-lastDocument=chapters/appendix-acronyms.tex
+lastDocument=chapters/basics.tex
 masterDocument=
 name=Thesis
 pkg_extIsRegExp=false
@@ -27,16 +27,25 @@ order=3
 
 [item:chapters/appendix-acronyms.tex]
 archive=true
-column=28
+column=21
 encoding=UTF-8
 highlight=LaTeX
-line=35
+line=23
 open=true
 order=6
 
+[item:chapters/appendix-div.tex]
+archive=true
+column=1
+encoding=UTF-8
+highlight=LaTeX
+line=37
+open=true
+order=11
+
 [item:chapters/basics.tex]
 archive=true
-column=144
+column=131
 encoding=UTF-8
 highlight=LaTeX
 line=30
@@ -54,28 +63,28 @@ order=9
 
 [item:chapters/implementation.tex]
 archive=true
-column=17
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=5
+line=52
 open=true
 order=10
 
 [item:chapters/introduction.tex]
 archive=true
-column=26
+column=18
 encoding=UTF-8
 highlight=LaTeX
-line=57
+line=70
 open=true
 order=0
 
 [item:chapters/relatedwork.tex]
 archive=true
-column=1024
+column=22
 encoding=UTF-8
 highlight=LaTeX
-line=26
+line=23
 open=true
 order=4
 
@@ -135,9 +144,9 @@ order=-1
 
 [item:thesis.tex]
 archive=true
-column=31
+column=10
 encoding=UTF-8
 highlight=LaTeX
-line=243
+line=292
 open=true
 order=5

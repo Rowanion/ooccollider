@@ -56,6 +56,7 @@
   oneside,%             Einseitig
   bibtotocnumbered,%    Literaturverzeichnis nummeriert einfÃ¼gen
   idxtotoc,%            Index ins Verzeichnis einfÃ¼gen
+  liststotoc,
   halfparskip,%         EuropÃ¤ischer Satz mit abstand zwischen AbsÃ¤tzen
   chapterprefix,%       Kapitel anschreiben als Kapitel
   %headsepline,%         Linie nach Kopfzeile
@@ -72,7 +73,8 @@
 %
 % Paket fÃ¼r Ãbersetzungen ins Deutsche
 %
-\usepackage[german, english]{babel}
+\usepackage[english, german]{babel}
+%\usepackage{ngerman}
 
 %
 % Paket, um \today auch im Format dd.mm.yyyy anzeigen zu kÃ¶nnen
@@ -92,6 +94,8 @@
 % Paket zum Erweitern der Tabelleneigenschaften
 %
 \usepackage{array}
+
+\usepackage{appendix}
 
 %
 % Paket um Grafiken einbetten zu kÃ¶nnen
@@ -222,6 +226,16 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
   extendedchars=true,
   backgroundcolor=\color{lbcolor}
 }
+% ---------------------------------------------------------------------------
+% Selbentrennung
+% ---------------------------------------------------------------------------
+\hyphenation{Bild-ra-ten Mo-dell Mo-dells Mo-del-le Spei-cher-ver-wal-tung ge-o-me-tri-e pa-ral-lel pa-ral-le-len Ope-ra-ti-on Ope-ra-ti-o-nen Ap-pro-xi-ma-ti-on ent-sprech-en-den Netz-werk er-reicht}
+\sloppy
+
+%----------------------------------------------------------------------------
+% Tabellenlinien und sonstige nützliche Dinge
+% ---------------------------------------------------------------------------
+\usepackage{booktabs}
 
 % ---------------------------------------------------------------------------
 % Neue Umgebungen
@@ -244,6 +258,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+%\listfigurename{Abbildungsverzeichnis}
 
 \pagenumbering{alph}
 \input{chapters/titlepage}
@@ -252,9 +267,9 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \pagenumbering{roman}
 \setcounter{page}{1}
 
+\renewcommand\contentsname{Inhaltsverzeichnis}
 \tableofcontents
-\listoffigures
-\listoftables
+\addcontentsline{toc}{chapter}{Inhaltsverzeichnis}
 
 \pagenumbering{arabic}
 \setcounter{page}{1}
@@ -267,9 +282,19 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \input{chapters/results}
 \input{chapters/conclusion}
 
+
+\renewcommand\listfigurename{Abbildungsverzeichnis}
+\renewcommand\listtablename{Tabellenverzeichnis}
+
 \appendix
 
 \input{chapters/appendix-acronyms}
+%\input{chapters/appendix-div}
+\listoffigures
+%\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}
+\listoftables
+%\addcontentsline{toc}{chapter}{Tabellenverzeichnis}
+
 
 \bibliographystyle{alpha}
 \bibliography{bib/references}
