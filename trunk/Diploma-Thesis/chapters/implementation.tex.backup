@@ -69,7 +69,7 @@ Sequenzdiagramm \ref{fig:impl:seqdiagrender}, \ref{fig:impl:seqdiagdepth}
         \setthreadbias{center}
       \end{sdblock}
   \end{sequencediagram}
-  \caption{Sequenzdiagramm: Die Kommunikation für die Render-Schleife}
+  \caption{Sequenzdiagramm: Kommunikation für die Render-Schleife}
   \label{fig:impl:seqdiagrender}
 \end{figure}
 
@@ -78,147 +78,29 @@ Sequenzdiagramm \ref{fig:impl:seqdiagrender}, \ref{fig:impl:seqdiagdepth}
   \tikzstyle{inststyle}+=[rounded corners=1.2mm, bottom color=yellow!60] %% hier werden weitere Optionen angegeben
     \newthread[red!30]{master}{\ul{:MasterNode}}
     \newthread[green!30]{render}{\ul{:RenderNode}}
-    \newinst[2]{data}{\ul{:DataNode}}
-    
+    \newinst[2]{data}{\ul{:DataNode}}   
       \begin{sdblock}[gray!30]{Render Loop}{}
-	\begin{sdblock}[gray!30]{Depthbuffer Update}{\small If cameraMoved()...}
+	\begin{sdblock}[gray!30]{Depthbuffer Update}{\small If (cameraMoved()) ...}
 	  \begin{call}{master}{\small updateDepthBuffer()}{data}{}
+	    \setthreadbias{west}
 	    \begin{call}{master}{\small updateDepthBuffer()}{render}{\small returnRenderTime()}
 	    \end{call}
 	    \begin{call}{master}{\small newTileDimensions()}{render}{}
+	      \begin{call}{render}{\small sendDepthBuffer()}{data}{}
+		\begin{callself}{data}{\small applyDepthBuffer()}{}
+		\end{callself}
+	      \end{call}
 	    \end{call}
+            \setthreadbias{center}
 	  \end{call}
 	\end{sdblock}
 	\mess{master}{\small sendCamera()}{render}
+	\mess{render}{\small [...]}{master}
       \end{sdblock}
   \end{sequencediagram}
-  \caption{Sequenzdiagramm: Die Kommunikation für ein Tiefenbuffer-Update}
+  \caption{Sequenzdiagramm: Kommunikation für ein Tiefenbuffer-Update}
   \label{fig:impl:seqdiagdepth}
 \end{figure}
-
-\begin{figure}
-  \centering
-  \begin{sequencediagram}
-    \newthread{ss}{:MasterNode}
-    \newinst{ctr}{:RenderNode}
-    \newinst{ps}{:DataNode}
-    \newinst[1]{sense}{:SenseServer}
-    
-    \begin{call}{ss}{Initialize()}{sense}{}
-    \end{call}
-    \begin{sdblock}{Run Loop}{The main loop}
-      \begin{call}{ss}{StartCycle()}{ctr}{}
-        \begin{call}{ctr}{ActAgent()}{sense}{}
-        \end{call}
-      \end{call}
-      \begin{call}{ss}{Update()}{ps}{}
-        \begin{messcall}{ps}{PrePhysicsUpdate()}{sense}{state}
-        \end{messcall}
-        \begin{sdblock}{Physics Loop}{}
-          \begin{callself}{ps}{PhysicsUpdate()}{}
-          \end{callself}
-        \end{sdblock}
-        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
-        \end{call}
-      \end{call}
-      \begin{call}{ss}{EndCycle()}{ctr}{}
-        \begin{call}{ctr}{SenseAgent()}{sense}{}
-        \end{call}
-      \end{call}
-    \end{sdblock}
-  \end{sequencediagram}
-  \caption{UML sequence diagram demo. The used style-file is 
-    \texttt{pgf-umlsd.sty}, you may get it at
-    http://code.google.com/p/pgf-umlsd/}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \begin{sequencediagram}
-    \tikzstyle{inststyle}+=[bottom color=yellow] % custom the style
-    \newthread[blue]{ss}{:SimulationServer}
-    \newinst{ps}{:PhysicsServer}
-    \newinst[2]{sense}{:SenseServer}
-    \newthread[red]{ctr}{:SimControlNode}
-    
-    \begin{sdblock}[green!20]{Run Loop}{The main loop}
-      \mess{ctr}{StartCycle}{ss}
-      \begin{call}{ss}{Update()}{ps}{}
-        \prelevel
-        \begin{callself}{ctr}{SenseAgent()}{}
-          \begin{call}[3]{ctr}{Read}{sense}{}
-          \end{call}
-        \end{callself}
-        \prelevel\prelevel\prelevel\prelevel
-        \setthreadbias{west}
-        \begin{call}{ps}{PrePhysicsUpdate()}{sense}{}
-        \end{call}
-        \setthreadbias{center}
-        \begin{callself}{ps}{Update()}{}
-          \begin{callself}{ps}{\small CollisionDetection()}{}
-          \end{callself}
-          \begin{callself}{ps}{Dynamics()}{}
-          \end{callself}
-        \end{callself}
-        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
-        \end{call}
-      \end{call}
-      \mess{ss}{EndCycle}{ctr}
-      \begin{callself}{ctr}{ActAgent()}{}
-        \begin{call}{ctr}{Write}{sense}{}
-        \end{call}
-      \end{callself}
-    \end{sdblock}
-
-  \end{sequencediagram}
-  \caption{Example of a sequence with parallel activities and the
-    customed style. The used style-file is \texttt{pgf-umlsd.sty}, you
-    may get it at http://code.google.com/p/pgf-umlsd/}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \begin{sequencediagram}
-  \tikzstyle{inststyle}+=[rounded corners=0mm, bottom color=yellow] %% with rounded corners=0mm we get the standard behavior again
-    \newthread{ss}{\ul{:SimulationServer}} 			    %% to show, that one is able, to underline special elements
-    \newinst{ps}{:PhysicsServer}
-    \newinst[2]{sense}{\ul{:SenseServer}} 			    %% to show, that one is able, to underline special elements
-    \newthread[red]{ctr}{:SimControlNode}
-    
-    \begin{sdblock}[green!20]{Run Loop}{\small This is the main loop.}
-      \mess{ctr}{StartCycle}{ss}
-      \begin{call}{ss}{Update()}{ps}{}
-        \prelevel
-        \begin{callself}{ctr}{SenseAgent()}{}
-          \begin{call}[3]{ctr}{Read}{sense}{}
-          \end{call}
-        \end{callself}
-        \prelevel\prelevel\prelevel\prelevel
-        \setthreadbias{west}
-        \begin{call}{ps}{PrePhysicsUpdate()}{sense}{}
-        \end{call}
-        \setthreadbias{center}
-        \begin{callself}{ps}{Update()}{}
-          \begin{callself}{ps}{\small CollisionDetection()}{}
-          \end{callself}
-          \begin{callself}{ps}{Dynamics()}{}
-          \end{callself}
-        \end{callself}
-        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
-        \end{call}
-      \end{call}
-      \mess{ss}{EndCycle}{ctr}
-      \begin{callself}{ctr}{ActAgent()}{}
-        \begin{call}{ctr}{Write}{sense}{}
-        \end{call}
-      \end{callself}
-    \end{sdblock}
-
-  \end{sequencediagram}
-  \caption{Example of a sequence with parallel activities.The used style-file is part of pgf-umlsd-0.2.tar.gz --
-get it at http://code.google.com/p/pgf-umlsd/}
-\end{figure}
-
 
 \section{Rendering-Algorithmus}
 \label{sec:impl:renderalgo}

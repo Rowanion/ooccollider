@@ -1,0 +1,46 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sequenzdiagramm für den Ablauf der kompletten Renderloop
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+  \begin{sequencediagram}
+  \tikzstyle{inststyle}+=[rounded corners=1.2mm, bottom color=yellow!60] %% hier werden weitere Optionen angegeben
+    \newthread[red!30]{master}{\ul{:MasterNode}}
+    \newthread[green!30]{render}{\ul{:RenderNode}}
+    \newinst[2]{data}{\ul{:DataNode}}
+    
+      \begin{sdblock}[gray!30]{Render Loop}{}
+        \setthreadbias{west}
+        \begin{call}{master}{\small sendCamera()}{render}{}
+	  \mess{render}{\small returnTile()}{master}
+          \begin{callself}{render}{\small cullFrustum()}{}
+          \end{callself}
+          \begin{callself}{render}{\small manageCaching()}{}
+          \end{callself}
+          \begin{call}{render}{\small requestObjects()}{master}{}
+	    \begin{callself}{master}{\small doCCollision()}{}
+	      \setthreadbias{center}
+	      \begin{call}{master}{\small distributeRequests()}{data}{}
+		\begin{sdblock}[gray!30]{Data Network Transport}{}
+		  \begin{callself}{data}{\small occlusionCulling()}{}
+		    \mess{data}{\small sendObjects()}{render}
+		  \end{callself}
+		\end{sdblock}
+	      \end{call}
+	      \setthreadbias{west}
+	    \end{callself}
+	  \end{call}
+        \end{call}
+        \prelevel
+        \begin{callself}{master}{\small renderFinalImage()}{}
+        \end{callself}
+        \prelevel\prelevel\prelevel
+        \begin{callself}{render}{\small renderFrame()}{}
+        \end{callself}
+        \begin{callself}{render}{\small occlusionCulling()}{}
+        \end{callself}
+
+        \setthreadbias{center}
+      \end{sdblock}
+  \end{sequencediagram}
+
