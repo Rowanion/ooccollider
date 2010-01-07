@@ -250,6 +250,13 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 %
 \makeindex
 
+\usepackage{tikz}
+\usetikzlibrary{arrows,shadows} % for pgf-umlsd
+
+\usepackage{soul} % hereby we are able to \hl == highlight some strings, or to \ul underline specials
+
+%\usepackage[underline=true,rounded corners=false]{pgf-umlsd} % changed to following parameter-values:
+\usepackage[underline=false,rounded corners=true]{pgf-umlsd}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -258,7 +265,6 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-%\listfigurename{Abbildungsverzeichnis}
 
 \pagenumbering{alph}
 \input{chapters/titlepage}
@@ -289,7 +295,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \appendix
 
 \input{chapters/appendix-acronyms}
-%\input{chapters/appendix-div}
+\input{chapters/appendix-div}
 \listoffigures
 %\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}
 \listoftables

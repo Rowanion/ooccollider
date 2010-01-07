@@ -28,9 +28,19 @@ Als spezielle Ausprägung eines Loose Octrees gibt es den Randomized Sampletree 
  \item VBOs / VertexArrays
  \begin{itemize}
   \item Grundidee von VBOS: Modelldaten in einem großen zusammenhängenden Speicherblock zu speichern
-  \item In unserem konkreten Fall bedeutet dass das Vertizes und Normalen immer in einem Block hinterinander weg gespeichert weden.
+  \item Ist platzsparender und erhöht die Zeichengeschwindigkeit
+  \item In unserem konkreten Fall bedeutet dass das Vertices und Normalen immer in einem zusammenhängenden Speicherblock stehen. 
+  \item Durch eine Indexliste wird dann auf den entsprechenden Vertex und seine Normale zugegriffen
+  \item bei VBOs liegen die Daten vollständig im Grafikspeicher. -> Objekte. Siehe auch \ref{sec:basics:caching}
+  \item bei VertexArrays werden die Daten bei jedem Zeichenvorgang auf die Grafikkarte übertragen. -> Boundingboxen
+
  \end{itemize}
  \item CgShader -> Beleuchtung
+ \begin{itemize}
+  \item Beleuchtung -> Phong-Beleuchtungsmodell
+  \item Farben: Da bei 
+ \end{itemize}
+
 \end{itemize}
 
 \section{Approximation}

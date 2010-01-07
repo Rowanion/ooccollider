@@ -1,0 +1,157 @@
+%  ----------------------------------------------------------------------------
+%
+%       Copyright (for the thesis) 2009 by [author - insert yourself]
+%
+%       This thesis is published under the
+%       Creative Commons Attribution-No Derivative Works 3.0 Austria License
+%       as detailed at http://creativecommons.org/licenses/by-nd/3.0/at/
+%
+%  ----------------------------------------------------------------------------
+%  Template credits and license:
+%  ----------------------------------------------------------------------------
+%
+%       "Fakultät für Informatik" diploma/master thesis template 2008
+%
+%       based upon "Diploma thesis template 2005" by lukas.silberbauer(at)gmx.at
+%       based upon "Diplomarbeit mit LaTeX" by Tobias Erbsland
+%       incorporating a title page by Informatik-Forum user "Baby"
+%       polished and ported to the TU fonts package by Jakob Petsovits
+%
+%       published under the terms of
+%
+%  ----------------------------------------------------------------------------
+%  "THE BEER-WARE LICENSE":
+%  <lukas.silberbauer(at)gmx.at> wrote this file. As long as you retain this
+%  notice you can do whatever you want with this stuff. If we meet some day,
+%  and you think this stuff is worth it, you can buy me (us) a beer in return.
+%  ----------------------------------------------------------------------------
+%
+%  (end of template credits)
+%
+
+%\chapter{Abbildungsverzeichnis}
+%\listoffigures
+
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \newthread{mn}{:MasterNode}
+    \newinst[2]{rn}{:RenderNode}
+    \newinst[2]{ps}{:DataNode}
+    \newinst[2]{sense}{:SenseServer}
+    
+    \begin{call}{mn}{Initialize()}{sense}{}
+    \end{call}
+    \begin{sdblock}{Run Loop}{The main loop}
+      \begin{call}{mn}{StartCycle()}{rn}{}
+        \begin{call}{rn}{ActAgent()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{mn}{Update()}{ps}{}
+        \begin{messcall}{ps}{PrePhysicsUpdate()}{sense}{state}
+        \end{messcall}
+        \begin{sdblock}{Physics Loop}{}
+          \begin{callself}{ps}{PhysicsUpdate()}{}
+          \end{callself}
+        \end{sdblock}
+        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{mn}{EndCycle()}{rn}{}
+        \begin{call}{rn}{SenseAgent()}{sense}{}
+        \end{call}
+      \end{call}
+    \end{sdblock}
+  \end{sequencediagram}
+  \caption{schönes UML sequence diagram}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \newthread{ss}{:MasterNode}
+    \newinst{ctr}{:RenderNode}
+    \newinst{ps}{:DataNode}
+    \newinst[1]{sense}{:SenseServer}
+    
+    \begin{call}{ss}{Initialize()}{sense}{}
+    \end{call}
+    \begin{sdblock}{Run Loop}{The main loop}
+      \begin{call}{ss}{StartCycle()}{ctr}{}
+        \begin{call}{ctr}{ActAgent()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{ss}{Update()}{ps}{}
+        \begin{messcall}{ps}{PrePhysicsUpdate()}{sense}{state}
+        \end{messcall}
+        \begin{sdblock}{Physics Loop}{}
+          \begin{callself}{ps}{PhysicsUpdate()}{}
+          \end{callself}
+        \end{sdblock}
+        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{ss}{EndCycle()}{ctr}{}
+        \begin{call}{ctr}{SenseAgent()}{sense}{}
+        \end{call}
+      \end{call}
+    \end{sdblock}
+  \end{sequencediagram}
+  \caption{UML sequence diagram demo. The used style-file is 
+    \texttt{pgf-umlsd.sty}, you may get it at
+    http://code.google.com/p/pgf-umlsd/}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \tikzstyle{inststyle}+=[bottom color=yellow] % custom the style
+    \newthread[blue]{ss}{:SimulationServer}
+    \newinst{ps}{:PhysicsServer}
+    \newinst[2]{sense}{:SenseServer}
+    \newthread[red]{ctr}{:SimControlNode}
+    
+    \begin{sdblock}[green!20]{Run Loop}{The main loop}
+      \mess{ctr}{StartCycle}{ss}
+      \begin{call}{ss}{Update()}{ps}{}
+        \prelevel
+        \begin{callself}{ctr}{SenseAgent()}{}
+          \begin{call}[3]{ctr}{Read}{sense}{}
+          \end{call}
+        \end{callself}
+        \prelevel\prelevel\prelevel\prelevel
+        \setthreadbias{west}
+        \begin{call}{ps}{PrePhysicsUpdate()}{sense}{}
+        \end{call}
+        \setthreadbias{center}
+        \begin{callself}{ps}{Update()}{}
+          \begin{callself}{ps}{\small CollisionDetection()}{}
+          \end{callself}
+          \begin{callself}{ps}{Dynamics()}{}
+          \end{callself}
+        \end{callself}
+        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
+        \end{call}
+      \end{call}
+      \mess{ss}{EndCycle}{ctr}
+      \begin{callself}{ctr}{ActAgent()}{}
+        \begin{call}{ctr}{Write}{sense}{}
+        \end{call}
+      \end{callself}
+    \end{sdblock}
+
+  \end{sequencediagram}
+  \caption{Example of a sequence with parallel activities and the
+    customed style. The used style-file is \texttt{pgf-umlsd.sty}, you
+    may get it at http://code.google.com/p/pgf-umlsd/}
+\end{figure}
+
+%\begin{appendices} 
+% \section{bla}
+%\listoffigures
+%\end{appendices}
+
+
+%
+% EOF
+%

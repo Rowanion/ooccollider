@@ -4,14 +4,6 @@
 \textbf{Hier kommt nur rein was ICH mache!}\\
 An dieser Stelle soll zunächst ein Überblick über die in der vorliegenden Arbeit verwendeten Techniken gegeben werden. Diese beinhalten unter anderem Algorithmen der Computergrafik, welche Datenstrukturen benutzt werden und wie die Speicherverwaltung angesprochen wird.
 
-\section{Computergrafik}
-\label{sec:basics:computergrafik}
-\begin{itemize}
- \item Daten erst in den Hauptspeicher, dann in den GrafikRAM
- \item VBOs / VertexArrays
- \item CgShader -> Beleuchtung
-\end{itemize}
-
 \section{Datenstrukturen}
 \label{sec:basics:datenstrukturen}
 \textbf{Wofür und warum?!}\\
@@ -21,12 +13,30 @@ An dieser Stelle soll zunächst ein Überblick über die in der vorliegenden Arb
 \label{sec:basics:octree}
 \textbf{Warum ein Loose Octree?}\\
 \textbf{Bilder!!!}\\
-Zur Erzeugung eines Octrees \cite{RTR3} wird die gesamte Scene in eine minimale Boundingbox eingeschlossen. Rekursiv wird diese Box entlang der drei räumlichen Achsen in der Mitte geteilt, woraus sich acht gleich-große Boundingboxen ergeben. Dieser Vorgang wird so lange wiederholt bis ein Haltekriterium erfüllt ist. Im Falle der Boeing wurde festgelegt, dass nicht mehr als 5.000 Dreiecke in einer Box liegen dürfen und die maximale Tiefe des Baums wurde auf 14 beschränkt. Dies hat zur Folge, dass leere Boundingboxen nicht weiter aufgeteilt werden müssen. Als Spezialfall wurde jedoch eine spezielle Form des Octrees verwendet: der Loose Octree.\\
+Zur Erzeugung eines Octrees \cite{RTR3} wird die gesamte Szene in eine minimale Boundingbox eingeschlossen. Rekursiv wird diese Box entlang der drei räumlichen Achsen in der Mitte geteilt, woraus sich acht gleich-große Boundingboxen ergeben. Dieser Vorgang wird so lange wiederholt bis ein Haltekriterium erfüllt ist. Im Falle der Boeing wurde festgelegt, dass nicht mehr als 5.000 Dreiecke in einer Box liegen dürfen und die maximale Tiefe des Baums wurde auf 14 beschränkt. Dies hat zur Folge, dass leere Boundingboxen nicht weiter aufgeteilt werden müssen. Als Spezialfall wurde jedoch eine spezielle Form des Octrees verwendet: der Loose Octree.\\
 Dieser erweitert den Octree um eine weitere Box pro Knoten: die sogenannte Loosebox. Sie teilt sich ihr Zentrum mit der Octree-Boundingbox, besitzt aber doppelte Kantenlängen. Wird nun festgestellt, dass in einem Knoten mehr als 5.000 Dreiecke liegen, wird die größe der einzelnen Dreiecke anhand der Loosebox geprüft. Liegt ein Dreieck vollständig in der Loosebox mit seinem Zentrum in der eigentlichen Boundingbox des Knotens, kann es weiter nach unten gereicht werden. Ist die nicht der Fall, ist das Dreieck zu groß für den aktuellen Knoten und wird an den Vaterknoten gegeben.\\
 Dies hat den Vorteil, dass große Dreiecke relativ weit oben im Baum zu liegen kommen. Je größer ein Dreieck ist, desto größer ist auch die Wahrscheinlichkeit, dass das Dreieck sichtbar ist und somit gezeichnet werden muss.
 \subsection{Randomized Sampletree}
 \label{sec:basics:sampletree}
 Als spezielle Ausprägung eines Loose Octrees gibt es den Randomized Sampletree \cite{klein}. Dieser unterschiedet sich von ein Octree darin, dass einzelne Dreiecke aus den tieferen Knoten nach oben gezogen wurden. Der Baum wird von unten nach oben durchlaufen. In jedem Knoten werden in Abhängigkeit der die Summe der Dreiecksflächen zufällig Dreiecke ausgewählt und in den Vaterknoten verschoben. Beim Rendern des Modells wird nun der Baum durchlaufen und falls die projizierte Größe der aktuellen Boundingbox die größe eines Pixel nicht überschreitet, wird die Baumtraversierung an dieser Stelle abgebrochen. Dadurch ergeben sich natürlich Darstellungsfehler. Die zufällig nach oebn verschobenen Dreiecke dienen als hinreichende Approximation.
+
+\section{Computergrafik}
+\label{sec:basics:computergrafik}
+
+\begin{itemize}
+ \item Daten erst in den Hauptspeicher, dann in den GrafikRAM
+ \item VBOs / VertexArrays
+ \begin{itemize}
+  \item Grundidee von VBOS: Modelldaten in einem großen zusammenhängenden Speicherblock zu speichern
+  \item Ist platzsparender und erhöht die Zeichengeschwindigkeit
+  \item In unserem konkreten Fall bedeutet dass das Vertices und Normalen immer in einem zusammenhängenden Speicherblock stehen. 
+  \item Durch eine Indexliste wird dann auf den entsprechenden Vertex und seine Normale zugegriffen
+  \item bei VBOs liegen die Daten vollständig im Grafikspeicher. -> Objekte. Siehe auch \ref{sec:basics:caching}
+  \item bei VertexArrays werden die Daten bei jedem Zeichenvorgang auf die Grafikkarte übertragen. -> Boundingboxen
+
+ \end{itemize}
+ \item CgShader -> Beleuchtung
+\end{itemize}
 
 \section{Approximation}
 \label{sec:basics:approximation}

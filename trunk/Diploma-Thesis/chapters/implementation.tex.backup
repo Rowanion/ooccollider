@@ -1,0 +1,234 @@
+
+\chapter{Implementierung}
+\label{chap:impl}
+Kapiteleinleitung\\*
+Ankündigung des Bedarfs an günstigen Approximationen für Backend-Knoten -> Verweis auf Clemens\\
+C++, OpenGL, STL, usw.
+Probleme / Herausforderungen in die Unterpunkte ziehen
+\begin{itemize}
+ \item Speicherverwaltung
+ \item Preprozessing
+ \item From Scratch entwickelt / keine Erweiterung eines bestehenden Systems
+ \item Filesystem
+\end{itemize}
+
+\section{Preprocessing}
+\label{sec:impl:preprocessing}
+Aufbereitung der Model-Daten in ein verständliches Format
+
+\section{Datenstruktur}
+\label{sec:impl:datenstruktur}
+Verewigt auf HDD -> begründen warum
+
+\section{Netzwerkarchitektur}
+\label{sec:impl:netzwerkarchitektur}
+Hardwarebeschaffenheit und die NodeTypen
+
+\section{Kommunikation}
+\label{sec:impl:kommunikation}
+Sequenzdiagramm \ref{fig:impl:seqdiagrender}, \ref{fig:impl:seqdiagdepth}
+
+\begin{figure}
+  \begin{sequencediagram}
+  \tikzstyle{inststyle}+=[rounded corners=1.2mm, bottom color=yellow!60] %% hier werden weitere Optionen angegeben
+    \newthread[red!30]{master}{\ul{:MasterNode}}
+    \newthread[green!30]{render}{\ul{:RenderNode}}
+    \newinst[2]{data}{\ul{:DataNode}}
+    
+      \begin{sdblock}[gray!30]{Render Loop}{}
+        \setthreadbias{west}
+        \begin{call}{master}{\small sendCamera()}{render}{}
+	  \mess{render}{\small returnTile()}{master}
+          \begin{callself}{render}{\small cullFrustum()}{}
+          \end{callself}
+          \begin{callself}{render}{\small manageCaching()}{}
+          \end{callself}
+          \begin{call}{render}{\small requestObjects()}{master}{}
+	    \begin{callself}{master}{\small doCCollision()}{}
+	      \setthreadbias{center}
+	      \begin{call}{master}{\small distributeRequests()}{data}{}
+		\begin{sdblock}[gray!30]{Data Network Transport}{}
+		  \begin{callself}{data}{\small occlusionCulling()}{}
+		    \mess{data}{\small sendObjects()}{render}
+		  \end{callself}
+		\end{sdblock}
+	      \end{call}
+	      \setthreadbias{west}
+	    \end{callself}
+	  \end{call}
+        \end{call}
+        \prelevel
+        \begin{callself}{master}{\small renderFinalImage()}{}
+        \end{callself}
+        \prelevel\prelevel\prelevel
+        \begin{callself}{render}{\small renderFrame()}{}
+        \end{callself}
+        \begin{callself}{render}{\small occlusionCulling()}{}
+        \end{callself}
+
+        \setthreadbias{center}
+      \end{sdblock}
+  \end{sequencediagram}
+  \caption{Sequenzdiagramm: Die Kommunikation für die Render-Schleife}
+  \label{fig:impl:seqdiagrender}
+\end{figure}
+
+\begin{figure}
+  \begin{sequencediagram}
+  \tikzstyle{inststyle}+=[rounded corners=1.2mm, bottom color=yellow!60] %% hier werden weitere Optionen angegeben
+    \newthread[red!30]{master}{\ul{:MasterNode}}
+    \newthread[green!30]{render}{\ul{:RenderNode}}
+    \newinst[2]{data}{\ul{:DataNode}}
+    
+      \begin{sdblock}[gray!30]{Render Loop}{}
+	\begin{sdblock}[gray!30]{Depthbuffer Update}{\small If cameraMoved()...}
+	  \begin{call}{master}{\small updateDepthBuffer()}{data}{}
+	    \begin{call}{master}{\small updateDepthBuffer()}{render}{\small returnRenderTime()}
+	    \end{call}
+	    \begin{call}{master}{\small newTileDimensions()}{render}{}
+	    \end{call}
+	  \end{call}
+	\end{sdblock}
+	\mess{master}{\small sendCamera()}{render}
+      \end{sdblock}
+  \end{sequencediagram}
+  \caption{Sequenzdiagramm: Die Kommunikation für ein Tiefenbuffer-Update}
+  \label{fig:impl:seqdiagdepth}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \newthread{ss}{:MasterNode}
+    \newinst{ctr}{:RenderNode}
+    \newinst{ps}{:DataNode}
+    \newinst[1]{sense}{:SenseServer}
+    
+    \begin{call}{ss}{Initialize()}{sense}{}
+    \end{call}
+    \begin{sdblock}{Run Loop}{The main loop}
+      \begin{call}{ss}{StartCycle()}{ctr}{}
+        \begin{call}{ctr}{ActAgent()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{ss}{Update()}{ps}{}
+        \begin{messcall}{ps}{PrePhysicsUpdate()}{sense}{state}
+        \end{messcall}
+        \begin{sdblock}{Physics Loop}{}
+          \begin{callself}{ps}{PhysicsUpdate()}{}
+          \end{callself}
+        \end{sdblock}
+        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
+        \end{call}
+      \end{call}
+      \begin{call}{ss}{EndCycle()}{ctr}{}
+        \begin{call}{ctr}{SenseAgent()}{sense}{}
+        \end{call}
+      \end{call}
+    \end{sdblock}
+  \end{sequencediagram}
+  \caption{UML sequence diagram demo. The used style-file is 
+    \texttt{pgf-umlsd.sty}, you may get it at
+    http://code.google.com/p/pgf-umlsd/}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \tikzstyle{inststyle}+=[bottom color=yellow] % custom the style
+    \newthread[blue]{ss}{:SimulationServer}
+    \newinst{ps}{:PhysicsServer}
+    \newinst[2]{sense}{:SenseServer}
+    \newthread[red]{ctr}{:SimControlNode}
+    
+    \begin{sdblock}[green!20]{Run Loop}{The main loop}
+      \mess{ctr}{StartCycle}{ss}
+      \begin{call}{ss}{Update()}{ps}{}
+        \prelevel
+        \begin{callself}{ctr}{SenseAgent()}{}
+          \begin{call}[3]{ctr}{Read}{sense}{}
+          \end{call}
+        \end{callself}
+        \prelevel\prelevel\prelevel\prelevel
+        \setthreadbias{west}
+        \begin{call}{ps}{PrePhysicsUpdate()}{sense}{}
+        \end{call}
+        \setthreadbias{center}
+        \begin{callself}{ps}{Update()}{}
+          \begin{callself}{ps}{\small CollisionDetection()}{}
+          \end{callself}
+          \begin{callself}{ps}{Dynamics()}{}
+          \end{callself}
+        \end{callself}
+        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
+        \end{call}
+      \end{call}
+      \mess{ss}{EndCycle}{ctr}
+      \begin{callself}{ctr}{ActAgent()}{}
+        \begin{call}{ctr}{Write}{sense}{}
+        \end{call}
+      \end{callself}
+    \end{sdblock}
+
+  \end{sequencediagram}
+  \caption{Example of a sequence with parallel activities and the
+    customed style. The used style-file is \texttt{pgf-umlsd.sty}, you
+    may get it at http://code.google.com/p/pgf-umlsd/}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+  \tikzstyle{inststyle}+=[rounded corners=0mm, bottom color=yellow] %% with rounded corners=0mm we get the standard behavior again
+    \newthread{ss}{\ul{:SimulationServer}} 			    %% to show, that one is able, to underline special elements
+    \newinst{ps}{:PhysicsServer}
+    \newinst[2]{sense}{\ul{:SenseServer}} 			    %% to show, that one is able, to underline special elements
+    \newthread[red]{ctr}{:SimControlNode}
+    
+    \begin{sdblock}[green!20]{Run Loop}{\small This is the main loop.}
+      \mess{ctr}{StartCycle}{ss}
+      \begin{call}{ss}{Update()}{ps}{}
+        \prelevel
+        \begin{callself}{ctr}{SenseAgent()}{}
+          \begin{call}[3]{ctr}{Read}{sense}{}
+          \end{call}
+        \end{callself}
+        \prelevel\prelevel\prelevel\prelevel
+        \setthreadbias{west}
+        \begin{call}{ps}{PrePhysicsUpdate()}{sense}{}
+        \end{call}
+        \setthreadbias{center}
+        \begin{callself}{ps}{Update()}{}
+          \begin{callself}{ps}{\small CollisionDetection()}{}
+          \end{callself}
+          \begin{callself}{ps}{Dynamics()}{}
+          \end{callself}
+        \end{callself}
+        \begin{call}{ps}{PostPhysicsUpdate()}{sense}{}
+        \end{call}
+      \end{call}
+      \mess{ss}{EndCycle}{ctr}
+      \begin{callself}{ctr}{ActAgent()}{}
+        \begin{call}{ctr}{Write}{sense}{}
+        \end{call}
+      \end{callself}
+    \end{sdblock}
+
+  \end{sequencediagram}
+  \caption{Example of a sequence with parallel activities.The used style-file is part of pgf-umlsd-0.2.tar.gz --
+get it at http://code.google.com/p/pgf-umlsd/}
+\end{figure}
+
+
+\section{Rendering-Algorithmus}
+\label{sec:impl:renderalgo}
+\begin{itemize}
+ \item wie wird gerendert?
+ \item wo kriegen die ihre Daten her?
+ \item wird die Last balanciert
+\end{itemize}
+
+
+%
+% EOF
+%
