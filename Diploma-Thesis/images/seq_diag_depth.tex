@@ -1,0 +1,30 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sequenzdiagramm für den Versand des Tiefenbuffers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+  \begin{sequencediagram}
+  \tikzstyle{inststyle}+=[rounded corners=1.2mm, bottom color=yellow!60] %% hier werden weitere Optionen angegeben
+    \newthread[red!30]{master}{\ul{:MasterNode}}
+    \newthread[green!30]{render}{\ul{:RenderNode}}
+    \newinst[2]{data}{\ul{:DataNode}}   
+      \begin{sdblock}[gray!30]{Render Loop}{}
+	\begin{sdblock}[gray!30]{Depthbuffer Update}{\small If (cameraMoved()) ...}
+	  \begin{call}{master}{\small updateDepthBuffer()}{data}{}
+	    \setthreadbias{west}
+	    \begin{call}{master}{\small updateDepthBuffer()}{render}{\small returnRenderTime()}
+	    \end{call}
+	    \begin{call}{master}{\small newTileDimensions()}{render}{}
+	      \begin{call}{render}{\small sendDepthBuffer()}{data}{}
+		\begin{callself}{data}{\small applyDepthBuffer()}{}
+		\end{callself}
+	      \end{call}
+	    \end{call}
+            \setthreadbias{center}
+	  \end{call}
+	\end{sdblock}
+	\mess{master}{\small sendCamera()}{render}
+	\mess{render}{\small [...]}{master}
+      \end{sdblock}
+  \end{sequencediagram}
+
