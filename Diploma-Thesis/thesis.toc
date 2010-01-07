@@ -15,19 +15,19 @@
 \contentsline {section}{\numberline {3.2}Computergrafik}{11}{section.3.2}
 \contentsline {section}{\numberline {3.3}Approximation}{11}{section.3.3}
 \contentsline {section}{\numberline {3.4}Algorithmen}{11}{section.3.4}
-\contentsline {subsection}{\numberline {3.4.1}Caching}{11}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.1}Caching}{12}{subsection.3.4.1}
 \contentsline {subsection}{\numberline {3.4.2}Speichermanagement}{12}{subsection.3.4.2}
 \contentsline {chapter}{\numberline {4}Implementierung}{13}{chapter.4}
 \contentsline {section}{\numberline {4.1}Preprocessing}{13}{section.4.1}
 \contentsline {section}{\numberline {4.2}Datenstruktur}{13}{section.4.2}
 \contentsline {section}{\numberline {4.3}Netzwerkarchitektur}{14}{section.4.3}
 \contentsline {section}{\numberline {4.4}Kommunikation}{14}{section.4.4}
-\contentsline {section}{\numberline {4.5}Rendering-Algorithmus}{15}{section.4.5}
-\contentsline {chapter}{\numberline {5}Versuchsaufbau}{16}{chapter.5}
-\contentsline {section}{\numberline {5.1}Das Programm}{16}{section.5.1}
-\contentsline {chapter}{\numberline {6}Evaluierung}{18}{chapter.6}
-\contentsline {chapter}{\numberline {7}Fazit und Ausblick}{19}{chapter.7}
-\contentsline {chapter}{\numberline {A}Abk\"{u}rzungen}{20}{appendix.A}
-\contentsline {chapter}{Abbildungsverzeichnis}{21}{appendix*.2}
-\contentsline {chapter}{Tabellenverzeichnis}{22}{appendix*.3}
-\contentsline {chapter}{\numberline {B}Bibliography}{23}{appendix.B}
+\contentsline {section}{\numberline {4.5}Rendering-Algorithmus}{14}{section.4.5}
+\contentsline {chapter}{\numberline {5}Versuchsaufbau}{17}{chapter.5}
+\contentsline {section}{\numberline {5.1}Das Programm}{17}{section.5.1}
+\contentsline {chapter}{\numberline {6}Evaluierung}{19}{chapter.6}
+\contentsline {chapter}{\numberline {7}Fazit und Ausblick}{20}{chapter.7}
+\contentsline {chapter}{\numberline {A}Abk\"{u}rzungen}{21}{appendix.A}
+\contentsline {chapter}{Abbildungsverzeichnis}{22}{appendix*.2}
+\contentsline {chapter}{Tabellenverzeichnis}{23}{appendix*.3}
+\contentsline {chapter}{\numberline {B}Bibliography}{24}{appendix.B}
