@@ -1,13 +1,14 @@
+\select@language {ngerman}
+\select@language {ngerman}
 \select@language {german}
 \select@language {german}
-\select@language {german}
-\select@language {english}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. \textit {links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung.}}}{11}{figure.3.1}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{15}{figure.4.1}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{16}{figure.4.2}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{17}{figure.4.1}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{18}{figure.4.2}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
