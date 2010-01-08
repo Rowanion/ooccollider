@@ -73,8 +73,9 @@
 %
 % Paket fÃ¼r Ãbersetzungen ins Deutsche
 %
-\usepackage[english, german]{babel}
-%\usepackage{ngerman}
+%\usepackage[english, german]{babel}
+\usepackage[german, english, ngerman]{babel}
+
 
 %
 % Paket, um \today auch im Format dd.mm.yyyy anzeigen zu kÃ¶nnen
@@ -258,6 +259,11 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 %\usepackage[underline=true,rounded corners=false]{pgf-umlsd} % changed to following parameter-values:
 \usepackage[underline=false,rounded corners=true]{pgf-umlsd}
 
+% todo notes, add disbale to remove them. BUT: need to remove the toc-insertion manually
+%\usepackage[colorlinks]{hyperref}
+\usepackage[colorinlistoftodos, shadow]{todonotes}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Document structure
@@ -269,9 +275,13 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \pagenumbering{alph}
 \input{chapters/titlepage}
 
-\selectlanguage{english}
+\selectlanguage{german}
 \pagenumbering{roman}
 \setcounter{page}{1}
+
+\listoftodos
+\addcontentsline{toc}{chapter}{ToDoList}
+
 
 \renewcommand\contentsname{Inhaltsverzeichnis}
 \tableofcontents
