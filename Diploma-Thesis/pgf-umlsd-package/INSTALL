@@ -1,4 +1,5 @@
 first of all you need a current build of pfg (http://www.texample.net/tikz/builds/)
+and pfgplot http://www.texample.net/tikz/examples/pgfplots/
  - place all package-contens of pgf inside of ~/texmf/
  - copy all directory contents of this uml-package to ~/texmf/tex/
  - run sudo mktexlsr
