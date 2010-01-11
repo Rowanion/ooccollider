@@ -1,13 +1,16 @@
 \chapter{Grundlagen}
 \label{chap:basics}
-
+\todo[size=\small, inline]{Evtl. besseren Namen für Kapitel "`Grundlagen"' finden $\rightarrow$ Grundlegende Algorithmen/Techniken?!}%
 \textbf{Hier kommt nur rein was ICH mache!}\\
 An dieser Stelle soll zunächst ein Überblick über die in der vorliegenden Arbeit verwendeten Techniken gegeben werden. Diese beinhalten unter anderem Algorithmen der Computergrafik, welche Datenstrukturen benutzt werden und wie die Speicherverwaltung angesprochen wird.
 
 \section{Datenstrukturen}
+\todo[size=\small, inline, color=magenta]{Kapitel: Datenstrukturen}
 \label{sec:basics:datenstrukturen}
 \textbf{Wofür und warum?!}\\
-3D-Modelle aus CAD-Daten werden üblicherweise nach ihrer Funktion gruppiert. Das mag beim Entwurf solcher Systeme auch praktisch sein, beim ihrer Visualisierung kann dies jedoch zu Problemen führen. Bei einem CAD-Modellen in der Größenordnung der Boeing 777 (ca. 350.000.000 Dreiecke) ist es wichtig, dass diese in eine geeignete räumliche Unterteilung überführt werden. Da ein Out-Of-Core-Renderer entwickelt wurde, findet ein ständiges Laden und Verwerfen von Teilmodellen statt. Je länger ein Renderer benötigt um herauszufinden, welche Teile des Modells er verwerfen kann und welche er als erstes Anfordern sollte, desto länger braucht er auch um ein Bild zu erstellen. In dieser Arbeit wurde als hierarchische räumliche Unterteilung ein Randomized Sampletree \ref{sec:basics:sampletree} und zum Vergleich ein Loose Octree gewählt.
+3D-Modelle aus Computer Aided Design - Anwendungen (CAD) werden üblicherweise nach ihrer Funktion gruppiert. Das mag beim Entwurf solcher Systeme auch praktisch sein, beim ihrer Visualisierung kann dies jedoch zu Problemen führen. 
+\todo[size=\small, inline]{Genaue Herkunft des Boeing-Modells finden $\rightarrow$ von Boeing selbst, Bildunterschrift kommt\dots am Donnerstag?!}%
+Bei einem CAD-Modellen in der Größenordnung der Boeing 777 (ca. 350.000.000 Dreiecke) ist es wichtig, dass diese in eine geeignete räumliche Unterteilung überführt werden. Da ein Out-Of-Core-Renderer entwickelt wurde, findet ein ständiges Laden und Verwerfen von Teilmodellen statt. Je länger ein Renderer benötigt um herauszufinden, welche Teile des Modells er verwerfen kann und welche er als erstes Anfordern sollte, desto länger braucht er auch um ein Bild zu erstellen. In dieser Arbeit wurde als hierarchische räumliche Unterteilung ein Randomized Sampletree \ref{sec:basics:sampletree} und zum Vergleich ein Loose Octree gewählt.
 
 \subsection{Loose Octree}
 \label{sec:basics:octree}
@@ -20,7 +23,7 @@ Dies hat den Vorteil, dass große Dreiecke relativ weit oben im Baum zu liegen k
  \centering
   \includegraphics[scale=0.5]{images/octree.pdf}
  % octree.pdf: 640x368 pixel, 72dpi, 22.58x12.98 cm, bb=0 0 640 368
-  \caption{Ein Octree. \textit{Seine räumliche Darstellung (links) und die Baumdarstellung (rechts).}}
+  \caption{Ein Octree der Tiefe 2. \textit{links: die räumliche Darstellung, rechts: die Baumdarstellung.}}
  \label{fig:basics:octree}
 \end{figure}
 \missingfigure{Bild zum Loose Octree}
@@ -35,28 +38,17 @@ Die zufällig nach oben verschobenen Dreiecke dienen als hinreichende Approximat
 
 \section{Computergrafik}
 \label{sec:basics:computergrafik}
-\todo[size=\small, inline, color=blue!40]{Kapitel: Computergrafik}
-Da Arbeitsspeicher in der Regel größer ist als der SPeicher einer Grafikkarte, werden nicht alle Daten eines Renderers auf der Grafikkarte belassen. Wenn angeforderte Objekte bei einem Renderer eintreffen, werden die zunächst gar nicht an die Grafikkarte geschickt. Erst nach weiteren Test ob das Objekt imme rnoch sichtbar ist, findet der transfer zur GPU statt. Um dies möglichst effizient umsetzen zu können werden Vertexbuffer Objects  (VBOs) genutzt. Die Idee ist dabei, dass Modelldaten, bestehend aus Vertices und Vertex-Normalen, in einem zusammenhängenden Speicherblock abgelegt werden. Ein Vertex besteht also aus einer xyz-Koordinate und einer Vertex-Normalen. Der Zugriff auf Dreiecke erfolgt dann mittels einer Index-Liste, bei der immer drei Indices ein Dreieck ergeben. Alle Dreiecke eines Octree-Knotens wurden zu einem Vertexbuffer-Objekt zusammen gefasst (siehe \ref{sec:basics:octree}). In Form von VBOs kann recht einfach entsprechender Platz im Grafik-RAM reversiert und die Daten in den Speicher geladen werden.\\
-Im Gegensatz dazu verbleiben bei Vertex-Arrays alle Daten im Arbeitsspeicher des Rechners und werden für jeden Zeichenaufruf zur Grafikkarte übertragen. Vertex-Arrays bieten sich an, wenn Objekte nur einmal gezeichnet und dann verworfen werden. Von daher kommen sie nur auf den Datenknoten (siehe \ref{sec:impl:netzwerkarchitektur}) zum Einsatz, da diese ein getestetes Objekt nur in ihren Tiefenbuffer rendern und dann wieder verwerfen.
-\begin{itemize}
- \item Daten erst in den Hauptspeicher, dann in den GrafikRAM
- \item VBOs / VertexArrays
- \begin{itemize}
-  \item Grundidee von VBOS: Modelldaten in einem großen zusammenhängenden Speicherblock zu speichern
-  \item Ist platzsparender und erhöht die Zeichengeschwindigkeit
-  \item In unserem konkreten Fall bedeutet dass das Vertices und Normalen immer in einem zusammenhängenden Speicherblock stehen. 
-  \item Durch eine Indexliste wird dann auf den entsprechenden Vertex und seine Normale zugegriffen
-  \item bei VBOs liegen die Daten vollständig im Grafikspeicher. -> Objekte. Siehe auch \ref{sec:basics:caching}
-  \item bei VertexArrays werden die Daten bei jedem Zeichenvorgang auf die Grafikkarte übertragen. -> Boundingboxen
- \end{itemize}
- \item CgShader
- \begin{itemize}
-  \item Beleuchtung -> Phong-Beleuchtungsmodell \cite{cgtutorial}
-  \item Farben: Da bei CAD-Modellen Farben oft ein Hinweis auf den Produktionsort geben, ist die Anzahl der Fraben beschränkt. Natürlich könnte man jedem Vertex eine Farbe zuordnen. Dies hätte jedoch zur Folge dass bei jedem Vertex die Farbe neu gesetzt werden muss, unabhängig davon, ob diese Farbe bereits gesetzt ist, oder nicht. Das würde jedesmal die Grafik-Pipeline unterbrechen undes wäre mit Geschwindigkeitseinbußen zu rechen. Deshalb wurden die Farben der Boeing, 32 an der Zahl, in einer 1D-Textur codiert und die Texturkoordinate wurde als vierte Komponente an den Vertex gehängt. Wird nun ein Vertex gezeichnet, ersetzt der Vertex-Shader die harmonische Komponente wieder mit 1 und gibt die Textur-Koordinate an den Fragment-Shader weiter. Letzterer muss ohnehin eine Farbe schreiben, weshalb man diese kurzerhand aus der Textur ausliest.
-  \missingfigure{Bild zur Textur mit den Farben und Texturkoordinaten-Range}
- \end{itemize}
+\todo[size=\small, inline, color=yellow]{Computergrafik $\rightarrow$ Spellcheck!}
+Da Arbeitsspeicher in der Regel größer ist als der Speicher einer Grafikkarte, werden nicht alle geometrischen Objeke auf der Grafikkarte belassen. Wenn angeforderte Objekte bei einem Renderer eintreffen, werden die zunächst gar nicht an die Grafikkarte geschickt. Erst nach weiteren Tests, ob das Objekt immer noch sichtbar ist, findet der transfer zur GPU statt. Dort verbleiben sie dann, bis sie irgendwann aus platz- oder sichbarkeitsgründen verdrängt werden (siehe auch \ref{sec:basics:caching}). Um dies möglichst effizient umsetzen zu können werden Vertexbuffer Objects  (VBOs) genutzt. Die Idee ist dabei, dass Modelldaten, bestehend aus Vertices und Vertex-Normalen, in einem zusammenhängenden Speicherblock abgelegt werden. Ein Vertex besteht aus einer $xyz$-Koordinate und einer Vertex-Normalen. Der Zugriff auf Dreiecke erfolgt dann mittels einer Index-Liste, bei der immer drei Indices ein Dreieck ergeben. Alle Dreiecke eines Octree-Knotens wurden zu einem Vertexbuffer-Objekt zusammen gefasst (siehe \ref{sec:basics:octree}), da Geometrie innerhalb eines Knotens nicht weiter unterteilt wird. In Form von VBOs kann recht einfach entsprechender Platz im Grafik-RAM reserviert und die Daten in den Speicher geladen werden.\\
+Im Gegensatz dazu verbleiben bei Vertex-Arrays alle Daten im Arbeitsspeicher des Rechners und werden für jeden Zeichenaufruf zur Grafikkarte übertragen. Vertex-Arrays bieten sich an, wenn Objekte nur einmal gezeichnet und dann verworfen werden. Von daher kommen sie nur auf den Datenknoten (siehe \ref{sec:impl:netzwerkarchitektur}) zum Einsatz, da diese ein getestetes Objekt nur in ihren Tiefenbuffer rendern und dann wieder verwerfen. Bei VBOs wäre der Overhead der Datenübertragung und der anschließenden Deallokation zu groß für eine einmalige Verwendung.
 
-\end{itemize}
+Das Modell der Boeing 777 besitzt auch Farbinformationen. Da bei CAD-Modellen Farben oft einen Hinweis auf den Produktionsort geben, ist die Anzahl der Farben beschränkt. Natürlich könnte man jedem Vertex eine Farbe zuordnen. Dies hätte jedoch zur Folge dass bei jedem Vertex die Farbe neu gesetzt werden muss, unabhängig davon, ob diese Farbe bereits gesetzt ist. Das würde jedesmal die Grafik-Pipeline unterbrechen und es wäre mit Geschwindigkeitseinbußen zu rechen. Deshalb wurden die Farben der Boeing, 32 an der Zahl, in einer 1D-Textur kodiert und die Texturkoordinate wurde als vierte Komponente an den Vertex gehängt. Wird nun ein Vertex gezeichnet, ersetzt der Vertex-Shader die harmonische vierte Komponente eines Vertices wieder durch $1.0$ und gibt die Textur-Koordinate an den Fragment-Shader weiter. Letzterer muss ohnehin eine Farbe schreiben, weshalb diese kurzerhand aus der Textur ausgelesen wird. Da die Anzahl der Farben bekannt ist ist, ergibt sich zur Berechnung der Texturkorrdinate der $i$-ten Farbe $\frac{i}{n}-\frac{1}{2n}$, wobei $n=$  Anzahl der Farben ist (Abbildung \ref{fig:basics:1dtexture}). Die Subtraktion der Hälfte eines Texels $\frac{1}{2n}$ ist Notwendig, da man sonst genau auf der Kante zwischen zwei Farben landet, was zu undefiniertem Farbverhalten in der Grafikkarte führt.
+\begin{figure}
+  \centering
+  \input{plots/1d_texture.tex}
+  \caption{1D-Farbtextur. $n=$Anzahl Farben. Um mittig auf den Texel der Farbe $i$ zuzugreifen, errechnet sich die Texturkoordinate durch $\frac{i}{n}-\frac{1}{2n}$. }
+  \label{fig:basics:1dtexture}
+\end{figure}
 
 \section{Approximation}
 \label{sec:basics:approximation}
@@ -71,19 +63,46 @@ Approximationen in der Computergrafik haben oft  Zurfolge, dass die Bildqualitä
 \label{sec:basics:algorithmen}
 \todo[size=\small, inline, color=blue!40]{Kapitel: Algorithmen}
 \begin{itemize}
- \item Occlusion Culling \cite{RTR3}
- \item Frustum Culling \cite{RTR3}
- \item c-Collision Protokoll zur Lastbalancierung im Netzwerk
- \item c-Collision?: \cite{DBLP:conf/arcs/RehbergS99}: \textit{Almost optimal schedules with a simple protocol}
- \item adpative collision / c-Load, gewichtet: \cite{ccol2}: \textit{Allocating weighted jobs in parallel}
- \item c-Collision Basics: \cite{ccol3}: \textit{Parallel Balanced Allocations}
- \begin{itemize}
-  \item $m$ Bälle in $n$ Körbe
- \end{itemize}
-\todo[size=\small, inline]{c-Collisionprotokoll-Erklärung!}%
- \begin{itemize}
-  \item auch bälle in Körbe aber diesmal haben die Bälle Gewichte
- \end{itemize}
+  \item Occlusion Culling \cite{RTR3}
+  \item Frustum Culling \cite{RTR3}
+  \item c-Collision Protokoll zur Lastbalancierung im Netzwerk
+  \item c-Collision?: \cite{DBLP:conf/arcs/RehbergS99}: \textit{Almost optimal schedules with a simple protocol}
+  \item \underline{adpative collision / c-Load}, gewichtet: \cite{ccol2}: \textit{Allocating weighted jobs in parallel}
+  \begin{itemize}
+    \item Untere Schranke in Abhängigkeit von Runden \& Körben => keine Bälle
+    \item Obere Schranke Durchschnittsgewicht + maximales Gewicht
+    \item w.h.p. = with high probability
+    \item i.u.r. = independendly and uniformly at random
+    \item c-Load Collision Protocol:
+    \begin{itemize}
+      \item wähle parallel für jeden Ball zufällig 3 Körbe
+      \item Jeder Ball schickt an diese 3 Körbe einen Request samt Gewicht
+      \item Jeder Korb berechnet die Summe alle Gewichte der requests an ihn. Ist die Summe höchstens c -> akzeptiere, sonst lehne ab.
+      \item Bekommt ein Ball mindestens ein Accept, lösche den Ball.
+    \end{itemize}
+    \item Adaptive Collision Protocol:
+    \begin{itemize}
+      \item wähle parallel für jeden Ball zufällig 3 Körbe
+      \item Jeder Ball schickt an diese 3 Körbe einen Request samt Gewicht
+      \item Jeder Korb berechnet die Summe alle Gewichte der requests an ihn. Ist die Summe höchstens c -> akzeptiere, sonst lehne ab.
+      \item Bekommt ein Ball mindestens ein Accept, lösche den Ball.
+    \end{itemize}
+    \item Conclusion:
+    \begin{itemize}
+      \item Untere Schranke für $m \ge n$ Bälle in $n$ Körbe.
+      \item ein dritter Korb ist nicht notwendig.
+    \end{itemize}
+
+
+  \end{itemize}
+  \item c-Collision Basics: \cite{ccol3}: \textit{Parallel Balanced Allocations}
+  \begin{itemize}
+    \item $m$ Bälle in $n$ Körbe
+  \end{itemize}
+  \todo[size=\small, inline]{c-Collisionprotokoll-Erklärung!}%
+  \begin{itemize}
+    \item auch bälle in Körbe aber diesmal haben die Bälle Gewichte
+  \end{itemize}
 
 \end{itemize}
 
