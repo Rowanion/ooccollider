@@ -5,16 +5,18 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. \textit {links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung.}}}{11}{figure.3.1}
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. \textit {links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung.}}}{12}{figure.3.1}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces 1D-Farbtextur. $n=$Anzahl Farben. Um mittig auf den Texel der Farbe $i$ zuzugreifen, errechnet sich die Texturkoordinate durch $\frac {i}{n}-\frac {1}{2n}$. }}{14}{figure.3.2}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{17}{figure.4.1}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{18}{figure.4.2}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{19}{figure.4.1}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{20}{figure.4.2}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Ein Beispieldiagramm mit Datenfile.}}{22}{figure.6.1}
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Beispieldiagramm 2.}}{22}{figure.6.2}
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Beispieldiagramm 3.}}{23}{figure.6.3}
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Beispieldiagramm 4.}}{23}{figure.6.4}
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Ein Beispieldiagramm mit Datenfile.}}{24}{figure.6.1}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Beispieldiagramm 2.}}{24}{figure.6.2}
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Beispieldiagramm 3.}}{25}{figure.6.3}
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Beispieldiagramm 4.}}{25}{figure.6.4}
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Beispieldiagramm 5. }}{25}{figure.6.5}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
