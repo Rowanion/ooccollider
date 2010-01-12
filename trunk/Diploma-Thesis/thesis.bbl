@@ -85,11 +85,10 @@ James~T. Klosowski and Cl\'{a}udio~T. Silva.
 \newblock {\em IEEE Transactions on Visualization and Computer Graphics},
   6(2):108--123, 2000.
 
-\bibitem[MCEF08]{molnar}
+\bibitem[MCEF94]{molnar}
 Steven Molnar, Michael Cox, David Ellsworth, and Henry Fuchs.
 \newblock A sorting classification of parallel rendering.
-\newblock In {\em SIGGRAPH Asia '08: ACM SIGGRAPH ASIA 2008 courses}, pages
-  1--11, New York, NY, USA, 2008. ACM.
+\newblock {\em IEEE Comput. Graph. Appl.}, 14(4):23--32, 1994.
 
 \bibitem[Ngu08]{gpugems3}
 Hubert Nguyen.
