@@ -5,8 +5,10 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. \textit {links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung.}}}{12}{figure.3.1}
-\contentsline {figure}{\numberline {3.2}{\ignorespaces 1D-Farbtextur. $n=$Anzahl Farben. Um mittig auf den Texel der Farbe $i$ zuzugreifen, errechnet sich die Texturkoordinate durch $\frac {i}{n}-\frac {1}{2n}$. }}{14}{figure.3.2}
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. \textit {links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung.}}}{11}{figure.3.1}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Ein Loose Octree in einer 2D-Darstellung. \textit {Das Zentrum des Objekts (rosa) befindet sich innerhalb der Octree Zelle, das gesamte Objekt befindet sich innerhalb der Loose Box.}}}{12}{figure.3.2}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Ein Sampletree in einer 2D-Darstellung. \textit {links: Eine Aufteilung von Polygonen in verschiedene Quadtree Zellen. rechts: Die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an welche Polygonteile der linken Seite in welchen Knoten gespeichert wurden.}}}{13}{figure.3.3}
+\contentsline {figure}{\numberline {3.4}{\ignorespaces 1D-Farbtextur. $n=$Anzahl Farben. Um mittig auf den Texel der Farbe $i$ zuzugreifen, errechnet sich die Texturkoordinate durch $\frac {i}{n}-\frac {1}{2n}$. }}{15}{figure.3.4}
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{19}{figure.4.1}
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{20}{figure.4.2}
