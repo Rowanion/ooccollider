@@ -2,23 +2,22 @@
 \label{chap:basics}
 \todo[size=\small, inline]{Evtl. besseren Namen für Kapitel "`Grundlagen"' finden $\rightarrow$ Grundlegende Algorithmen/Techniken?!}%
 \textbf{Hier kommt nur rein was ICH mache!}\\
-An dieser Stelle soll zunächst ein Überblick über die in der vorliegenden Arbeit verwendeten Techniken gegeben werden. Diese beinhalten unter anderem Algorithmen der Computergrafik, welche Datenstrukturen benutzt werden und wie die Speicherverwaltung angesprochen wird.
+An dieser Stelle soll zunächst ein Überblick über die in der vorliegenden Arbeit verwendeten Techniken gegeben werden. Diese beinhalten unter anderem Algorithmen der Computergrafik, welche Datenstrukturen benutzt werden und wie die Speicherverwaltung organisiert ist.
 
 \section{Datenstrukturen}
 \label{sec:basics:datenstrukturen}
 \textbf{Wofür und warum?!}\\
-3D-Modelle aus Computer Aided Design - Anwendungen (CAD) werden üblicherweise nach ihrer Funktion gruppiert. Das mag beim Entwurf solcher Systeme auch praktisch sein, beim ihrer Visualisierung kann dies jedoch zu Problemen führen. Bei CAD-Modellen in Größenordnung der Boeing 777\footnote{\todo[size=\small, inline]{Boeing Herkunftshinweis verschieben an die erste Stelle wo es erwähnt wird.}%
+3D-Modelle aus Computer Aided Design - Anwendungen (CAD) werden üblicherweise nach ihrer Funktion gruppiert. Das mag beim Entwurf solcher Systeme auch praktisch sein, bei der Visualisierung kann dies jedoch zu Problemen führen. Bei CAD-Modellen in Größenordnung der Boeing 777\footnote{\todo[size=\small, inline]{Boeing Herkunftshinweis verschieben an die erste Stelle wo es erwähnt wird.}%
 Das 3D-Modell der Boeing 777 wurde freundlicherweise zur Verfügung gestellt von The Boeing Company, Seattle, WA, USA.} (ca. 350 Millionen Dreiecke) ist es wichtig, dass diese in eine geeignete räumliche Unterteilung überführt werden. Da ein Out-Of-Core-Renderer entwickelt wurde, findet ein ständiges Laden und Verwerfen von Teilmodellen statt. Je länger ein Renderer benötigt um herauszufinden, welche Teile des Modells er verwerfen kann und welche er als erstes anfordern sollte, desto länger braucht er auch um ein Bild zu erstellen. In dieser Arbeit wurde als hierarchische räumliche Unterteilung ein Randomized Sampletree (\ref{sec:basics:sampletree}) und zum Vergleich ein Loose Octree gewählt.
 
 \subsection{Loose Octree}
 \label{sec:basics:octree}
-\textbf{Warum ein Loose Octree?}\\
 Um einen Octree \cite{RTR3} zu Erzeugen wird die gesamte Szene in eine minimale Boundingbox eingeschlossen. Rekursiv wird diese Box entlang der drei räumlichen Achsen in der Mitte geteilt, woraus sich jeweils acht gleich-große Boundingboxen ergeben. Dieser Vorgang wird so lange wiederholt bis ein Haltekriterium erfüllt ist. Im Falle der Boeing wurde festgelegt, dass höchstens 5.000 Dreiecke in einer Box liegen dürfen und die maximale Tiefe des Baums wurde auf 14 beschränkt. Erfüllt ein Octree-Knoten eines dieser Kriterien, wird nicht weiter untereilt. Dementsprechend gibt es keine leeren Blatt-Knoten im Octree. In Abbildung \ref{fig:basics:octree} ist ein Octree zu sehen.\\
 \begin{figure}
  \centering
   \includegraphics[scale=0.5]{images/octree.pdf}
  % octree.pdf: 640x368 pixel, 72dpi, 22.58x12.98 cm, bb=0 0 640 368
-  \caption{Ein Octree der Tiefe 2. \textit{links: die räumliche Darstellung, rechts: die Baumdarstellung.}}
+  \caption{Ein Octree der Tiefe 2. \textit{links: die räumliche Darstellung, rechts: die Baumdarstellung. Quelle: \htmladdnormallink{http://de.wikipedia.org/wiki/Octree}{http://de.wikipedia.org/wiki/Octree}}}
  \label{fig:basics:octree}
 \end{figure}
 In dieser Arbeit wurde jedoch eine spezielle Form des Octrees verwendet: der Loose Octree. Dieser erweitert den Octree um eine weitere Box pro Knoten: die sogenannte Loosebox. Sie teilt sich ihr Zentrum mit der Octree-Boundingbox, besitzt aber doppelte Kantenlängen. Wird nun festgestellt, dass in einem Knoten mehr als 5.000 Dreiecke liegen, wird die größe der einzelnen Dreiecke anhand der Loosebox geprüft. Liegt ein Dreieck vollständig in der Loosebox mit seinem Zentrum in der eigentlichen Boundingbox des Knotens, kann es weiter nach unten gereicht werden. Ist dies nicht der Fall, ist das Dreieck zu groß für den aktuellen Knoten und wird an den Vaterknoten gegeben (Abbildung \ref{fig:basics:looseoctree}).\\
@@ -26,18 +25,17 @@ Dies hat den Vorteil, dass große Dreiecke relativ weit oben im Baum zu liegen k
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/looseoctree2.pdf}
-  \caption{Ein Loose Octree in einer 2D-Darstellung. \textit{Das Zentrum des Objekts (rosa) befindet sich innerhalb der Octree Zelle, das gesamte Objekt befindet sich innerhalb der Loose Box.}}
+  \caption{Ein Loose Octree in einer 2D-Darstellung. \textit{Das Zentrum des Objekts (rosa) befindet sich innerhalb der Octree Zelle, das gesamte Objekt befindet sich innerhalb der Loose Box. Quelle: \htmladdnormallink{http://anteru.net/2008/11/14/315/}{http://anteru.net/2008/11/14/315/}}}
  \label{fig:basics:looseoctree}
 \end{figure}
 
 \subsection{Randomized Sampletree}
 \label{sec:basics:sampletree}
-\todo[size=\small, inline, color=magenta]{Unterkapitel: Randomized Sampletree}
-Als spezielle Ausprägung eines Loose Octrees gibt es den Randomized Sampletree \cite{klein}. Dieser unterschiedet sich von einem Octree darin, dass einzelne Dreiecke aus den tieferen Knoten nach oben gezogen wurden. Beim rendern der Szene wird in jedem Frame der Baum traversiert, um ein Frustum-Culling durchzuführen (siehe auch \ref{sec:basics:algos:frustumculling}). Ab einer bestimmten Tiefe im Baum wird die Traversion abgebrochen, um die Komplexität der Darstellung zu reduzieren. Dadurch kommt es allerdings zu Darstellungsfehlern, da nicht alle sichtbare Geometrie gerendert wird. An dieser Stelle schafft ein Randomized Sampletree abhilfe. Dadurch dass zufällige kleinere Dreiecke in höherliegenden Knoten gespeichert sind, werden diese auch gerendert. Ist die Flächensumme alle Dreiecke in einem Knoten des Sampletrees nicht größer als ein Pixel, wird die Traversion abgebrochen. Klein, Krokowski, Fischer et al. \cite{klein} haben gezeigt, dass diese Geometrie-Approximation von weit entfernten Objekten durch zufällige Dreiecke eine hinreichend korrekte Darstellung liefert. Dieses Verfahren wurde für komplexe geometrische Umgebungen entwickelt, weshalb es in dieser Arbeit verwendet wurde.
+Als spezielle Ausprägung eines Loose Octrees gibt es den Randomized Sampletree \cite{klein}. Dieser unterschiedet sich von einem Octree darin, dass zufällig einzelne Dreiecke aus tieferen Knoten in höhere Knoten verschoben  wurden. Beim rendern der Szene wird in jedem Frame der Baum traversiert, um ein Frustum-Culling durchzuführen (siehe auch \ref{sec:basics:algos:frustumculling}). Ab einer bestimmten Tiefe im Baum wird die Traversion abgebrochen, um die Komplexität der Darstellung zu reduzieren. Dadurch kommt es allerdings zu Darstellungsfehlern, da nicht alle sichtbare Geometrie gerendert wird. An dieser Stelle schafft ein Randomized Sampletree abhilfe. Dadurch dass zufällige kleinere Dreiecke in höherliegenden Knoten gespeichert sind, werden diese auch gerendert. Ist die Flächensumme alle Dreiecke in einem Knoten des Sampletrees nicht größer als ein Pixel, wird die Traversion abgebrochen. Klein, Krokowski und Fischer \cite{klein} haben gezeigt, dass diese Geometrie-Approximation von weit entfernten Objekten durch zufällige Dreiecke eine hinreichend korrekte Darstellung liefert. Dieses Verfahren wurde für komplexe geometrische Umgebungen entwickelt, weshalb es in dieser Arbeit verwendet wurde.
 \begin{figure}
  \centering
   \includegraphics[scale=1.7]{images/sampletree2.pdf}
-  \caption{Ein Sampletree in einer 2D-Darstellung. \textit{links: Eine Aufteilung von Polygonen in verschiedene Quadtree Zellen. rechts: Die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an welche Polygonteile der linken Seite in welchen Knoten gespeichert wurden.}}
+  \caption{Ein Sampletree in einer 2D-Darstellung. \textit{links: Eine Aufteilung von Polygonen in verschiedene Quadtree Zellen. rechts: Die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an welche Polygonteile der linken Seite in welchen Knoten gespeichert wurden. Quelle: \cite{klein}}}
  \label{fig:basics:sampletree}
 \end{figure}
 
@@ -55,60 +53,47 @@ Das Modell der Boeing 777 besitzt auch Farbinformationen. Da bei CAD-Modellen Fa
   \label{fig:basics:1dtexture}
 \end{figure}
 
-\section{Approximation}
-\label{sec:basics:approximation}
-\todo[size=\small, inline, color=blue!40]{Kapitel: Approximation}
-Approximationen in der Computergrafik haben oft  Zurfolge, dass die Bildqualität verringert wird. Sei es weil Objekte in niedrigeren Auflösungen
-\begin{itemize}
- \item Teile können weggelassen werden
- \item Tiefenbuffer Update nur alle paar Frames
-\end{itemize}
-
 \section{Algorithmen}
 \label{sec:basics:algos}
-\todo[size=\small, inline, color=blue!40]{Kapitel: Algorithmen}
+\todo[size=\small, inline, color=magenta]{Kapitel: Algorithmen}
 \begin{itemize}
+  \item Intro
+\end{itemize}
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.8]{images/culling.pdf}
+  \caption{Verschiedene Culling-Techniken. Entfernte Geometrie ist durch gestrichelte Linien dargestellt. \textit{Quelle: \cite{culling}} }
+  \label{fig:basics:culling}
+\end{figure}
+\begin{itemize}
+  \item Culling \cite{RTR3}\label{sec:basics:algos:culling}
+  \begin{itemize}
+    \item entfernen von Szenenteilen die nicht zum finalen Bild beitragen (Abbildung \ref{fig:basics:culling})
+    \item In jeder Renderstufe möglich.
+    \item einige Algos sind in Hardware implementiert. Für volle Kontrolle kann aber auch alles auf der CPU gemacht werden.
+    \item Davon ausgehend, dass sich der Flaschenhals nicht auf der CPU befindet, the fastest polygon to render is the one never sent down the accelerator's pipeline.
+    \item Der Ideale Culling-Algo würde nur die \textit{exakte sichtbare Menge} an Primitiven durch die Pipeline schicken. Erzeugen solcher Datenstrukturen ist theoretisch möglich, aber nicht praktikabel, da die worst-case Zeitkomplexität $O(n^{9})$ \cite{culling} beträgt.
+    \item Stattdessen wird versucht die \textit{potentiell sichtbare Menge} (Potentially Visible Set)[PVS] zu finden. Ist in einem PVS die exakt sichtbare Menge nicht vollständig enthalten, wird das Verfahren als \textit{approximativ} bezeichnet. Diese Art von PVS kann zu fehlerhalften Bildern führen.
+  \end{itemize}
+  \item Backface Culling
+  \begin{itemize}
+    \item entfernen von poygonen welche vom Betrachter abgewandt sind
+    \item wird jeweils auf einzelnen Polygonen durchgeführt
+    \item Wird bei uns von der API (Hardware/OpenGL) durchgeführt
+  \end{itemize}
+  \todo[size=\small, inline]{Stichwortliste aus dem Buch vervollständigen.}
+  \item View-Frustum Culling \cite{RTR3} \label{sec:basics:algos:frustumculling}
+  \begin{itemize}
+    \item Entfernt Polygongruppen, die sich außerhalb des View-Frustums befinden.
+  \end{itemize}
   \item Occlusion Culling \cite{RTR3}\label{sec:basics:algos:occlusionculling}
-  \item Frustum Culling \cite{RTR3} \label{sec:basics:algos:frustumculling}
-  \item c-Collision Protokoll zur Lastbalancierung im Netzwerk \label{sec:basics:algos:ccollision} \ref{chap:relwork}
-  \item c-Collision?: \cite{DBLP:conf/arcs/RehbergS99}: \textit{Almost optimal schedules with a simple protocol}
-  \item \underline{adpative collision / c-Load}, gewichtet: \cite{ccol2}: \textit{Allocating weighted jobs in parallel}
   \begin{itemize}
-    \item Untere Schranke in Abhängigkeit von Runden \& Körben => keine Bälle
-    \item Obere Schranke Durchschnittsgewicht + maximales Gewicht
-    \item w.h.p. = with high probability
-    \item i.u.r. = independendly and uniformly at random
-    \item c-Load Collision Protocol:
-    \begin{itemize}
-      \item wähle parallel für jeden Ball zufällig 3 Körbe
-      \item Jeder Ball schickt an diese 3 Körbe einen Request samt Gewicht
-      \item Jeder Korb berechnet die Summe alle Gewichte der requests an ihn. Ist die Summe höchstens c -> akzeptiere, sonst lehne ab.
-      \item Bekommt ein Ball mindestens ein Accept, lösche den Ball.
-    \end{itemize}
-    \item Adaptive Collision Protocol:
-    \begin{itemize}
-      \item wähle parallel für jeden Ball zufällig 3 Körbe
-      \item Jeder Ball schickt an diese 3 Körbe einen Request samt Gewicht
-      \item Jeder Korb berechnet die Summe alle Gewichte der requests an ihn. Ist die Summe höchstens c -> akzeptiere, sonst lehne ab.
-      \item Bekommt ein Ball mindestens ein Accept, lösche den Ball.
-    \end{itemize}
-    \item Conclusion:
-    \begin{itemize}
-      \item Untere Schranke für $m \ge n$ Bälle in $n$ Körbe.
-      \item ein dritter Korb ist nicht notwendig.
-    \end{itemize}
-
-
+    \item Entfernt Polygone die durch andere andere Polygongruppen verdeckt sind
   \end{itemize}
-  \item c-Collision Basics: \cite{ccol3}: \textit{Parallel Balanced Allocations}
-  \begin{itemize}
-    \item $m$ Bälle in $n$ Körbe
-  \end{itemize}
-  \todo[size=\small, inline]{c-Collisionprotokoll-Erklärung!}%
-  \begin{itemize}
-    \item auch bälle in Körbe aber diesmal haben die Bälle Gewichte
-  \end{itemize}
-
+  \item $c$-Collision Protokoll zur Lastbalancierung im Netzwerk \label{sec:basics:algos:ccollision} (siehe \ref{chap:relwork})
+  \item dynamische Kachelung
+  \item (extended Frustum?)
 \end{itemize}
 
 \subsection{Caching}
@@ -124,4 +109,17 @@ Approximationen in der Computergrafik haben oft  Zurfolge, dass die Bildqualitä
 \begin{itemize}
  \item nicht jeder braucht alles -> Kacheln
  \item Gewichtung über die Anzahl der Dreiecke pro Request
+\end{itemize}
+
+\section{Approximation}
+\label{sec:basics:approximation}
+\todo[size=\small, inline, color=blue!40]{Unterkapitel: Approximation}
+Approximationen in der Computergrafik haben oft  Zurfolge, dass die Bildqualität verringert wird. Sei es weil Objekte in niedrigeren Auflösungen
+\begin{itemize}
+ \item Occlusion-Culling entfernt teile
+ \item Nicht immer sofort ein vollständiges Bild verfügbar -> nach und nach nachladen
+ \item Teile können weggelassen werden $\rightarrow$ OcclusionCulling \& FrustumCulling
+ \item Begrenzung des Cache-Kontingents
+ \item Tiefenbuffer Update nur alle paar Frames
+ \item Sampletree
 \end{itemize}
