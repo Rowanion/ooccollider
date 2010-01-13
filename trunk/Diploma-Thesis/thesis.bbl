@@ -51,13 +51,11 @@ James~H. Clark.
 \newblock Hierarchical geometric models for visible surface algorithms.
 \newblock {\em Commun. ACM}, 19(10):547--554, 1976.
 
-\bibitem[CNSD93]{cave}
-Carolina Cruz-Neira, Daniel~J. Sandin, and Thomas~A. DeFanti.
-\newblock Surround-screen projection-based virtual reality: the design and
-  implementation of the cave.
-\newblock In {\em SIGGRAPH '93: Proceedings of the 20th annual conference on
-  Computer graphics and interactive techniques}, pages 135--142, New York, NY,
-  USA, 1993. ACM.
+\bibitem[COCSD03]{culling}
+D.~Cohen-Or, Y.L. Chrysanthou, C.T. Silva, and F.~Durand.
+\newblock A survey of visibility for walkthrough applications.
+\newblock {\em Visualization and Computer Graphics, IEEE Transactions on},
+  9(3):412--431, July-Sept. 2003.
 
 \bibitem[Fer04]{gpugems1}
 Randima Fernando.
@@ -90,6 +88,14 @@ Steven Molnar, Michael Cox, David Ellsworth, and Henry Fuchs.
 \newblock A sorting classification of parallel rendering.
 \newblock {\em IEEE Comput. Graph. Appl.}, 14(4):23--32, 1994.
 
+\bibitem[MPR94]{ccol4}
+P.~D. MacKenzie, C.~G. Plaxton, and R.~Rajaraman.
+\newblock On contention resolution protocols and associated probabilistic
+  phenomena.
+\newblock In {\em STOC '94: Proceedings of the twenty-sixth annual ACM
+  symposium on Theory of computing}, pages 153--162, New York, NY, USA, 1994.
+  ACM.
+
 \bibitem[Ngu08]{gpugems3}
 Hubert Nguyen.
 \newblock {\em GPU Gems 3}.
@@ -99,13 +105,6 @@ Hubert Nguyen.
 Matt Pharr.
 \newblock {\em GPU Gems 2}.
 \newblock Addison-Wesley, Upper Saddle River, NJ, 2005.
-
-\bibitem[RS99]{DBLP:conf/arcs/RehbergS99}
-Ulrich Rehberg and Klaus Schr{\"o}der.
-\newblock Almost optimal schedules with a simple protocol.
-\newblock In Werner Erhard, Karl-Erwin Gro{\ss}pietsch, W.~Koch, Erik Maehle,
-  and Eberhard Zehendner, editors, {\em ARCS Workshops}, pages 219--228.
-  Universit{\"a}t Jena, Institut f{\"u}r Informatik, 1999.
 
 \bibitem[SFLS00]{samanta}
 Rudrajit Samanta, Thomas Funkhouser, Kai Li, and Jaswinder~Pal Singh.
@@ -139,12 +138,5 @@ Ping Yin, Xiaohong Jiang, Jiaoying Shi, and Ran Zhou.
 \newblock Multi-screen tiled displayed, parallel rendering system for a large
   terrain dataset.
 \newblock {\em IJVR}, 5(4):47--54, 2006.
-
-\bibitem[ZCWC03]{dpbp}
-Huabing Zhu, Kai~Yun Chan, Lizhe Wang, and Wentong Cai.
-\newblock Dpbp: a sort-first parallel rendering algorithm for distributed
-  rendering environments.
-\newblock In {\em Cyberworlds, 2003. Proceedings. 2003 International Conference
-  on}, pages 214--220, Dec. 2003.
 
 \end{thebibliography}

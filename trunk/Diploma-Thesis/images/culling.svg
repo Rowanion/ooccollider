@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="265.22501"
+   height="186.00874"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   version="1.0"
+   sodipodi:docname="culling.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+    <inkscape:perspective
+       id="perspective2427"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="993.97206"
+     inkscape:cy="269.52187"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1140"
+     inkscape:window-x="-5"
+     inkscape:window-y="-3" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-240.05933,-73.2192)">
+    <path
+       d="M 281.41683,158.6342 C 281.41683,162.8392 279.36933,166.2517 276.84683,166.2517 C 274.32433,166.2517 272.27683,162.8392 272.27683,158.6342 C 272.27683,154.4292 274.32433,151.0167 276.84683,151.0167 C 279.36933,151.0167 281.41683,154.4292 281.41683,158.6342 z"
+       style="fill:none;stroke:#000000;stroke-width:0.1525;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path2431" />
+    <path
+       d="M 282.93933,159.3842 C 282.93933,160.71795 281.85558,161.8017 280.52183,161.8017 C 279.18808,161.8017 278.10433,160.71795 278.10433,159.3842 C 278.10433,158.05045 279.18808,156.9667 280.52183,156.9667 C 281.85558,156.9667 282.93933,158.05045 282.93933,159.3842 z"
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.1525;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path2433" />
+    <path
+       d="M 279.74433,147.94295 L 262.98683,160.1292 L 281.26683,169.27045"
+       style="fill:none;stroke:#000000;stroke-width:0.1525;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path2435" />
+    <path
+       d="M 374.19558,196.6917 L 386.38308,193.6442 L 386.38308,170.7942"
+       style="fill:none;stroke:#000000;stroke-width:0.91374999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:3.04625;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2437" />
+    <path
+       d="M 386.38308,170.7942 L 369.62558,179.9342 L 374.19558,196.6917"
+       style="fill:none;stroke:#000000;stroke-width:0.91374999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path2439" />
+    <path
+       d="M 324.00433,190.8417 L 311.81683,199.9817 L 320.95683,212.1692 L 337.71433,206.07545 L 324.00433,190.8417 z"
+       style="fill:none;stroke:#000000;stroke-width:0.91374999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:1.52375;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2441" />
+    <path
+       d="M 345.25058,140.32545 L 334.58683,154.0367 L 365.05433,175.3642"
+       style="fill:none;stroke:#000000;stroke-width:0.91374999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path2443" />
+    <path
+       d="M 345.25058,140.32545 L 384.85933,166.22295 L 365.05433,175.3642"
+       style="fill:none;stroke:#000000;stroke-width:0.91374999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:3.04625;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2445" />
+    <path
+       d="M 440.59558,160.98295 L 436.02558,180.7867 L 458.87683,197.5442 L 455.82933,174.6942 L 440.59558,160.98295 z M 454.12308,128.7267 L 449.55308,148.5317 L 461.74058,165.2892 L 473.92808,143.9617 L 454.12308,128.7267 z M 412.84933,160.2717 L 406.75558,180.0767 L 420.46683,196.8342 L 426.55933,173.98295 L 412.84933,160.2717 z"
+       style="fill:none;stroke:#000000;stroke-width:0.91374999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:0.305, 2.295;stroke-dashoffset:2.295;stroke-opacity:1"
+       id="path2447" />
+    <path
+       d="M 314.78183,120.5217 L 322.39933,131.18545 L 336.11058,126.61545 L 325.44558,111.38045 L 314.78183,120.5217 z M 353.61933,202.01295 L 341.43183,218.77045 L 353.61933,227.9117 L 364.28308,217.24795 L 353.61933,202.01295 z"
+       style="fill:none;stroke:#000000;stroke-width:0.91374999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:1.52375;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2449" />
+    <path
+       d="M 287.36058,158.6067 L 432.08433,239.3467 M 287.36058,158.6067 L 432.08433,87.0067"
+       style="fill:none;stroke:#000000;stroke-width:1.52374995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path2451" />
+    <path
+       d="M 240.13558,73.29545 L 505.20808,73.29545 L 505.20808,259.1517 L 240.13558,259.1517 L 240.13558,73.29545 z"
+       style="fill:none;stroke:#ffffff;stroke-width:0.1525;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path2453" />
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial"
+       x="320.35715"
+       y="103.79075"
+       id="text2717"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2719"
+         x="320.35715"
+         y="103.79075">View-Frustum-Culling</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial"
+       x="389.64285"
+       y="143.43364"
+       id="text2721"><tspan
+         sodipodi:role="line"
+         id="tspan2723"
+         x="389.64285"
+         y="143.43364">Back-Face-Culling</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial"
+       x="448.92859"
+       y="208.79076"
+       id="text2725"><tspan
+         sodipodi:role="line"
+         id="tspan2727"
+         x="448.92859"
+         y="208.79076">Occlusion-Culling</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial"
+       x="386.35715"
+       y="231.43362"
+       id="text2729"><tspan
+         sodipodi:role="line"
+         id="tspan2731"
+         x="386.35715"
+         y="231.43362">View</tspan><tspan
+         sodipodi:role="line"
+         x="386.35715"
+         y="242.68362"
+         id="tspan2733">Frustum</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial"
+       x="334.92859"
+       y="173.21935"
+       id="text2735"><tspan
+         sodipodi:role="line"
+         id="tspan2737"
+         x="334.92859"
+         y="173.21935">sichtbar</tspan></text>
+  </g>
+</svg>
