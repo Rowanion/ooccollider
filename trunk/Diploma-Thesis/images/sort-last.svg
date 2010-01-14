@@ -1147,15 +1147,15 @@
        xml:space="preserve"
        style="font-size:12.5px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial"
        x="171.84875"
-       y="409.13208"
+       y="407.26489"
        id="text13247"><tspan
          sodipodi:role="line"
          id="tspan13249"
          x="171.84875"
-         y="409.13208">Umverteilung von Pixeln,</tspan><tspan
+         y="407.26489">Umverteilung von Pixeln,</tspan><tspan
          sodipodi:role="line"
          x="171.84875"
-         y="424.75708"
-         id="tspan13251">Samples, oder Fragmenten</tspan></text>
+         y="422.88989"
+         id="tspan13251">Samples oder Fragmenten</tspan></text>
   </g>
 </svg>

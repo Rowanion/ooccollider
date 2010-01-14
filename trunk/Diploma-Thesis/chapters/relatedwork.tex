@@ -17,16 +17,15 @@ Sort-First-Algorithmen teilen den Bildschirm in Regionen ein (Kacheln) und weise
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/sort-first.pdf}
-  \caption{Sort-First. Umverteilung von unverarbeiteten Primitiven während der Geometrieverarbeitung. \textit{Quelle: \cite{molnar}}}
+  \caption{Sort-First. Umverteilung von unverarbeiteten Primitiven während der Geometrieverarbeitung. \textit{Quelle: nach \cite{molnar}}}
  \label{fig:relwork:sortfirst}
 \end{figure}
 
-Sort-Middle-Algorithmen verteilen Primitive mitten in der Rendering-Pipeline. Die Trennung erfolgt zwischen der Geometrieverarbeitung und der Rasterisierung. Bis zum Trennungspunkt wurden Objekte in screen-space Koordinaten überführt. Geometrieprozessoren bekommen eine beliebige Untermenge an Primitiven zugewiesen. Rasterisierer bekommen einen Teil des finalen Bildes zugewiesen, ähnlich wie beim Sort-First-Ansatz. Ob diese beiden Prozessortypen baulich getrennt sind, oder sich einen physikalischen Prozessor teilen, spielt dabei keine Rolle. In der Geometriestufe wird jedes Objekt bezüglich seiner finalen Bildposition klassifiziert und anschließend an die zuständigen Rasterisierer übermittelt (Abbildung \ref{fig:relwork:sortmiddle}). Ein großes Problem bei
-\todo[size=\small, inline]{Tim Fragen: Consumer?} diesem Verfahren stellt jedoch die Unterbrechung der Rendering-Pipeline dar. In aktuellen Consumer-Grafikkarten ist es entweder sehr teuer, die Pipeline zu unterbrechen, oder es ist überhaupt nicht möglich.
+Sort-Middle-Algorithmen verteilen Primitive mitten in der Rendering-Pipeline. Die Trennung erfolgt zwischen der Geometrieverarbeitung und der Rasterisierung. Bis zum Trennungspunkt wurden Objekte in screen-space Koordinaten überführt. Geometrieprozessoren bekommen eine beliebige Untermenge an Primitiven zugewiesen. Rasterisierer bekommen einen Teil des finalen Bildes zugewiesen, ähnlich wie beim Sort-First-Ansatz. Ob diese beiden Prozessortypen baulich getrennt sind, oder sich einen physikalischen Prozessor teilen, spielt dabei keine Rolle. In der Geometriestufe wird jedes Objekt bezüglich seiner finalen Bildposition klassifiziert und anschließend an die zuständigen Rasterisierer übermittelt (Abbildung \ref{fig:relwork:sortmiddle}). Ein großes Problem bei diesem Verfahren stellt jedoch die Unterbrechung der Rendering-Pipeline dar. In aktuellen Consumer-Grafikkarten ist es entweder sehr teuer, die Pipeline zu unterbrechen, oder es ist überhaupt nicht möglich.
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/sort-middle.pdf}
-  \caption{Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit{Quelle: \cite{molnar}}}
+  \caption{Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit{Quelle: nach \cite{molnar}}}
  \label{fig:relwork:sortmiddle}
 \end{figure}
 
@@ -34,10 +33,9 @@ Sort-Last-Algorithmen verteilen geometrische Objekte an einzelne Renderer. Ein R
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/sort-last.pdf}
-  \caption{Sort-Last. Umverteilung von Pixeln, Samples oder Pixelfragmenten während der Rasterisierung. \textit{Quelle: \cite{molnar}}}
+  \caption{Sort-Last. Umverteilung von Pixeln, Samples oder Pixelfragmenten während der Rasterisierung. \textit{Quelle: nach \cite{molnar}}}
  \label{fig:relwork:sortlast}
 \end{figure}
-\todo[size=\small, inline]{Korrekte Bildbeschriftung: kein Komma vor dem oder von Sort-Last}
 Samanta et al. \cite{samanta} haben einen hybriden Renderer entwickelt, welcher Sort-First und Sort-Last-Ansätze kombiniert. Geometrische Objekte werden gruppiert nach der minimalen Überlappung ihrer Boundingboxen und anschließend auf Sort-Last Rechenknoten verteilt. Besitzen mehrere Knoten überlappende Objekte, werden die berechneten Tiefenwerte ausgetauscht und mit ihren eigenen ergänzt. So erhält jeder Renderer ein nahezu korrektes Tiefenabbild. Die fertigen Farbpixel werden am Ende an einen speziellen Kachelrenderer weitergeleitet, welcher lediglich die Kacheln zusammensetzt und darstellt. Der gesamte Pixelversand wird mittels peer-to-peer im Netz\-werk verteilt, wodurch eine verbesserte Netzlastnutzung mit verringerten Latenzen möglich ist.\\
 2002 stellten Baxter et al. \cite{baxter} ein paralleles Walkthrough-System "`Gigawalk"' vor. Das System fasst Objekte zu sogenannten Clustern zusammen. In einem minimalen Spannbaum wird die minimale Ausdehnung eines Clusters berechnet, um mehrere Cluster miteinander verbinden zu können. Eine hierarchische Gruppierung ergibt sich über die Boundingboxen der einzelnen Cluster, woraus ein Szene-Graph erzeugt wird. Aus dieser Hierarchie werden verschiedene Levels-of-Detail (LOD)\cite{hlod} generiert, um bei komplexen Objekten flexibel bleiben zu können. All dies geschieht im Preprocessing. Durch Frustum-Culling werden zur Laufzeit Potentially Visible Sets \cite{RTR3} zusammengestellt, also Mengen an wahrscheinlich sichtbaren Clustern. Um zu verhindern, dass verdeckte Objekte gezeichnet werden, wird ein hierarchischer Z-Buffer verwendet, welche ein Occlusion-Culling durchführt. Als hierarchische Occluder kommen dabei die berechneten LODs zum Einsatz. Die gesamte Kommunikation erfolgt durch Shared-Memory-Queues. Dieses System wurde mit SGI Onyx Workstations getestet und kommt bei 80 Millionen Dreiecken auf 11-50 Bilder pro Sekunde.\\
 Ein anderer Ansatz wird von \cite{DBLP:journals/ijvr/YinJSZ06} verfolgt. Da dort Terraindaten berechnet werden, kommt dieses System ohne Occlusion-Culling aus, da solche Daten üblicherweise keine große Tiefenkomplexität besitzen. Bemerkenswert bei dieser Arbeit ist jedoch, dass die Datenstruktur, ein Quadtree, im Preprocessing erzeugt wird und binär auf Festplatte gespeichert wird. Somit wird ein ständiges Erzeugen einer geeigneten räumlichen Aufteilung des Modells hinfällig. Der Fokus der Arbeit liegt allerdings in der Kalibrierung des Beamersystems, welches unter Verwendung von Alpha-Blending sichtbare Kanten zwischen einzelnen Displays entfernt.\\
