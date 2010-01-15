@@ -56,9 +56,9 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="145.21968"
-     inkscape:cy="90.410344"
+     inkscape:zoom="1.979899"
+     inkscape:cx="103.99372"
+     inkscape:cy="-6.0481516"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -142,16 +142,6 @@
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.865;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:5.19,1.73;stroke-dashoffset:0;stroke-opacity:1"
        d="M 411.65169,123.67745 L 429.53838,123.67745 L 429.53838,190.49271 L 411.65169,190.49271 L 411.65169,123.67745 z"
        id="rect3232" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
-       d="M 47.142857,85.294458 L 168.21429,77.437315"
-       id="path6596"
-       transform="translate(240.05933,73.2192)" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-opacity:1"
-       d="M 48.928571,85.6516 L 168.57143,85.6516"
-       id="path6598"
-       transform="translate(240.05933,73.2192)" />
     <text
        xml:space="preserve"
        style="font-size:9px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial;-inkscape-font-specification:Arial"
@@ -202,5 +192,9 @@
        sodipodi:ry="5"
        d="M 200.71428,84.758553 A 12.5,5 0 1 1 175.71428,84.758553 A 12.5,5 0 1 1 200.71428,84.758553 z"
        transform="translate(205.76771,44.101977)" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:miter;marker-end:url(#Arrow1Mend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 287.21868,158.59266 L 406.14725,155.37837"
+       id="path2415" />
   </g>
 </svg>

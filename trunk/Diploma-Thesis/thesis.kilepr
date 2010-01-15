@@ -45,10 +45,10 @@ order=11
 
 [item:chapters/basics.tex]
 archive=true
-column=82
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=43
+line=79
 open=true
 order=4
 
@@ -63,10 +63,10 @@ order=6
 
 [item:chapters/implementation.tex]
 archive=true
-column=19
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=4
+line=69
 open=true
 order=7
 
@@ -81,12 +81,12 @@ order=0
 
 [item:chapters/relatedwork.tex]
 archive=true
-column=125
+column=60
 encoding=UTF-8
 highlight=LaTeX
-line=35
-open=false
-order=8
+line=4
+open=true
+order=10
 
 [item:chapters/results.tex]
 archive=true
@@ -111,7 +111,7 @@ archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=0
+line=3
 open=true
 order=5
 
@@ -135,10 +135,10 @@ order=-1
 
 [item:plots/1d_texture.tex]
 archive=true
-column=1
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=34
+line=26
 open=false
 order=-1
 
@@ -216,9 +216,9 @@ order=-1
 
 [item:thesis.tex]
 archive=true
-column=0
+column=1
 encoding=UTF-8
 highlight=LaTeX
-line=0
+line=297
 open=true
 order=3
