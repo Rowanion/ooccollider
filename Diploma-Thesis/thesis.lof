@@ -13,17 +13,16 @@
 \contentsline {figure}{\numberline {3.3}{\ignorespaces Ein Sampletree in einer 2D-Darstellung. \textit {links: Eine Aufteilung von Polygonen in verschiedene Quadtree Zellen. rechts: Die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an welche Polygonteile der linken Seite in welchen Knoten gespeichert wurden. Quelle: nach \cite {klein}}}}{14}{figure.3.3}
 \contentsline {figure}{\numberline {3.4}{\ignorespaces 1D-Farbtextur. $n=$Anzahl Farben. Um mittig auf den Texel der Farbe $i$ zuzugreifen, errechnet sich die Texturkoordinate durch $\frac {i}{n}-\frac {1}{2n}$. }}{15}{figure.3.4}
 \contentsline {figure}{\numberline {3.5}{\ignorespaces Verschiedene Culling-Techniken. Entfernte Geometrie ist durch gestrichelte Linien dargestellt. \textit {Quelle: nach \cite {culling}} }}{17}{figure.3.5}
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Problem beim Occlusion Culling: Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind.}}{18}{figure.3.6}
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Problem beim Occlusion Culling: Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind.}}{19}{figure.3.6}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{22}{figure.4.1}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{23}{figure.4.2}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{24}{figure.4.1}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{25}{figure.4.2}
 \addvspace {10\p@ }
-\addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Ein Beispieldiagramm mit Datenfile.}}{27}{figure.6.1}
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Beispieldiagramm 2.}}{27}{figure.6.2}
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Beispieldiagramm 3.}}{28}{figure.6.3}
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Beispieldiagramm 4.}}{28}{figure.6.4}
-\contentsline {figure}{\numberline {6.5}{\ignorespaces Beispieldiagramm 5. }}{28}{figure.6.5}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Ein Beispieldiagramm mit Datenfile.}}{27}{figure.5.1}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Beispieldiagramm 2.}}{27}{figure.5.2}
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Beispieldiagramm 3.}}{28}{figure.5.3}
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Beispieldiagramm 4.}}{28}{figure.5.4}
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Beispieldiagramm 5. }}{28}{figure.5.5}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
