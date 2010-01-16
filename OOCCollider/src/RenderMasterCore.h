@@ -80,6 +80,18 @@ private:
 	void pollSpaceNav();
 	void handleMsg(oocframework::Message* msg);
 	void manageCCollision();
+
+	/**
+	 * @brief using mmap (memory-mapped io) to acquire a valid address to the file and returning it.
+	 */
+	char* mapFile(fs::path _path, unsigned _fileSize, int& _fHandle);
+
+	/**
+	 * @brief using munmap (memory-mapped io) to release a previously acquired address for a file.
+	 */
+	void umapFile(char* _map, unsigned _fileSize, int& _fHandle);
+
+	void transmitAssignments();
 };
 
 #endif /* RENDERMASTERCORE_H_ */

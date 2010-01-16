@@ -67,6 +67,7 @@
 #ifdef PC2
 #undef SHOW_RENDER_IMAGE
 #undef SHOW_DEPTH_IMAGE
+#define TRANSMIT_DISTRIBUTION
 #define KEEP_VBOS_RESIDENT
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 1000
@@ -80,6 +81,7 @@
 
 #ifdef HOME
 #undef KEEP_VBOS_RESIDENT
+#undef TRANSMIT_DISTRIBUTION
 #define SHOW_RENDER_IMAGE
 #define SHOW_DEPTH_IMAGE
 #define MAX_OFFLINE_VBOS 1500
@@ -127,6 +129,7 @@ class MouseWheelEvent;
 class NodeRequestEvent;
 class OcclusionRequestEvent;
 class RandomSeedEvent;
+class VboDistributionEvent;
 class VboEvent;
 class WindowClosedEvent;
 class WindowResizedEvent;

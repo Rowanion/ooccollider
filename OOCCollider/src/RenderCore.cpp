@@ -81,6 +81,23 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 
 	cerr << "Mem BEFORE start " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
 
+#ifdef TRANSMIT_DISTRIBUTION
+	char* buffer = 0;
+	unsigned bufferSize = 0;
+	cerr << "Renderer " << mPriMpiCon->getRank() << " standing by for BroadCast-Ignore...." << endl;
+	MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
+	while(bufferSize != 0){
+		// the buffer itself
+		buffer = new char[bufferSize];
+		MPI::COMM_WORLD.Bcast(buffer, bufferSize, MPI_CHAR, 0);
+		delete buffer;
+		buffer = 0;
+		// the new bufferSize
+		MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
+	}
+	cerr << "Renderer " << mPriMpiCon->getRank() << " successfully ignored all BroadCasts." << endl;
+#endif
+
 	mPriMpiCon->barrier();
 	do {
 		mPriGotMatrix = false;
