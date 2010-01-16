@@ -45,6 +45,11 @@
 #include "MemTools.h"
 #include "Logger.h"
 #include "Log.h"
+#include "VboDistributionEvent.h"
+
+#include <sys/mman.h>
+#include <cstdio>
+#include <fcntl.h>
 
 namespace fs = boost::filesystem;
 using namespace ooctools;
@@ -110,7 +115,6 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 	mPriCCol.generateDistribution(mPriLo);
 
-
 	//	glFrame->setVbo(new IndexedVbo(fs::path("/media/ClemensHDD/B3_SampleTree/data/0/1.idx")));
 
 
@@ -121,6 +125,12 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 		ctde.setTileDimension(it->second);
 		MpiControl::getSingleton()->send(new Message(ctde, it->first));
 	}
+
+#ifdef TRANSMIT_DISTRIBUTION
+
+	transmitAssignments();
+
+#endif
 
 
 
@@ -437,6 +447,86 @@ void RenderMasterCore::manageCCollision()
 #endif
 
 
+}
+
+char* RenderMasterCore::mapFile(fs::path _path, unsigned _fileSize, int& _fHandle)
+{
+	char *map;  /* mmapped array of int's */
+
+	_fHandle = open(_path.string().c_str(), O_RDONLY);
+	if (_fHandle == -1) {
+		perror("Error opening file for reading");
+		exit(EXIT_FAILURE);
+	}
+	map = (char*)mmap(0, _fileSize, PROT_READ, MAP_SHARED, _fHandle, 0);
+	if (map == MAP_FAILED) {
+		close(_fHandle);
+		perror("Error mmapping the file");
+		exit(EXIT_FAILURE);
+	}
+	return map;
+}
+
+void RenderMasterCore::umapFile(char* _map, unsigned _fileSize, int& _fHandle)
+{
+	if (munmap(_map, _fileSize) == -1) {
+		perror("Error un-mmapping the file");
+	}
+
+	close(_fHandle);
+}
+
+void RenderMasterCore::transmitAssignments()
+{
+	cerr << "transmit enabled!" << endl;
+	// submit all assigned node-ids to the respective data-nodes.
+	for (unsigned i=0; i <mPriMpiCon->getDataGroup().size(); ++i){
+		VboDistributionEvent vde = VboDistributionEvent(mPriCCol.getNodeSet(mPriMpiCon->getDataGroup()[i]));
+		mPriMpiCon->isend(new Message(vde,mPriMpiCon->getDataGroup()[i]));
+		cerr << "master send " << vde.getIdCount() << " ds to datanode " << mPriMpiCon->getDataGroup()[i] << endl;
+		for (uint64_t i=0; i<10; ++i){
+			cerr << "master: id " << vde.getId(i) << endl;
+		}
+	}
+
+	// send the actual data
+	// iterate over all data-files, map them and send them
+	fs::path path = fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR));
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+	unsigned fSize = 0;
+	int fHandle;
+	char *map = 0;
+	unsigned bufferSize;
+	char* buffer = new char[1];
+	for (fs::directory_iterator itr(path); itr != end_itr; ++itr) {
+		if (itr->path().extension() == ".bin") {
+			fSize = fs::file_size(itr->path());
+			cerr << "mappping file " << itr->path() << "..." << endl;
+			map = mapFile(itr->path(), fSize, fHandle);
+			cerr << "first id in file: " << ((uint64_t*)map)[0] << endl;
+			cerr << "done. now send it....." << endl;
+			MPI::COMM_WORLD.Bcast(&fSize, sizeof(unsigned), MPI_CHAR, 0);
+			MPI::COMM_WORLD.Bcast(map, fSize, MPI_CHAR, 0);
+			cerr << "done. now unmap it....." << endl;
+			umapFile(map, fSize, fHandle);
+		}
+	}
+	fSize = 0;
+	MPI::COMM_WORLD.Bcast(&fSize, sizeof(unsigned), MPI_CHAR, 0);
+
+
+
+
+//	bufferSize = 1;
+//	MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
+//	buffer[0] = 7;
+//	MPI::COMM_WORLD.Bcast(buffer, bufferSize, MPI_CHAR, 0);
+//	bufferSize = 0;
+//	MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
+//	//		delete bufferSize;
+//	delete buffer;
+
+//	fs::path fPath = fs::path("/media/ClemensHDD/SampleTree_packed/Data0.bin");
 }
 
 void RenderMasterCore::notify(oocframework::IEvent& event) {

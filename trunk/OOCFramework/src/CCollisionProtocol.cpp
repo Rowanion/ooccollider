@@ -155,6 +155,18 @@ const std::set<uint64_t>& CCollisionProtocol::getMyNodeSet()
 	return mPriNodeToIdMap[mPriMpiCon->getRank()];
 }
 
+void CCollisionProtocol::setMyNodeSet(uint64_t _idCount, const uint64_t* _idArray)
+{
+	for (uint64_t i =0; i< _idCount; ++i){
+		mPriNodeToIdMap[mPriMpiCon->getRank()].insert(_idArray[i]);
+	}
+}
+
+const std::set<uint64_t>& CCollisionProtocol::getNodeSet(int _rank)
+{
+	return mPriNodeToIdMap[_rank];
+}
+
 void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assignedValue)
 {
 	unsigned requestCount = mPriVirtualRequests.size();

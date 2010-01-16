@@ -26,6 +26,7 @@ public:
 	IndexedVertexArray(const unsigned* _idxData, unsigned _idxCount, const V4N4* _vertexData, unsigned _vertexCount);
 	IndexedVertexArray(fs::path path, uint64_t id);
 	IndexedVertexArray(fs::ifstream* _iStream, unsigned _pos = 0);
+	IndexedVertexArray(const char* _data);
 	IndexedVertexArray(ooctools::Location _loc);
 	virtual ~IndexedVertexArray();
 

@@ -114,6 +114,23 @@ IndexedVertexArray::IndexedVertexArray(fs::ifstream* _iStream, unsigned _pos) :
 //	exit(0);
 }
 
+IndexedVertexArray::IndexedVertexArray(const char* _data) :
+	 mPriVertexData(0), mPriVertexCount(0),
+	 mPriIndexData(0), mPriIndexCount(0),
+	 mPriVertexId(0), mPriIdxId(0), mPriIsGpuOnly(false), mPriId(0), mPriFPos(0)
+
+{
+	mPriId = ((uint64_t*)_data)[0];
+	mPriIndexCount = ((unsigned*)(_data+sizeof(uint64_t)))[0];
+	mPriVertexCount = ((unsigned*)(_data+sizeof(uint64_t)))[1];
+
+	mPriIndexData = new unsigned[mPriIndexCount];
+	mPriVertexData = new V4N4[mPriVertexCount];
+
+	memcpy(mPriIndexData, _data+sizeof(uint64_t)+(2*sizeof(unsigned)), sizeof(unsigned)*mPriIndexCount);
+	memcpy(mPriVertexData, _data+sizeof(uint64_t)+(2*sizeof(unsigned)+(sizeof(unsigned)*mPriIndexCount)), sizeof(V4N4)*mPriVertexCount);
+}
+
 IndexedVertexArray::IndexedVertexArray(ooctools::Location _loc) :
 	 mPriVertexData(0), mPriVertexCount(0),
 	 mPriIndexData(0), mPriIndexCount(0),

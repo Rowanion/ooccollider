@@ -34,6 +34,7 @@
 #include "OcclusionResultsEvent.h"
 #include "Logger.h"
 #include "Log.h"
+#include "VboDistributionEvent.h"
 
 
 using namespace std;
@@ -130,12 +131,53 @@ void DataCoreGlFrame::init() {
 	mPriOh.generateIdPathMap(mPriLo, mPriIdPathMap);
 	mPriOh.generateIdLoMap(mPriLo, mPriIdLoMap);
 
+#ifdef TRANSMIT_DISTRIBUTION
+	// receive your data assignment over the network via mpi
+	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " standing by for Data-BroadCast...." << endl;
+	MpiControl::getSingleton()->receive(0);
+	Message* msg = 0;
+	msg = MpiControl::getSingleton()->pop();
+	if (msg!=0 && msg->getType() == VboDistributionEvent::classid()->getShortId()) {
+		VboDistributionEvent vde = VboDistributionEvent(msg);
+		cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " got " << vde.getIdCount() << " ids." << endl;
+		mPriCCol.setMyNodeSet(vde.getIdCount(), vde.getIdArray());
+
+		char* buffer = 0;
+		unsigned bufferSize = 0;
+		MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
+		while(bufferSize != 0){
+			// the buffer itself
+			cerr << "received new buffersize: " << bufferSize << endl;
+			buffer = new char[bufferSize];
+			MPI::COMM_WORLD.Bcast(buffer, bufferSize, MPI_CHAR, 0);
+			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " got new buffer of size " << bufferSize << "." << endl;
+			parseAndLoadVArrays(buffer, bufferSize, mPriCCol.getMyNodeSet());
+			delete buffer;
+			buffer = 0;
+			// the new bufferSize
+			MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
+		}
+		cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " successfully received all BroadCasts." << endl;
+
+	}
+	else {
+		cerr << "got a message other than VboDistribution. This should not happen!" << endl;
+		exit(0);
+	}
+	delete msg;
+	msg = 0;
+
+#else
+	// generate your data assignment yourself by direct file access
 	mPriCCol.generateDistribution(mPriLo);
-#ifdef KEEP_VBOS_RESIDENT
-//	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " now loading " << mPriCCol.getMyNodeSet().size() << "Vbos...." << endl;
+#endif
+
+#if defined(KEEP_VBOS_RESIDENT) & !defined(TRANSMIT_DISTRIBUTION)
+	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " now loading " << mPriCCol.getMyNodeSet().size() << "Vbos...." << endl;
 	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
 	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
-#else
+#elif !defined(KEEP_VBOS_RESIDENT) & !defined(TRANSMIT_DISTRIBUTION)
+	cerr << "elsezweig of vbo resident...." << endl;
 	mPriOh.generateIdLocMap(fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR)), mPriIdLocMap);
 #endif
 
@@ -633,6 +675,25 @@ void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 			}
 //			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " DONE with " << itr->path() << "..." << endl;
 		}
+	}
+}
+
+void DataCoreGlFrame::parseAndLoadVArrays(const char* _data, unsigned _arraySize, const std::set<uint64_t>& _idSet)
+{
+	uint64_t id = 0;
+	unsigned indexCount = 0;
+	unsigned vertexCount = 0;
+	set<uint64_t>::iterator idIt;
+	const char* dataPtr = _data;
+	while (dataPtr < (_data+_arraySize)){
+		id = ((uint64_t*)dataPtr)[0];
+		idIt = _idSet.find(id);
+		if (idIt != _idSet.end()){
+			mPriVArrayMap.insert(make_pair(id, new IndexedVertexArray(dataPtr)));
+		}
+		indexCount = ((unsigned*)dataPtr+sizeof(uint64_t))[0];
+		vertexCount = ((unsigned*)dataPtr+sizeof(uint64_t))[1];
+		dataPtr += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
 	}
 }
 

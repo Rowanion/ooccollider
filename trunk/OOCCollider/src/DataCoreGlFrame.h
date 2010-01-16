@@ -60,6 +60,7 @@ public:
 	void notify(oocframework::IEvent& event);
 	void occlusionTest(int _destId, std::list<const Quintuple*>* _quintList);
 	void parseAndLoadVArrays(const std::set<uint64_t>& _idSet);
+	void parseAndLoadVArrays(const char* _data, unsigned _arraySize, const std::set<uint64_t>& _idSet);
 
 protected:
 private:

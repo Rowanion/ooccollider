@@ -37,7 +37,9 @@ public:
 	CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy = 2);
 	virtual ~CCollisionProtocol();
 	void generateDistribution(const oocformats::LooseRenderOctree* _lo);
+	void setMyNodeSet(uint64_t _idCount, const uint64_t* _idArray);
 	const std::set<uint64_t>& getMyNodeSet();
+	const std::set<uint64_t>& getNodeSet(int _rank);
 	void doCCollision(std::vector<ooctools::Quintuple>* _quintVec, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap);
 
 	/**
