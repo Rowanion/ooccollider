@@ -141,7 +141,6 @@ void DataCoreGlFrame::init() {
 		VboDistributionEvent vde = VboDistributionEvent(msg);
 		cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " got " << vde.getIdCount() << " ids." << endl;
 		mPriCCol.setMyNodeSet(vde.getIdCount(), vde.getIdArray());
-
 		char* buffer = 0;
 		unsigned bufferSize = 0;
 		MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
@@ -158,7 +157,6 @@ void DataCoreGlFrame::init() {
 			MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
 		}
 		cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " successfully received all BroadCasts." << endl;
-
 	}
 	else {
 		cerr << "got a message other than VboDistribution. This should not happen!" << endl;
@@ -177,7 +175,7 @@ void DataCoreGlFrame::init() {
 	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
 	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
 #elif !defined(KEEP_VBOS_RESIDENT) & !defined(TRANSMIT_DISTRIBUTION)
-	cerr << "elsezweig of vbo resident...." << endl;
+//	cerr << "elsezweig of vbo resident...." << endl;
 	mPriOh.generateIdLocMap(fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR)), mPriIdLocMap);
 #endif
 
@@ -238,7 +236,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 //		cout << "  - VBO " << nre.getId(i) << "," << nre.getByteSize() << ", " << nre.getIdxCount() << endl;
 //		cout << "  - PATH " << "/home/ava/Diplom/Model/Octree/data/"+mPriIdPathMap[nre.getId(i)]+".idx" << endl;
 //		mPriVboMap.insert(make_pair(currQuintuple->id, new IndexedVbo(fs::path(string(BASE_MODEL_PATH)+"/data/"+mPriIdPathMap[currQuintuple->id]+".idx"), currQuintuple->id, false)));
-#ifndef KEEP_VBOS_RESIDENT
+#if !defined(KEEP_VBOS_RESIDENT) & !defined(TRANSMIT_DISTRIBUTION)
 		mPriVArrayMap.insert(make_pair(currQuintuple->id, new IndexedVertexArray(mPriIdLocMap[currQuintuple->id])));
 #endif
 //		mPriDistanceMap.insert(make_pair(nre.getDistance(i), nre.getId(i)));
@@ -333,7 +331,7 @@ void DataCoreGlFrame::display(int _destId, std::list<const Quintuple*>* _quintLi
 	}
 	// cleanup
 
-#ifndef KEEP_VBOS_RESIDENT
+#if !defined(KEEP_VBOS_RESIDENT) & !defined(TRANSMIT_DISTRIBUTION)
 	std::map<uint64_t, ooctools::IndexedVertexArray*>::iterator vArrIterator = mPriVArrayMap.begin();
 	for (; vArrIterator != mPriVArrayMap.end();){
 		delete vArrIterator->second;
@@ -691,10 +689,11 @@ void DataCoreGlFrame::parseAndLoadVArrays(const char* _data, unsigned _arraySize
 		if (idIt != _idSet.end()){
 			mPriVArrayMap.insert(make_pair(id, new IndexedVertexArray(dataPtr)));
 		}
-		indexCount = ((unsigned*)dataPtr+sizeof(uint64_t))[0];
-		vertexCount = ((unsigned*)dataPtr+sizeof(uint64_t))[1];
+		indexCount = ((unsigned*)(dataPtr+sizeof(uint64_t)))[0];
+		vertexCount = ((unsigned*)(dataPtr+sizeof(uint64_t)))[1];
 		dataPtr += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
 	}
+//	cerr << "datanode is DONE with this file!" << endl;
 }
 
 void DataCoreGlFrame::setMvMatrix(const float* matrix)

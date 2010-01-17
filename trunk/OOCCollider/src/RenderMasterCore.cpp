@@ -496,14 +496,11 @@ void RenderMasterCore::transmitAssignments()
 	unsigned fSize = 0;
 	int fHandle;
 	char *map = 0;
-	unsigned bufferSize;
-	char* buffer = new char[1];
 	for (fs::directory_iterator itr(path); itr != end_itr; ++itr) {
 		if (itr->path().extension() == ".bin") {
 			fSize = fs::file_size(itr->path());
 			cerr << "mappping file " << itr->path() << "..." << endl;
 			map = mapFile(itr->path(), fSize, fHandle);
-			cerr << "first id in file: " << ((uint64_t*)map)[0] << endl;
 			cerr << "done. now send it....." << endl;
 			MPI::COMM_WORLD.Bcast(&fSize, sizeof(unsigned), MPI_CHAR, 0);
 			MPI::COMM_WORLD.Bcast(map, fSize, MPI_CHAR, 0);
@@ -515,18 +512,6 @@ void RenderMasterCore::transmitAssignments()
 	MPI::COMM_WORLD.Bcast(&fSize, sizeof(unsigned), MPI_CHAR, 0);
 
 
-
-
-//	bufferSize = 1;
-//	MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
-//	buffer[0] = 7;
-//	MPI::COMM_WORLD.Bcast(buffer, bufferSize, MPI_CHAR, 0);
-//	bufferSize = 0;
-//	MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
-//	//		delete bufferSize;
-//	delete buffer;
-
-//	fs::path fPath = fs::path("/media/ClemensHDD/SampleTree_packed/Data0.bin");
 }
 
 void RenderMasterCore::notify(oocframework::IEvent& event) {
