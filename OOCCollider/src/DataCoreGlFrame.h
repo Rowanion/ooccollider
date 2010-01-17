@@ -60,7 +60,10 @@ public:
 	void notify(oocframework::IEvent& event);
 	void occlusionTest(int _destId, std::list<const Quintuple*>* _quintList);
 	void parseAndLoadVArrays(const std::set<uint64_t>& _idSet);
+	void parseAndLoadVArraysMmap(const std::set<uint64_t>& _idSet);
 	void parseAndLoadVArrays(const char* _data, unsigned _arraySize, const std::set<uint64_t>& _idSet);
+	char* mapFile(fs::path _path, unsigned _fileSize, int& _fHandle);
+	void umapFile(char* _map, unsigned _fileSize, int& _fHandle);
 
 protected:
 private:

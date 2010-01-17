@@ -17,6 +17,10 @@
 #include <algorithm>
 #include <sstream>
 
+#include <sys/mman.h>
+#include <cstdio>
+#include <fcntl.h>
+
 #include "GeometricOps.h"
 #include "V3f.h"
 #include "EventManager.h"
@@ -617,6 +621,43 @@ void DataCoreGlFrame::calcFPS() {
 
 }
 
+void DataCoreGlFrame::parseAndLoadVArraysMmap(const std::set<uint64_t>& _idSet)
+{
+	// --------------------------------------------
+	fs::path path = fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR));
+	unsigned fSize = 0;
+	int fHandle = 0;
+	char* map = 0;
+	char* ptr = 0;
+	uint64_t id = 0;
+	unsigned indexCount = 0;
+	unsigned vertexCount = 0;
+
+	set<uint64_t>::iterator idIt;
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+	for (fs::directory_iterator itr(path); itr != end_itr; ++itr) {
+		if (fs::is_directory(itr->status())) {
+			parseAndLoadVArraysMmap(_idSet);
+		}
+		else if (itr->path().extension() == ".bin") {
+			fSize = fs::file_size(path);
+			map = mapFile(itr->path(),fSize, fHandle);
+			ptr = map;
+			while (ptr < (map+fSize)){
+				id = ((uint64_t*)ptr)[0];
+				idIt = _idSet.find(id);
+				if (idIt != _idSet.end()){
+					mPriVArrayMap.insert(make_pair(id, new IndexedVertexArray(ptr)));
+				}
+				indexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[0];
+				vertexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[1];
+				ptr += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
+			}
+			umapFile(map, fSize, fHandle);
+		}
+	}
+}
+
 void DataCoreGlFrame::parseAndLoadVArrays(const std::set<uint64_t>& _idSet)
 {
 	fs::path path = fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR));
@@ -699,6 +740,33 @@ void DataCoreGlFrame::parseAndLoadVArrays(const char* _data, unsigned _arraySize
 void DataCoreGlFrame::setMvMatrix(const float* matrix)
 {
 	memcpy(mPriModelViewMatrix, matrix, 16*sizeof(float));
+}
+
+char* DataCoreGlFrame::mapFile(fs::path _path, unsigned _fileSize, int& _fHandle)
+{
+	char *map;  /* mmapped array of int's */
+
+	_fHandle = open(_path.string().c_str(), O_RDONLY);
+	if (_fHandle == -1) {
+		perror("Error opening file for reading");
+		exit(EXIT_FAILURE);
+	}
+	map = (char*)mmap(0, _fileSize, PROT_READ, MAP_SHARED, _fHandle, 0);
+	if (map == MAP_FAILED) {
+		close(_fHandle);
+		perror("Error mmapping the file");
+		exit(EXIT_FAILURE);
+	}
+	return map;
+}
+
+void DataCoreGlFrame::umapFile(char* _map, unsigned _fileSize, int& _fHandle)
+{
+	if (munmap(_map, _fileSize) == -1) {
+		perror("Error un-mmapping the file");
+	}
+
+	close(_fHandle);
 }
 
 void DataCoreGlFrame::notify(oocframework::IEvent& event)

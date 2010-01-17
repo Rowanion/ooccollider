@@ -20,12 +20,14 @@
 #include "OctreeHandler.h"
 #include "LooseOctree.h"
 #include "MpiControl.h"
+#include "AbstractEventListener.h"
 
 
-class RenderCore {
+class RenderCore : public oocframework::AbstractEventListener{
 public:
 	RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidth, unsigned _targetHeight);
 	virtual ~RenderCore();
+	virtual void notify(oocframework::IEvent& event);
 
 private:
 	OOCWindow* mWindow;
@@ -37,6 +39,9 @@ private:
 	RenderCoreGlFrame* mPriGlFrame;
 
 	static RenderCore* instance;
+
+	bool mPriReloadTest;
+	double mPriReloadStart, mPriReloadStop;
 
 	void sendMethod(int dest);
 	void receiveMethod(int source);

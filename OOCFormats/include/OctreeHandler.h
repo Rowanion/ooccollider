@@ -94,6 +94,8 @@ class OctreeHandler
 
 	private:
 		void parsePhase1(const fs::path& src, const fs::path& dst);
+		char* mapFile(fs::path _path, unsigned _fileSize, int& _fHandle) const;
+		void umapFile(char* _map, unsigned _fileSize, int& _fHandle) const;
 		RawModelHandler mPriRawHandler;
 		LooseProcessingOctree* mProcOctree;
 		std::map<std::string, unsigned> codeMap;

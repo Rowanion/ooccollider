@@ -565,9 +565,9 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 					MpiControl::RENDERER));
 			break;
 		default:
-			mPriCamHasMoved = true;
 			MpiControl::getSingleton()->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
+			mPriCamHasMoved = true;
 			break;
 		}
 	}

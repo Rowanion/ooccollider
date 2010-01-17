@@ -55,10 +55,12 @@ public:
 //	void sendImmediate(Message* msg);
 //	void sendImmediateToAll(Message* msg);
 	void finalize();
-	inline bool inQueueEmpty() const {return (mInQueue.empty());};
-	inline bool outQueueEmpty() const {return (mOutQueue.empty());};
-	inline unsigned getInQueueSize() const {return (mInQueue.size());};
-	inline unsigned getOutQueueSize() const {return (mOutQueue.size());};
+	bool inQueueEmpty() const {return (mInQueue.empty());};
+	bool outQueueEmpty() const {return (mOutQueue.empty());};
+	bool inRequestsEmpty() const {return (mPriInRequests.empty());};
+	bool outRequestsEmpty() const {return (mPriOutRequests.empty());};
+	unsigned getInQueueSize() const {return (mInQueue.size());};
+	unsigned getOutQueueSize() const {return (mOutQueue.size());};
 
 	void makeRenderGroup(int size, const int* ranks);
 	void makeDataGroup(int size, const int* ranks);

@@ -14,6 +14,10 @@
 
 #include <iostream>
 
+#include <sys/mman.h>
+#include <cstdio>
+#include <fcntl.h>
+
 #include "declarations.h"
 #include "../../OOCTools/include/declarations.h"
 #include "../../OOCFormats/include/declarations.h"
@@ -567,6 +571,36 @@ OctreeHandler::loadLooseOctreeSkeleton(fs::path file)
 LooseRenderOctree*
 OctreeHandler::loadLooseRenderOctreeSkeleton(fs::path file)
 {
+	// -----------------------------------------------
+//	unsigned fSize = fs::file_size(file);
+//	int fHandler = 0;
+//	char* map = 0;
+//	char* ptr = 0;
+//	LooseRenderOctree* lro = 0;
+//
+//	map = mapFile(file, fSize, fHandler);
+//	ptr = map;
+//
+//	lro = new LooseRenderOctree(ptr);
+//	ptr += LooseRenderOctree::getSkeletonSize();
+//	LooseRenderOctree::maxTriCount = lro->getTriangleCount();
+//	LooseRenderOctree::totalTriCount += lro->getTriangleCount();
+//
+//	while(ptr < (map+fSize)){
+//		lro->insertNode(new LooseRenderOctree(ptr));
+//		ptr += LooseRenderOctree::getSkeletonSize();
+//	}
+//
+//	cout << "MaxLevel of OctreeSkel: " << LooseRenderOctree::maxLevel << endl;
+//	cout << "MaxTriCount/node of OctreeSkel: " << LooseRenderOctree::maxTriCount << endl;
+//	cout << "TotalTriCount: " << LooseRenderOctree::totalTriCount << endl;
+//	for (unsigned i =0; i< 8; ++i){
+//		cout << "Children with id " << i << ": " << LooseRenderOctree::descendantCount[i] << endl;
+//	}
+//
+//
+//	umapFile(map, fSize, fHandler);
+	// -----------------------------------------------
 	fs::ifstream _if;
 	_if.open(file, ios::in|ios::binary);
 	LooseRenderOctree* lro;
@@ -1022,49 +1056,64 @@ OctreeHandler::generateIdLoMap(LooseRenderOctree* lo, std::map<uint64_t, oocform
 void
 OctreeHandler::generateIdLocMap(fs::path _path, std::map<uint64_t, ooctools::Location>& _idLocMap) const
 {
-	fs::ifstream inFile;
-	unsigned pos = 0;
-	unsigned size=0;
-	ooctools::Location loc;
-	uint64_t id = 0;
-	unsigned indexCount = 0;
-	unsigned vertexCount = 0;
+	char* map = 0;
+	char* ptr = 0;
+	unsigned fSize = 0;
+	int fHandler = 0;
 	fs::directory_iterator end_itr; // default construction yields past-the-end
 	for (fs::directory_iterator itr(_path); itr != end_itr; ++itr) {
 		if (fs::is_directory(itr->status())) {
 			generateIdLocMap(itr->path(),_idLocMap);
 		}
 		else if (itr->path().extension() == ".bin") {
-			inFile.open(itr->path(), ios::binary);
-			inFile.seekg(0, ios::end);
+			unsigned pos = 0;
+			ooctools::Location loc;
+			uint64_t id = 0;
+			unsigned indexCount = 0;
+			unsigned vertexCount = 0;
 			loc.path = itr->path();
-			size = inFile.tellg();
-			inFile.seekg(0, ios::beg);
-			pos = 0;
-			while (pos < size){
-				inFile.read((char*)&id, sizeof(uint64_t));
-
+			fSize = fs::file_size(itr->path());
+			map = mapFile(itr->path(),fSize,fHandler);
+			while (pos < fSize){
+				ptr = (map+pos);
+				id = ((uint64_t*)(ptr))[0];
 				loc.position = pos;
-//				cerr << "path " << loc.path << endl;
-//				cerr << "pos " << loc.position << endl;
-//				cerr << "size " << size << endl;
 				_idLocMap.insert(make_pair(id, loc));
 
-				inFile.seekg(pos+sizeof(uint64_t), ios::beg);
-				inFile.read((char*)&indexCount, sizeof(unsigned));
-				inFile.seekg(pos+sizeof(uint64_t)+(sizeof(unsigned)), ios::beg);
-				inFile.read((char*)&vertexCount, sizeof(unsigned));
+				indexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[0];
+				vertexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[1];
 				pos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
-
-//				cerr << "indices: " << indexCount << endl;
-//				cerr << "vertices: " << vertexCount << endl;
-//				cerr << "size-sum: " << sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4)) << endl;
-//				cerr << "new position: " << pos << endl;
-				inFile.seekg(pos, ios::beg);
 			}
-			inFile.close();
+			umapFile(map,fSize, fHandler);
 		}
 	}
+}
+
+char* OctreeHandler::mapFile(fs::path _path, unsigned _fileSize, int& _fHandle) const
+{
+	char *map;  /* mmapped array of chars */
+
+	_fHandle = open(_path.string().c_str(), O_RDONLY);
+	if (_fHandle == -1) {
+		perror("Error opening file for reading");
+		exit(EXIT_FAILURE);
+	}
+	map = (char*)mmap(0, _fileSize, PROT_READ, MAP_SHARED, _fHandle, 0);
+	if (map == MAP_FAILED) {
+		close(_fHandle);
+		perror("Error mmapping the file");
+		exit(EXIT_FAILURE);
+	}
+	return map;
+}
+
+void OctreeHandler::umapFile(char* _map, unsigned _fileSize, int& _fHandle) const
+{
+	if (munmap(_map, _fileSize) == -1) {
+		perror("Error un-mmapping the file");
+	}
+
+	close(_fHandle);
 }
 
 } // oocformats

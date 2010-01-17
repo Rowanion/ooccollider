@@ -142,26 +142,47 @@ IndexedVertexArray::IndexedVertexArray(ooctools::Location _loc) :
 
 {
 
-	fs::ifstream inFile;
-	inFile.open(_loc.path, ios::binary);
-	inFile.seekg(mPriFPos, ios::beg);
-	inFile.read((char*)&mPriId, sizeof(uint64_t));
-	inFile.seekg(mPriFPos+sizeof(uint64_t), ios::beg);
-	inFile.read((char*)&mPriIndexCount, sizeof(unsigned));
-	inFile.seekg(mPriFPos+sizeof(uint64_t)+sizeof(unsigned), ios::beg);
-	inFile.read((char*)&mPriVertexCount, sizeof(unsigned));
-	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2), ios::beg);
-
+	// -----------------------------------------------------------------------------
+	unsigned fSize = fs::file_size(_loc.path);
+	int fHandle;
+	char* map = 0;
+	char* ptr = 0;
+	map = mapFile(_loc.path, fSize, fHandle);
+	ptr = map+mPriFPos;
+	mPriId = ((uint64_t*)ptr)[0];
+	mPriIndexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[0];
+	mPriVertexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[1];
 
 	mPriIndexData = new unsigned[mPriIndexCount];
 	mPriVertexData = new V4N4[mPriVertexCount];
 
-	inFile.read((char*)mPriIndexData, sizeof(unsigned)*mPriIndexCount);
-	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount), ios::beg);
+	memcpy(mPriIndexData, ptr+sizeof(uint64_t)+(2*sizeof(unsigned)), sizeof(unsigned)*mPriIndexCount);
+	memcpy(mPriVertexData, ptr+sizeof(uint64_t)+(2*sizeof(unsigned)+(sizeof(unsigned)*mPriIndexCount)), sizeof(V4N4)*mPriVertexCount);
 
-	inFile.read((char*)mPriVertexData, sizeof(V4N4)*mPriVertexCount);
-	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
 	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
+
+	umapFile(map,fSize,fHandle);
+	// -----------------------------------------------------------------------------
+//	fs::ifstream inFile;
+//	inFile.open(_loc.path, ios::binary);
+//	inFile.seekg(mPriFPos, ios::beg);
+//	inFile.read((char*)&mPriId, sizeof(uint64_t));
+//	inFile.seekg(mPriFPos+sizeof(uint64_t), ios::beg);
+//	inFile.read((char*)&mPriIndexCount, sizeof(unsigned));
+//	inFile.seekg(mPriFPos+sizeof(uint64_t)+sizeof(unsigned), ios::beg);
+//	inFile.read((char*)&mPriVertexCount, sizeof(unsigned));
+//	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2), ios::beg);
+//
+//
+//	mPriIndexData = new unsigned[mPriIndexCount];
+//	mPriVertexData = new V4N4[mPriVertexCount];
+//
+//	inFile.read((char*)mPriIndexData, sizeof(unsigned)*mPriIndexCount);
+//	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount), ios::beg);
+//
+//	inFile.read((char*)mPriVertexData, sizeof(V4N4)*mPriVertexCount);
+//	inFile.seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
+//	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
 
 //	cerr << "ID: " << mPriId << endl;
 //	cerr << "indexcount: " << mPriIndexCount << endl;
@@ -170,7 +191,7 @@ IndexedVertexArray::IndexedVertexArray(ooctools::Location _loc) :
 //		cerr << mPriIndexData[i] << endl;
 //	}
 //	exit(0);
-	inFile.close();
+//	inFile.close();
 }
 
 IndexedVertexArray::~IndexedVertexArray() {
@@ -227,7 +248,7 @@ IndexedVertexArray::next()
 
 char* IndexedVertexArray::mapFile(fs::path _path, unsigned _fileSize, int& _fHandle)
 {
-	char *map;  /* mmapped array of int's */
+	char *map;  /* mmapped array of chars */
 
 	_fHandle = open(_path.string().c_str(), O_RDONLY);
 	if (_fHandle == -1) {
