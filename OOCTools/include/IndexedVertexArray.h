@@ -54,6 +54,9 @@ private:
 	uint64_t mPriId;
 	fs::ifstream* mPriIStream;
 	unsigned mPriFPos;
+
+	char* mapFile(fs::path _path, unsigned _fileSize, int& _fHandle);
+	void umapFile(char* _map, unsigned _fileSize, int& _fHandle);
 };
 
 }

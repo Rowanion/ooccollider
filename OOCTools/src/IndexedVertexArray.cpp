@@ -12,6 +12,10 @@
 #include <iostream>
 #include <cstring>
 
+#include <sys/mman.h>
+#include <cstdio>
+#include <fcntl.h>
+
 #include "GlToolkit.h"
 
 namespace fs = boost::filesystem;
@@ -219,6 +223,33 @@ IndexedVertexArray::next()
 	mPriIStream->seekg(mPriFPos+sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount)), ios::beg);
 	mPriFPos += sizeof(uint64_t)+(sizeof(unsigned)*2) + (sizeof(unsigned)*mPriIndexCount + (sizeof(V4N4)*mPriVertexCount));
 
+}
+
+char* IndexedVertexArray::mapFile(fs::path _path, unsigned _fileSize, int& _fHandle)
+{
+	char *map;  /* mmapped array of int's */
+
+	_fHandle = open(_path.string().c_str(), O_RDONLY);
+	if (_fHandle == -1) {
+		perror("Error opening file for reading");
+		exit(EXIT_FAILURE);
+	}
+	map = (char*)mmap(0, _fileSize, PROT_READ, MAP_SHARED, _fHandle, 0);
+	if (map == MAP_FAILED) {
+		close(_fHandle);
+		perror("Error mmapping the file");
+		exit(EXIT_FAILURE);
+	}
+	return map;
+}
+
+void IndexedVertexArray::umapFile(char* _map, unsigned _fileSize, int& _fHandle)
+{
+	if (munmap(_map, _fileSize) == -1) {
+		perror("Error un-mmapping the file");
+	}
+
+	close(_fHandle);
 }
 
 } //ooctools
