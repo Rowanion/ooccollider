@@ -272,7 +272,7 @@ unsigned LooseRenderOctree::getSkeletonSize()
 {
 	// id + 8*children ids, BBm areasum, triCount
 //	cout << "Skel-Size: " << (sizeof(int64_t)*1) + (6*sizeof(float)) + sizeof(float) + sizeof(unsigned) << endl;
-	return (sizeof(int64_t)*1) + (6*sizeof(float)) + sizeof(float) + sizeof(unsigned);
+	return (sizeof(uint64_t)*1) + (6*sizeof(float)) + sizeof(float) + sizeof(unsigned);
 }
 
 BoundingBox

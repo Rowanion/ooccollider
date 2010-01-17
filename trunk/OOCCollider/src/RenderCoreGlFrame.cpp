@@ -181,8 +181,8 @@ void RenderCoreGlFrame::init() {
 	cout << "(" << MpiControl::getSingleton()->getRank() << ") tile: " << mPriTileXPos << ", " << mPriTileYPos << ", " << mPriTileWidth << ", " << mPriTileHeight << endl;
 
 	glGenQueries(L1_CACHE_VBO_LIMIT, mPriOccQueries);
-	bool mPriClearCache = false;
-	bool mPriClearAll = false;
+	mPriClearCache = false;
+	mPriClearAll = false;
 
 
 }
@@ -753,6 +753,10 @@ RenderCoreGlFrame::requestMissingVbos()
 	}
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));
+	// RELOADTEST
+//	if (loadCount <=0) {
+//		EventManager::getSingleton()->fire(ete);
+//	}
 
 }
 

@@ -36,6 +36,7 @@
 #include "MemTools.h"
 #include "Logger.h"
 #include "Log.h"
+#include "EndTransmissionEvent.h"
 
 
 using namespace std;
@@ -76,8 +77,14 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 	mPriGlFrame->initTiles();
 	GET_GLERROR(0);
 
+	mPriReloadTest = false;
+	mPriReloadStart = 0.0;
+	mPriReloadStop = 0.0;
+
 	// Main rendering loop
 	unsigned frames = 0;
+
+	oocframework::EventManager::getSingleton()->addListener(this, EndTransmissionEvent::classid());
 
 	cerr << "Mem BEFORE start " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
 
@@ -120,6 +127,16 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 				Message* msg = mPriMpiCon->pop();
 				handleMsg(msg);
 			}
+			if (mPriMpiCon->inQueueEmpty() && mPriMpiCon->inRequestsEmpty()){
+				if (mPriReloadTest){
+					mPriReloadStop = glfwGetTime();
+					cerr << "Model reload complete?" << endl;
+					cerr << "it took " << mPriReloadStop-mPriReloadStart << " seconds!" << endl;
+					mPriReloadTest = false;
+					mPriReloadStart = 0.0;
+					mPriReloadStop = 0.0;
+				}
+			}
 			//		cout << "waiting for matrix from 0..." << endl;
 			//		receiveMethod(0);Offli
 			GET_GLERROR(0);
@@ -157,7 +174,8 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 }
 
 RenderCore::~RenderCore() {
-	// TODO Auto-generated destructor stub
+	oocframework::EventManager::getSingleton()->removeListener(this, EndTransmissionEvent::classid());
+
 	mRunning = false;
 	delete mWindow;
 	mWindow = 0;
@@ -213,6 +231,11 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
 			KeyPressedEvent kpe = KeyPressedEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(kpe);
+			// RELOADTEST
+			if (kpe.isCtrl() && (kpe.getKey() == 'X')){
+				mPriReloadTest = true;
+				mPriReloadStart = glfwGetTime();
+			}
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
 			mPriGotMatrix = true;
@@ -251,5 +274,20 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 		}
 		delete msg;
 		msg = 0;
+	}
+}
+
+void RenderCore::notify(IEvent& event)
+{
+	if (event.instanceOf(EndTransmissionEvent::classid())){
+		EndTransmissionEvent& ete = (EndTransmissionEvent&)event;
+		if (mPriReloadTest){
+			mPriReloadStop = glfwGetTime();
+			cerr << "Model reload complete?" << endl;
+			cerr << "it took " << mPriReloadStop-mPriReloadStart << " seconds!" << endl;
+			mPriReloadTest = false;
+			mPriReloadStart = 0.0;
+			mPriReloadStop = 0.0;
+		}
 	}
 }

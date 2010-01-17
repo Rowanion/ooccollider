@@ -16,9 +16,9 @@
 
 
 #ifdef __X86_64__
-#define MEM_BLOCK_SIZE 1024*1024*64 // 1024 = 1gb
+#define MEM_BLOCK_SIZE 1024*1024*128 // 1024 = 1gb
 #else
-#define MEM_BLOCK_SIZE 1024*1024*128 // 512
+#define MEM_BLOCK_SIZE 1024*1024*256 // 1024
 #endif
 
 using namespace std;
