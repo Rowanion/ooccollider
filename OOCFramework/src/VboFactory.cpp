@@ -411,6 +411,11 @@ unsigned VboFactory::getUsedMem()
 	return mPriUsedMem;
 }
 
+unsigned VboFactory::getTotalMem()
+{
+	return (MEM_BLOCK_SIZE*sizeof(mem_t));
+}
+
 unsigned VboFactory::getFreeBlocks()
 {
 	return mPriFreeMap.size();
