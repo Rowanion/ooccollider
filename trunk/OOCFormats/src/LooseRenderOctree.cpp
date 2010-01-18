@@ -55,14 +55,30 @@ unsigned LooseRenderOctree::pubTick = 0;
 unsigned LooseRenderOctree::pubTickLimit = 0;
 unsigned LooseRenderOctree::pubNodeCount = 0;
 unsigned LooseRenderOctree::treeTriCount = 0;
-unsigned LooseRenderOctree::triLimits[] = {pow(2,(LIMIT_EXPONENT-14)),pow(2,(LIMIT_EXPONENT-13)),pow(2,(LIMIT_EXPONENT-12)),pow(2,(LIMIT_EXPONENT-11)),pow(2,(LIMIT_EXPONENT-10)),pow(2,(LIMIT_EXPONENT-9)),pow(2,(LIMIT_EXPONENT-8)),pow(2,(LIMIT_EXPONENT-7)),pow(2,(LIMIT_EXPONENT-6)),pow(2,(LIMIT_EXPONENT-5)),pow(2,(LIMIT_EXPONENT-4)),pow(2,(LIMIT_EXPONENT-3)),pow(2,(LIMIT_EXPONENT-2)),pow(2,(LIMIT_EXPONENT-1)),pow(2,(LIMIT_EXPONENT))};
+unsigned* LooseRenderOctree::triLimits = new unsigned[15];
+//{pow(2,(LIMIT_EXPONENT-14)),pow(2,(LIMIT_EXPONENT-13)),pow(2,(LIMIT_EXPONENT-12)),pow(2,(LIMIT_EXPONENT-11)),pow(2,(LIMIT_EXPONENT-10)),pow($
+bool LooseRenderOctree::firstCall = true;
 
 LooseRenderOctree* LooseRenderOctree::pubRoot = 0;
 
 LooseRenderOctree::LooseRenderOctree(LooseRenderOctree* _father, const BoundingBox& _bb, int64_t _id) :
 	mBb(_bb), mExtBb(extendBb(_bb)),
 	mPriId(_id), mPriLevel(0), mFather(_father), mPriTriCount(0)
-{
+	{
+	if(firstCall) {
+
+		unsigned aTemp = 1;
+		for(unsigned i = 0; i < LIMIT_EXPONENT; ++i) {
+			aTemp *= 2;
+		}
+
+		triLimits[14] = aTemp;
+		for(int i = 13; i >= 0; --i) {
+			triLimits[i] = triLimits[i+1] / 2;
+		}
+		firstCall = false;
+	}
+
 	if (mFather != 0) {
 		mPriLevel = mFather->getLevel() + 1;
 	}
@@ -79,8 +95,22 @@ LooseRenderOctree::LooseRenderOctree(LooseRenderOctree* _father, const BoundingB
 LooseRenderOctree::LooseRenderOctree(const char* nodeSkel) :
 	mBb(0.0), mPriId(0), mPriWrapper(this), mPriDistanceUpdateKey(-1), mPriLevel(0),
 	mFather(0), mPriTriCount(0)
-{
-//	cerr << "constructing LooseRenderOctree" << endl;
+	{
+	//	cerr << "constructing LooseRenderOctree" << endl;
+	if(firstCall) {
+
+		unsigned aTemp = 1;
+		for(unsigned i = 0; i < LIMIT_EXPONENT; ++i) {
+			aTemp *= 2;
+		}
+
+		triLimits[14] = aTemp;
+		for(int i = 13; i >= 0; --i) {
+			triLimits[i] = triLimits[i+1] / 2;
+		}
+		firstCall = false;
+	}
+
 	const char* count = nodeSkel;
 	mPriId = *((int64_t*)count);
 	count += sizeof(int64_t);
