@@ -227,7 +227,8 @@ class LooseRenderOctree
 		int mPriDistanceUpdateKey;
 		int mPriLevel;
 		static unsigned treeTriCount;
-		static unsigned triLimits[15];
+		static unsigned* triLimits;
+		static bool firstCall;
 
 		//TODO change to LooseRenderOctree**
 		LooseRenderOctree* mChildren[8];

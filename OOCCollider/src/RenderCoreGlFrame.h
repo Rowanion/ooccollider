@@ -210,6 +210,8 @@ private:
 	typedef std::set<ooctools::Quintuple>::const_iterator CQuintSetIter;
 	typedef std::set<ooctools::Quintuple>::reverse_iterator RQuintSetIter;
 
+	typedef oocframework::VboFactory myVF;
+
 	void calcFPS();
 	void requestMissingVbos();
 	void compareVbos(std::map<uint64_t, ooctools::IndexedVbo*>* vboMap, std::map<uint64_t, ooctools::IndexedVbo*>* vboMap2);
@@ -242,6 +244,8 @@ private:
 	void stripDoublesFromRight(const std::set<uint64_t>& leftSet, std::set<uint64_t>& rightSet);
 	void stripDoublesFromRight(const std::map<uint64_t, ooctools::IndexedVbo*>& leftMap, std::set<uint64_t>& rightSet);
 	void generateMaxDistPerLevel(unsigned _maxLevel, float _originalSize);
+
+	myVF* vf;
 };
 
 #endif /* RENDERCOREGLFRAME_H_ */

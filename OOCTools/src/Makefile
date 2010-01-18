@@ -1,7 +1,7 @@
 CC=mpic++
 LD=$(CC)
-HOMEDIR = /home-pc2/user/ava
-#HOMEDIR=/scratch/tsuess/ava
+#HOMEDIR = /home-pc2/user/ava
+HOMEDIR=/scratch/tsuess/ava
 CPPFLAGS = -Wall -Wno-deprecated -O3 -DCLUSTER -D__X86_64__ -fPIC -ffast-math -funroll-loops -msse2 -I$(HOMEDIR)/Diplom/include -I$(HOME)/Diplom/usr/include -I/usr/include -I../include -I../../OOCFormats/include
 
 LFLAGS = -fPIC -L$(HOMEDIR)/Diplom/usr/lib64 -L$(HOMEDIR)/Diplom/usr/lib -L$(HOMEDIR)/Diplom/lib  -L/usr/lib64 -L/usr/X11R6/lib -lmpi -lGL -lGLU -lGLEW -lCg -lCgGL -lglut -lboost_system-gcc41-mt-1_38 -lboost_filesystem-gcc41-mt -lpthread 
