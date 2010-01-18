@@ -146,20 +146,20 @@ void DataCoreGlFrame::init() {
 		cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " got " << vde.getIdCount() << " ids." << endl;
 		mPriCCol.setMyNodeSet(vde.getIdCount(), vde.getIdArray());
 		char* buffer = 0;
+		// upper bound of one single filesize in our case
+		buffer = new char[500290228];
 		unsigned bufferSize = 0;
 		MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
 		while(bufferSize != 0){
-			// the buffer itself
-			cerr << "received new buffersize: " << bufferSize << endl;
-			buffer = new char[bufferSize];
-			MPI::COMM_WORLD.Bcast(buffer, bufferSize, MPI_CHAR, 0);
 			cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " got new buffer of size " << bufferSize << "." << endl;
+			// the buffer itself
+			MPI::COMM_WORLD.Bcast(buffer, bufferSize, MPI_CHAR, 0);
 			parseAndLoadVArrays(buffer, bufferSize, mPriCCol.getMyNodeSet());
-			delete buffer;
-			buffer = 0;
 			// the new bufferSize
 			MPI::COMM_WORLD.Bcast(&bufferSize, sizeof(unsigned), MPI_CHAR, 0);
 		}
+		delete[] buffer;
+		buffer = 0;
 		cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " successfully received all BroadCasts." << endl;
 	}
 	else {
@@ -175,8 +175,8 @@ void DataCoreGlFrame::init() {
 #endif
 
 #if defined(KEEP_VBOS_RESIDENT) & !defined(TRANSMIT_DISTRIBUTION)
-	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " now loading " << mPriCCol.getMyNodeSet().size() << "Vbos...." << endl;
-	parseAndLoadVArrays(mPriCCol.getMyNodeSet());
+	cerr << "DataNode " << MpiControl::getSingleton()->getRank() << " now loading " << mPriCCol.getMyNodeSet().size() << " Vbos...." << endl;
+	parseAndLoadVArraysMmap(mPriCCol.getMyNodeSet());
 	cerr << "DATANODE "<< MpiControl::getSingleton()->getRank() << " loaded all data, thus having " << mPriVArrayMap.size() << " VArrays resident." << endl;
 #elif !defined(KEEP_VBOS_RESIDENT) & !defined(TRANSMIT_DISTRIBUTION)
 //	cerr << "elsezweig of vbo resident...." << endl;
@@ -640,7 +640,7 @@ void DataCoreGlFrame::parseAndLoadVArraysMmap(const std::set<uint64_t>& _idSet)
 			parseAndLoadVArraysMmap(_idSet);
 		}
 		else if (itr->path().extension() == ".bin") {
-			fSize = fs::file_size(path);
+			fSize = fs::file_size(itr->path());
 			map = mapFile(itr->path(),fSize, fHandle);
 			ptr = map;
 			while (ptr < (map+fSize)){

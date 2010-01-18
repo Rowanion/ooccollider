@@ -1049,6 +1049,7 @@ void RenderCoreGlFrame::manageCaching()
 	}
 	else if (mPriClearAll){
 		clearEverything();
+		VboFactory::getSingleton()->clear();
 		mPriClearAll = false;
 	}
 	else {
@@ -1198,7 +1199,7 @@ void
 RenderCoreGlFrame::clearEverything()
 {
 //	cerr << "Mem BEFORE " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;
-
+	cerr << "clearing everything from all renderers..." << endl;
 	WrapperListIter wli = mPriWrapperInFrustum.begin();
 	for (; wli != mPriWrapperInFrustum.end(); ){
 		switch ((*wli)->state){
@@ -1442,6 +1443,8 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << headerS.str() << "L2_Cache: " << l2Cache/1048576 << "Mib / " << L2_CACHE_THRESHOLD/1048576 << "Mib" << endl;
 		cout << headerS.str() << "Total Cache: " << (l1Cache+l2Cache)/1048576 << "Mib / " << endl;
 		cout << headerS.str() << "L1_Cache (offi): " << mPriL1Cache/1048576 << "Mib / " << L1_CACHE_THRESHOLD/1048576 << "Mib" << endl;
+		cout << headerS.str() << "L2_Cache (offi): " << mPriL2Cache/1048576 << "Mib / " << L2_CACHE_THRESHOLD/1048576 << "Mib" << endl;
+		cout << headerS.str() << "FreeMem f/u/t: " << VboFactory::getSingleton()->getFreeMem() << "/" << VboFactory::getSingleton()->getUsedMem() << "/" << VboFactory::getSingleton()->getTotalMem() << endl;
 		cout << headerS.str() << "L2_Cache (offi): " << mPriL2Cache/1048576 << "Mib / " << L2_CACHE_THRESHOLD/1048576 << "Mib" << endl;
 //		cout << headerS.str() << "currently loaded vbos: " << mPriVbosInFrustum.size() << endl;
 //		cout << headerS.str() << "total requested vbos: " << mPriRequestedVboList.size() << endl;

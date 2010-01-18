@@ -63,6 +63,7 @@ public:
 	void drawAlt(ooctools::IVbo* _iVbo);
 	unsigned getFreeMem();
 	unsigned getUsedMem();
+	unsigned getTotalMem();
 	unsigned getFreeBlocks();
 	unsigned getLargestFreeBlock();
 	unsigned getSmallestFreeBlock();
