@@ -33,6 +33,7 @@
 #include "OcclusionRequestEvent.h"
 #include "Logger.h"
 #include "Log.h"
+#include "SceneCompletionEvent.h"
 
 #define RENDER_NODES 1
 
@@ -64,6 +65,7 @@ DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidt
 	for (unsigned i=0; i< dataGrp.size(); ++i){
 		mPriQuintMapList.insert(make_pair(dataGrp[i], std::list<const ooctools::Quintuple*>()));
 	}
+	mPriSceneCompletion = false;
 	// Main rendering loop
 
 	mPriMpiCon->barrier();
@@ -73,7 +75,14 @@ DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidt
 		if (!mPriMpiCon->inQueueEmpty()){
 			handleMsg(mPriMpiCon->pop());
 		}
-		MpiControl::getSingleton()->isend();
+		else if (mPriSceneCompletion){
+			if (mPriMpiCon->inQueueEmpty() && mPriMpiCon->inRequestsEmpty() && mPriMpiCon->outRequestsEmpty() && mPriMpiCon->outQueueEmpty()){
+				SceneCompletionEvent sce = SceneCompletionEvent();
+				mPriMpiCon->push(new Message(sce, 0));
+				mPriSceneCompletion = false;
+			}
+		}
+		mPriMpiCon->isend();
 
 
 //		renderOneFrame();
@@ -154,6 +163,9 @@ void DataCore::handleMsg(Message* msg){
 			//				mGlFrame->setMvMatrix(mve.getMatrix());
 			//				cout << "datacore matrix! successfully copied!" << endl;
 			oocframework::EventManager::getSingleton()->fire(mve);
+		}
+		else if (msg->getType() == SceneCompletionEvent::classid()->getShortId()){
+			mPriSceneCompletion = true;
 		}
 		else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
 //							cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;

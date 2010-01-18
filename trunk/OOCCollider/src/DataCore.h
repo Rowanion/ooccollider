@@ -44,6 +44,7 @@ private:
 	unsigned mPriFrameTick;
 	double mPriRequestTime;
 
+	bool mPriSceneCompletion;
 
 	static DataCore* instance;
 

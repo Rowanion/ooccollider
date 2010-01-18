@@ -46,6 +46,7 @@
 #include "Logger.h"
 #include "Log.h"
 #include "VboDistributionEvent.h"
+#include "SceneCompletionEvent.h"
 
 #include <sys/mman.h>
 #include <cstdio>
@@ -170,6 +171,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 				mPriFrameCount = 0;
 				DepthBufferRequestEvent dbre = DepthBufferRequestEvent(mPriGlFrame->createMvMatrix());
 				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
+				cerr << "DepthBuffer RESEND initated by Master!" << endl;
 				mPriMpiCon->barrier();
 				// go into listenmode to receive the rendering-times
 				mPriMpiCon->receive(MpiControl::RENDERER);
@@ -219,6 +221,11 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 			//			cout << "---master ENTER display" << endl;
 			mPriGlFrame->display();
+
+			mPriMpiCon->ireceive(MpiControl::DATA);
+			if (!mPriMpiCon->inQueueEmpty()){
+				handleMsg(mPriMpiCon->pop());
+			}
 			mPriFrameCount++;
 
 
@@ -330,6 +337,16 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			//			cout << "w: " << ((int*)msg->getData())[0] << endl;
 			//			cout << "w: " << cbe.getWidth() << ", h: " << cbe.getHeight() << ", x: " << cbe.getX() << ", y: " << cbe.getY() << endl;
 			//			mRunning = false;
+		}
+		else if (msg->getType() == SceneCompletionEvent::classid()->getShortId()) {
+			mPriSceneCompletion[msg->getSrc()] = (glfwGetTime()-mPriSceneCompletion[msg->getSrc()]);
+			mPriSceneCompletionCount++;
+			if (mPriSceneCompletionCount >= mPriMpiCon->getGroupSize(MpiControl::DATA)){
+				map<int, double>::iterator timeIt = mPriSceneCompletion.begin();
+				for (; timeIt != mPriSceneCompletion.end(); timeIt++){
+					cerr << "CompletionTime for DataNode " << timeIt->first << ": " << timeIt->second << " secs." << endl;
+				}
+			}
 		}
 		else if (msg->getType() == AccumulatedRendertimeEvent::classid()->getShortId()) {
 //			cout << "AccumulatedRendertimeRequest" << endl;
@@ -564,6 +581,21 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 			MpiControl::getSingleton()->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
 			break;
+		case 'X':{
+			if (kpe.isCtrl()){
+				// RELOADTEST
+				mPriSceneCompletion.clear();
+				for (unsigned i = 0; i < mPriMpiCon->getDataGroup().size(); i++){
+					mPriSceneCompletion.insert(make_pair(mPriMpiCon->getDataGroup()[i], glfwGetTime()));
+				}
+				mPriSceneCompletionCount = 0;
+			}
+			mPriCamHasMoved = true;
+			MpiControl::getSingleton()->push(new Message(kpe, 1,
+					MpiControl::RENDERER));
+			SceneCompletionEvent sce = SceneCompletionEvent();
+			MpiControl::getSingleton()->push(new Message(sce, 1, MpiControl::DATA));
+			break;}
 		default:
 			MpiControl::getSingleton()->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
