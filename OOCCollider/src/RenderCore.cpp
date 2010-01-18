@@ -231,11 +231,6 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
 			KeyPressedEvent kpe = KeyPressedEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(kpe);
-			// RELOADTEST
-			if (kpe.isCtrl() && (kpe.getKey() == 'X')){
-				mPriReloadTest = true;
-				mPriReloadStart = glfwGetTime();
-			}
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
 			mPriGotMatrix = true;

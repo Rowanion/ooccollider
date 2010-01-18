@@ -74,6 +74,9 @@ private:
 	int mPriWindowWidth;
 	int mPriWindowHeight;
 
+	std::map<int, double> mPriSceneCompletion;
+	unsigned mPriSceneCompletionCount;
+
 	static RenderMasterCore* instance;
 
 	MPI::Request sendQueue(int dest);
