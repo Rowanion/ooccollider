@@ -144,6 +144,12 @@ unsigned VboEvent::getBytePrefixSum(unsigned idx) const
 {
 	return ((unsigned*)(mProData + sizeof(unsigned) ))[idx];
 }
+
+unsigned VboEvent::getVboSize(unsigned idx)
+{
+	return ((sizeof(uint64_t) + (sizeof(unsigned)*2) + (sizeof(unsigned)*getIndexCount(idx)) + (sizeof(V4N4)*getVertexCount(idx))));
+}
+
 VboEvent::VboEvent(std::string path, uint64_t nodeId) // single vbo
 {
 	unsigned iCount = 0;

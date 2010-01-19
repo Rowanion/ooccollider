@@ -97,6 +97,14 @@ public:
 	 */
 	DistExtPair getDistExt(unsigned idx) const;
 
+	/**
+	 * @brief Returns the byte-size of a single vbo indicated by idx. For this a VBO consists of
+	 * id + idxCount + vertexCount + indices + vertices.
+	 * @param idx
+	 * @return
+	 */
+	unsigned getVboSize(unsigned idx);
+
 protected:
 	static oocframework::ClassId* mClassId;
 	virtual void init();

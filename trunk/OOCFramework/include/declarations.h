@@ -32,6 +32,7 @@ class AbstractEventListener;
 	class CCollisionProtocol;
 	class ClassId;
 	class EventManager;
+	class TestException;
 	class IEvent;
 	class VboFactory;
 	class Logger;
