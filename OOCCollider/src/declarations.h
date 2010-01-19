@@ -53,8 +53,8 @@
 #define KEEP_VBOS_RESIDENT
 
 #ifdef OFFICE
-#undef SHOW_RENDER_IMAGE
-#define SHOW_DEPTH_IMAGE
+#define SHOW_RENDER_IMAGE
+#undef SHOW_DEPTH_IMAGE
 #define MAX_OFFLINE_VBOS 4000
 #define MAX_LOADS_PER_FRAME 1000
 #define BASE_MODEL_PATH "/home/ava/Diplom/Model"

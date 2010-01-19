@@ -9,6 +9,7 @@
 #include "VboFactory.h"
 #include "LowMemoryEvent.h"
 #include "EventManager.h"
+#include "Exceptions.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -96,10 +97,8 @@ IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 	IVbo* memPos;
 	MemIt it = findFirstFit(tmpSize);
 	if (it == mPriFreeMap.end()){
+		throw(OutOfMemoryException(0, mPriFreeMem, tmpSize));
 		//TODO resize/decache
-		cerr << "last size: " << mPriFreeMap.rbegin()->size << endl;
-		cerr << "last addr: " << (mem_t)mPriFreeMap.rbegin()->address << endl;
-		return 0;
 	}
 	else { // found a matching chunk norris. Now get new free ptr
 		mem_t* newAddr = ((mem_t*)(((char*)it->address)+tmpSize));
@@ -138,6 +137,7 @@ IVbo* VboFactory::newVbo(boost::filesystem::ifstream* _inFile, unsigned _pos)
 
 ooctools::IVbo* VboFactory::newVbo(unsigned _iCount, const unsigned* _iArray, unsigned _vCount, const ooctools::V4N4* _vArray)
 {
+
 //	cerr << "creating new vbo w " << _iCount << " indices and " << _vCount << " vertices." << endl;
 	unsigned tmpSize;
 
@@ -148,10 +148,8 @@ ooctools::IVbo* VboFactory::newVbo(unsigned _iCount, const unsigned* _iArray, un
 	IVbo* memPos;
 	MemIt it = findFirstFit(tmpSize);
 	if (it == mPriFreeMap.end()){
+		throw(OutOfMemoryException(0, mPriFreeMem, tmpSize));
 		//TODO resize/decache
-		cerr << "last size: " << mPriFreeMap.rbegin()->size << endl;
-		cerr << "last addr: " << (mem_t)mPriFreeMap.rbegin()->address << endl;
-		return 0;
 	}
 	else { // found a matching chunk norris. Now get new free ptr
 		mem_t* newAddr = ((mem_t*)(((char*)it->address)+tmpSize));
@@ -188,6 +186,10 @@ ooctools::IVbo* VboFactory::newVbo(unsigned _iCount, const unsigned* _iArray, un
 
 void VboFactory::freeVbo(IVbo* _iVbo)
 {
+	if (_iVbo == 0){
+		throw(NullPointerException(0));
+	}
+
 	setOffline(_iVbo);
 
 	mPriFreeMem += _iVbo->mPriByteSize;
@@ -258,6 +260,10 @@ void VboFactory::freeVbo(IVbo* _iVbo)
 //TODO fit this method to above one
 void VboFactory::freeVbo(oocformats::WrappedOcNode* _wNode)
 {
+	if (_wNode->iVbo == 0){
+		throw(NullPointerException(0));
+	}
+
 	mPriFreeMap.insert(Memory(_wNode->iVbo->mPriByteSize, (mem_t*)_wNode->iVbo));
 	memset(_wNode->iVbo, 0, _wNode->iVbo->mPriByteSize);
 	_wNode->iVbo = 0;
@@ -265,13 +271,25 @@ void VboFactory::freeVbo(oocformats::WrappedOcNode* _wNode)
 
 void VboFactory::defrag(list<oocformats::WrappedOcNode*>* _wNodeList)
 {
+	if (mPriFreeMap.size() < 2){
+		// no need to defrag here!
+		return;
+	}
 	// fetch first free entry
 	// find first vbo >= this space
 	// move vbo into free space and advance pointer by
 	_wNodeList->sort(compListAddressAsc);
 	char* currentFreeAddress = (char*)mPriFreeMap.begin()->address;
+	if (currentFreeAddress == 0){
+		throw NullPointerException(1);
+	}
+	else if (((mem_t*)currentFreeAddress)<mPriMem || ((mem_t*)currentFreeAddress)>mPriEndOfSpace ){
+		throw OutOfRangeException(2);
+	}
 	list<oocformats::WrappedOcNode*>::iterator wnIt = _wNodeList->begin();
 	for (; wnIt != _wNodeList->end(); ++wnIt){
+//		cerr << "3" << endl;
+
 		if ((*wnIt)->iVbo != 0 && (*wnIt)->iVbo >= (IVbo*)currentFreeAddress){
 			(*wnIt)->iVbo = (IVbo*)memmove((char*)currentFreeAddress, (char*)(*wnIt)->iVbo, (*wnIt)->iVbo->mPriByteSize);
 			currentFreeAddress+=(*wnIt)->iVbo->mPriByteSize;
@@ -308,6 +326,10 @@ void VboFactory::debug()
 
 void VboFactory::setOnline(ooctools::IVbo* _iVbo)
 {
+	if (_iVbo == 0){
+		throw(NullPointerException(0));
+	}
+
 //	std::cerr << " -------------------------------------- setting vbo online...." << std::endl;
 	if (_iVbo->mPriIsOffline){
 
@@ -340,6 +362,10 @@ void VboFactory::setOnline(ooctools::IVbo* _iVbo)
 
 void VboFactory::setOffline(ooctools::IVbo* _iVbo)
 {
+	if (_iVbo == 0){
+		throw(NullPointerException(0));
+	}
+
 	if (!_iVbo->mPriIsOffline){
 		if (_iVbo->mPriVertexId!=0){
 			// do stuff to normals
@@ -359,6 +385,9 @@ void VboFactory::setOffline(ooctools::IVbo* _iVbo)
 void
 VboFactory::draw(ooctools::IVbo* _iVbo, bool _dataNodeMode)
 {
+	if (_iVbo == 0){
+		throw(NullPointerException(0));
+	}
 	if (_dataNodeMode){
 		glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -395,6 +424,9 @@ VboFactory::draw(ooctools::IVbo* _iVbo, bool _dataNodeMode)
 
 void VboFactory::drawAlt(ooctools::IVbo* _iVbo)
 {
+	if (_iVbo == 0){
+		throw(NullPointerException(0));
+	}
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, sizeof(V4N4), _iVbo->vertexData());
 	glDrawElements(GL_TRIANGLES, _iVbo->mPriIndexCount, GL_UNSIGNED_INT, _iVbo->indexData());

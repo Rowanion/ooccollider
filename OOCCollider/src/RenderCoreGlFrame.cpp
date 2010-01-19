@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cmath>
 #include <sstream>
+#include <exception>
 
 #include "GeometricOps.h"
 #include "V3f.h"
@@ -336,6 +337,7 @@ void RenderCoreGlFrame::display()
 						case WrappedOcNode::MISSING:
 							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
 							(*wIt)->state = WrappedOcNode::REQUESTED;
+							(*wIt)->iVbo = 0;
 							break;
 						case WrappedOcNode::RETEST_OFFLINE:
 							mPriReRequestList.push_back((*wIt));
@@ -396,6 +398,7 @@ void RenderCoreGlFrame::display()
 						case WrappedOcNode::MISSING:
 							mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
 							(*wIt)->state = WrappedOcNode::REQUESTED;
+							(*wIt)->iVbo = 0;
 							break;
 						case WrappedOcNode::RETEST_OFFLINE:
 							mPriReRequestList.push_back((*wIt));
@@ -942,6 +945,10 @@ void RenderCoreGlFrame::cullFrustum()
 #endif
 
 	manageCaching();
+	if (mPriWrapperInFrustum.size() > mProFarClippingPlane*100){
+//	if (mPriWrapperInFrustum.size() > 30000){
+		clearCache();
+	}
 //	reRequestVbos();
 //	occlusionTest();
 	requestMissingVbos();
@@ -986,6 +993,7 @@ void RenderCoreGlFrame::manageCaching()
 		else if ((*wIt)->state == WrappedOcNode::MISSING){
 			mPriRequests.insert(Quintuple((*wIt)->octreeNode->getLevel(), (*wIt)->dist, MpiControl::getSingleton()->getRank(), (*wIt)->octreeNode->getId(), true));
 			(*wIt)->state = WrappedOcNode::REQUESTED;
+			(*wIt)->iVbo = 0;
 		}
 		else if ((*wIt)->state == WrappedOcNode::RETEST_ONLINE || (*wIt)->state == WrappedOcNode::REQUESTED_ONLINE){
 			delta = ((*wIt)->iVbo->getVertexCount()*20) + ((*wIt)->iVbo->getIndexCount()*sizeof(unsigned));
@@ -1053,7 +1061,13 @@ void RenderCoreGlFrame::manageCaching()
 		mPriClearAll = false;
 	}
 	else {
-		myVF::getSingleton()->defrag(&mPriWrapperInFrustum);
+		try {
+			myVF::getSingleton()->defrag(&mPriWrapperInFrustum);
+		}
+		catch (exception& e){
+			cerr << e.what() << endl;
+			exit(0);
+		}
 	}
 }
 
@@ -1087,6 +1101,7 @@ void RenderCoreGlFrame::clearRequests()
 	while (wIt != mPriWrapperInFrustum.end()){
 		if ((*wIt)->state == WrappedOcNode::REQUESTED){
 			(*wIt)->state = WrappedOcNode::MISSING;
+			(*wIt)->iVbo = 0;
 			mPriWrapperInFrustum.erase(wIt++);
 		}
 //		else if ((*wIt)->state == WrappedOcNode::REQUESTED_ONLINE || (*wIt)->state == WrappedOcNode::RETEST_ONLINE){
@@ -1125,17 +1140,14 @@ RenderCoreGlFrame::clearCache()
 			mPriWrapperInFrustum.erase(wli++);
 			break;
 		case WrappedOcNode::ONLINE:
-//			(*wli)->iVbo->setOffline();
 			myVF::getSingleton()->setOffline((*wli)->iVbo);
 			wli++;
 			break;
 		case WrappedOcNode::RETEST_ONLINE:
-//			(*wli)->iVbo->setOffline();
 			myVF::getSingleton()->setOffline((*wli)->iVbo);
 			wli++;
 			break;
 		case WrappedOcNode::REQUESTED_ONLINE:
-//			(*wli)->iVbo->setOffline();
 			myVF::getSingleton()->setOffline((*wli)->iVbo);
 			wli++;
 			break;
@@ -1359,32 +1371,34 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 						cerr << "requested VBO was not 0 as expected!" << endl;
 						exit(0);
 					}
-//					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
-					idLoIt->second->getWrapper()->iVbo = myVF::getSingleton()->newVbo(ve.getIndexCount(i), ve.getIndexArray(i), ve.getVertexCount(i), ve.getVertexArray(i));
-					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
-					idLoIt->second->getWrapper()->usageCount = 0;
-					if (idLoIt->second->getWrapper()->iVbo == 0) {
-						idLoIt->second->getWrapper()->state = WrappedOcNode::MISSING;
-						cerr << "new VBO is 0!!!" << endl;
-						cerr << "free space: " << myVF::getSingleton()->getFreeMem() << endl;
-						cerr << "used space: " << myVF::getSingleton()->getUsedMem() << endl;
-						cerr << "free blocks: " << myVF::getSingleton()->getFreeBlocks() << endl;
-						cerr << "largest free block: " << myVF::getSingleton()->getLargestFreeBlock() << endl;
-						cerr << "smallest free block: " << myVF::getSingleton()->getSmallestFreeBlock() << endl;
+					if (myVF::getSingleton()->getFreeMem() >= ve.getVboSize(i)){
+						//					idLoIt->second->getWrapper()->iVbo = new IndexedVbo(ve.getIndexArray(i), ve.getIndexCount(i), ve.getVertexArray(i), ve.getVertexCount(i), false);
+						idLoIt->second->getWrapper()->iVbo = myVF::getSingleton()->newVbo(ve.getIndexCount(i), ve.getIndexArray(i), ve.getVertexCount(i), ve.getVertexArray(i));
+						idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
+						idLoIt->second->getWrapper()->usageCount = 0;
+						if (idLoIt->second->getWrapper()->iVbo == 0) {
+							idLoIt->second->getWrapper()->state = WrappedOcNode::MISSING;
+							cerr << "new VBO is 0!!!" << endl;
+							cerr << "free space: " << myVF::getSingleton()->getFreeMem() << endl;
+							cerr << "used space: " << myVF::getSingleton()->getUsedMem() << endl;
+							cerr << "free blocks: " << myVF::getSingleton()->getFreeBlocks() << endl;
+							cerr << "largest free block: " << myVF::getSingleton()->getLargestFreeBlock() << endl;
+							cerr << "smallest free block: " << myVF::getSingleton()->getSmallestFreeBlock() << endl;
 
-						exit(0);
+							exit(0);
+						}
+						//					debug(idLoIt->second->getWrapper()->iVbo, &ve, i);
+						//					cerr << "vbo just loaded and created" << endl;
+						//					cerr << "is offline? " << idLoIt->second->getWrapper()->iVbo->mPriIsOffline << endl;
+						//					cerr << "vertexCount: " << idLoIt->second->getWrapper()->iVbo->mPriVertexCount << endl;
+						//					cerr << "vertexID: " << idLoIt->second->getWrapper()->iVbo->mPriVertexId << endl;
+						//					cerr << "indexCount: " << idLoIt->second->getWrapper()->iVbo->mPriIndexCount << endl;
+						//					cerr << "indexID: " << idLoIt->second->getWrapper()->iVbo->mPriIdxId << endl;
+
+						//TODO check for iVbo == 0 if cache is full
+						//new IndexedVbo(ve.getIndexCount(i), ve.getIndexArray(i), ve.getVertexCount(i), ve.getVertexArray(i));
+						mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
 					}
-//					debug(idLoIt->second->getWrapper()->iVbo, &ve, i);
-//					cerr << "vbo just loaded and created" << endl;
-//					cerr << "is offline? " << idLoIt->second->getWrapper()->iVbo->mPriIsOffline << endl;
-//					cerr << "vertexCount: " << idLoIt->second->getWrapper()->iVbo->mPriVertexCount << endl;
-//					cerr << "vertexID: " << idLoIt->second->getWrapper()->iVbo->mPriVertexId << endl;
-//					cerr << "indexCount: " << idLoIt->second->getWrapper()->iVbo->mPriIndexCount << endl;
-//					cerr << "indexID: " << idLoIt->second->getWrapper()->iVbo->mPriIdxId << endl;
-
-					//TODO check for iVbo == 0 if cache is full
-					//new IndexedVbo(ve.getIndexCount(i), ve.getIndexArray(i), ve.getVertexCount(i), ve.getVertexArray(i));
-					mPriL2Cache += (ve.getIndexCount(i)*4) + (ve.getVertexCount(i)*20);
 				}
 //				else if (idLoIt->second->getWrapper()->state == WrappedOcNode::MISSING){
 //					idLoIt->second->getWrapper()->state = WrappedOcNode::OFFLINE;
@@ -1439,6 +1453,7 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		cout << headerS.str() << "VBOs offline: " << vboCount_offline << endl;
 		cout << headerS.str() << "VBOs online: " << vboCount_online << endl;
 		cout << headerS.str() << "VBOs missing: " << vboCount_missing << endl;
+		cout << headerS.str() << "Total size of WrapperList: " << mPriWrapperInFrustum.size() << endl;
 		cout << headerS.str() << "L1_Cache: " << l1Cache/1048576 << "Mib / " << L1_CACHE_THRESHOLD/1048576 << "Mib" << endl;
 		cout << headerS.str() << "L2_Cache: " << l2Cache/1048576 << "Mib / " << L2_CACHE_THRESHOLD/1048576 << "Mib" << endl;
 		cout << headerS.str() << "Total Cache: " << (l1Cache+l2Cache)/1048576 << "Mib / " << endl;
