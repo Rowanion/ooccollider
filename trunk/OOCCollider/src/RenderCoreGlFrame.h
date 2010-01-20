@@ -67,6 +67,7 @@ public:
 	void manageCaching();
 	void clearRequests();
 	void advTick();
+	void reloadOnline();
 	void clearCache();
 	void clearEverything();
 	void debug(ooctools::IVbo* _iVbo, VboEvent* _vE, unsigned _idx);
@@ -132,6 +133,7 @@ private:
 
 	std::list<oocformats::WrappedOcNode*> mPriWrapperInFrustum;
 	std::set<ooctools::Quintuple> mPriRequests;
+	std::list<oocformats::WrappedOcNode*> mPriRequestedWrapper;
 	std::list<oocformats::WrappedOcNode*> mPriReRequestList;
 	unsigned int mPriL1Cache;
 	unsigned int mPriL2Cache;
@@ -156,6 +158,9 @@ private:
 	double mPriDisplayTime;
 	double mPriFrustumCullingTime;
 	double mPriRequestDataTime;
+
+	unsigned mPriWrapperListSize;
+	unsigned mPriMaxWrapperListSize;
 
 	GLuint mPriOccQueries[L1_CACHE_VBO_LIMIT];
 	std::map<uint64_t, GLint> mPriOccResults;

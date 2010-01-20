@@ -251,8 +251,10 @@ void DataCore::handleMsg(Message* msg){
 //			cout << "datacore has received all depthbuffers" << endl;
 		}
 		else if (msg->getType() == InfoRequestEvent::classid()->getShortId()){
+#if !defined(PC2) && !defined(OFFICE)
 			InfoRequestEvent ire = InfoRequestEvent();
 			oocframework::EventManager::getSingleton()->fire(ire);
+#endif
 		}
 		delete msg;
 		msg = 0;
