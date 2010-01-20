@@ -42,6 +42,7 @@
 #define DISTANCE_RENEWAL 10
 #define LVL_OF_REDUNDANCY 1
 #define MODEL_DIR "/SampleTree_packed"
+#define MAX_OFFLINE_FRAMES 80
 
 #undef DEBUG_CCOLLISION
 #undef DEBUG_RENDERLOOP

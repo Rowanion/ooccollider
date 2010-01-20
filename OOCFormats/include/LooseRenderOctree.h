@@ -47,6 +47,7 @@ struct WrappedOcNode{
 		state = MISSING;
 		timeStamp = 0;
 		usageCount = 0;
+		offlineCount = 0;
 	}
 
 	WrappedOcNode(LooseRenderOctree* _octreeNode, ooctools::IVbo* _iVbo, float _dist, State _state, unsigned _time, unsigned _usageCount)
@@ -67,6 +68,7 @@ struct WrappedOcNode{
 		state = MISSING;
 		timeStamp = 0;
 		usageCount = 0;
+		offlineCount = 0;
 	}
 
 	bool operator<(const WrappedOcNode& rhs) const
@@ -90,6 +92,8 @@ struct WrappedOcNode{
 	float dist;
 	unsigned timeStamp;
 	unsigned usageCount;
+	unsigned offlineCount;
+	unsigned dummy;
 };
 
 
