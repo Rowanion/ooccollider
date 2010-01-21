@@ -103,6 +103,9 @@ private:
 	bool mPriTurnUp;
 	bool mPriTurnDown;
 
+	int mPriBBMode;
+	ooctools::ColorTable mPriColorTable;
+
 	CGprogram cgVertPostProc;
 	CGprogram cgFragPostProc;
 	CGparameter cgTexture;

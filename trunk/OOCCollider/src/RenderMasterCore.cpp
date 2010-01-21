@@ -69,7 +69,10 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			mPriMpiCon(0), mPriDataLoad(map<int, unsigned>()), mPriFrameTick(0), mPriCCollisionTime(0.0),
 			mPriQuintVec(std::vector<Quintuple>()), mPriOcclusionVec(std::vector<Quintuple>()),
 			mPriMTwister(PRESELECTED_SEED), mPriCCol(PRESELECTED_SEED, LVL_OF_REDUNDANCY),
-			mPriWindowWidth(_width), mPriWindowHeight(_height) {
+			mPriWindowWidth(_width), mPriWindowHeight(_height), mPriStepLeft(false), mPriStepRight(false),
+			mPriStepForward(false), mPriStepBackward(false), mPriRollLeft(false), mPriRollRight(false),
+			mPriTiltUp(false), mPriTiltDown(false), mPriTurnLeft(false), mPriTurnRight(false), mPriTurnUp(false),
+			mPriTurnDown(false) {
 
 	RenderMasterCore::instance = this;
 	mWindow = new OOCWindow(_width, _height, 8, false, "MASTER_NODE");
@@ -224,6 +227,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			//			cout << "---master ENTER display" << endl;
 			mPriGlFrame->display();
 
+			checkForActiveMovement();
 			mPriMpiCon->ireceive(MpiControl::DATA);
 			if (!mPriMpiCon->inQueueEmpty()){
 				handleMsg(mPriMpiCon->pop());
@@ -248,7 +252,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 		++mPriFrameTick;
 		mPriFrameTick %= MODULO_FRAMECOUNT;
 		++frames;
-		if (frames >= 100) {
+		if (frames >= 20) {
 			frames = 0;
 			stringstream ss;
 			ss << "MasterNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
@@ -534,17 +538,63 @@ void RenderMasterCore::transmitAssignments()
 
 }
 
+void RenderMasterCore::checkForActiveMovement()
+{
+	if (mPriTiltUp || mPriTiltDown || mPriTurnUp || mPriTurnDown ||
+			mPriTurnLeft || mPriTurnRight || mPriStepForward || mPriStepBackward ||
+			mPriStepLeft || mPriStepRight || mPriRollLeft ||
+			mPriRollRight){
+		mPriCamHasMoved = true;
+	}
+}
+
 void RenderMasterCore::notify(oocframework::IEvent& event) {
 	if (event.instanceOf(WindowResizedEvent::classid())) {
 		WindowResizedEvent& rwe = (WindowResizedEvent&) event;
 
 	} else if (event.instanceOf(KeyReleasedEvent::classid())) {
 		KeyReleasedEvent& kre = (KeyReleasedEvent&) event;
-		if (kre.getKey() == 'W' || kre.getKey() == 'S' || kre.getKey() == 'A' || kre.getKey() == 'D' ||
-				kre.getKey() == 'Q' || kre.getKey() == 'E' || GLFW_KEY_PAGEUP || GLFW_KEY_PAGEDOWN ||
-				kre.getKey() == GLFW_KEY_UP || kre.getKey() == GLFW_KEY_DOWN || kre.getKey() == GLFW_KEY_LEFT ||
-				kre.getKey() == GLFW_KEY_RIGHT){
-			mPriCamHasMoved = true;
+		switch (kre.getKey()){
+			case GLFW_KEY_PAGEUP: // tilt up
+				mPriTiltUp = false;
+			break;
+			case GLFW_KEY_PAGEDOWN: // tilt down
+				mPriTiltDown = false;
+			break;
+
+			case GLFW_KEY_UP: // walk forward (bob head)
+				mPriTurnUp = false;
+			break;
+
+			case GLFW_KEY_DOWN: // walk back (bob head)
+				mPriTurnDown = false;
+			break;
+
+			case GLFW_KEY_LEFT: // look left(int)
+				mPriTurnLeft = false;
+			break;
+
+			case GLFW_KEY_RIGHT: // look right
+				mPriTurnRight = false;
+			break;
+		    case (int)'W':
+				mPriStepForward = false;
+		    break;
+		    case (int)'S':
+				mPriStepBackward = false;
+		        break;
+		    case (int)'A':
+				mPriStepLeft = false;
+		        break;
+		    case (int)'D':
+				mPriStepRight = false;
+		        break;
+		    case (int)'Q':
+				mPriRollLeft = false;
+		        break;
+		    case (int)'E':
+				mPriRollRight = false;
+	        break;
 		}
 	} else if (event.instanceOf(KeyPressedEvent::classid())) {
 		KeyPressedEvent& kpe = (KeyPressedEvent&) event;
@@ -607,6 +657,47 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 			SceneCompletionEvent sce = SceneCompletionEvent();
 			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
 			break;}
+		case GLFW_KEY_PAGEUP: // tilt up
+			mPriTiltUp = true;
+			break;
+		case GLFW_KEY_PAGEDOWN: // tilt down
+			mPriTiltDown = true;
+			break;
+
+		case GLFW_KEY_UP: // walk forward (bob head)
+			mPriTurnUp = true;
+			break;
+
+		case GLFW_KEY_DOWN: // walk back (bob head)
+			mPriTurnDown = true;
+			break;
+
+		case GLFW_KEY_LEFT: // look left(int)
+			mPriTurnLeft = true;
+			break;
+
+		case GLFW_KEY_RIGHT: // look right
+			mPriTurnRight = true;
+			break;
+		case (int)'W':
+			mPriStepForward = true;
+		break;
+		case (int)'S':
+			mPriStepBackward = true;
+		break;
+		case (int)'A':
+			mPriStepLeft = true;
+		break;
+		case (int)'D':
+			mPriStepRight = true;
+		break;
+		case (int)'Q':
+			mPriRollLeft = true;
+		break;
+		case (int)'E':
+			mPriRollRight = true;
+		break;
+
 		default:
 			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));

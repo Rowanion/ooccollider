@@ -161,11 +161,14 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 
 		mPriGlFrame->advTick();
 		++frames;
-		if (frames >= 100){
-			frames = 0;
+		if (frames % 20 == 0){
 			stringstream ss;
 			ss << "RenderNode (" << mPriMpiCon->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
+		}
+
+		if (frames >= 100){
+			frames = 0;
 		}
 //		if (mPriMpiCon->getRank() == 1){
 //			cerr << "OQ: " << mPriMpiCon->mOutQueue.size() << endl;
