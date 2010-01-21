@@ -88,6 +88,7 @@ private:
 	bool mPriTurnRight;
 	bool mPriTurnUp;
 	bool mPriTurnDown;
+	bool mPriSceneCompletionTest;
 
 
 	static RenderMasterCore* instance;

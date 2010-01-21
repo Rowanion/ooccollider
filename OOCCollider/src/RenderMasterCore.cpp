@@ -228,7 +228,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			mPriGlFrame->display();
 
 			checkForActiveMovement();
-			mPriMpiCon->ireceive(MpiControl::DATA);
+			mPriMpiCon->ireceive(MpiControl::RENDERER);
 			if (!mPriMpiCon->inQueueEmpty()){
 				handleMsg(mPriMpiCon->pop());
 			}
@@ -348,10 +348,10 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 		else if (msg->getType() == SceneCompletionEvent::classid()->getShortId()) {
 			mPriSceneCompletion[msg->getSrc()] = (glfwGetTime()-mPriSceneCompletion[msg->getSrc()]);
 			mPriSceneCompletionCount++;
-			if (mPriSceneCompletionCount >= mPriMpiCon->getGroupSize(MpiControl::DATA)){
+			if (mPriSceneCompletionCount >= mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
 				map<int, double>::iterator timeIt = mPriSceneCompletion.begin();
 				for (; timeIt != mPriSceneCompletion.end(); timeIt++){
-					cerr << "CompletionTime for DataNode " << timeIt->first << ": " << timeIt->second << " secs." << endl;
+					cerr << "CompletionTime for RenderNode " << timeIt->first << ": " << timeIt->second << " secs." << endl;
 				}
 			}
 		}
@@ -446,6 +446,13 @@ void RenderMasterCore::manageCCollision()
 		mPriNodeReqMap.clear();
 		mPriQuintVec.clear();
 		mPriQuintVec.resize(0);
+	}
+	else{
+		if (mPriSceneCompletionTest){
+			SceneCompletionEvent sce = SceneCompletionEvent();
+			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
+			mPriSceneCompletionTest = false;
+		}
 	}
 
 	// distribution of re-requests from here
@@ -646,16 +653,17 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 			if (kpe.isCtrl()){
 				// RELOADTEST
 				mPriSceneCompletion.clear();
-				for (unsigned i = 0; i < mPriMpiCon->getDataGroup().size(); i++){
-					mPriSceneCompletion.insert(make_pair(mPriMpiCon->getDataGroup()[i], glfwGetTime()));
+				for (unsigned i = 0; i < mPriMpiCon->getRenderGroup().size(); i++){
+					mPriSceneCompletion.insert(make_pair(mPriMpiCon->getRenderGroup()[i], glfwGetTime()));
 				}
 				mPriSceneCompletionCount = 0;
+				mPriSceneCompletionTest = true;
 			}
-			mPriCamHasMoved = true;
+			else {
+				mPriCamHasMoved = true;
+			}
 			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
-			SceneCompletionEvent sce = SceneCompletionEvent();
-			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
 			break;}
 		case GLFW_KEY_PAGEUP: // tilt up
 			mPriTiltUp = true;

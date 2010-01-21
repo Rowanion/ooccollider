@@ -951,7 +951,7 @@ void RenderCoreGlFrame::cullFrustum()
 	double newTime2 = glfwGetTime();
 #endif
 
-	manageCaching();
+//	manageCaching();
 	if (mPriWrapperListSize > mPriMaxWrapperListSize){
 		clearCache();
 	}
@@ -1087,7 +1087,6 @@ void RenderCoreGlFrame::manageCaching()
 	}
 	else if (mPriClearAll){
 		clearEverything();
-		myVF::getSingleton()->clear();
 		mPriClearAll = false;
 	}
 	else {
@@ -1353,6 +1352,8 @@ RenderCoreGlFrame::clearEverything()
 	mPriReRequestList.clear();
 	mPriWrapperInFrustum.clear();
 	mPriWrapperInFrustum.resize(0);
+	myVF::getSingleton()->clear();
+
 //	int* test = 0;
 //	for (unsigned i=0; i<500; ++i){
 //		test = new int[125000000];
@@ -1413,7 +1414,7 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			break;
 			case 'X':{ // clear cache
 				if (kpe.isCtrl()){
-					mPriClearAll = true;
+//					mPriClearAll = true;
 //					clearEverything();
 				}
 				else {
