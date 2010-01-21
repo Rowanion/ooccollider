@@ -560,7 +560,7 @@ LooseRenderOctree::frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _id
 }
 
 void
-LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray, bool _isExt) {
+LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray, bool _isExt, unsigned& listSize, unsigned maxSize) {
 	int aPosCounter = 0, aTotalIn = 0, aIPtIn = 0;
 
 	if (isRoot()){
@@ -630,6 +630,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && mPriWrapper.state == WrappedOcNode::MISSING){
 			_nodes->push_back(&this->mPriWrapper);
+			listSize++;
 		}
 		else if (_isExt && mPriWrapper.state == WrappedOcNode::OFFLINE){
 			this->mPriWrapper.usageCount++;
@@ -649,6 +650,10 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 //		return;
 //	}
 
+//	if (listSize>=maxSize){
+//		return;
+//	}
+
 	LooseRenderOctree* child = 0;
 
 	if (aTotalIn == 6) { //include
@@ -663,7 +668,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 					child->mPriWrapper.dist = eyePos.calcSimpleDistance(child->getBb().getCenter());
 				}
 				if (child->mPriWrapper.dist < distArray[child->getLevel()]){
-					child->getAllSubtreeIds(_nodes, orderIdx, eyePos, distArray, _isExt);
+					child->getAllSubtreeIds(_nodes, orderIdx, eyePos, distArray, _isExt, listSize, maxSize);
 				}
 				else{
 					return;
@@ -673,6 +678,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 		return;
 	}
 	// kinder weiter testen
+
 
 	for (unsigned i = 0; i < 8; i++) {  //intersect
 		child = this->mChildren[LooseRenderOctree::orderLUT[orderIdx][i]];
@@ -697,7 +703,7 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 				child->mPriWrapper.dist = eyePos.calcSimpleDistance(child->getBb().getCenter());
 			}
 			if (child->mPriWrapper.dist < distArray[child->getLevel()]){
-				child->isInFrustum_orig(_frustum, _nodes, orderIdx, eyePos, distArray, _isExt);
+				child->isInFrustum_orig(_frustum, _nodes, orderIdx, eyePos, distArray, _isExt, listSize, maxSize);
 			}
 			else{
 				return;
@@ -707,12 +713,13 @@ LooseRenderOctree::isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>*
 
 }
 
-void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool _isExt){
+void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool _isExt, unsigned& listSize, unsigned maxSize){
 	if (this->hasData()){
 		LooseRenderOctree::treeTriCount+=mPriTriCount;
 		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
+			listSize++;
 		}
 		else if (_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
 			this->mPriWrapper.usageCount++;
@@ -732,19 +739,23 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool
 //		return;
 //	}
 
+//	if (listSize >= maxSize){
+//		return;
+//	}
 	for (unsigned i = 0; i < 8; i++) {
 		if (this->mChildren[i] != 0) {
-			(this->mChildren[i])->getAllSubtreeIds(_nodes, _isExt);
+			(this->mChildren[i])->getAllSubtreeIds(_nodes, _isExt, listSize, maxSize);
 		}
 	}
 }
 
-void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray, bool _isExt){
+void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const V3f& eyePos, const float* distArray, bool _isExt, unsigned& listSize, unsigned maxSize){
 	if (this->hasData()){
 		LooseRenderOctree::treeTriCount+=mPriTriCount;
 		this->mPriWrapper.timeStamp = pubTick;
 		if (_isExt && this->mPriWrapper.state == WrappedOcNode::MISSING) {
 			_nodes->push_back(&this->mPriWrapper);
+			listSize++;
 		}
 		else if (_isExt && this->mPriWrapper.state == WrappedOcNode::OFFLINE) {
 			this->mPriWrapper.usageCount++;
@@ -761,6 +772,10 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsi
 	}
 
 //	if (LooseRenderOctree::treeTriCount >= LooseRenderOctree::triLimits[mPriLevel]){
+//		return;
+//	}
+
+//	if (listSize >= maxSize){
 //		return;
 //	}
 
@@ -776,7 +791,7 @@ void LooseRenderOctree::getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsi
 				child->mPriWrapper.dist = eyePos.calcSimpleDistance(child->getBb().getCenter());
 			}
 			if (this->mPriWrapper.dist < distArray[child->getLevel()]){
-				child->getAllSubtreeIds(_nodes, _isExt);
+				child->getAllSubtreeIds(_nodes, _isExt, listSize, maxSize);
 			}
 			else{
 				return;

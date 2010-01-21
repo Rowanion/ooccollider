@@ -38,6 +38,7 @@
 #include "CameraMovedEvent.h"
 #include "Logger.h"
 #include "Log.h"
+#include "KeyReleasedEvent.h"
 
 
 using namespace std;
@@ -47,7 +48,9 @@ using namespace oocframework;
 SimpleGlFrame::SimpleGlFrame() : AbstractGlFrame(0,0,0,0),
 	scale(1.0f), avgFps(0.0f), time(0.0), frame(0), mPriVboMan(0), mPriCgt(0), mPriIVbo(0), mPriCamera(OOCCamera()), walkingSpeed(0.3f),
 	mPriFbo(0), mPriColorBuffer(0), mPriCBufWidth(0), mPriCBufHeight(0), mPriCBufX(0), mPriCBufY(0), mPriUseSpaceNav(false),
-	mPrilockTrans(false), mPrilockRot(false)
+	mPrilockTrans(false), mPrilockRot(false), mPriStepLeft(false), mPriStepRight(false), mPriStepForward(false), mPriStepBackward(false),
+	mPriRollLeft(false), mPriRollRight(false), mPriTiltUp(false), mPriTiltDown(false), mPriTurnLeft(false), mPriTurnRight(false), mPriTurnUp(false),
+	mPriTurnDown(false)
 {
 	// TODO Auto-generated constructor stub
 
@@ -60,6 +63,7 @@ SimpleGlFrame::SimpleGlFrame() : AbstractGlFrame(0,0,0,0),
 	oocframework::EventManager::getSingleton()->addListener(this, MouseButtonEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, MouseWheelEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, KeyPressedEvent::classid());
+	oocframework::EventManager::getSingleton()->addListener(this, KeyReleasedEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, InfoRequestEvent::classid());
 }
 
@@ -72,6 +76,7 @@ SimpleGlFrame::~SimpleGlFrame() {
 	oocframework::EventManager::getSingleton()->removeListener(this, MouseButtonEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, MouseWheelEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, KeyPressedEvent::classid());
+	oocframework::EventManager::getSingleton()->removeListener(this, KeyReleasedEvent::classid());
 	oocframework::EventManager::getSingleton()->removeListener(this, InfoRequestEvent::classid());
 	Logger::getSingleton()->closeAllHandles();
 }
@@ -128,7 +133,7 @@ void SimpleGlFrame::display()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 ////	glLoadIdentity();
-
+	applyKeyEvents();
 	if (mPriButtonActions[0] == GLFW_PRESS && mPriButtonActions[1] == GLFW_PRESS){
     	mPriCamera.decZMove(0.1*walkingSpeed);
 	}
@@ -316,6 +321,46 @@ const float* SimpleGlFrame::createMvMatrix()
 	return mPriModelViewMatrix;
 }
 
+void SimpleGlFrame::applyKeyEvents()
+{
+	if (mPriStepForward){
+		mPriCamera.incZMove(0.1*walkingSpeed);
+	}
+	if (mPriStepBackward){
+		mPriCamera.decZMove(0.1*walkingSpeed);
+	}
+	if (mPriStepLeft){
+		mPriCamera.incXMove(0.1*walkingSpeed);
+	}
+	if (mPriStepRight){
+		mPriCamera.decXMove(0.1*walkingSpeed);
+	}
+	if (mPriRollLeft){
+		mPriCamera.setZRot(-1.0);
+	}
+	if (mPriRollRight){
+		mPriCamera.setZRot(1.0);
+	}
+	if (mPriTiltUp){
+		mPriCamera.decYMove(0.1*walkingSpeed);
+	}
+	if (mPriTiltDown){
+		mPriCamera.incYMove(0.1*walkingSpeed);
+	}
+	if (mPriTurnLeft){
+		mPriCamera.setYRot(1.0);
+	}
+	if (mPriTurnRight){
+		mPriCamera.setYRot(-1.0);
+	}
+	if (mPriTurnUp){
+		mPriCamera.setXRot(1.0);
+	}
+	if (mPriTurnDown){
+		mPriCamera.setXRot(-1.0);
+	}
+}
+
 void SimpleGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(MouseDraggedEvent::classid())){
@@ -347,50 +392,102 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		}
 
 	}
+	if (event.instanceOf(KeyReleasedEvent::classid())){
+		KeyReleasedEvent& kre = (KeyReleasedEvent&)event;
+	    switch (kre.getKey()) {
+	    case (int)'W':
+			mPriStepForward = false;
+			break;
+	    case (int)'S':
+			mPriStepBackward = false;
+	        break;
+	    case (int)'A':
+			mPriStepLeft = false;
+	        break;
+	    case (int)'D':
+			mPriStepRight = false;
+	        break;
+	    case (int)'Q':
+			mPriRollLeft = false;
+	        break;
+	    case (int)'E':
+			mPriRollRight = false;
+	        break;
+	    case GLFW_KEY_PAGEUP:
+			mPriTiltUp = false;
+			break;
+	    case GLFW_KEY_PAGEDOWN:
+			mPriTiltDown = false;
+	        break;
+	    case GLFW_KEY_UP:
+			mPriTurnUp = false;
+	        break;
+	    case GLFW_KEY_DOWN:
+			mPriTurnDown = false;
+	        break;
+	    case GLFW_KEY_LEFT:
+			mPriTurnLeft = false;
+	        break;
+	    case GLFW_KEY_RIGHT:
+			mPriTurnRight = false;
+	        break;
+	    }
+	}
 	if (event.instanceOf(KeyPressedEvent::classid())){
-		KeyPressedEvent& mde = (KeyPressedEvent&)event;
-	    switch (mde.getKey()) {
+		KeyPressedEvent& kpe = (KeyPressedEvent&)event;
+	    switch (kpe.getKey()) {
 			case GLFW_KEY_PAGEUP: // tilt up
-				mPriCamera.decYMove(0.1);
-				break;
-
+				mPriTiltUp = true;
+//				mPriCamera.decYMove(0.1);
+			break;
 			case GLFW_KEY_PAGEDOWN: // tilt down
-				mPriCamera.incYMove(0.1);
+				mPriTiltDown = true;
+//				mPriCamera.incYMove(0.1);
 			break;
 
 			case GLFW_KEY_UP: // walk forward (bob head)
-				mPriCamera.setXRot(1.0);
+				mPriTurnUp = true;
+//				mPriCamera.setXRot(1.0);
 			break;
 
 			case GLFW_KEY_DOWN: // walk back (bob head)
-				mPriCamera.setXRot(-1.0);
+				mPriTurnDown = true;
+//				mPriCamera.setXRot(-1.0);
 			break;
 
 			case GLFW_KEY_LEFT: // look left(int)
-				mPriCamera.setYRot(1.0);
+				mPriTurnLeft = true;
+//				mPriCamera.setYRot(1.0);
 			break;
 
 			case GLFW_KEY_RIGHT: // look right
-				mPriCamera.setYRot(-1.0);
+				mPriTurnRight = true;
+//				mPriCamera.setYRot(-1.0);
 			break;
 		    case (int)'W':
-		    	mPriCamera.incZMove(0.1*walkingSpeed);
-		    	break;
+//		    	mPriCamera.incZMove(0.1*walkingSpeed);
+				mPriStepForward = true;
+		    break;
 		    case (int)'S':
-		    	mPriCamera.decZMove(0.1*walkingSpeed);
+				mPriStepBackward = true;
+//		    	mPriCamera.decZMove(0.1*walkingSpeed);
 		        break;
 		    case (int)'A':
-		    	mPriCamera.incXMove(0.1*walkingSpeed);
+//		    	mPriCamera.incXMove(0.1*walkingSpeed);
+				mPriStepLeft = true;
 		        break;
 		    case (int)'D':
-		    	mPriCamera.decXMove(0.1*walkingSpeed);
+//		    	mPriCamera.decXMove(0.1*walkingSpeed);
+				mPriStepRight = true;
 		        break;
 		    case (int)'Q':
-		    	mPriCamera.setZRot(1.0);
+//		    	mPriCamera.setZRot(1.0);
+				mPriRollLeft = true;
 		        break;
 		    case (int)'E':
-		    	mPriCamera.setZRot(-1.0);
-		        break;
+//		    	mPriCamera.setZRot(-1.0);
+				mPriRollRight = true;
+	        break;
 			case 'C':{ // dump current matrix and exit
 				cout << "dumping current matrix...." << endl;
 				for(unsigned i=0; i<16; ++i){
