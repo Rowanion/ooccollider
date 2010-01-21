@@ -103,7 +103,7 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), avgFps(0.
 	mPriDepthBuffer = new GLfloat[mProWindowWidth*mProWindowHeight];
 
 	mPriWrapperListSize = 0;
-	mPriMaxWrapperListSize = 25000;
+	mPriMaxWrapperListSize = 15000;
 
 }
 
@@ -929,7 +929,7 @@ void RenderCoreGlFrame::cullFrustum()
 
 	getFrustum();
 	//TODO umstellen auf ne list
-	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, true);
+	mPriLo->isInFrustum_orig(priFrustum, &mPriWrapperInFrustum, BoundingBox::getMinDotIdx(mPriViewVector), mPriEyePosition, mPriMaxDistPerLevel, true, mPriWrapperListSize, mPriMaxWrapperListSize);
 	// original frustum
 	resizeFrustum(mPriTileXPos, mPriTileYPos, mPriTileWidth, mPriTileHeight, mProFarClippingPlane);
 
@@ -1442,7 +1442,7 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		for (unsigned i=0; i< ve.getVboCount(); ++i){
 			idLoIt = mPriIdLoMap.find(ve.getNodeId(i));
 			if (idLoIt != mPriIdLoMap.end()){
-				if (idLoIt->second->getWrapper()->state == WrappedOcNode::REQUESTED || idLoIt->second->getWrapper()->state == WrappedOcNode::MISSING){
+				if (idLoIt->second->getWrapper()->state == WrappedOcNode::REQUESTED){
 					if (idLoIt->second->getWrapper()->iVbo != 0) {
 						cerr << "requested VBO was not 0 as expected!" << endl;
 						exit(0);

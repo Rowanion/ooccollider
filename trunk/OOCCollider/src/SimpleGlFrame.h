@@ -90,6 +90,19 @@ private:
 	bool mPrilockTrans;
 	bool mPrilockRot;
 
+	bool mPriStepLeft;
+	bool mPriStepRight;
+	bool mPriStepForward;
+	bool mPriStepBackward;
+	bool mPriRollLeft;
+	bool mPriRollRight;
+	bool mPriTiltUp;
+	bool mPriTiltDown;
+	bool mPriTurnLeft;
+	bool mPriTurnRight;
+	bool mPriTurnUp;
+	bool mPriTurnDown;
+
 	CGprogram cgVertPostProc;
 	CGprogram cgFragPostProc;
 	CGparameter cgTexture;
@@ -117,6 +130,7 @@ private:
 	 */
 	void writeCameraPositions();
 	void cameraInit();
+	void applyKeyEvents();
 };
 
 #endif /* SIMPLEGLFRAME_H_ */

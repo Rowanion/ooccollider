@@ -47,6 +47,7 @@
 #include "Log.h"
 #include "VboDistributionEvent.h"
 #include "SceneCompletionEvent.h"
+#include "KeyReleasedEvent.h"
 
 #include <sys/mman.h>
 #include <cstdio>
@@ -83,6 +84,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	mPriEventMan->addListener(this, MouseButtonEvent::classid());
 	mPriEventMan->addListener(this, MouseDraggedEvent::classid());
 	mPriEventMan->addListener(this, KeyPressedEvent::classid());
+	mPriEventMan->addListener(this, KeyReleasedEvent::classid());
 	mPriEventMan->addListener(this, WindowClosedEvent::classid());
 	mPriEventMan->addListener(this, InfoRequestEvent::classid());
 	mPriEventMan->addListener(this, CameraMovedEvent::classid());
@@ -171,7 +173,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 				mPriFrameCount = 0;
 				DepthBufferRequestEvent dbre = DepthBufferRequestEvent(mPriGlFrame->createMvMatrix());
 				mPriMpiCon->send(new Message(dbre, 0, MpiControl::ALL));
-				cerr << "DepthBuffer RESEND initated by Master!" << endl;
+//				cerr << "DepthBuffer RESEND initated by Master!" << endl;
 				mPriMpiCon->barrier();
 				// go into listenmode to receive the rendering-times
 				mPriMpiCon->receive(MpiControl::RENDERER);
@@ -263,6 +265,7 @@ RenderMasterCore::~RenderMasterCore() {
 	mPriEventMan->removeListener(this, MouseButtonEvent::classid());
 	mPriEventMan->removeListener(this, MouseDraggedEvent::classid());
 	mPriEventMan->removeListener(this, KeyPressedEvent::classid());
+	mPriEventMan->removeListener(this, KeyReleasedEvent::classid());
 	mPriEventMan->removeListener(this, WindowClosedEvent::classid());
 	mPriEventMan->removeListener(this, InfoRequestEvent::classid());
 	mPriEventMan->removeListener(this, CameraMovedEvent::classid());
@@ -535,34 +538,42 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 	if (event.instanceOf(WindowResizedEvent::classid())) {
 		WindowResizedEvent& rwe = (WindowResizedEvent&) event;
 
+	} else if (event.instanceOf(KeyReleasedEvent::classid())) {
+		KeyReleasedEvent& kre = (KeyReleasedEvent&) event;
+		if (kre.getKey() == 'W' || kre.getKey() == 'S' || kre.getKey() == 'A' || kre.getKey() == 'D' ||
+				kre.getKey() == 'Q' || kre.getKey() == 'E' || GLFW_KEY_PAGEUP || GLFW_KEY_PAGEDOWN ||
+				kre.getKey() == GLFW_KEY_UP || kre.getKey() == GLFW_KEY_DOWN || kre.getKey() == GLFW_KEY_LEFT ||
+				kre.getKey() == GLFW_KEY_RIGHT){
+			mPriCamHasMoved = true;
+		}
 	} else if (event.instanceOf(KeyPressedEvent::classid())) {
 		KeyPressedEvent& kpe = (KeyPressedEvent&) event;
 		switch (kpe.getKey()) {
 		case GLFW_KEY_ESC:{
 			KillApplicationEvent kae = KillApplicationEvent();
-			MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::DATA));
-			MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::RENDERER));
+			mPriMpiCon->push(new Message(kae, 0, MpiControl::DATA));
+			mPriMpiCon->push(new Message(kae, 0, MpiControl::RENDERER));
 			mTerminateApplication = true;
 			break;}
 		case GLFW_KEY_KP_ADD:
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::DATA));
 			break;
 		case GLFW_KEY_KP_SUBTRACT:
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::DATA));
 			break;
 		case 'N':
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::ALL));
 			mPriCamHasMoved = true;
 			break;
 		case 'F':
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::ALL));
 			mPriCamHasMoved = true;
 			break;
@@ -571,14 +582,14 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 			cout << "Requesting Information from Nodes..." << endl;
 			cout << "====================================" << endl;
 			InfoRequestEvent ire = InfoRequestEvent();
-			MpiControl::getSingleton()->push(new Message(ire, 0,
+			mPriMpiCon->push(new Message(ire, 0,
 					MpiControl::ALL));
 			oocframework::EventManager::getSingleton()->fire(ire);
 			break;
 		}
 		case 'R':
 			// do not update the depthbuffer
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
 			break;
 		case 'X':{
@@ -591,13 +602,13 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 				mPriSceneCompletionCount = 0;
 			}
 			mPriCamHasMoved = true;
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
 			SceneCompletionEvent sce = SceneCompletionEvent();
-			MpiControl::getSingleton()->push(new Message(sce, 1, MpiControl::DATA));
+			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
 			break;}
 		default:
-			MpiControl::getSingleton()->push(new Message(kpe, 1,
+			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
 			mPriCamHasMoved = true;
 			break;
@@ -614,8 +625,8 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 	}
 	else if (event.instanceOf(WindowClosedEvent::classid())) {
 		KillApplicationEvent kae = KillApplicationEvent();
-		MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::DATA));
-		MpiControl::getSingleton()->push(new Message(kae, 0, MpiControl::RENDERER));
+		mPriMpiCon->push(new Message(kae, 0, MpiControl::DATA));
+		mPriMpiCon->push(new Message(kae, 0, MpiControl::RENDERER));
 		mTerminateApplication = true;
 	}
 }

@@ -124,7 +124,7 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 			//		cout << "renderer checking for data-input" << endl;
 			MpiControl::getSingleton()->ireceive(MpiControl::DATA);
 
-			if (frames == 30){
+			if (frames % 30 == 0){
 				mPriGlFrame->reloadOnline();
 			}
 

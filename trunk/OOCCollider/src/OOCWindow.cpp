@@ -19,6 +19,7 @@
 #include "MouseWheelEvent.h"
 #include "WindowClosedEvent.h"
 #include "MouseButtonEvent.h"
+#include "KeyReleasedEvent.h"
 
 using namespace std;
 
@@ -45,8 +46,8 @@ OOCWindow::OOCWindow(size_t width, size_t height, size_t color_depth,
 	int bitspercolor = color_depth / 3;
 	int flags = full_screen ? GLFW_FULLSCREEN : GLFW_WINDOW;
 
-	glfwEnable(GLFW_STICKY_KEYS);
-	glfwEnable(GLFW_KEY_REPEAT);
+//	glfwEnable(GLFW_STICKY_KEYS);
+//	glfwEnable(GLFW_KEY_REPEAT);
 
 	// Open a window with the specified settings. Check for failure.
 //	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,8);
@@ -123,6 +124,10 @@ OOCWindow::Key_Callback(int key, int action)
 		// ----------------------------------------------
 		KeyPressedEvent kpe = KeyPressedEvent(key, (glfwGetKey(GLFW_KEY_LSHIFT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RSHIFT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_LCTRL) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RCTRL) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_LALT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RALT) == GLFW_PRESS));
 		oocframework::EventManager::getSingleton()->fire(kpe);
+	}
+	if (action == GLFW_RELEASE){
+		KeyReleasedEvent kre = KeyReleasedEvent(key, (glfwGetKey(GLFW_KEY_LSHIFT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RSHIFT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_LCTRL) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RCTRL) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_LALT) == GLFW_PRESS), (glfwGetKey(GLFW_KEY_RALT) == GLFW_PRESS));
+		oocframework::EventManager::getSingleton()->fire(kre);
 	}
 	if (OOCWindow::instance->mHandler != 0)
 		OOCWindow::instance->mHandler->Event(key, action == GLFW_PRESS);

@@ -42,7 +42,7 @@
 #define DISTANCE_RENEWAL 10
 #define LVL_OF_REDUNDANCY 1
 #define MODEL_DIR "/SampleTree_packed"
-#define MAX_OFFLINE_FRAMES 80
+#define MAX_OFFLINE_FRAMES 150
 
 #undef DEBUG_CCOLLISION
 #undef DEBUG_RENDERLOOP
@@ -120,6 +120,7 @@ class EndTransmissionEvent;
 class InfoRequestEvent;
 class JobDoneEvent;
 class KeyPressedEvent;
+class KeyReleasedEvent;
 class KillApplicationEvent;
 class ModelViewMatrixEvent;
 class MouseButtonEvent;

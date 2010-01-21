@@ -135,8 +135,8 @@ class LooseRenderOctree
 		int64_t getId() const {return mPriId;};
 		std::string getIdString()const;
 
-		void getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool _isExt);
-		void getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray, bool _isExt);
+		void getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, bool _isExt, unsigned& listSize, unsigned maxSize);
+		void getAllSubtreeIds(std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray, bool _isExt, unsigned& listSize, unsigned maxSize);
 
 		/**
 		 * @brief Debug-Function to check the correctness of subdivision.
@@ -189,7 +189,7 @@ class LooseRenderOctree
 		bool frustumSelfTest_bfs(float** _frustum, std::set<uint64_t>* _ids, std::queue<LooseRenderOctree*>& _toDoQueue, unsigned orderIdx);
 		bool frustumSelfTest_dfs(float** _frustum, std::set<uint64_t>* _ids, unsigned orderIdx);
 		void isInFrustum(float** _frustum, std::set<uint64_t>* _ids, bool _showOctree, unsigned* _threshold, bool debug=false);
-		void isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray, bool _isExt);
+		void isInFrustum_orig(float** _frustum, std::list<WrappedOcNode*>* _nodes, unsigned orderIdx, const ooctools::V3f& eyePos, const float* distArray, bool _isExt, unsigned& listSize, unsigned maxSize);
 
 		WrappedOcNode* getWrapper() {return &mPriWrapper;};
 
