@@ -76,6 +76,19 @@ private:
 
 	std::map<int, double> mPriSceneCompletion;
 	unsigned mPriSceneCompletionCount;
+	bool mPriStepLeft;
+	bool mPriStepRight;
+	bool mPriStepForward;
+	bool mPriStepBackward;
+	bool mPriRollLeft;
+	bool mPriRollRight;
+	bool mPriTiltUp;
+	bool mPriTiltDown;
+	bool mPriTurnLeft;
+	bool mPriTurnRight;
+	bool mPriTurnUp;
+	bool mPriTurnDown;
+
 
 	static RenderMasterCore* instance;
 
@@ -83,6 +96,7 @@ private:
 	void pollSpaceNav();
 	void handleMsg(oocframework::Message* msg);
 	void manageCCollision();
+	void checkForActiveMovement();
 
 	/**
 	 * @brief using mmap (memory-mapped io) to acquire a valid address to the file and returning it.

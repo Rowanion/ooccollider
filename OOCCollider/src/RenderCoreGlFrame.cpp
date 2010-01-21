@@ -450,9 +450,6 @@ void RenderCoreGlFrame::display()
 
 				// -----------------------------------
 
-				if (mPriBBMode>0){
-					mPriColorTable.drawLegend();
-				}
 //				if (mPriFrameTick%50 == 0){
 //					cerr << "VBOs on GPU: " << onlineCount << endl;
 //				}

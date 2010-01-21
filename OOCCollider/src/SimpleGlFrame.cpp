@@ -50,9 +50,11 @@ SimpleGlFrame::SimpleGlFrame() : AbstractGlFrame(0,0,0,0),
 	mPriFbo(0), mPriColorBuffer(0), mPriCBufWidth(0), mPriCBufHeight(0), mPriCBufX(0), mPriCBufY(0), mPriUseSpaceNav(false),
 	mPrilockTrans(false), mPrilockRot(false), mPriStepLeft(false), mPriStepRight(false), mPriStepForward(false), mPriStepBackward(false),
 	mPriRollLeft(false), mPriRollRight(false), mPriTiltUp(false), mPriTiltDown(false), mPriTurnLeft(false), mPriTurnRight(false), mPriTurnUp(false),
-	mPriTurnDown(false)
+	mPriTurnDown(false), mPriBBMode(0)
 {
 	// TODO Auto-generated constructor stub
+
+	mPriColorTable = ColorTable(string(BASE_MODEL_PATH) + string("/colortable.bin"));
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -86,6 +88,14 @@ void SimpleGlFrame::init() {
 	glDisable(GL_DEPTH_TEST);
 	glShadeModel(GL_FLAT);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glDisable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT, GL_FILL);
+	glDisable(GL_LIGHTING);
+	glDepthMask(GL_FALSE);
+
+
+
+
 //	camObj.positionCamera(0.0,0.0,5.0,
 //			0.0,0.0,-3.0,
 //			0,1,0);
@@ -97,6 +107,8 @@ void SimpleGlFrame::init() {
 	mPriCamera.initMatrices();
 	mPriCamera.calcMatrix();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
+	mPriColorTable.setupTexture();
+
 
 #ifndef PC2
 	if(spnav_open()==-1) {
@@ -153,6 +165,10 @@ void SimpleGlFrame::display()
 //	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertPostProc);
 //	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragPostProc);
 	mPriFbo->drawColorFSQuad();
+	if (mPriBBMode>0){
+		mPriColorTable.drawLegend();
+	}
+
 //	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
 //	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
 
@@ -431,6 +447,12 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 	    case GLFW_KEY_RIGHT:
 			mPriTurnRight = false;
 	        break;
+	    case (int)'O':
+	    	mPriBBMode++;
+			if (mPriBBMode>3){
+				mPriBBMode = 0;
+			}
+	        break;
 	    }
 	}
 	if (event.instanceOf(KeyPressedEvent::classid())){
@@ -438,54 +460,42 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 	    switch (kpe.getKey()) {
 			case GLFW_KEY_PAGEUP: // tilt up
 				mPriTiltUp = true;
-//				mPriCamera.decYMove(0.1);
 			break;
 			case GLFW_KEY_PAGEDOWN: // tilt down
 				mPriTiltDown = true;
-//				mPriCamera.incYMove(0.1);
 			break;
 
 			case GLFW_KEY_UP: // walk forward (bob head)
 				mPriTurnUp = true;
-//				mPriCamera.setXRot(1.0);
 			break;
 
 			case GLFW_KEY_DOWN: // walk back (bob head)
 				mPriTurnDown = true;
-//				mPriCamera.setXRot(-1.0);
 			break;
 
 			case GLFW_KEY_LEFT: // look left(int)
 				mPriTurnLeft = true;
-//				mPriCamera.setYRot(1.0);
 			break;
 
 			case GLFW_KEY_RIGHT: // look right
 				mPriTurnRight = true;
-//				mPriCamera.setYRot(-1.0);
 			break;
 		    case (int)'W':
-//		    	mPriCamera.incZMove(0.1*walkingSpeed);
 				mPriStepForward = true;
 		    break;
 		    case (int)'S':
 				mPriStepBackward = true;
-//		    	mPriCamera.decZMove(0.1*walkingSpeed);
 		        break;
 		    case (int)'A':
-//		    	mPriCamera.incXMove(0.1*walkingSpeed);
 				mPriStepLeft = true;
 		        break;
 		    case (int)'D':
-//		    	mPriCamera.decXMove(0.1*walkingSpeed);
 				mPriStepRight = true;
 		        break;
 		    case (int)'Q':
-//		    	mPriCamera.setZRot(1.0);
 				mPriRollLeft = true;
 		        break;
 		    case (int)'E':
-//		    	mPriCamera.setZRot(-1.0);
 				mPriRollRight = true;
 	        break;
 			case 'C':{ // dump current matrix and exit
