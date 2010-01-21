@@ -42,6 +42,7 @@ private:
 
 	bool mPriReloadTest;
 	double mPriReloadStart, mPriReloadStop;
+	bool mPriClearAll;
 
 	void sendMethod(int dest);
 	void receiveMethod(int source);
