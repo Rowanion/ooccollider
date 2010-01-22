@@ -45,6 +45,8 @@ private:
 	double mPriRequestTime;
 
 	bool mPriSceneCompletion;
+	unsigned mPriRendererCompletion;
+	double mPriCompletionTime;
 
 	static DataCore* instance;
 

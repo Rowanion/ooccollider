@@ -41,6 +41,7 @@
 #include "Logger.h"
 #include "Log.h"
 #include "LowMemoryEvent.h"
+#include "SceneCompletionEvent.h"
 
 
 using namespace std;
@@ -91,7 +92,8 @@ AbstractGlFrame(winWidth, winHeight, targetWinWidth, targetWinHeight), avgFps(0.
 	oocframework::EventManager::getSingleton()->addListener(this, OcclusionResultsEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, oocframework::LowMemoryEvent::classid());
 
-
+	mPriSceneCompletionTest = false;
+	mPriSceneCompletionResults = false;
 
 	this->priFrustum = new float*[6];
 	for (unsigned i = 0; i < 6; ++i) {
@@ -756,10 +758,17 @@ RenderCoreGlFrame::requestMissingVbos()
 	if (loadCount>0){
 		// actually request them
 		NodeRequestEvent nre = NodeRequestEvent(mPriRequests.begin(), qIt, loadCount);
+//		cerr << "Renderer " << MpiControl::getSingleton()->getRank() << " requesting " << nre.getIdxCount() << " VBOs..." << endl;
 		MpiControl::getSingleton()->isend(new Message(nre, 0));
 		//		cout << "missingVbos vs requested - " << mPriMissingIdsInFrustum.size() << " vs " << nre.getIdxCount() << " vs " << missingTriple.size() << endl;
 		mPriRequests.erase(mPriRequests.begin(), qIt);
 //		cerr << "requesting " << loadCount << "vbos.." << endl;
+	}
+	else if (mPriSceneCompletionTest){
+		cerr << "Render " << MpiControl::getSingleton()->getRank() << " sent all requests: " << glfwGetTime() - mpriSceneCompletionTime<< endl;
+		mPriSceneCompletionTest = false;
+		SceneCompletionEvent sce = SceneCompletionEvent(MpiControl::getSingleton()->getRank());
+		MpiControl::getSingleton()->push(new Message(sce, 0));
 	}
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));
@@ -951,7 +960,7 @@ void RenderCoreGlFrame::cullFrustum()
 	double newTime2 = glfwGetTime();
 #endif
 
-//	manageCaching();
+	manageCaching();
 	if (mPriWrapperListSize > mPriMaxWrapperListSize){
 		clearCache();
 	}
@@ -998,7 +1007,7 @@ void RenderCoreGlFrame::manageCaching()
 			++wIt;
 		}
 		else if ((*wIt)->state == WrappedOcNode::OFFLINE){
-			if ((*wIt)->offlineCount > MAX_OFFLINE_FRAMES){
+			if (!mPriSceneCompletionTest && (*wIt)->offlineCount > MAX_OFFLINE_FRAMES){
 				myVF::getSingleton()->freeVbo((*wIt)->iVbo);
 				(*wIt)->iVbo = 0;
 				(*wIt)->state = WrappedOcNode::MISSING;
@@ -1087,6 +1096,7 @@ void RenderCoreGlFrame::manageCaching()
 	}
 	else if (mPriClearAll){
 		clearEverything();
+		myVF::getSingleton()->clear();
 		mPriClearAll = false;
 	}
 	else {
@@ -1352,8 +1362,6 @@ RenderCoreGlFrame::clearEverything()
 	mPriReRequestList.clear();
 	mPriWrapperInFrustum.clear();
 	mPriWrapperInFrustum.resize(0);
-	myVF::getSingleton()->clear();
-
 //	int* test = 0;
 //	for (unsigned i=0; i<500; ++i){
 //		test = new int[125000000];
@@ -1414,7 +1422,10 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			break;
 			case 'X':{ // clear cache
 				if (kpe.isCtrl()){
-//					mPriClearAll = true;
+					mPriSceneCompletionTest = true;
+					mpriSceneCompletionTime = glfwGetTime();
+					cerr << "Renderer " << MpiControl::getSingleton()->getRank() << " started SceneCompletionMeasuring." << endl;
+					mPriClearAll = true;
 //					clearEverything();
 				}
 				else {
@@ -1435,6 +1446,9 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 		if (myVF::getSingleton()->getFreeMem() < ve.getByteSize()){
 			clearCache();
 			myVF::getSingleton()->defrag(&mPriWrapperInFrustum);
+		}
+		if (mPriSceneCompletionResults){
+			cerr << "Renderer " << MpiControl::getSingleton()->getRank() << " got " << ve.getVboCount() << " VBOs..." << endl;
 		}
 		std::map<uint64_t, oocformats::LooseRenderOctree*>::iterator idLoIt;
 		for (unsigned i=0; i< ve.getVboCount(); ++i){

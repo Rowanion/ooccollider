@@ -346,14 +346,9 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			//			mRunning = false;
 		}
 		else if (msg->getType() == SceneCompletionEvent::classid()->getShortId()) {
-			mPriSceneCompletion[msg->getSrc()] = (glfwGetTime()-mPriSceneCompletion[msg->getSrc()]);
-			mPriSceneCompletionCount++;
-			if (mPriSceneCompletionCount >= mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
-				map<int, double>::iterator timeIt = mPriSceneCompletion.begin();
-				for (; timeIt != mPriSceneCompletion.end(); timeIt++){
-					cerr << "CompletionTime for RenderNode " << timeIt->first << ": " << timeIt->second << " secs." << endl;
-				}
-			}
+			SceneCompletionEvent sce = SceneCompletionEvent(msg);
+			// msg from a renderer that all requests have been sent
+			mPriRendererComplete.push_back(sce.getSrc());
 		}
 		else if (msg->getType() == AccumulatedRendertimeEvent::classid()->getShortId()) {
 //			cout << "AccumulatedRendertimeRequest" << endl;
@@ -447,11 +442,12 @@ void RenderMasterCore::manageCCollision()
 		mPriQuintVec.clear();
 		mPriQuintVec.resize(0);
 	}
-	else{
-		if (mPriSceneCompletionTest){
-			SceneCompletionEvent sce = SceneCompletionEvent();
-			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
-			mPriSceneCompletionTest = false;
+	if (!mPriRendererComplete.empty()){
+		list<int>::iterator lIt = mPriRendererComplete.begin();
+		for (; lIt != mPriRendererComplete.end();){
+			SceneCompletionEvent sce = SceneCompletionEvent(*lIt);
+			mPriMpiCon->isend(new Message(sce,0, MpiControl::DATA));
+			mPriRendererComplete.erase(lIt++);
 		}
 	}
 
@@ -651,19 +647,18 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 			break;
 		case 'X':{
 			if (kpe.isCtrl()){
-				// RELOADTEST
-				mPriSceneCompletion.clear();
-				for (unsigned i = 0; i < mPriMpiCon->getRenderGroup().size(); i++){
-					mPriSceneCompletion.insert(make_pair(mPriMpiCon->getRenderGroup()[i], glfwGetTime()));
-				}
-				mPriSceneCompletionCount = 0;
-				mPriSceneCompletionTest = true;
+//				// RELOADTEST
+//				mPriSceneCompletion.clear();
+//				for (unsigned i = 0; i < mPriMpiCon->getDataGroup().size(); i++){
+//					mPriSceneCompletion.insert(make_pair(mPriMpiCon->getDataGroup()[i], glfwGetTime()));
+//				}
+//				mPriSceneCompletionCount = 0;
 			}
-			else {
-				mPriCamHasMoved = true;
-			}
+			mPriCamHasMoved = true;
 			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::RENDERER));
+//			SceneCompletionEvent sce = SceneCompletionEvent();
+//			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
 			break;}
 		case GLFW_KEY_PAGEUP: // tilt up
 			mPriTiltUp = true;
