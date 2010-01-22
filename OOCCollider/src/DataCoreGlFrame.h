@@ -138,6 +138,9 @@ private:
 	ooctools::BoundingBox mPriSceneBB;
 	ooctools::V3f mPriSceneCenter;
 
+	bool mPriSceneCompletion;
+	double mPriStartDataTime;
+	double mPriStopDataTime;
 
 	CGprogram cgVertexProg;
 	CGparameter cgTexture;

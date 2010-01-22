@@ -49,6 +49,7 @@ DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidt
 	DataCore::instance = this;
 	mPriMpiCon = oocframework::MpiControl::getSingleton();
 
+	mPriRendererCompletion = 0;
 	//		setupWindow("My rank is NOT 0");
 	stringstream title;
 	title << "DataNode (" << mPriMpiCon->getRank() << ")";
@@ -74,13 +75,6 @@ DataCore::DataCore(unsigned _winWidth, unsigned _winHeight, unsigned _targetWidt
 		mPriMpiCon->ireceive(MPI::ANY_SOURCE);
 		if (!mPriMpiCon->inQueueEmpty()){
 			handleMsg(mPriMpiCon->pop());
-		}
-		else if (mPriSceneCompletion){
-			if (mPriMpiCon->inQueueEmpty() && mPriMpiCon->inRequestsEmpty() && mPriMpiCon->outRequestsEmpty() && mPriMpiCon->outQueueEmpty()){
-				SceneCompletionEvent sce = SceneCompletionEvent();
-				mPriMpiCon->push(new Message(sce, 0));
-				mPriSceneCompletion = false;
-			}
 		}
 		mPriMpiCon->isend();
 
@@ -156,6 +150,10 @@ void DataCore::handleMsg(Message* msg){
 		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
 			KeyPressedEvent kpe = KeyPressedEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(kpe);
+			if (kpe.getKey() == 'X' && kpe.isCtrl()){
+				mPriCompletionTime = glfwGetTime();
+				mPriRendererCompletion = 0;
+			}
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){
 			ModelViewMatrixEvent mve = ModelViewMatrixEvent(((float*)msg->getData()));
@@ -165,7 +163,13 @@ void DataCore::handleMsg(Message* msg){
 			oocframework::EventManager::getSingleton()->fire(mve);
 		}
 		else if (msg->getType() == SceneCompletionEvent::classid()->getShortId()){
-			mPriSceneCompletion = true;
+			cerr << "Datacore got scenecompletion, now having " << mPriRendererCompletion << endl;
+			mPriRendererCompletion++;
+			if (mPriRendererCompletion >= mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
+				mPriSceneCompletion = false;
+				mPriRendererCompletion = 0;
+				cerr << "Completion time: " << (glfwGetTime() - mPriCompletionTime) << endl;
+			}
 		}
 		else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
 //							cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;

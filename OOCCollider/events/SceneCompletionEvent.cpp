@@ -11,13 +11,23 @@
 
 #include "ClassId.h"
 #include "IEvent.h"
+#include "Message.h"
 
 oocframework::ClassId* SceneCompletionEvent::mClassId = new oocframework::ClassId("SceneCompletionEvent");
 
-SceneCompletionEvent::SceneCompletionEvent() {
-	mProByteSize = 1;
+SceneCompletionEvent::SceneCompletionEvent(int _src) {
+	mProByteSize = sizeof(int);
 	mProData = new char[mProByteSize];
+	((int*)mProData)[0] = _src;
 	init();
+}
+
+SceneCompletionEvent::SceneCompletionEvent(const oocframework::Message* msg)
+{
+	mProByteSize = msg->getLength();
+	mProData = new char[mProByteSize];
+
+	memcpy(mProData, msg->getData(),msg->getLength());
 }
 
 SceneCompletionEvent::~SceneCompletionEvent() {

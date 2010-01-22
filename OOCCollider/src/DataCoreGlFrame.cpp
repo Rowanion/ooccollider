@@ -73,6 +73,7 @@ DataCoreGlFrame::DataCoreGlFrame(unsigned _winWidth, unsigned _winHeight, unsign
 	oocframework::EventManager::getSingleton()->addListener(this,
 			InfoRequestEvent::classid());
 
+	mPriSceneCompletion = false;
 }
 
 DataCoreGlFrame::~DataCoreGlFrame() {
@@ -802,6 +803,12 @@ void DataCoreGlFrame::notify(oocframework::IEvent& event)
 			case 'N': // decrease far-clipping plane
 				mProFarClippingPlane = max(mProFarClippingPlane/2.0f, 50.0f);
 				reshape(mProWindowWidth, mProWindowHeight);
+			break;
+			case 'X':
+				if (mde.isCtrl()){
+					mPriSceneCompletion = true;
+					mPriStartDataTime = glfwGetTime();
+				}
 			break;
 			default:
 			break;

@@ -71,6 +71,8 @@ public:
 	void clearCache();
 	void clearEverything();
 	void debug(ooctools::IVbo* _iVbo, VboEvent* _vE, unsigned _idx);
+	bool sceneCompletionDone() const {return mPriSceneCompletionResults;};
+	void resetCompletion() {mPriSceneCompletionResults = false;};
 
 protected:
 
@@ -161,6 +163,10 @@ private:
 
 	unsigned mPriWrapperListSize;
 	unsigned mPriMaxWrapperListSize;
+
+	bool mPriSceneCompletionTest;
+	double mpriSceneCompletionTime;
+	bool mPriSceneCompletionResults;
 
 	GLuint mPriOccQueries[L1_CACHE_VBO_LIMIT];
 	std::map<uint64_t, GLint> mPriOccResults;

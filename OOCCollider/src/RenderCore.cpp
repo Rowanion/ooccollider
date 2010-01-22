@@ -59,7 +59,6 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 	mWindow->attachGlFrame(mPriGlFrame);
 	GET_GLERROR(0);
 
-	mPriClearAll = false;
 	// get the initial tile-dimensions
 	mPriMpiCon->receive(0);
 	while(!mPriMpiCon->inQueueEmpty()){ //
@@ -120,14 +119,17 @@ RenderCore::RenderCore(unsigned _winWidth, unsigned _winHeight, unsigned _target
 			//		cout << "renderer sending colorbuffer" << endl;
 			mPriMpiCon->isend(new Message(mPriGlFrame->getColorBufferEvent(), 0));
 			//		cout << "renderer culling and requesting" << endl;
-			if (mPriClearAll){
-				mPriClearAll = false;
-				mPriGlFrame->clearEverything();
-			}
+			mPriGlFrame->cullFrustum();
+
 			//		cout << "renderer checking for data-input" << endl;
 			MpiControl::getSingleton()->ireceive(MpiControl::DATA);
-			mPriGlFrame->cullFrustum();
-			mPriGlFrame->manageCaching();
+
+			if (mPriGlFrame->sceneCompletionDone() && MpiControl::getSingleton()->inQueueEmpty() &&
+					MpiControl::getSingleton()->inRequestsEmpty()){
+				cerr << "Render " << MpiControl::getSingleton()->getRank() << " has no further incoming Data...." << endl;
+				mPriGlFrame->resetCompletion();
+			}
+
 			if (frames % 30 == 0){
 				mPriGlFrame->reloadOnline();
 			}
@@ -242,9 +244,6 @@ void RenderCore::handleMsg(oocframework::Message* msg)
 		}
 		else if (msg->getType() == KeyPressedEvent::classid()->getShortId()) {
 			KeyPressedEvent kpe = KeyPressedEvent(msg);
-			if (kpe.getKey() == 'X' && kpe.isCtrl()){
-				mPriClearAll = true;
-			}
 			oocframework::EventManager::getSingleton()->fire(kpe);
 		}
 		else if (msg->getType() == ModelViewMatrixEvent::classid()->getShortId()){

@@ -25,11 +25,13 @@
  */
 class SceneCompletionEvent : public oocframework::IEvent{
 public:
-	SceneCompletionEvent();
+	SceneCompletionEvent(int _src);
+	SceneCompletionEvent(const oocframework::Message* msg);
 	virtual ~SceneCompletionEvent();
 	static const oocframework::ClassId* classid();
 	virtual const oocframework::ClassId* getClassId(){return mClassId;};
 	virtual bool instanceOf(const oocframework::ClassId* cId) const;
+	int getSrc() const {return ((int*)mProData)[0];};
 
 protected:
 	static oocframework::ClassId* mClassId;
