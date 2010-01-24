@@ -48,6 +48,7 @@
 #include "VboDistributionEvent.h"
 #include "SceneCompletionEvent.h"
 #include "KeyReleasedEvent.h"
+#include "ResultsEvent.h"
 
 #include <sys/mman.h>
 #include <cstdio>
@@ -104,6 +105,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	}
 
 	int id = 0;
+	mPriPosition = -1;
 
 	mPriRootTile.xPos = mPriRootTile.yPos = 0;
 	mPriRootTile.width = _width;
@@ -229,6 +231,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 			checkForActiveMovement();
 			mPriMpiCon->ireceive(MpiControl::RENDERER);
+			mPriMpiCon->ireceive(MpiControl::DATA);
 			if (!mPriMpiCon->inQueueEmpty()){
 				handleMsg(mPriMpiCon->pop());
 			}
@@ -350,6 +353,33 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			// msg from a renderer that all requests have been sent
 			mPriRendererComplete.push_back(sce.getSrc());
 		}
+		else if (msg->getType() == ResultsEvent::classid()->getShortId()) {
+			ResultsEvent sce = ResultsEvent(msg);
+#ifdef RENDER_TIME_TEST
+			mPriSceneCompletion.insert(make_pair(msg->getSrc(), sce.getResult(0)));
+			if (mPriSceneCompletion.size() >= mPriMpiCon->getGroupSize(MpiControl::DATA)){
+				stringstream ss;
+				ss << "ReloadTest_Redundance" << LVL_OF_REDUNDANCY << "_R" << mPriMpiCon->getGroupSize(MpiControl::RENDERER) << "_D" << mPriMpiCon->getGroupSize(MpiControl::DATA);
+				fs::path logFile = fs::path(ss.str() + ".log");
+				Log l = Logger::getSingleton()->newLog(logFile);
+				l.addCommentLine(string("CamPos,DataNode_0,DataNode_1...DataNode_n,avgTime"));
+				l.newTest();
+				map<int, double>::iterator mIt = mPriSceneCompletion.begin();
+				cerr << "Render-Time-Test completed!" << endl;
+				l << mPriPosition;
+				double avg = 0.0;
+				for (; mIt != mPriSceneCompletion.end(); ++mIt){
+//					cerr << "DataNode " << mIt->first << ": " << mIt->second << " seconds." << endl;
+					l << mIt->second;
+					avg += mIt->second;
+				}
+				avg = (avg/mPriMpiCon->getGroupSize(MpiControl::DATA));
+				l << avg;
+//				l << NL;
+				mPriSceneCompletion.clear();
+			}
+#endif
+		}
 		else if (msg->getType() == AccumulatedRendertimeEvent::classid()->getShortId()) {
 //			cout << "AccumulatedRendertimeRequest" << endl;
 			mPriRenderTimes[msg->getSrc()-1] = ((double*)msg->getData())[0];
@@ -431,7 +461,17 @@ void RenderMasterCore::manageCCollision()
 
 	// distribution of requests from here
 	if (!mPriQuintVec.empty()){
+#ifdef C_COLLISION_BALANCE_TEST
+		stringstream ss;
+		ss << "LoadBalanceTest_Redundance" << LVL_OF_REDUNDANCY << "_R" << mPriMpiCon->getGroupSize(MpiControl::RENDERER) << "_D" << mPriMpiCon->getGroupSize(MpiControl::DATA);
+		fs::path logFile = fs::path(ss.str() + ".log");
+		Log l = Logger::getSingleton()->newLog(logFile);
+		l.addCommentLine(string("pos, loadDataNode_0, loadDataNode_1,.., loadDataNode_n, avgLoad, ..."));
+		l << mPriPosition;
+		mPriCCol.doCCollision(&mPriQuintVec, &mPriNodeReqMap, l);
+#else
 		mPriCCol.doCCollision(&mPriQuintVec, &mPriNodeReqMap);
+#endif
 		map<int, set<Quintuple> >::iterator intQuintIt = mPriNodeReqMap.begin();
 		for (; intQuintIt != mPriNodeReqMap.end(); ++intQuintIt){
 			NodeRequestEvent nre = NodeRequestEvent(intQuintIt->second, mPriGlFrame->getMvMatrix());
@@ -602,6 +642,36 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 	} else if (event.instanceOf(KeyPressedEvent::classid())) {
 		KeyPressedEvent& kpe = (KeyPressedEvent&) event;
 		switch (kpe.getKey()) {
+		case '0':
+			mPriPosition = 0;
+			break;
+		case '1':
+			mPriPosition = 1;
+			break;
+		case '2':
+			mPriPosition = 2;
+			break;
+		case '3':
+			mPriPosition = 3;
+			break;
+		case '4':
+			mPriPosition = 4;
+			break;
+		case '5':
+			mPriPosition = 5;
+			break;
+		case '6':
+			mPriPosition = 6;
+			break;
+		case '7':
+			mPriPosition = 7;
+			break;
+		case '8':
+			mPriPosition = 8;
+			break;
+		case '9':
+			mPriPosition = 9;
+			break;
 		case GLFW_KEY_ESC:{
 			KillApplicationEvent kae = KillApplicationEvent();
 			mPriMpiCon->push(new Message(kae, 0, MpiControl::DATA));
@@ -656,7 +726,7 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 			}
 			mPriCamHasMoved = true;
 			mPriMpiCon->push(new Message(kpe, 1,
-					MpiControl::RENDERER));
+					MpiControl::ALL));
 //			SceneCompletionEvent sce = SceneCompletionEvent();
 //			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
 			break;}

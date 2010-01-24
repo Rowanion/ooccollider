@@ -1422,15 +1422,15 @@ RenderCoreGlFrame::notify(oocframework::IEvent& event)
 			break;
 			case 'X':{ // clear cache
 				if (kpe.isCtrl()){
+#ifdef RENDER_TIME_TEST
 					mPriSceneCompletionTest = true;
 					mpriSceneCompletionTime = glfwGetTime();
 					cerr << "Renderer " << MpiControl::getSingleton()->getRank() << " started SceneCompletionMeasuring." << endl;
+#endif
 					mPriClearAll = true;
-//					clearEverything();
 				}
 				else {
 					mPriClearCache = true;
-//					clearCache();
 				}
 			case 'M':
 				cerr << "Mem " << MpiControl::getSingleton()->getRank() <<  ": " << MemTools::getSingleton()->usedMem() << endl;

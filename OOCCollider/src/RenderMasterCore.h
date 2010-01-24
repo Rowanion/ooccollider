@@ -90,6 +90,7 @@ private:
 	bool mPriTurnDown;
 
 	list<int> mPriRendererComplete;
+	int mPriPosition;
 
 	static RenderMasterCore* instance;
 

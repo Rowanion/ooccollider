@@ -33,7 +33,7 @@ void Log::setup(boost::filesystem::path _filename)
 	stringstream ss;
 //	ss << mPriSystemTime->tm_year+1900 << "-" << mPriSystemTime->tm_mon+1 << "-" << mPriSystemTime->tm_mday << "_" << mPriSystemTime->tm_hour << "." << mPriSystemTime->tm_min << "h";
 	ss << mPriSystemTime->tm_year+1900 << "-" << mPriSystemTime->tm_mon+1 << "-" << mPriSystemTime->tm_mday;
-    printf("Aktuelle Zeit: %s", asctime(mPriSystemTime));
+//    printf("Aktuelle Zeit: %s", asctime(mPriSystemTime));
     _filename.replace_extension(ss.str()+_filename.extension());
 
     //append to existing file
@@ -56,7 +56,23 @@ void Log::newTest(std::string  _title)
 	mPriOfStream << endl << _title << CSV;
 }
 
+void Log::newTest()
+{
+	mPriOfStream << endl;
+}
+
+void Log::addCommentLine(std::string  _comment)
+{
+	mPriOfStream << endl << "#" << _comment << endl;
+}
+
 std::ostream& Log::operator<< (int& val )
+{
+	mPriOfStream << val << CSV;
+	return mPriOfStream;
+}
+
+std::ostream& Log::operator<< (unsigned& val )
 {
 	mPriOfStream << val << CSV;
 	return mPriOfStream;

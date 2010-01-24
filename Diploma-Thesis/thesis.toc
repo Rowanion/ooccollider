@@ -22,7 +22,7 @@
 \contentsline {section}{\numberline {3.4}Approximation}{20}{section.3.4}
 \contentsline {chapter}{\numberline {4}Implementierung}{21}{chapter.4}
 \contentsline {section}{\numberline {4.1}Preprocessing}{21}{section.4.1}
-\contentsline {section}{\numberline {4.2}Datenstruktur}{21}{section.4.2}
+\contentsline {section}{\numberline {4.2}Datenstruktur}{22}{section.4.2}
 \contentsline {section}{\numberline {4.3}Programm}{22}{section.4.3}
 \contentsline {section}{\numberline {4.4}Netzwerkarchitektur}{23}{section.4.4}
 \contentsline {section}{\numberline {4.5}Kommunikation}{23}{section.4.5}

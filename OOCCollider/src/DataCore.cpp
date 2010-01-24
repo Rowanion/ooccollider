@@ -34,6 +34,7 @@
 #include "Logger.h"
 #include "Log.h"
 #include "SceneCompletionEvent.h"
+#include "ResultsEvent.h"
 
 #define RENDER_NODES 1
 
@@ -151,6 +152,7 @@ void DataCore::handleMsg(Message* msg){
 			KeyPressedEvent kpe = KeyPressedEvent(msg);
 			oocframework::EventManager::getSingleton()->fire(kpe);
 			if (kpe.getKey() == 'X' && kpe.isCtrl()){
+//				cerr << "resetting the timer!" << endl;
 				mPriCompletionTime = glfwGetTime();
 				mPriRendererCompletion = 0;
 			}
@@ -163,13 +165,16 @@ void DataCore::handleMsg(Message* msg){
 			oocframework::EventManager::getSingleton()->fire(mve);
 		}
 		else if (msg->getType() == SceneCompletionEvent::classid()->getShortId()){
-			cerr << "Datacore got scenecompletion, now having " << mPriRendererCompletion << endl;
+#ifdef RENDER_TIME_TEST
 			mPriRendererCompletion++;
 			if (mPriRendererCompletion >= mPriMpiCon->getGroupSize(MpiControl::RENDERER)){
 				mPriSceneCompletion = false;
 				mPriRendererCompletion = 0;
-				cerr << "Completion time: " << (glfwGetTime() - mPriCompletionTime) << endl;
+				mPriCompletionTime = (glfwGetTime() - mPriCompletionTime);
+				ResultsEvent re = ResultsEvent(1, &mPriCompletionTime);
+				mPriMpiCon->push(new Message(re,0));
 			}
+#endif
 		}
 		else if (msg->getType() == DepthBufferEvent::classid()->getShortId()){
 //							cout << "yeah depthbuffer dot com kam an! " << msg->getSrc() << " -> " << MpiControl::getSingleton()->getRank() << endl;

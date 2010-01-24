@@ -3,8 +3,8 @@ def_graphic_ext=
 img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
-kileversion=2.1
-lastDocument=chapters/implementation.tex
+kileversion=2.1 beta2
+lastDocument=plots/diag1.tex
 masterDocument=
 name=Diploma-Thesis
 pkg_extIsRegExp=false
@@ -23,15 +23,15 @@ encoding=UTF-8
 highlight=BibTeX
 line=310
 open=true
-order=8
+order=2
 
 [item:chapters/appendix-acronyms.tex]
 archive=true
-column=44
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=34
-open=true
+line=0
+open=false
 order=9
 
 [item:chapters/appendix-div.tex]
@@ -50,15 +50,15 @@ encoding=UTF-8
 highlight=LaTeX
 line=82
 open=true
-order=4
+order=6
 
 [item:chapters/conclusion.tex]
 archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=33
-open=true
+line=0
+open=false
 order=6
 
 [item:chapters/implementation.tex]
@@ -68,7 +68,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=10
 open=true
-order=7
+order=4
 
 [item:chapters/introduction.tex]
 archive=true
@@ -86,7 +86,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=4
 open=true
-order=10
+order=3
 
 [item:chapters/results.tex]
 archive=true
@@ -95,7 +95,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=53
 open=true
-order=1
+order=5
 
 [item:chapters/titlepage.tex]
 archive=true
@@ -104,15 +104,15 @@ encoding=UTF-8
 highlight=LaTeX
 line=40
 open=true
-order=2
+order=1
 
 [item:chapters/versuchsaufbau.tex]
 archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=3
-open=true
+line=0
+open=false
 order=5
 
 [item:images/Logo_Uni_Paderborn.pdf]
@@ -144,12 +144,12 @@ order=-1
 
 [item:plots/diag1.tex]
 archive=true
-column=44
+column=49
 encoding=UTF-8
 highlight=LaTeX
-line=1
-open=false
-order=-1
+line=8
+open=true
+order=10
 
 [item:plots/diag2.tex]
 archive=true
@@ -157,17 +157,17 @@ column=2
 encoding=UTF-8
 highlight=LaTeX
 line=10
-open=false
-order=-1
+open=true
+order=11
 
 [item:plots/diag3.tex]
 archive=true
-column=0
+column=26
 encoding=UTF-8
 highlight=LaTeX
-line=23
-open=false
-order=-1
+line=7
+open=true
+order=12
 
 [item:plots/diag4.tex]
 archive=true
@@ -175,7 +175,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=9
 
 [item:plots/diag5.tex]
@@ -184,8 +184,8 @@ column=28
 encoding=UTF-8
 highlight=LaTeX
 line=21
-open=false
-order=-1
+open=true
+order=13
 
 [item:plots/seq_diag_depth.tex]
 archive=true
@@ -194,7 +194,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=0
 open=true
-order=11
+order=8
 
 [item:plots/seq_diag_render.tex]
 archive=true
@@ -216,9 +216,9 @@ order=-1
 
 [item:thesis.tex]
 archive=true
-column=1
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=297
+line=0
 open=true
-order=3
+order=7

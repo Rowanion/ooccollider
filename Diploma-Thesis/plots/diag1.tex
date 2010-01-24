@@ -3,20 +3,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{tikzpicture}
-  \begin{axis}[xlabel=$x$, ylabel={$f(x) = x^2 - x +4$}]
-    \addplot table[col sep=comma,x index=0,y index=2,header=false] {data/data.dat};
-    \addlegendentry{model}
-    \addplot coordinates {
-      (-4.77778,2027.60977)
-      (-3.55556,347.84069)
-      (-2.33333,22.58953)
-      (-1.11111,-493.50066)
-      (0.11111,46.66082)
-      (1.33333,-205.56286)
-      (2.55556,-341.40638)
-      (3.77778,-1169.24780)
-      (5.00000,-3269.56775)
-    };
-    \addlegendentry{dfsda}
+  \begin{axis}[xlabel=Kameraposition, ylabel={Zeit (in Sekunden)}]
+    \addplot table[col sep=comma,x index=0,y index=1,header=false] {data/ReloadTest_R2_D2.2010-1-24.log};
+    \addlegendentry{DataNode0}
+    \addplot table[col sep=comma,x index=0,y index=2,header=false] {data/ReloadTest_R2_D2.2010-1-24.log};
+    \addlegendentry{DataNode1}
   \end{axis}
 \end{tikzpicture}
