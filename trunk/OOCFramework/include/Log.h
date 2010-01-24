@@ -30,6 +30,9 @@ public:
 	Log(const Log& _log);
 	virtual ~Log();
 	void newTest(std::string  _title);
+	void newTest();
+	void addCommentLine(std::string  _comment);
+	std::ostream& operator<< (unsigned& val );
 	std::ostream& operator<< (int& val );
 	std::ostream& operator<< (float& val );
 	std::ostream& operator<< (double& val );

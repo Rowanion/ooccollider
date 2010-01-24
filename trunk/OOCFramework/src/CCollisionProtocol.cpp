@@ -130,7 +130,6 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 			solveCCollision(mPriCConst);
 		}
 		else {
-//			cerr << "using modulo: " << mPriVirtualNodes.size() << "- (" << _quintVec->size() << " % " << mPriVirtualRequests.size() << ")" << endl;
 			solveCCollision(mPriCConst, mPriVirtualNodes.size() - (_quintVec->size() % mPriVirtualRequests.size()));
 		}
 
@@ -141,6 +140,99 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 				(*_nodeReqMap)[mPriVirtualRequests[i].getServiceNodeRank()].insert(*mPriVirtualRequests[i].getQuintuple());
 			}
 		}
+
+		// clean up the nodes.
+		for (unsigned int i=0; i< mPriVirtualNodes.size(); ++i){
+			mPriVirtualNodes[i]->newTurn();
+		}
+
+	}
+
+}
+
+void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, map<int, set<ooctools::Quintuple> >* _nodeReqMap, Log& _log)
+{
+	unsigned c = 0;
+//	cerr << "number of incoming requests: " << _quintVec->size() << endl;
+	//ensure randomness of _quintVec
+	random_shuffle(_quintVec->begin(), _quintVec->end());
+
+	//reset all nodes to start-values
+	VirtualNode::hardReset();
+
+	// iterator over all requested vbos
+	vector<ooctools::Quintuple>::iterator quintIt = _quintVec->begin();
+	while (quintIt != _quintVec->end() ){
+		// iterate over each data-node to pick exactly these number of vbos
+		resetAllRequests();
+//		cerr << "performing cCollision with this distribution:" << endl;
+		for (unsigned i=0; (i < mPriDataNodeCount) && (quintIt != _quintVec->end()); ++i){
+			// iterate over all nodes which are in possession of this vbo and inc request-count
+			// ------------------------------------
+//			set<int>::iterator setIntIt = mPriIdToNodeMap[quintIt->id].begin();
+//			cerr << "request-id " << quintIt->id << endl;
+//			for(; setIntIt != mPriIdToNodeMap[quintIt->id].end(); ++setIntIt){
+//				cerr << "is distributed to node " << *setIntIt << endl;
+//
+//			}
+			// ------------------------------------
+			mPriVirtualRequests[i].reset(&(*quintIt), mPriLoTriMap[quintIt->id], &mPriIdToNodeMap[quintIt->id]);
+			quintIt++;
+		}
+
+//		cerr << "FINAL DISTRIBUTION: " << endl;
+//		cerr << "R -> N" << endl;
+//		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+//			cerr << "Req " << mPriVirtualRequests[i].getId() << " (" << (uint64_t) &mPriVirtualRequests[i] << ") -> ";
+//			std::set<VirtualNode*>::iterator aIt = mPriVirtualRequests[i].getNodeSet()->begin();
+//			for (; aIt != mPriVirtualRequests[i].getNodeSet()->end(); aIt++){
+//				cerr << (*aIt)->getRank() << " (" << uint64_t(*aIt) << ") , ";
+//			}
+//			cerr << endl;
+//		}
+//		cerr << "N -> R" << endl;
+//		for (unsigned i =0; i< mPriDataNodeCount; ++i){
+//			cerr << "Node " << mPriVirtualNodes[i]->getRank() << " (" << (uint64_t) mPriVirtualNodes[i] << ") -> ";
+//			std::set<VirtualRequest*>::iterator aIt = mPriVirtualNodes[i]->getReqSet()->begin();
+//			for (; aIt != mPriVirtualNodes[i]->getReqSet()->end(); aIt++){
+//				cerr << (*aIt)->getId() << " (" << uint64_t(*aIt) << ") , ";
+//			}
+//			cerr << endl;
+//		}
+
+		if (quintIt != _quintVec->end() || _quintVec->size() % mPriVirtualRequests.size() == 0){
+			c = solveCCollision(mPriCConst);
+//			cerr << "Protocoll terminated with c=" << c << endl;
+		}
+		else {
+//			cerr << "using modulo: " << mPriVirtualNodes.size() << "- (" << _quintVec->size() << " % " << mPriVirtualRequests.size() << ")" << endl;
+			c = solveCCollision(mPriCConst, mPriVirtualNodes.size() - (_quintVec->size() % mPriVirtualRequests.size()));
+//			cerr << "Protocoll terminated with c=" << c << endl;
+		}
+
+		//extract assignments from VirtualRequests
+
+		for (unsigned int i=0; i< mPriVirtualRequests.size(); ++i){
+			if (mPriVirtualRequests[i].getQuintuple()!=0){
+				(*_nodeReqMap)[mPriVirtualRequests[i].getServiceNodeRank()].insert(*mPriVirtualRequests[i].getQuintuple());
+			}
+		}
+
+		// -----------------------------------
+
+//		_log << "Workload: " << endl;
+		unsigned avg = 0;
+		unsigned tris = 0;
+		for (unsigned i =0; i< mPriVirtualNodes.size(); ++i){
+			tris = mPriVirtualNodes[i]->getTriCount();
+			_log << tris;
+			avg += mPriVirtualNodes[i]->getTriCount();
+		}
+		avg /= mPriVirtualNodes.size();
+		_log << avg;
+		// -----------------------------------
+
+
 		// clean up the nodes.
 		for (unsigned int i=0; i< mPriVirtualNodes.size(); ++i){
 			mPriVirtualNodes[i]->newTurn();
@@ -167,7 +259,7 @@ const std::set<uint64_t>& CCollisionProtocol::getNodeSet(int _rank)
 	return mPriNodeToIdMap[_rank];
 }
 
-void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assignedValue)
+unsigned CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assignedValue)
 {
 	unsigned requestCount = mPriVirtualRequests.size();
 	unsigned requestsAssigned = _assignedValue;
@@ -209,7 +301,10 @@ void CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _assigne
 
 	if (requestCount > requestsAssigned){
 		//recurse
-		solveCCollision(++_cConst, requestsAssigned);
+		return solveCCollision(++_cConst, requestsAssigned);
+	}
+	else {
+		return _cConst;
 	}
 
 }

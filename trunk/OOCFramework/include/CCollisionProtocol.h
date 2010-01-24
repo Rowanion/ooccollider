@@ -19,6 +19,7 @@
 #include "LooseRenderOctree.h"
 #include "VirtualNode.h"
 #include "VirtualRequest.h"
+#include "Log.h"
 
 namespace oocframework{
 
@@ -41,6 +42,7 @@ public:
 	const std::set<uint64_t>& getMyNodeSet();
 	const std::set<uint64_t>& getNodeSet(int _rank);
 	void doCCollision(std::vector<ooctools::Quintuple>* _quintVec, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap);
+	void doCCollision(std::vector<ooctools::Quintuple>* _quintVec, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap, Log& _log);
 
 	/**
 	 * @brief Tries to solve one round of the c-collision protocol.
@@ -53,7 +55,7 @@ public:
 	 * \f$ \frac{100-10}{200}, \frac{100-1}{200}\texttt{ and }\frac{100-89}{200} = \frac{90}{200}, \frac{99}{200}\texttt{ and }\frac{11}{200}\f$ <br>
 	 *
 	 */
-	void solveCCollision(unsigned _cConst, unsigned int _assignedValue = 0);
+	unsigned solveCCollision(unsigned _cConst, unsigned int _assignedValue = 0);
 	void debug();
 private:
 	oocframework::MpiControl* mPriMpiCon;
