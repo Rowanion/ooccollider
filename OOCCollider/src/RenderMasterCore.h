@@ -92,11 +92,13 @@ private:
 	list<int> mPriRendererComplete;
 	int mPriPosition;
 
+	oocframework::Log* mPriLog;
+
 	static RenderMasterCore* instance;
 
 	MPI::Request sendQueue(int dest);
 	void pollSpaceNav();
-	void handleMsg(oocframework::Message* msg);
+	void handleMsg(oocframework::Message* msg, bool debug = false);
 	void manageCCollision();
 	void checkForActiveMovement();
 
