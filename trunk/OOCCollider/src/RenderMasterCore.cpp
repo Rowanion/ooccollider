@@ -123,6 +123,14 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 	mPriCCol.generateDistribution(mPriLo);
 
+#ifdef FPS_TEST
+	stringstream fNameStream;
+	fNameStream << "FPSWalkthroughTest_Redundance" << LVL_OF_REDUNDANCY << "_R" << mPriMpiCon->getGroupSize(MpiControl::RENDERER) << "_D" << mPriMpiCon->getGroupSize(MpiControl::DATA);
+	fs::path logFile = fs::path(fNameStream.str() + ".log");
+	Log l = Logger::getSingleton()->newLog(logFile);
+	l.addCommentLine(string("fps each 20 frames"));
+#endif
+
 	//	glFrame->setVbo(new IndexedVbo(fs::path("/media/ClemensHDD/B3_SampleTree/data/0/1.idx")));
 
 
@@ -230,11 +238,13 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			mPriGlFrame->display();
 
 			checkForActiveMovement();
+#if defined(RENDER_TIME_TEST)
 			mPriMpiCon->ireceive(MpiControl::RENDERER);
 			mPriMpiCon->ireceive(MpiControl::DATA);
 			if (!mPriMpiCon->inQueueEmpty()){
-				handleMsg(mPriMpiCon->pop());
+				handleMsg(mPriMpiCon->pop(), true);
 			}
+#endif
 			mPriFrameCount++;
 
 
@@ -258,6 +268,11 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 		if (frames >= 20) {
 			frames = 0;
 			stringstream ss;
+#ifdef FPS_TEST
+			float fps = mPriGlFrame->getFrames();
+			l.newTest();
+			l << fps;
+#endif
 			ss << "MasterNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
 		}
@@ -323,13 +338,16 @@ MPI::Request RenderMasterCore::sendQueue(int dest) {
 	//	cout << "sendThread killed." << endl;
 }
 
-void RenderMasterCore::handleMsg(oocframework::Message* msg) {
+void RenderMasterCore::handleMsg(oocframework::Message* msg, bool debug) {
 	if (msg != 0) {
 		if (msg->getType() == KillApplicationEvent::classid()->getShortId()) {
 //			cout << "KillApplicationRequest" << endl;
 			mRunning = false;
 			cout << "recveived kill! from " << msg->getSrc() << endl;
 		} else if (msg->getType() == ColorBufferEvent::classid()->getShortId()) {
+			if (debug){
+				cerr << "Master got ColorBuffer from" << msg->getSrc() << "!" << endl;
+			}
 //			cout << "ColorBufferRequest" << endl;
 			//			cout << "recveived colorbuffer! " << msg->getSrc() << endl;
 
@@ -349,11 +367,17 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			//			mRunning = false;
 		}
 		else if (msg->getType() == SceneCompletionEvent::classid()->getShortId()) {
+			if (debug){
+				cerr << "Master got SceneCompletion from" << msg->getSrc() << "!" << endl;
+			}
 			SceneCompletionEvent sce = SceneCompletionEvent(msg);
 			// msg from a renderer that all requests have been sent
 			mPriRendererComplete.push_back(sce.getSrc());
 		}
 		else if (msg->getType() == ResultsEvent::classid()->getShortId()) {
+			if (debug){
+				cerr << "Master got Results from" << msg->getSrc() << "!" << endl;
+			}
 			ResultsEvent sce = ResultsEvent(msg);
 #ifdef RENDER_TIME_TEST
 			mPriSceneCompletion.insert(make_pair(msg->getSrc(), sce.getResult(0)));
@@ -381,6 +405,10 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 #endif
 		}
 		else if (msg->getType() == AccumulatedRendertimeEvent::classid()->getShortId()) {
+			if (debug){
+				cerr << "Master got AccumulatedRenderTime from" << msg->getSrc() << "!" << endl;
+			}
+
 //			cout << "AccumulatedRendertimeRequest" << endl;
 			mPriRenderTimes[msg->getSrc()-1] = ((double*)msg->getData())[0];
 //			mPriTileMap[msg->getSrc()].renderTime = ((double*)msg->getData())[0];
@@ -406,6 +434,9 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			// check for counter and if = max recalc tile-dims
 		}
 		else if (msg->getType() == NodeRequestEvent::classid()->getShortId()) {
+			if (debug){
+				cerr << "Master got NodeRequest from" << msg->getSrc() << "!" << endl;
+			}
 //			cout << "NodeRequest" << endl;
 			//TODO implement c-Collision
 			// at the moment it just passes the request to the only datanode
@@ -415,6 +446,9 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			}
 		}
 		else if (msg->getType() == OcclusionRequestEvent::classid()->getShortId()) {
+			if (debug){
+				cerr << "Master got OcclusionRequest from" << msg->getSrc() << "!" << endl;
+			}
 //			cout << "NodeRequest" << endl;
 			//TODO implement c-Collision
 			// at the moment it just passes the request to the only datanode
@@ -424,6 +458,9 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg) {
 			}
 		}
 		else if (msg->getType() == EndTransmissionEvent::classid()->getShortId()) {
+			if (debug){
+				cerr << "Master got EndTransmission from" << msg->getSrc() << "!" << endl;
+			}
 //			cout << "EndTransmission" << endl;
 			mPriRendererDoneCount++;
 		}
