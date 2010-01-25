@@ -768,7 +768,7 @@ RenderCoreGlFrame::requestMissingVbos()
 		cerr << "Render " << MpiControl::getSingleton()->getRank() << " sent all requests: " << glfwGetTime() - mpriSceneCompletionTime<< endl;
 		mPriSceneCompletionTest = false;
 		SceneCompletionEvent sce = SceneCompletionEvent(MpiControl::getSingleton()->getRank());
-		MpiControl::getSingleton()->push(new Message(sce, 0));
+		MpiControl::getSingleton()->isend(new Message(sce, 0));
 	}
 	EndTransmissionEvent ete = EndTransmissionEvent();
 	MpiControl::getSingleton()->send(new Message(ete, 0));

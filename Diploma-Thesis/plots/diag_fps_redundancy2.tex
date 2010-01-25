@@ -1,0 +1,14 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+  \begin{axis}[xlabel=Position, ylabel={FPS}]
+    \addplot[smooth,red,samples=500] table[col sep=comma,x index=0,y index=1,header=false] {data/FPSWalkthroughTest_Redundance2_R2_D24.2010-1-25.log};
+    \addlegendentry{Render2, Data24}
+    \addplot[smooth,green,samples=500] table[col sep=comma,x index=0,y index=1,header=false] {data/FPSWalkthroughTest_Redundance2_R2_D28.2010-1-25.log};
+    \addlegendentry{Render2, Data28}
+    \addplot[smooth,blue,samples=500] table[col sep=comma,x index=0,y index=1,header=false] {data/FPSWalkthroughTest_Redundance2_R2_D32.2010-1-25.log};
+    \addlegendentry{Render2, Data32}
+  \end{axis}
+\end{tikzpicture}
