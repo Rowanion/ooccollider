@@ -394,7 +394,7 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg, bool debug) {
 				double avg = 0.0;
 				for (; mIt != mPriSceneCompletion.end(); ++mIt){
 //					cerr << "DataNode " << mIt->first << ": " << mIt->second << " seconds." << endl;
-					l << mIt->second;
+//					l << mIt->second;
 					avg += mIt->second;
 				}
 				avg = (avg/mPriMpiCon->getGroupSize(MpiControl::DATA));
@@ -498,6 +498,14 @@ void RenderMasterCore::manageCCollision()
 
 	// distribution of requests from here
 	if (!mPriQuintVec.empty()){
+		if (mPriRequestSave){
+			unsigned length = mPriQuintVec.size();
+			mPriRequestOutFile->write((char*)&length, sizeof(unsigned));
+			for (unsigned i=0; i<length; ++i){
+				mPriRequestOutFile->write((char*)&(mPriQuintVec[i]), sizeof(ooctools::Quintuple));
+			}
+			mPriRequestOutFile->flush();
+		}
 #ifdef C_COLLISION_BALANCE_TEST
 		stringstream ss;
 		ss << "LoadBalanceTest_Redundance" << LVL_OF_REDUNDANCY << "_R" << mPriMpiCon->getGroupSize(MpiControl::RENDERER) << "_D" << mPriMpiCon->getGroupSize(MpiControl::DATA);
@@ -767,6 +775,19 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 //			SceneCompletionEvent sce = SceneCompletionEvent();
 //			mPriMpiCon->push(new Message(sce, 1, MpiControl::DATA));
 			break;}
+		case 'Y':
+			// code to start/stop request-save
+			if (!mPriRequestSave){
+				mPriRequestOutFile = new fs::ofstream();
+				mPriRequestOutFile->open(fs::path("requestFile.bin"), ios::binary);
+				mPriRequestOutFile->seekp(0, ios::beg);
+			}
+			else {
+				mPriRequestOutFile->flush();
+				mPriRequestOutFile->close();
+				delete mPriRequestOutFile;
+			}
+			break;
 		case GLFW_KEY_PAGEUP: // tilt up
 			mPriTiltUp = true;
 			break;
