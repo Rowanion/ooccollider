@@ -17,6 +17,10 @@
 
 #include "mpi.h"
 
+#include <boost/system/config.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+
 #include "declarations.h"
 #include "AbstractEventHandler.h"
 #include "OctreeHandler.h"
@@ -91,6 +95,8 @@ private:
 
 	list<int> mPriRendererComplete;
 	int mPriPosition;
+	bool mPriRequestSave;
+	boost::filesystem::ofstream* mPriRequestOutFile;
 
 	oocframework::Log* mPriLog;
 
