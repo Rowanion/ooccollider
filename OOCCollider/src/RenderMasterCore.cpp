@@ -380,25 +380,37 @@ void RenderMasterCore::handleMsg(oocframework::Message* msg, bool debug) {
 			}
 			ResultsEvent sce = ResultsEvent(msg);
 #ifdef RENDER_TIME_TEST
-			mPriSceneCompletion.insert(make_pair(msg->getSrc(), sce.getResult(0)));
+			mPriSceneCompletion.push_back(sce.getResult(0));
 			if (mPriSceneCompletion.size() >= mPriMpiCon->getGroupSize(MpiControl::DATA)){
 				stringstream ss;
 				ss << "ReloadTest_Redundance" << LVL_OF_REDUNDANCY << "_R" << mPriMpiCon->getGroupSize(MpiControl::RENDERER) << "_D" << mPriMpiCon->getGroupSize(MpiControl::DATA);
 				fs::path logFile = fs::path(ss.str() + ".log");
 				Log l = Logger::getSingleton()->newLog(logFile);
-				l.addCommentLine(string("CamPos,DataNode_0,DataNode_1...DataNode_n,avgTime"));
+				l.addCommentLine(string("CamPos,DataNode_i,...,DataNode_n,avgTime,medianTime"));
 				l.newTest();
-				map<int, double>::iterator mIt = mPriSceneCompletion.begin();
+				vector<double>::iterator vIt = mPriSceneCompletion.begin();
 				cerr << "Render-Time-Test completed!" << endl;
 				l << mPriPosition;
 				double avg = 0.0;
-				for (; mIt != mPriSceneCompletion.end(); ++mIt){
+				double median = 0.0;
+				sort(mPriSceneCompletion.begin(),mPriSceneCompletion.end());
+				unsigned size = mPriSceneCompletion.size();
+				if (size%2 == 0){
+					median = (mPriSceneCompletion[size/2] + mPriSceneCompletion[(size/2)-1])/2.0;
+				}
+				else {
+					median = mPriSceneCompletion[(size-1)/2];
+				}
+
+				for (; vIt != mPriSceneCompletion.end(); ++vIt){
 //					cerr << "DataNode " << mIt->first << ": " << mIt->second << " seconds." << endl;
-//					l << mIt->second;
-					avg += mIt->second;
+					double tmp = *vIt;
+					l << tmp;
+					avg += *vIt;
 				}
 				avg = (avg/mPriMpiCon->getGroupSize(MpiControl::DATA));
 				l << avg;
+				l << median;
 //				l << NL;
 				mPriSceneCompletion.clear();
 			}
