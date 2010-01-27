@@ -96,6 +96,7 @@ private:
 	list<int> mPriRendererComplete;
 	int mPriPosition;
 	bool mPriRequestSave;
+	bool mPriFPSTest;
 	boost::filesystem::ofstream* mPriRequestOutFile;
 
 	oocframework::Log* mPriLog;

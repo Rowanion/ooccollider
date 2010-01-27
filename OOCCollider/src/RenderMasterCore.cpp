@@ -95,6 +95,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 	mPriGlFrame->init();
 
+
 	mPriMpiCon = MpiControl::getSingleton();
 	for (unsigned i=0; i< mPriMpiCon->getGroupSize(MpiControl::DATA); ++i){
 		mPriDataLoad.insert(make_pair(mPriMpiCon->getDataGroup()[i],0));
@@ -106,6 +107,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 
 	int id = 0;
 	mPriPosition = -1;
+	mPriFPSTest = false;
 
 	mPriRootTile.xPos = mPriRootTile.yPos = 0;
 	mPriRootTile.width = _width;
@@ -269,9 +271,11 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 			frames = 0;
 			stringstream ss;
 #ifdef FPS_TEST
-			float fps = mPriGlFrame->getFrames();
-			l.newTest();
-			l << fps;
+           if (mPriFPSTest){
+              float fps = mPriGlFrame->getFrames();
+              l.newTest();
+              l << fps;
+           }
 #endif
 			ss << "MasterNode (" << MpiControl::getSingleton()->getRank() << ") - FPS: " << mPriGlFrame->getFrames();
 			mWindow->setTitle(ss.str());
@@ -699,35 +703,45 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 	} else if (event.instanceOf(KeyPressedEvent::classid())) {
 		KeyPressedEvent& kpe = (KeyPressedEvent&) event;
 		switch (kpe.getKey()) {
-		case '0':
-			mPriPosition = 0;
-			break;
-		case '1':
-			mPriPosition = 1;
-			break;
-		case '2':
-			mPriPosition = 2;
-			break;
-		case '3':
-			mPriPosition = 3;
-			break;
-		case '4':
-			mPriPosition = 4;
-			break;
-		case '5':
-			mPriPosition = 5;
+        case '0':
+                 mPriPosition = 0;
+                 cerr << "Jumping to camera position " << 10 << endl;
+                 break;
+         case '1':
+                 mPriPosition = 1;
+                 cerr << "Jumping to camera position " << 1 << endl;
+                 break;
+         case '2':
+                 mPriPosition = 2;
+                 cerr << "Jumping to camera position " << 2 << endl;
+                 break;
+         case '3':
+                 mPriPosition = 3;
+                 cerr << "Jumping to camera position " << 3 << endl;
+                 break;
+         case '4':
+                 mPriPosition = 4;
+                 cerr << "Jumping to camera position " << 4 << endl;
+                 break;
+         case '5':
+                 mPriPosition = 5;
+                 cerr << "Jumping to camera position " << 5 << endl;
 			break;
 		case '6':
 			mPriPosition = 6;
+            cerr << "Jumping to camera position " << mPriPosition << endl;
 			break;
 		case '7':
 			mPriPosition = 7;
+            cerr << "Jumping to camera position " << mPriPosition << endl;
 			break;
 		case '8':
 			mPriPosition = 8;
+            cerr << "Jumping to camera position " << mPriPosition << endl;
 			break;
 		case '9':
 			mPriPosition = 9;
+            cerr << "Jumping to camera position " << mPriPosition << endl;
 			break;
 		case GLFW_KEY_ESC:{
 			KillApplicationEvent kae = KillApplicationEvent();
@@ -752,6 +766,9 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 					MpiControl::ALL));
 			mPriCamHasMoved = true;
 			break;
+        case 'K':
+                mPriFPSTest = !mPriFPSTest;
+                break;
 		case 'F':
 			mPriMpiCon->push(new Message(kpe, 1,
 					MpiControl::ALL));
