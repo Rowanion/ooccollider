@@ -78,7 +78,7 @@ private:
 	int mPriWindowWidth;
 	int mPriWindowHeight;
 
-	std::map<int, double> mPriSceneCompletion;
+	std::vector<double> mPriSceneCompletion;
 	unsigned mPriSceneCompletionCount;
 	bool mPriStepLeft;
 	bool mPriStepRight;
