@@ -807,15 +807,18 @@ void RenderMasterCore::notify(oocframework::IEvent& event) {
 		case 'Y':
 			// code to start/stop request-save
 			if (!mPriRequestSave){
+				cerr << "STARTing request-recording." << endl;
 				mPriRequestOutFile = new fs::ofstream();
 				mPriRequestOutFile->open(fs::path("requestFile.bin"), ios::binary);
 				mPriRequestOutFile->seekp(0, ios::beg);
 			}
 			else {
+				cerr << "STOPing request-recording." << endl;
 				mPriRequestOutFile->flush();
 				mPriRequestOutFile->close();
 				delete mPriRequestOutFile;
 			}
+			mPriRequestSave = !mPriRequestSave;
 			break;
 		case GLFW_KEY_PAGEUP: // tilt up
 			mPriTiltUp = true;
