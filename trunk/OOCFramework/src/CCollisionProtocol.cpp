@@ -39,6 +39,30 @@ CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy)
 
 }
 
+CCollisionProtocol::CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy,
+		unsigned _dataNodeCount, int _lowestId, int _highestId) :
+	mPriMpiCon(0), mPriRndNodeSet(std::set<int>()), mPriMTwister(),
+	mPriLvlOfRedundancy(_lvlOfRedundancy), mPriDataNodeCount(_dataNodeCount),
+	mPriVirtualRequests(mPriDataNodeCount, VirtualRequest())
+
+{
+	mPriRandomSeed = mPriMTwister.randInt();
+	mPriMTwister.seed(_seed);
+	mPriVirtualNodes.resize(mPriDataNodeCount);
+	mPriSeed = _seed;
+	mPriLowestNodeId = _lowestId;
+	mPriHighestNodeId = _highestId;
+	int i, idx;
+	for (i=mPriLowestNodeId, idx = 0; i<= mPriHighestNodeId; ++i, ++idx){
+		mPriVirtualNodes[idx] = new VirtualNode(i);
+		VirtualNode::registerNode(mPriVirtualNodes[idx]);
+		mPriVirtualRequests[idx] = (VirtualRequest());
+	}
+
+	mPriCConst = 2;
+
+}
+
 CCollisionProtocol::~CCollisionProtocol()
 {
 }
@@ -255,7 +279,6 @@ void CCollisionProtocol::simCCollision(ooctools::Quintuple* _quintArr, unsigned 
 //	cerr << "number of incoming requests: " << _quintVec->size() << endl;
 	//ensure randomness of _quintVec
 	random_shuffle(_quintArr, (_quintArr+_arrSize));
-
 	//reset all nodes to start-values
 	VirtualNode::hardReset();
 
@@ -331,7 +354,6 @@ unsigned CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _ass
 		//if no node has been tagged until here -> recurse!
 		if(!taggedANode)
 			break;
-
 		// sub-turn
 		for (nodeIt = mPriVirtualNodes.rbegin(); nodeIt!=mPriVirtualNodes.rend(); ++nodeIt){
 			if ((*nodeIt)->isTagged4Service() && (*nodeIt)->getRequestCount() > 0){
@@ -347,12 +369,12 @@ unsigned CCollisionProtocol::solveCCollision(unsigned _cConst, unsigned int _ass
 //			}
 		}
 	}
-
 	if (requestCount > requestsAssigned){
 		//recurse
 		return solveCCollision(++_cConst, requestsAssigned);
 	}
 	else {
+
 		return _cConst;
 	}
 

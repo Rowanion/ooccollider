@@ -108,6 +108,7 @@ RenderMasterCore::RenderMasterCore(unsigned _width, unsigned _height) :
 	int id = 0;
 	mPriPosition = -1;
 	mPriFPSTest = false;
+	mPriRequestSave = false;
 
 	mPriRootTile.xPos = mPriRootTile.yPos = 0;
 	mPriRootTile.width = _width;
