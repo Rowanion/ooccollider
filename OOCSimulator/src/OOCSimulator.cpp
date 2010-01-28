@@ -20,9 +20,35 @@ using namespace oocframework;
 //using namespace oocformats;
 namespace fs = boost::filesystem;
 
+CCollisionProtocol* ccp;
+unsigned* results;
+
+void manageCCollision()
+{
+
+}
+
+void proceedFrame(Quintuple* _qArr, unsigned _arrSize)
+{
+	// distribution of requests from here
+}
+
 int main(int argc, char* argv[])
 {
-	fs::path path = fs::path("/home/ava/workspace5/OOCCollider/requestFile.bin");
+	// usage: /~: OOCSimulator LvlOfRedundancy DataNodeCount
+
+
+	// first argument=seed, 2nd argument=lvlOfRedundancy
+//	ccp = new CCollisionProtocol(1, atoi(argv[0]));
+	ccp = new CCollisionProtocol(1, 1);
+	ccp->setNodeIDs(5, 4+8);
+//	ccp->setNodeIDs(5, 4+atoi(argv[1]));
+
+	// +1 because the last entry is the total load;
+	results = new unsigned[atoi(argv[1])+1];
+
+
+	fs::path path = fs::path("/home/ava/workspace5/OOCCollider/requestFile_4render_pc2.bin");
 	fs::ifstream inFile;
 	inFile.open(path, ios::binary);
 	unsigned fSize = fs::file_size(path);
@@ -34,15 +60,18 @@ int main(int argc, char* argv[])
 		inFile.read((char*)&qSize, sizeof(unsigned));
 		qArray = new Quintuple[qSize];
 		cerr << "Number of requests: " << qSize << endl;
-		unsigned pos = inFile.tellg();
 		inFile.read((char*)qArray, sizeof(Quintuple)*qSize);
-		for (unsigned i=0; i< qSize; i++){
-			cerr << "Quintuple: " << qArray[i].id << ", lvl: " << qArray[i].lvl  << ", destin: " << qArray[i].destId  << ", dist: " << qArray[i].dist  << endl;
-		}
+		ccp->simCCollision(qArray, qSize, results);
+
+//		for (unsigned i=0; i< qSize; i++){
+//			cerr << "Quintuple: " << qArray[i].id << ", lvl: " << qArray[i].lvl  << ", destin: " << qArray[i].destId  << ", dist: " << qArray[i].dist  << endl;
+//		}
 		delete[] qArray;
 	}
 
 	inFile.close();
+	delete[] results;
+	delete ccp;
 	cerr << "path: " << path << endl;
 	return 0;
 }
