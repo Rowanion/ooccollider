@@ -36,6 +36,7 @@ namespace oocframework{
 class CCollisionProtocol {
 public:
 	CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy = 2);
+	CCollisionProtocol(unsigned int _seed, int _lvlOfRedundancy, unsigned _dataNodeCount, int _lowestId, int _highestId);
 	virtual ~CCollisionProtocol();
 	void setNodeIDs(int _lowestId, int _highestId);
 	void generateDistribution(const oocformats::LooseRenderOctree* _lo);
