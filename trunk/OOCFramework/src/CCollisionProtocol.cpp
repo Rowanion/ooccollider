@@ -43,6 +43,14 @@ CCollisionProtocol::~CCollisionProtocol()
 {
 }
 
+void CCollisionProtocol::setNodeIDs(int _lowestId, int _highestId)
+{
+	mPriLowestNodeId = _lowestId;
+	mPriHighestNodeId = _highestId;
+	mPriDataNodeCount = _highestId-_lowestId;
+	mPriVirtualNodes.resize(mPriDataNodeCount);
+}
+
 void
 CCollisionProtocol::generateDistribution(const oocformats::LooseRenderOctree* _lo)
 {
@@ -239,6 +247,47 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 		}
 
 	}
+
+}
+
+void CCollisionProtocol::simCCollision(ooctools::Quintuple* _quintArr, unsigned _arrSize, unsigned* _loadArr)
+{
+//	cerr << "number of incoming requests: " << _quintVec->size() << endl;
+	//ensure randomness of _quintVec
+	random_shuffle(_quintArr, (_quintArr+_arrSize));
+
+	//reset all nodes to start-values
+	VirtualNode::hardReset();
+
+	// iterator over all requested vbos
+	ooctools::Quintuple* arrIt = _quintArr;
+	while (arrIt != (_quintArr+_arrSize) ){
+		// iterate over each data-node to pick exactly these number of vbos
+		resetAllRequests();
+//		cerr << "performing cCollision with this distribution:" << endl;
+		for (unsigned i=0; (i < mPriDataNodeCount) && (arrIt != (_quintArr+_arrSize)); ++i){
+			// iterate over all nodes which are in possession of this vbo and inc request-count
+			mPriVirtualRequests[i].reset(arrIt, mPriLoTriMap[arrIt->id], &mPriIdToNodeMap[arrIt->id]);
+			arrIt++;
+		}
+
+		if (arrIt != (_quintArr+_arrSize) || _arrSize % mPriVirtualRequests.size() == 0){
+			solveCCollision(mPriCConst);
+		}
+		else {
+			solveCCollision(mPriCConst, mPriVirtualNodes.size() - (_arrSize % mPriVirtualRequests.size()));
+		}
+
+		// clean up the nodes.
+		for (unsigned int i=0; i< mPriVirtualNodes.size(); ++i){
+			mPriVirtualNodes[i]->newTurn();
+		}
+
+	}
+	for (unsigned int i=0; i< mPriVirtualNodes.size(); ++i){
+		_loadArr[i] = mPriVirtualNodes[i]->getTriCount();
+	}
+	_loadArr[mPriVirtualNodes.size()] = VirtualNode::getTotalTriCount();
 
 }
 
