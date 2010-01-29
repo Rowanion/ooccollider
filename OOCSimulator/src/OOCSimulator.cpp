@@ -12,11 +12,34 @@
 
 #include <iostream>
 
+#include <sys/mman.h>
+#include <cstdio>
+#include <fcntl.h>
+
 #include "StructDefs.h"
 #include "MpiControl.h"
 #include "CCollisionProtocol.h"
 #include "LooseRenderOctree.h"
 #include "OctreeHandler.h"
+
+#define SEED1 670274678
+#define SEED2 1
+#define SEED3 1
+#define SEED SEED1
+#define DATA_NODE_COUNT 10
+#define LVL_OF_REDUNDANCY 2
+
+#ifdef HOME
+#define SKEL_FILE "/home/ava/Diplom/Model/SampleTree/skeleton.bin"
+#define REQUEST_FILE "/media/ClemensHDD/Arminius_tests/requestFile_4render_pc2.bin"
+#endif
+
+#ifdef OFFICE
+#define SKEL_FILE "/home/ava/Diplom/Model/SampleTree/skeleton.bin"
+//#define REQUEST_FILE "/home/ava/requestFile_1render_pc2.bin"
+#define REQUEST_FILE "/home/ava/workspace5/OOCCollider/requestFile_4RendererMiniCluster.bin"
+
+#endif
 
 using namespace std;
 using namespace ooctools;
@@ -27,30 +50,50 @@ namespace fs = boost::filesystem;
 CCollisionProtocol* ccp;
 unsigned* results;
 
-void manageCCollision()
+char* mapFile(fs::path _path, unsigned _fileSize, int& _fHandle)
 {
+	char *map;  /* mmapped array of int's */
 
+	_fHandle = open(_path.string().c_str(), O_RDONLY);
+	if (_fHandle == -1) {
+		perror("Error opening file for reading");
+		exit(EXIT_FAILURE);
+	}
+	map = (char*)mmap(0, _fileSize, PROT_READ, MAP_SHARED, _fHandle, 0);
+	if (map == MAP_FAILED) {
+		close(_fHandle);
+		perror("Error mmapping the file");
+		exit(EXIT_FAILURE);
+	}
+	return map;
 }
 
-void proceedFrame(Quintuple* _qArr, unsigned _arrSize)
+void umapFile(char* _map, unsigned _fileSize, int& _fHandle)
 {
-	// distribution of requests from here
+	if (munmap(_map, _fileSize) == -1) {
+		perror("Error un-mmapping the file");
+	}
+
+	close(_fHandle);
 }
 
 int main(int argc, char* argv[])
 {
+	fs::path path = fs::path(REQUEST_FILE);
+	unsigned fSize = fs::file_size(path);
+	int fHandle = 0;
+	char* map = 0;
+	char* ptr = 0;
+
 	// usage: /~: OOCSimulator LvlOfRedundancy DataNodeCount
-	char* mpicInitArgs[2];
-	mpicInitArgs[0] = "1";
-	mpicInitArgs[1] = argv[2];
 //	oocframework::MpiControl* mpic = oocframework::MpiControl::getSingleton();
 //	mpic->init(1, mpicInitArgs);
 
 		// first argument=seed, 2nd argument=lvlOfRedundancy
 		//	ccp = new CCollisionProtocol(1, atoi(argv[0]));
-		ccp = new CCollisionProtocol(670274678, 2, 10, 5, 14);
+		ccp = new CCollisionProtocol(SEED, LVL_OF_REDUNDANCY, DATA_NODE_COUNT, 5, 4+DATA_NODE_COUNT);
 		OctreeHandler oh = OctreeHandler();
-		LooseRenderOctree* lro = oh.loadLooseRenderOctreeSkeleton(fs::path("/home/ava/Diplom/Model/SampleTree/skeleton.bin"));
+		LooseRenderOctree* lro = oh.loadLooseRenderOctreeSkeleton(fs::path(SKEL_FILE));
 		ccp->generateDistribution(lro);
 //		ccp = new CCollisionProtocol(670274678, 2);
 		cerr << "7" << endl;
@@ -62,37 +105,53 @@ int main(int argc, char* argv[])
 		results = new unsigned[11];
 //		results = new unsigned[atoi(argv[1])+1];
 
-
-		fs::path path = fs::path("/media/ClemensHDD/Arminius_tests/requestFile_4render_pc2.bin");
-		fs::ifstream inFile;
-		inFile.open(path, ios::binary);
-		unsigned fSize = fs::file_size(path);
+	map = mapFile(path, fSize, fHandle);
+	ptr = map;
+//		fs::ifstream inFile;
+//		inFile.open(path, ios::binary);
 		cerr << "path: " << path << ", size: " << fSize << endl;
 		Quintuple* qArray;
 		unsigned qSize = 0;
-		inFile.seekg(0, ios::beg);
+//		inFile.seekg(0, ios::beg);
 		bool debug = true;
-		while (!inFile.eof()){
-			inFile.read((char*)&qSize, sizeof(unsigned));
-			qArray = new Quintuple[qSize];
-			inFile.read((char*)qArray, sizeof(Quintuple)*qSize);
-			ccp->simCCollision(qArray, qSize, results);
+		unsigned roundCount = 0;
+		for (; ptr <= (map+fSize); ptr += sizeof(unsigned)+(sizeof(Quintuple)*qSize)){
+//		while (ptr <= (map+fSize)){
+			bool verbose = false;
+			if (roundCount == 3491) verbose = true;
+//			cerr << "Reading in Round " << roundCount << " ..." << endl;
+			qSize = ((unsigned*)ptr)[0];
+//			inFile.read((char*)&qSize, sizeof(unsigned));
+			if (verbose) cerr << "Size: " << qSize << endl;
+			if (qSize > 0){
+				qArray = new Quintuple[qSize];
+				memcpy((char*)qArray, (ptr+sizeof(unsigned)), sizeof(Quintuple)*qSize);
+				if (verbose){
+					cerr << "Number of requests: " << qSize << endl;
+					for (unsigned i=0; i< qSize; i++){
+						cerr << i << " Quintuple: " << qArray[i].id << ", lvl: " << qArray[i].lvl  << ", destin: " << qArray[i].destId  << ", dist: " << qArray[i].dist  << endl;
+					}
+				}
+				if (verbose) cerr << "number of quintuples in this request: " << qSize << endl;
+				if (verbose) {
+					cerr << "starting c-collision..." << endl;
+				}
+				ccp->simCCollision(qArray, qSize, results);
+				if (verbose) cerr << "done c-collision." << endl;
 
-			if (debug){
-				cerr << "Number of requests: " << qSize << endl;
-			for (unsigned i=0; i< qSize; i++){
-				cerr << "Quintuple: " << qArray[i].id << ", lvl: " << qArray[i].lvl  << ", destin: " << qArray[i].destId  << ", dist: " << qArray[i].dist  << endl;
+//			cerr << "Load: " << results[10] << endl;
+				debug = false;
+				delete[] qArray;
 			}
-			}
-			cerr << "Load: " << results[10] << endl;
-			delete[] qArray;
-			debug = false;
+
+			roundCount++;
 		}
-
-		inFile.close();
+		cerr << "RoundCount: " << roundCount << endl;
+//		inFile.close();
 		delete[] results;
 		delete ccp;
 		delete lro;
+		umapFile(map, fSize, fHandle);
 
 	return 0;
 }
