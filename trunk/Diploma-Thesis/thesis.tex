@@ -208,6 +208,29 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \lstloadlanguages{TeX}
 
 %
+% macros für externalisierung der tikz-bilder
+%
+\newif\iffinal % introduce a switch for draft vs. final document
+%\finaltrue % use this to compile the final document
+
+% [more preamble that in my case also uses \iffinal for other stuff]
+
+\usepackage{tikz}
+\pgfrealjobname{thesis} % <-- NOTE: this needs to be the real document's basename
+                        %     (else you'll only get an empty output file)
+
+\iffinal
+  \newcommand{\inputTikZ}[1]{%
+    \input{#1.tikz}%
+  }
+\else
+  \newcommand{\inputTikZ}[1]{%
+    \beginpgfgraphicnamed{#1-external}%
+    \input{#1.tikz}%
+    \endpgfgraphicnamed%
+  }
+\fi
+%
 % ---------------------------------------------------------------------------
 % Listing Definitionen fÃ¼r PHP Code
 %

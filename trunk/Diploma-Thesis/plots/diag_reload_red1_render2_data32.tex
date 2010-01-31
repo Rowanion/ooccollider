@@ -72,7 +72,7 @@
     %\addplot+[only marks] table[col sep=comma,x index=0,y index=32,header=false] {data/ReloadTest_Redundance1_R2_D32.2010-1-26.log};
     %\addlegendentry{DataNode31}
 
-    %\addplot+[only marks] table[col sep=comma,x index=0,y index=33,header=false] {data/ReloadTest_Redundance3_R2_D24.2010-1-26.log};
+    \addplot+[only marks] table[col sep=comma,x index=0,y index=33,header=false] {data/ReloadTest_Redundance3_R2_D24.2010-1-26.log};
     %\addlegendentry{red3, Data24}
     %\addplot+[only marks] table[col sep=comma,x index=0,y index=33,header=false] {data/ReloadTest_Redundance3_R2_D28.2010-1-26.log};
     %\addlegendentry{red3, Data28}
@@ -88,21 +88,21 @@
     %\addlegendentry{red1, Data24}
     %\addplot+[only marks] table[col sep=comma,x index=0,y index=33,header=false] {data/ReloadTest_Redundance1_R2_D28.2010-1-26.log};
     %\addlegendentry{red1, Data28}
-    \addplot[mark=*,
-      blue,
-      only marks,
-      error bars/.cd,
-      y dir=plus,
-      y explicit, 
-      error bar style={blue}] table[col sep=comma,x index=0,y index=25,y error index=26,header=false] {data/ReloadTest_Redundance1_R2_D24.2010-1-26.log};
-    \addplot[mark=*,
-      blue,
-      only marks,
-      error bars/.cd,
-      y dir=minus,
-      y explicit,
-      error bar style={blue}] table[col sep=comma,x index=0,y index=25,y error index=27,header=false] {data/ReloadTest_Redundance1_R2_D24.2010-1-26.log};
-    \addlegendentry{red1, Data24}
+    %\addplot[mark=*,
+    %  blue,
+    %  only marks,
+    %  error bars/.cd,
+    %  y dir=plus,
+    %  y explicit, 
+    %  error bar style={blue}] table[col sep=comma,x index=0,y index=25,y error index=26,header=false] {data/ReloadTest_Redundance1_R2_D24.2010-1-26.log};
+    %\addplot[mark=*,
+    %  blue,
+    %  only marks,
+    %  error bars/.cd,
+    %  y dir=minus,
+    %  y explicit,
+    %  error bar style={blue}] table[col sep=comma,x index=0,y index=25,y error index=27,header=false] {data/ReloadTest_Redundance1_R2_D24.2010-1-26.log};
+    %\addlegendentry{red1, Data24}
     %\addlegendentry{Average}
   \end{axis}
 \end{tikzpicture}
