@@ -274,7 +274,7 @@ void CCollisionProtocol::doCCollision(vector<ooctools::Quintuple>* _quintVec, ma
 
 }
 
-void CCollisionProtocol::simCCollision(ooctools::Quintuple* _quintArr, unsigned _arrSize, unsigned* _loadArr)
+void CCollisionProtocol::simCCollision(ooctools::Quintuple* _quintArr, unsigned _arrSize, vector<unsigned>& _loadArr)
 {
 //	cerr << "number of incoming requests: " << _quintVec->size() << endl;
 	//ensure randomness of _quintVec

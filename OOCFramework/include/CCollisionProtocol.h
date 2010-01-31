@@ -45,7 +45,7 @@ public:
 	const std::set<uint64_t>& getNodeSet(int _rank);
 	void doCCollision(std::vector<ooctools::Quintuple>* _quintVec, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap);
 	void doCCollision(std::vector<ooctools::Quintuple>* _quintVec, std::map<int, std::set<ooctools::Quintuple> >* _nodeReqMap, Log& _log);
-	void simCCollision(ooctools::Quintuple* _quintArr, unsigned _arrSize, unsigned* _loadArr);
+	void simCCollision(ooctools::Quintuple* _quintArr, unsigned _arrSize, std::vector<unsigned>& _loadArr);
 
 	/**
 	 * @brief Tries to solve one round of the c-collision protocol.
