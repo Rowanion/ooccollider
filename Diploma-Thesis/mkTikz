@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+  echo "Call: mkTikz input.tikz output.pdf!"
+  exit 0
+else
+  ./tikz2pdf -o $1
+  mv tikz2pdf_temp.pdf images/$2
+fi
+
+

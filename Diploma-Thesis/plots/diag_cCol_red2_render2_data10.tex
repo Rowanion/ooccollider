@@ -1,0 +1,29 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+  \begin{axis}[width=15cm,xlabel=Position,view={90}{0}, 
+    zlabel={Auslastung (Prozent)}, ylabel={Anzahl an Anfragen}]
+    %\addplot+[only marks] table[col sep=comma,x index=0,y index=33,header=false] {data/ReloadTest_Redundance1_R2_D24.2010-1-26.log};
+    %\addlegendentry{red1, Data24}
+    \addplot3[mark=|,blue,
+      only marks,
+      error bars/.cd,
+      z dir=both,
+      z explicit, samples=5,
+      error bar style={blue}] table[col sep=comma,x index=0,z index=2,y index=1,z error index=3,header=false] {data/cCollision_Seed1_Redun2_DataNodes24.2010-1-31.log};
+    \addlegendentry{Min/Max Quantile}
+    \addplot3[red,mark=x,only marks] table[col sep=comma,x index=0,z index=4,y index=1,header=false] {data/cCollision_Seed1_Redun2_DataNodes24.2010-1-31.log};
+    \addlegendentry{Median}
+    %\addplot[mark=|,
+    %  blue,
+    %  only marks,
+    %  error bars/.cd,
+    %  y dir=minus,
+    %  y explicit,
+    %  error bar style={blue}] table[col sep=comma,x index=0,y index=25,y error index=27,header=false] {data/ReloadTest_Redundance1_R2_D24.2010-1-26.log};
+    %\addlegendentry{red1, Data24}
+    %\addlegendentry{Average}
+  \end{axis}
+\end{tikzpicture}
