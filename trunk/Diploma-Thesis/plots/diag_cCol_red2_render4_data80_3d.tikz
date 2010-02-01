@@ -3,7 +3,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{tikzpicture}[>=stealth]
-  \begin{axis}[name=plotxz,width=16cm,xlabel=Walkthrough-Position,zlabel={Auslastung (Normalisiert)},ylabel={Anzahl an Anfragen}]
+  \begin{axis}[name=plotxz,width=16cm,xlabel=Walkthrough-Position,zlabel={Auslastung (Normalisiert)},ylabel={Anzahl an Anfragen},
+	zmax=0.2]
     \addplot3[mark=|,blue,
       only marks,
       error bars/.cd,

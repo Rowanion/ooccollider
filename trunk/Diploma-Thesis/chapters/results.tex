@@ -14,32 +14,29 @@
  \end{itemize}
  \item Erklärung der Tests \& Diagramme
  \item Balancierung durch c-Collision Protokoll / die Varianz
+ \item Netzwerk ist wichtig $\rightarrow$ hat sich in den tests gezeigt. Siehe MiniCluster.
 \end{itemize}
-\todo[size=\small, inline]{Grafiken mit echten Daten füllen!}%
+\todo[size=\small, inline]{Diagramme für Reload: eins mit median und 10\% Quantilen aus einem durchgang; evtl. gemittelt; eins mit min-, oder max-, oder median-werten}%
+\todo[size=\small, inline]{absolutes in und max bei den Quantilen angeben und dann einen Block für die Quartile (0.25 und 0.75) und dann den Median eintragen.}%
 
-
-
-
-%\begin{figure}
-%\centering
-%\input{plots/diag_reload_red3_render2_data32.tex}
-%  \caption{Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=3, 2 Renderer und 32 Datenknoten)}
-%  \label{fig:eval:diag1}
-%\end{figure}
-
-%\begin{figure}
-%\centering
-%\input{plots/diag_reload_red2_render2_data32.tex}
-%  \caption{Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=2, 2 Renderer und 32 Datenknoten)}
-%  \label{fig:eval:diag1}
-%\end{figure}
 
 \begin{figure}
 \centering
-\input{plots/diag_reload_red1_render2_data32.tex}
-  \caption{Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=1, 2 Renderer und 32 Datenknoten)}
-  \label{fig:eval:diag1}
+\input{plots/diag_reload_red3_render2_data32.tex}
+  \caption{\label{fig:eval:reaload1}-Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=3, 2 Renderer und 32 Datenknoten)}
 \end{figure}
+
+\begin{figure}
+\centering
+\input{plots/diag_reload_red2_render2_data32.tex}
+  \caption{\label{fig:eval:reload2}Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=2, 2 Renderer und 32 Datenknoten)}
+\end{figure}
+%\begin{figure}
+%\centering
+%\input{plots/diag_reload_red1_render2_data32.tex}
+%  \caption{Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=1, 2 Renderer und 32 Datenknoten)}
+%  \label{fig:eval:diag1}
+%\end{figure}
 
 %\begin{figure}
 %\centering
@@ -70,7 +67,7 @@
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.75]{images/diag_cCol_red2_render4_data80_3d.pdf}
+\includegraphics[scale=0.75]{images/diag_cCol_red2_render4_data80_2x.pdf}
 \caption{\label{fig:eval:cCol2}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz = 2 (3D).}
 \end{figure}
 
@@ -83,84 +80,53 @@
 \begin{figure}
 \centering
 \includegraphics[scale=0.75]{images/diag_cCol_red3_render4_data24_2x.pdf}
-\caption{\label{fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz = 3.}
+\caption{\label{fig:eval:cCol4}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz = 3.}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.75]{images/diag_cCol_red3_render4_data80_2x.pdf}
-\caption{\label{fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz = 3.}
+\caption{\label{fig:eval:cCol5}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz = 3.}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.75]{images/diag_cCol_red3_render4_data120_2x.pdf}
-\caption{\label{fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz = 3.}
+\caption{\label{fig:eval:cCol6}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz = 3.}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.75]{images/diag_cCol_red1_render4_data24_2x.pdf}
-\caption{\label{fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz = 1.}
+\caption{\label{fig:eval:cCol7}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz = 1.}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.75]{images/diag_cCol_red1_render4_data80_2x.pdf}
-\caption{\label{fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz = 1.}
+\caption{\label{fig:eval:cCol8}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz = 1.}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.75]{images/diag_cCol_red1_render4_data120_2x.pdf}
-\caption{\label{fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz = 1.}
+\caption{\label{fig:eval:cCol9}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz = 1.}
 \end{figure}
 
 \begin{figure}
 \centering
 \input{plots/diag_fps_redundancy1.tex}
-  \caption{FPS in einem Walkthrough. (Redundanz=1, 2 Renderer und 24-32 Datenknoten)}
-  \label{fig:eval:diag1}
+  \caption{\label{fig:eval:fps1}FPS in einem Walkthrough. (Redundanz=1, 2 Renderer und 24-32 Datenknoten)}
 \end{figure}
 
 \begin{figure}
 \centering
 \input{plots/diag_fps_redundancy2.tex}
-  \caption{FPS in einem Walkthrough. (Redundanz=2, 2 Renderer und 24-32 Datenknoten)}
-  \label{fig:eval:diag1}
+  \caption{\label{fig:eval:fps2}FPS in einem Walkthrough. (Redundanz=2, 2 Renderer und 24-32 Datenknoten)}
 \end{figure}
 
 \begin{figure}
 \centering
 \input{plots/diag_fps_redundancy3.tex}
-  \caption{FPS in einem Walkthrough. (Redundanz=3, 2 Renderer und 24-32 Datenknoten)}
-  \label{fig:eval:diag1}
-\end{figure}
-
-\begin{figure}
-\centering
-\input{plots/diag2.tex}
-  \caption{Beispieldiagramm 2.}
-  \label{fig:eval:diag2}
-\end{figure}
-
-\begin{figure}
-\centering
-\input{plots/diag3.tex}
-  \caption{Beispieldiagramm 3.}
-  \label{fig:eval:diag3}
-\end{figure}
-
-\begin{figure}
-\centering
-\input{plots/diag4.tex}
-  \caption{Beispieldiagramm 4.}
-  \label{fig:eval:diag4}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \input{plots/diag5.tex}
-  \caption{Beispieldiagramm 5. }
-  \label{fig:eval:diag5}
+  \caption{\label{fig:eval:fps3}FPS in einem Walkthrough. (Redundanz=3, 2 Renderer und 24-32 Datenknoten)}
 \end{figure}
