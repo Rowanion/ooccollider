@@ -88,7 +88,7 @@ Das $c$-Collision Protokoll wird in Kapitel \ref{chap:relwork} genauer beschrieb
 Da im Rahmen dieser Arbeit ein Sort-First-Renderer (siehe auch Kapitel \ref{chap:relwork}) entwickelt wurde, wurde zur Lastbalancierung der Renderknoten auch eine dynamische Kachelung implementiert. Nach einer festgelegten Framezahl schicken die Renderknoten ihre gemittelten Renderzeiten für einen Frame an den Masterknoten, welcher anhand dieser dann neue Kachelgrößen vergibt. In der vorliegenden Arbeit wird ein Split-Tree verwendet um die Kachelgrößen festzulegen. Dieser teilt, ähnlich einem KD-Tree \cite{RTR3}, den Bildschirm entlang einer Kante und die so entstandenen Kacheln ebenfalls, bis sich so viele Kacheln wie Renderer ergeben. 
 
 \subsection{Speichermanagement}
-\label{sec:basics:caching}
+\label{sec:basics:speicher}
 \begin{itemize}
  \item nicht jeder braucht alles -> Kacheln
  \item Gewichtung über die Anzahl der Dreiecke pro Request
@@ -106,12 +106,7 @@ Das ständige Reservieren und Freigeben von kleineren Speicherblöcken führt im
 \section{Approximation}
 \label{sec:basics:approximation}
 \todo[size=\small, inline, color=blue!40]{Unterkapitel: Approximation}
-Approximationen in der Computergrafik haben oft  Zurfolge, dass die Bildqualität verringert wird. Sei es weil Objekte in Abhängigkeit zur Kameraentfernung in niedrigeren Auflösungen gerendert werden, oder dass nicht das vollständige Modell gerendert wird. 
-\begin{itemize}
- \item Occlusion-Culling entfernt teile
- \item Nicht immer sofort ein vollständiges Bild verfügbar -> nach und nach nachladen
- \item Teile können weggelassen werden $\rightarrow$ OcclusionCulling \& FrustumCulling
- \item Begrenzung des Cache-Kontingents
- \item Tiefenbuffer Update nur alle paar Frames
- \item Sampletree
-\end{itemize}
+Approximationen in der Computergrafik haben oft  Zurfolge, dass die Bildqualität verringert wird. Sei es weil Objekte in Abhängigkeit zur Kameraentfernung in niedrigeren Auflösungen gerendert werden, oder dass nicht das vollständige Modell gerendert wird.
+Durch Frustum-Culling und Occlusion-Culling (siehe \ref{sec:basics:algos:culling}) werden Teile des Modells entfernt, welche mit einer gewissen Sicherheit nicht Sichtbar sind. Da die ersten Occlusion-Tests auf den Datenknoten stattfinden, sind diese auf möglichst aktuelle Tiefenbuffer der einzelnen Render angewiesen. Da das Auslesen und Schreiben von Tiefeninformationen jedoch etwas Zeit in Anspruch nimmt, wird dieses Update nur nach einer gewissen Frame-Anzahl vorgenommen und das auch nur, wenn die Kamera bewegt wurde. Dadurch kommt es zwar zu Ungenauigkeiten bei den Verdeckungstests, aber es wird angenommen, dass diese immer noch hinreichend genau sind. \\
+Die traversierung des Sampletrees wird irgendwann abgebrochen, unter der Annahme dass die Geometrie in den Kindknoten nicht mehr als ein Pixel im fertigen Bild beträgt. Dadurch fehlen natürlich sichtbare Teile des Modells, was im Sampletree durch das Verschieben von Dreiecken auszugleichen versucht (siehe \ref{sec:basics:sampletree}).\\
+Außerdem wird eine möglichst hohe Bildrate gegenüber einem fehlerfreien Bild bevorzugt. Dadurch kann es vorkommen, dass bei einer Kamerabewegung, die Bewegung zwar unmittelbar ausgeführt wird, die benötigten geometrischen Objekte aber erst nach und nach bei den Renderern eintreffen (Popping-Artefakte). Eine weitere Approximation stellt die Beschränkung der Cache-Größe und die Verdrängung von Objekten aus dem Cache dar. Es kann vorkommen, dass Objekte aus dem Cache verdrängt werden, die unmittelbar danach wieder angefordert werden müssen, was wiederum Popping-Artefakte hervorruft (siehe auch \ref{sec:basics:speicher}). 
