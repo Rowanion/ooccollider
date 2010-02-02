@@ -4,45 +4,46 @@ The style file: alpha.bst
 Database file #1: bib/references.bib
 Warning--to sort, need author or key in wikioctree
 Warning--to sort, need author or key in anteru
-You've used 24 entries,
+Warning--to sort, need author or key in obj
+You've used 25 entries,
             2543 wiz_defined-function locations,
-            701 strings with 8847 characters,
-and the built_in function-call counts, 10688 in all, are:
-= -- 1099
-> -- 500
+            705 strings with 8965 characters,
+and the built_in function-call counts, 10928 in all, are:
+= -- 1127
+> -- 501
 < -- 16
 + -- 186
 - -- 178
-* -- 741
-:= -- 1687
-add.period$ -- 80
-call.type$ -- 24
-change.case$ -- 153
-chr.to.int$ -- 23
-cite$ -- 28
-duplicate$ -- 450
-empty$ -- 784
+* -- 752
+:= -- 1716
+add.period$ -- 85
+call.type$ -- 25
+change.case$ -- 157
+chr.to.int$ -- 24
+cite$ -- 31
+duplicate$ -- 460
+empty$ -- 811
 format.name$ -- 204
-if$ -- 2273
+if$ -- 2330
 int.to.chr$ -- 2
 int.to.str$ -- 0
 missing$ -- 26
-newline$ -- 121
+newline$ -- 128
 num.names$ -- 66
-pop$ -- 183
+pop$ -- 191
 preamble$ -- 1
-purify$ -- 182
+purify$ -- 187
 quote$ -- 0
-skip$ -- 369
+skip$ -- 377
 stack$ -- 0
-substring$ -- 555
-swap$ -- 107
+substring$ -- 563
+swap$ -- 108
 text.length$ -- 16
 text.prefix$ -- 5
 top$ -- 0
-type$ -- 172
-warning$ -- 2
+type$ -- 180
+warning$ -- 3
 while$ -- 98
-width$ -- 29
-write$ -- 328
-(There were 2 warnings)
+width$ -- 30
+write$ -- 344
+(There were 3 warnings)

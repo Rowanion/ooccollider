@@ -16,6 +16,7 @@ Tomas Akenine-M\"{o}ller, Eric Haines, and Natty Hoffman.
 \bibitem[ant10]{anteru}
 Anteru's blog - graphics, programming and software engineering.
 \newblock \url{http://anteru.net/2008/11/14/315/}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
 
 \bibitem[BMadHS97]{ccol2}
 Petra Berenbrink, Friedhelm Meyer auf~der Heide, and Klaus Schr\"{o}der.
@@ -105,6 +106,11 @@ Hubert Nguyen.
 \newblock {\em GPU Gems 3}.
 \newblock Addison-Wesley, Upper Saddle River, NJ, 2008.
 
+\bibitem[obj10]{obj}
+Object file-specification.
+\newblock \url{http://local.wasp.uwa.edu.au/~pbourke/dataformats/obj/}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
+
 \bibitem[Pha05]{gpugems2}
 Matt Pharr.
 \newblock {\em GPU Gems 2}.
@@ -140,6 +146,7 @@ Ingo Wald, Andreas Dietrich, and Philipp Slusallek.
 \bibitem[wik10]{wikioctree}
 Wikipedia, the free encyclopedia.
 \newblock \url{http://de.wikipedia.org/wiki/Octree}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
 
 \bibitem[YJSZ06]{DBLP:journals/ijvr/YinJSZ06}
 Ping Yin, Xiaohong Jiang, Jiaoying Shi, and Ran Zhou.
