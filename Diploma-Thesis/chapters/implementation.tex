@@ -18,6 +18,8 @@ Per-Frame-Verwaltung der List sehr aufwendig $\rightarrow$ Verkürzung der Liste
 
 \section{Preprocessing}
 \label{sec:impl:preprocessing}
+Das Modell der Boeing 777 liegt im OBJ-Format\footnote{Ein freies nicht-binäres Dateiformat zur Beschreibung von Geometrie. Siehe \cite{obj}. } vor. Eine Textdatei zu parsen und zu laden ist wesentlich langsamer als dieselben Daten binär auszulesen, da die Daten erst von Text in Zahlen konvertiert werden müssen. Räumliche Datenstrukturen sind ebenfalls nicht vorhanden. Aus diesem Grund ist es notwendig, diese 3D-Szene zuvor in ein Format zu übertragen, welches einfcaher und schneller zu handhaben ist. Viele Rendering-Systeme bauen Datenstrukturen wie Octrees beim Programmstart ad-hoc auf. Das ist im Falle der Boeing nicht praktikabel, da das Modell nicht in den Speicher passt.
+\cite{obj}\\
 \todo[size=\small, color=blue!40, inline]{Unterkapitel Preprocessing}%
 \begin{itemize}
  \item Aufbereitung der Model-Daten in ein verständliches Format

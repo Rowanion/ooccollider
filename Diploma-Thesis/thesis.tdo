@@ -1,20 +1,16 @@
 \contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Kapitel: Einleitung}}{2}{section*.3}
 \contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Kapitel: Motivation}}{2}{section*.4}
 \contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color {yellow!40}o}}\ Kapitel: Human proofreading}}{4}{section*.5}
-\contentsline {todo}{{\color@box {}{yellow}{\leavevmode {\color {yellow}o}}\ Grundlagen $\rightarrow $ Spellcheck!}}{11}{section*.6}
-\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color {yellow!40}o}}\ Kapitel: Non-Tim understanding}}{11}{section*.7}
-\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color {yellow!40}o}}\ Kapitel: Human proofreading}}{11}{section*.8}
-\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Evtl. besseren Namen f\IeC {\"u}r Kapitel "`Grundlagen"' finden $\rightarrow $ Grundlegende Algorithmen/Techniken?!}}{11}{section*.9}
-\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Boeing Herkunftshinweis verschieben an die erste Stelle wo es erw\IeC {\"a}hnt wird.}}{11}{section*.10}
-\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Subsection Datenmanagement evtl. vorziehen bevor subsection Culling}}{19}{section*.11}
-\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Skizze zum $c$-Collision Protokoll? *nichtmag*}}{19}{section*.12}
-\contentsline {todo}{{\color@box {}{magenta}{\leavevmode {\color {magenta}o}}\ Kapitel: Algorithmen}}{20}{section*.13}
-\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel: Approximation}}{22}{section*.14}
-\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Preprocessing}}{23}{section*.15}
-\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Datenstruktur}}{24}{section*.16}
-\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Netzwerkarchitektur}}{25}{section*.17}
-\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Kommunikation}}{25}{section*.18}
-\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Rendering-Algorithmus}}{25}{section*.19}
-\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Kapitel: Evaluierung}}{28}{section*.20}
-\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Diagramme f\IeC {\"u}r Reload: eins mit median und 10\% Quantilen aus einem durchgang; evtl. gemittelt; eins mit min-, oder max-, oder median-werten}}{28}{section*.21}
-\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ absolutes in und max bei den Quantilen angeben und dann einen Block f\IeC {\"u}r die Quartile (0.25 und 0.75) und dann den Median eintragen.}}{28}{section*.22}
+\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color {yellow!40}o}}\ Kapitel: Non-Tim understanding}}{11}{section*.6}
+\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color {yellow!40}o}}\ Kapitel: Human proofreading}}{11}{section*.7}
+\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Evtl. besseren Namen f\IeC {\"u}r Kapitel "`Grundlagen"' finden $\rightarrow $ Grundlegende Algorithmen/Techniken?!}}{11}{section*.8}
+\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Boeing Herkunftshinweis verschieben an die erste Stelle wo es erw\IeC {\"a}hnt wird.}}{11}{section*.9}
+\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Skizze zum $c$-Collision Protokoll? *nichtmag*}}{19}{section*.10}
+\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Preprocessing}}{24}{section*.11}
+\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Datenstruktur}}{24}{section*.12}
+\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Netzwerkarchitektur}}{25}{section*.13}
+\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Kommunikation}}{25}{section*.14}
+\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Unterkapitel Rendering-Algorithmus}}{28}{section*.15}
+\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color {blue!40}o}}\ Kapitel: Evaluierung}}{29}{section*.16}
+\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ Diagramme f\IeC {\"u}r Reload: eins mit median und 10\% Quantilen aus einem durchgang; evtl. gemittelt; eins mit min-, oder max-, oder median-werten}}{29}{section*.17}
+\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color {orange}o}}\ absolutes in und max bei den Quantilen angeben und dann einen Block f\IeC {\"u}r die Quartile (0.25 und 0.75) und dann den Median eintragen.}}{29}{section*.18}
