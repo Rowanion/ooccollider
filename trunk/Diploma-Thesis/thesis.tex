@@ -284,10 +284,13 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 
 % todo notes, add disbale to remove them. BUT: need to remove the toc-insertion manually
 %\usepackage[colorlinks]{hyperref}
-\usepackage[colorinlistoftodos, shadow]{todonotes}
+\usepackage[colorinlistoftodos, shadow, disable]{todonotes}
 
 \usepackage{pgfplots}
 
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\renewcommand{\algorithmiccomment}[1]{//\textit{#1}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Document structure
@@ -304,7 +307,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \setcounter{page}{1}
 
 \listoftodos
-\addcontentsline{toc}{chapter}{ToDoList}
+%\addcontentsline{toc}{chapter}{ToDoList}
 
 
 \renewcommand\contentsname{Inhaltsverzeichnis}

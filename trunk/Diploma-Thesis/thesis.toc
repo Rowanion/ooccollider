@@ -2,8 +2,7 @@
 \select@language {ngerman}
 \select@language {german}
 \select@language {german}
-\contentsline {chapter}{ToDoList}{i}{section*.1}
-\contentsline {chapter}{Inhaltsverzeichnis}{1}{chapter*.2}
+\contentsline {chapter}{Inhaltsverzeichnis}{1}{chapter*.1}
 \contentsline {chapter}{\numberline {1}Einleitung}{2}{chapter.1}
 \contentsline {section}{\numberline {1.1}Motivation}{2}{section.1.1}
 \contentsline {chapter}{\numberline {2}Verwandte Arbeiten}{4}{chapter.2}
@@ -18,17 +17,16 @@
 \contentsline {subsection}{\numberline {3.3.1}Culling}{16}{subsection.3.3.1}
 \contentsline {subsection}{\numberline {3.3.2}Datenmanagement}{19}{subsection.3.3.2}
 \contentsline {subsection}{\numberline {3.3.3}Speichermanagement}{20}{subsection.3.3.3}
-\contentsline {section}{\numberline {3.4}Approximation}{22}{section.3.4}
+\contentsline {section}{\numberline {3.4}Approximation}{21}{section.3.4}
 \contentsline {chapter}{\numberline {4}Implementierung}{23}{chapter.4}
-\contentsline {section}{\numberline {4.1}Preprocessing}{23}{section.4.1}
-\contentsline {section}{\numberline {4.2}Datenstruktur}{24}{section.4.2}
-\contentsline {section}{\numberline {4.3}Programm}{24}{section.4.3}
-\contentsline {section}{\numberline {4.4}Netzwerkarchitektur}{25}{section.4.4}
-\contentsline {section}{\numberline {4.5}Kommunikation}{25}{section.4.5}
-\contentsline {section}{\numberline {4.6}Rendering-Algorithmus}{28}{section.4.6}
-\contentsline {chapter}{\numberline {5}Evaluierung}{29}{chapter.5}
-\contentsline {chapter}{\numberline {6}Fazit und Ausblick}{37}{chapter.6}
-\contentsline {chapter}{\numberline {A}Glossar}{38}{appendix.A}
-\contentsline {chapter}{Abbildungsverzeichnis}{39}{appendix*.19}
-\contentsline {chapter}{Tabellenverzeichnis}{41}{appendix*.20}
-\contentsline {chapter}{\numberline {B}Literaturverzeichnis}{42}{appendix.B}
+\contentsline {section}{\numberline {4.1}Preprocessing}{24}{section.4.1}
+\contentsline {section}{\numberline {4.2}Netzwerkarchitektur}{25}{section.4.2}
+\contentsline {section}{\numberline {4.3}Programm}{25}{section.4.3}
+\contentsline {section}{\numberline {4.4}Rendering-Algorithmus}{26}{section.4.4}
+\contentsline {section}{\numberline {4.5}Kommunikation}{27}{section.4.5}
+\contentsline {chapter}{\numberline {5}Evaluierung}{30}{chapter.5}
+\contentsline {chapter}{\numberline {6}Fazit und Ausblick}{38}{chapter.6}
+\contentsline {chapter}{\numberline {A}Glossar}{39}{appendix.A}
+\contentsline {chapter}{Abbildungsverzeichnis}{40}{appendix*.2}
+\contentsline {chapter}{Tabellenverzeichnis}{42}{appendix*.3}
+\contentsline {chapter}{\numberline {B}Literaturverzeichnis}{43}{appendix.B}
