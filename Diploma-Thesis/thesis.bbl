@@ -25,12 +25,22 @@ Petra Berenbrink, Friedhelm Meyer auf~der Heide, and Klaus Schr\"{o}der.
   Parallel algorithms and architectures}, pages 302--310, New York, NY, USA,
   1997. ACM.
 
+\bibitem[boo10]{boost}
+boost - c++ libraries.
+\newblock \url{http://www.boost.org}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
+
 \bibitem[BSGM02]{baxter}
 William~V. Baxter, III, Avneesh Sud, Naga~K. Govindaraju, and Dinesh Manocha.
 \newblock Gigawalk: interactive walkthrough of complex environments.
 \newblock In {\em EGRW '02: Proceedings of the 13th Eurographics workshop on
   Rendering}, pages 203--214, Aire-la-Ville, Switzerland, Switzerland, 2002.
   Eurographics Association.
+
+\bibitem[cg10]{cg}
+nvidia cg.
+\newblock \url{http://developer.nvidia.com/page/cg_main.html}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
 
 \bibitem[CKS02a]{wagner1}
 Wagner~T. Corr\^{e}a, James~T. Klosowski, and Cl\'{a}udio~T. Silva.
@@ -93,6 +103,11 @@ Steven Molnar, Michael Cox, David Ellsworth, and Henry Fuchs.
 \newblock A sorting classification of parallel rendering.
 \newblock {\em IEEE Comput. Graph. Appl.}, 14(4):23--32, 1994.
 
+\bibitem[mpi10]{mpi}
+Openmpi - open source high performance computing.
+\newblock \url{http://www.open-mpi.org}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
+
 \bibitem[MPR94]{ccol4}
 P.~D. MacKenzie, C.~G. Plaxton, and R.~Rajaraman.
 \newblock On contention resolution protocols and associated probabilistic
@@ -107,8 +122,18 @@ Hubert Nguyen.
 \newblock Addison-Wesley, Upper Saddle River, NJ, 2008.
 
 \bibitem[obj10]{obj}
-Object file-specification.
+Obj file-specification.
 \newblock \url{http://local.wasp.uwa.edu.au/~pbourke/dataformats/obj/}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
+
+\bibitem[ope10]{opengl}
+Opengl.
+\newblock \url{http://www.opengl.org}, 2010.
+\newblock Zuletzt abgerufen, Januar 2010.
+
+\bibitem[pc210]{pc2}
+Paderbon center for parallel computing.
+\newblock \url{http://pc2.uni-paderborn.de}, 2010.
 \newblock Zuletzt abgerufen, Januar 2010.
 
 \bibitem[Pha05]{gpugems2}

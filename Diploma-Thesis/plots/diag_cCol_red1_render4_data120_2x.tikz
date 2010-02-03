@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{tikzpicture}[>=stealth]
-  \begin{axis}[name=plotxz,width=10cm,view={0}{0},xlabel=Walkthrough-Position,zlabel={Auslastung (Normalisiert)},ylabel={Anzahl an Anfragen},
+  \begin{axis}[name=plotxz,width=10cm,view={0}{0},xlabel=Walkthrough-Position,zlabel={Auslastung (Normalisiert)},ylabel={Anfragen pro Frame},
 	zmax=0.21]
     \addplot3[mark=|,blue,
       only marks,
@@ -15,7 +15,7 @@
     \addplot3[red,mark=x,only marks] table[col sep=comma,x index=0,z index=4,y index=1,header=false] {data/cCollision_Seed1_Redun1_DataNodes120.2010-1-31.log};
     \addlegendentry{Median}
   \end{axis}
-  \begin{axis}[name=plotyz,width=10cm,view={90}{0},at={($(plotxz.east)+(1.5cm,0)$)},anchor=west, xlabel=Walkthrough-Position,ylabel={Anzahl an Anfragen},
+  \begin{axis}[name=plotyz,width=10cm,view={90}{0},at={($(plotxz.east)+(1.5cm,0)$)},anchor=west, xlabel=Walkthrough-Position,ylabel={Anfragen pro Frame},
 	zmax=0.21]
     \addplot3[mark=|,blue,
       only marks,
