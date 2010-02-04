@@ -2,9 +2,7 @@
 \chapter{Implementierung}
 \label{chap:impl}
 
-In dieser Arbeit wurde ein paralleles Out-Of-Core-Rendering System entwickelt. Dazu wurde kein bestehendes System erweitert, sondern ein eigenes System von Grund auf neu entwickelt. Als Programmiersprache wurde C++ mit verschiedenen Programmbibliotheken verwendet; unter anderem OpenGL\footnote{\cite{opengl}}, Nvidias Cg\footnote{\cite{cg}}, boost\footnote{\cite{boost}} und OpenMPI\footnote{\cite{mpi}}. 
-Kapiteleinleitung\\*
-C++, OpenGL, STL, usw.
+In dieser Arbeit wurde ein paralleles Out-Of-Core-Rendering System entwickelt, welches in einem hybriden Linux-Cluster läuft. Dazu wurde kein bestehendes System erweitert, sondern ein eigenes System von Grund auf neu entwickelt. Als Programmiersprache wurde C++ mit verschiedenen Programmbibliotheken verwendet; unter anderem OpenGL, nVidias Cg, boost und OpenMPI \cite{mpi}. \\
 Probleme / Herausforderungen in die Unterpunkte ziehen\\
 Probleme:\\
 Speicherfragmentierung\\
@@ -19,13 +17,37 @@ Per-Frame-Verwaltung der List sehr aufwendig $\rightarrow$ Verkürzung der Liste
 
 \section{Preprocessing}
 \label{sec:impl:preprocessing}
-Das Modell der Boeing 777 liegt im OBJ-Format\footnote{Ein freies nicht-binäres Dateiformat zur Beschreibung von Geometrie. Siehe \cite{obj}. } vor. Eine Textdatei zu parsen und zu laden ist wesentlich langsamer als dieselben Daten binär auszulesen, da die Daten erst von Text in Zahlen konvertiert werden müssen. Räumliche Datenstrukturen sind ebenfalls nicht vorhanden. Aus diesem Grund ist es notwendig, diese 3D-Szene zuvor in ein Format zu übertragen, welches einfacher und schneller zu handhaben ist. Viele Rendering-Systeme bauen räumliche Datenstrukturen wie Octrees beim Programmstart ad-hoc auf. Das ist im Falle der Boeing nicht praktikabel, da das Modell nicht in den Speicher passt.
+Das Modell der Boeing 777 liegt im OBJ-Format\footnote{Ein freies nicht-binäres Dateiformat zur Beschreibung von Geometrie. \cite{obj}. } vor. Eine Textdatei zu parsen und zu laden ist wesentlich langsamer als dieselben Daten binär auszulesen, da die Daten erst von Text in Zahlen konvertiert werden müssen. Räumliche Datenstrukturen sind ebenfalls nicht vorhanden. Aus diesem Grund ist es notwendig, diese 3D-Szene zuvor in ein Format zu übertragen, welches einfacher und schneller zu handhaben ist. Viele Rendering-Systeme bauen räumliche Datenstrukturen wie Octrees beim Programmstart ad-hoc auf. Das ist im Falle der Boeing nicht praktikabel, da das Modell nicht in den Speicher passt.
 
 Das Preprocessing fasst eine Menge an Vorberechnungen zusammen, die danach nie wieder durchgeführt werden müssen. Zunächst mussten die OBJ-Dateien bereinigt werden, da an vielen Stellen Sonderzeichen verwendet wurden, die vielen kommerziellen 3D-Modellierungsprogrammen Probleme bereiten. Als geometrische Primitive gab Polygone mit über 24 Eckpunkten. Um die VBOs render zu können ist es jedoch erforderlich, dass ausschließlich Dreicke verwendet werden. Diese Polygone mussten zuerst in Dreiecke umgewandelt werden. \\
 Die Farben waren in Form einer Excel-Tabelle gegeben, welche zunächst in OBJ-Konforme Materialbeschreibungen umgewandelt wurden. Anschließend wurden die Objekte in ein binäres Format konvertiert, in dem die Vertices und Normalvektoren eines Objektes direkt hintereinander in einer Datei standen. Die Farben wurden zu einer 1D-Farbtextur zusammen gefasst und die entsprechende Texturkoordinate als vierte Komponente in den Vertices gespeichert (siehe \ref{sec:basics:computergrafik}). Für den Aufbau des Loose Octrees wurde versucht, die Octree-Struktur in Form von Unterverzeichnissen auf dem Datenträger abzubilden. Die Objekte wurden einzeln in die Wurzel eingefügt und bei Überschreiten des Dreieckslimits von 5.000 Stück pro Knoten weiter aufgeteilt. Dadurch wurde jedoch die Grenze an Unterverzeichnissen in einem Verzeichnis von ca. 32000 überschritten. Eine Verzeichnisauflistung dauerte mehr als 30 Minten. Aus diesem Grund wurden alle Daten-Objekte im Octree mit Indizes versehen und das Skelett des Octrees in einer separaten Datei gespeichert. Anschließend wurden alle Objekte zusammen in 500 MiB Dateiblöcke zusammen gefasst. Mit dem Octree-Skelett lässt sich die Struktur des Baums laden, ohne tatsächlich Objektdaten darin speicher zu müssen. Dafür sind alle Informationen über Anzahl der Dreiecke, ID des Knotens, Baumtiefe, und Vielem mehr, direkt abrufbar.
 
 \todo[size=\small, inline]{\textbf{meine} Rechnerkonfiguration da reinschreiben.}
-Der Rechenaufwand für das Preprocessing hat auf einen Atlon XP Core2Duo \textbf{BLABLABLA} zusammengerechnet ca 47,2 Stunden reine Rechenzeit benötigt. An der Zeit lässt sich erkennen, dass es von Vorteil war, die Datenstruktur auf Festplatte zu speiche, da sich der fertig aufgebaute Octree wesentlich schneller laden lässt, als ihn aufzubauen.
+Der Rechenaufwand für das Preprocessing hat auf einen Atlon XP Core2Duo \textbf{BLABLABLA} zusammengerechnet ca 47,2 Stunden reine Rechenzeit benötigt. An der Zeit lässt sich erkennen, dass es von Vorteil ist, die Datenstruktur auf Festplatte zu speichern, da sich der fertig aufgebaute Octree wesentlich schneller laden lässt, als ihn aufzubauen.
+
+\section{Netzwerkarchitektur}
+\label{sec:impl:netzwerkarchitektur}
+\todo[size=\small, color=blue!40, inline]{Unterkapitel Netzwerkarchitektur}%
+Als Testumgebung wurde der der Arminius-Custer im Paderborn Center for Parallel Computing \cite{pc2} genutzt. Der Cluster benutzt InfiniBand als Netzwerkanbindung mit einer Bandbreite von bis zu 10GBit pro Sekunde. Das System besteht aus zwei verschiedenen Rechnertypen: den Visualisierungsknoten und den Rechenknoten. Da die Rechenknoten sind alle mit Dual INTEL Xeon 3.2 GHZ EM64T Prozessoren, 4 GByte Arbeitsspeicher und älterer Grafikhardware ausgestattet. 
+
+\begin{itemize}
+  \item Visualisierungsknoten (4x)
+  \begin{itemize}
+    \item OS: Red Hat Enterprise Linux AS 4
+    \item Dual AMD Opteron 2.2 GHz AMD64
+    \item 8 GByte main memory
+    \item nVidia Quadro FX 4500 PCI-e
+    \item InfiniBand 4x SDR HCA PCI-e Netzwerkanbindung (10GBit/sec)
+  \end{itemize}
+  \item Datenknoten (32x)
+  \begin{itemize}
+    \item OS: Red Hat Enterprise Linux AS 4
+    \item Dual INTEL Xeon 3.2 GHZ EM64T
+    \item 4 GByte main memory
+    \item nVidia Quadro NVS 280
+    \item InfiniBand 4x SDR HCA PCI-e Netzwerkanbindung (10GBit/sec)
+  \end{itemize}
+\end{itemize}
 
 \section{Programm}
 \label{sec:impl:program}
@@ -39,15 +61,15 @@ Der Rechenaufwand für das Preprocessing hat auf einen Atlon XP Core2Duo \textbf
       \STATE \textbf{send} alle Objektdaten an alle Datenknoten
       \WHILE{running}
 	\STATE \textbf{send} Kameraposition und Eingaben an alle Renderer
-	\IF{ Frame-Zahl $>$ Schwellwert}
+	\IF{ Frame-Nummer $>$ Schwellwert}
 	  \STATE Berechne neue Kachelgrößen
 	  \STATE \textbf{send} Kachelgrößen an alle Renderknoten
 	\ENDIF
 	\STATE \textbf{wait} auf Datenanfragen von allen Renderknoten
 	\STATE führe $c$-Collsion Protkoll auf Datenanfragen aus
-	\STATE \textbf{send} Anfragen an zuständige Datenknoten
+	\STATE \textbf{send} Anfragen an ermittelte Datenknoten weiter
 	\STATE \textbf{wait} auf Bildkacheln von allen Renderknoten
-	\STATE rendere Bild und gib es aus
+	\STATE rendere Bild und zeig es an
       \ENDWHILE
     \end{algorithmic}
 \end{algorithm}
@@ -67,13 +89,13 @@ Der Rechenaufwand für das Preprocessing hat auf einen Atlon XP Core2Duo \textbf
 	  \STATE ändere Kachelgröße und Framebuffer
 	  \STATE \textbf{send} aktuellen Tiefenbuffer an alle Datenknoten
 	\ENDIF
-	\STATE \textbf{send} Bildkachel vom letzten Fram an Masterknoten
+	\STATE \textbf{send} Bildkachel vom letzten Frame an Masterknoten
 	\STATE Octree/Sampletree-Traversion \& Frustum-Culling
-	\STATE verwalte Datencache
+	\STATE verwalte Daten-Cache
 	\STATE \textbf{send} Datenanfragen an Masterknoten
 	\STATE \textbf{recv} ggf. Objekte von Datenknoten
 	\STATE rendere Szene
-	\STATE Occlusiontest auf Objekten mit abgelaufenem Zähler
+	\STATE Occlusion-Test auf Objekten mit abgelaufenem Zähler
       \ENDWHILE
     \end{algorithmic}
 \end{algorithm}
@@ -104,7 +126,7 @@ Der Rechenaufwand für das Preprocessing hat auf einen Atlon XP Core2Duo \textbf
 	  \FORALL{sichtbare Daten aus Anfragen}
 	    \STATE rendere Objekt in Tiefenbuffer
  	  \ENDFOR
-	  \STATE \textbf{send} sichtbare Daten an entsprechende Renderknoten
+	  \STATE \textbf{send} sichtbare Daten gebündelt an entsprechende Renderknoten
 	\ELSIF{Nachricht $=$ Tiefenbuffer}
 	  \STATE schreibe Tiefenbuffer in Framebuffer des jeweiligen Renderknotens
 	\ELSE \STATE\textbf{sleep}
@@ -142,11 +164,6 @@ Sequenzdiagramm \ref{fig:impl:seqdiagrender}, \ref{fig:impl:seqdiagdepth}
   \caption{Sequenzdiagramm: Kommunikation für ein Tiefenbuffer-Update}
   \label{fig:impl:seqdiagdepth}
 \end{figure}
-
-\section{Netzwerkarchitektur}
-\label{sec:impl:netzwerkarchitektur}
-\todo[size=\small, color=blue!40, inline]{Unterkapitel Netzwerkarchitektur}%
-\todo[size=\small, inline]{\textbf{@Tim}: Hardwarebeschaffenheit und die NodeTypen vom Cluster}%
 
 %
 % EOF

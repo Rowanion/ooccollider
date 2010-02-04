@@ -15,24 +15,73 @@
  \item Erklärung der Tests \& Diagramme
  \item Balancierung durch c-Collision Protokoll / die Varianz
  \item Netzwerk ist wichtig $\rightarrow$ hat sich in den tests gezeigt. Siehe MiniCluster.
+ \item nur wenige wichtige Diagramme in den Fließtext $\rightarrow$ der Rest in den Anhang.
 \end{itemize}
 \todo[size=\small, inline]{Diagramme für Reload: eins mit median und 10\% Quantilen aus einem durchgang; evtl. gemittelt; eins mit min-, oder max-, oder median-werten}%
 \todo[size=\small, inline]{absolutes in und max bei den Quantilen angeben und dann einen Block für die Quartile (0.25 und 0.75) und dann den Median eintragen.}%
 
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos1.pdf}
+\captionof{figure}{\label{fig:eval:pos1}Kameraposition 1 \textit{(Heck außen)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos2.pdf}
+\captionof{figure}{\label{fig:eval:pos2}Kameraposition 2 \textit{(Heck innen)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos3.pdf}
+\captionof{figure}{\label{fig:eval:pos3}Kameraposition 3 \textit{(Passagierbereich)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos4.pdf}
+\captionof{figure}{\label{fig:eval:pos4}Kameraposition 4 \textit{(Stauraum)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos5.pdf}
+\captionof{figure}{\label{fig:eval:pos5}Kameraposition 5 \textit{(Fahrwerk/Flügel)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos6.pdf}
+\captionof{figure}{\label{fig:eval:pos5}Kameraposition 6 \textit{(Turbine)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos6.pdf}
+\captionof{figure}{\label{fig:eval:pos5}Kameraposition 7 \textit{(Triebwerk)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos6.pdf}
+\captionof{figure}{\label{fig:eval:pos5}Kameraposition 8 \textit{(Turbine)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos6.pdf}
+\captionof{figure}{\label{fig:eval:pos5}Kameraposition 9 \textit{(Turbine)}}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos6.pdf}
+\captionof{figure}{\label{fig:eval:pos5}Kameraposition 10 \textit{(Turbine)}}
+\end{Bild}
 
 \begin{figure}
 \centering
 \input{plots/diag_reload_red3_render2_data32.tex}
-  \caption{Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=3, 2 Renderer und 32 Datenknoten)}
-  \label{fig:eval:reaload1}
+  \caption{\label{fig:eval:reaload1}-Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=3, 2 Renderer und 32 Datenknoten)}
 \end{figure}
 
 \begin{figure}
 \centering
 \input{plots/diag_reload_red2_render2_data32.tex}
-  \caption{Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=2, 2 Renderer und 32 Datenknoten)}
-  \label{fig:eval:reload2}
+  \caption{\label{fig:eval:reload2}Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz=2, 2 Renderer und 32 Datenknoten)}
 \end{figure}
+
 %\begin{figure}
 %\centering
 %\input{plots/diag_reload_red1_render2_data32.tex}
@@ -118,20 +167,17 @@
 \begin{figure}
 \centering
 \input{plots/diag_fps_redundancy1.tex}
-  \caption{FPS in einem Walkthrough. (Redundanz=1, 2 Renderer und 24-32 Datenknoten)}
-  \label{fig:eval:fps1}
+  \caption{\label{fig:eval:fps1}FPS in einem Walkthrough. (Redundanz=1, 2 Renderer und 24-32 Datenknoten)}
 \end{figure}
 
 \begin{figure}
 \centering
 \input{plots/diag_fps_redundancy2.tex}
-  \caption{FPS in einem Walkthrough. (Redundanz=2, 2 Renderer und 24-32 Datenknoten)}
-  \label{fig:eval:fps2}
+  \caption{\label{fig:eval:fps2}FPS in einem Walkthrough. (Redundanz=2, 2 Renderer und 24-32 Datenknoten)}
 \end{figure}
 
 \begin{figure}
 \centering
 \input{plots/diag_fps_redundancy3.tex}
-  \caption{FPS in einem Walkthrough. (Redundanz=3, 2 Renderer und 24-32 Datenknoten)}
-  \label{fig:eval:fps3}
+  \caption{\label{fig:eval:fps3}FPS in einem Walkthrough. (Redundanz=3, 2 Renderer und 24-32 Datenknoten)}
 \end{figure}

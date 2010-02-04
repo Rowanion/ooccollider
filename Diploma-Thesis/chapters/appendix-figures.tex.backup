@@ -29,32 +29,23 @@
 %  (end of template credits)
 %
 
-\chapter{Einleitung}
-\todo[size=\small, color=blue!40, inline]{Kapitel: Einleitung}%
+\chapter{Glossar}
 
-\begin{itemize}
- \item Was habe ich gemacht?
- \item Zusammenfassung vorweggenommen
- \item c-Collision Protokoll nicht vergessen!
-\end{itemize}
-
-\section{Motivation}
-\label{sec:intro:motivation}
-\todo[size=\small, color=blue!40, inline]{Kapitel: Motivation}%
-
-\begin{itemize}
- \item Herausforderung
- \item Grafikkarten
- \item 3D-Modelle
- \item OutOfCore
- \item im Netzwerk
- \item Hybrides System
- \item Datenmenge
- \item Format
- \item Cluster-Konfiguration
- \item Graphics-Workstations mit SharedMemory, mehreren Prozessoren und mehreren synchronisierten Graphic-Pipelines sind teuer
- \item PC-Cluster ist besser skalierbar als eine eng "`zusammenhängende"' Workstation.
-\end{itemize}
+\begin{acronym}
+\acro{API}{Application Programming Interface}
+\acro{CAD}{Computer Aided Design}
+\acro{FPS}{Frames per second}
+\acro{GPU}{Graphics Processing Unit}
+\acro{HLOD}{Hierarchical Level-Of-Detail \cite{hlod}}
+\acro{LOD}{Level-Of-Detail \cite{RTR3}}
+\acro{PLP}{Prioritized-Layered Projection \cite{plp}}
+\acro{PVS}{Potentially Visible Set \cite{RTR3}}
+\acro{Rasterisierung}{Überführung eines kontinuierlichen Raums in einen diskreten Raum (Pixel).}
+\acro{Rendering}{Erzeugt ein 2D-Bild aus einer 3D-Szene.}
+\acro{screen-space}{Projektion einer 3D-Szene in einen zweidimensionalen Raum (Bild).}
+\acro{SLI}{Scalable Link Interface; Zusammenschluss mehrer Grafikchips}
+\acro{View-Frustum}{Sichtfeld der Kamera}
+\end{acronym}
 
 %
 % EOF
