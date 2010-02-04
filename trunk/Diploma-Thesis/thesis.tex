@@ -284,13 +284,19 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 
 % todo notes, add disbale to remove them. BUT: need to remove the toc-insertion manually
 %\usepackage[colorlinks]{hyperref}
-\usepackage[colorinlistoftodos, shadow, disable]{todonotes}
+\usepackage[colorinlistoftodos, shadow]{todonotes}
 
 \usepackage{pgfplots}
 
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \renewcommand{\algorithmiccomment}[1]{//\textit{#1}}
+
+\usepackage{caption}
+\newenvironment{Bild}
+  {\par\noindent\minipage{\textwidth}\centering}
+  {\endminipage}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Document structure
@@ -307,7 +313,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \setcounter{page}{1}
 
 \listoftodos
-%\addcontentsline{toc}{chapter}{ToDoList}
+\addcontentsline{toc}{chapter}{ToDoList}
 
 
 \renewcommand\contentsname{Inhaltsverzeichnis}
@@ -321,7 +327,6 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \input{chapters/relatedwork}
 \input{chapters/basics}
 \input{chapters/implementation}
-%\input{chapters/versuchsaufbau}
 \input{chapters/results}
 \input{chapters/conclusion}
 
@@ -333,13 +338,15 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 
 \input{chapters/appendix-acronyms}
 \input{chapters/appendix-div}
+\input{chapters/appendix-figures}
+\input{chapters/appendix-diagrams}
 \listoffigures
 %\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}
 \listoftables
 %\addcontentsline{toc}{chapter}{Tabellenverzeichnis}
 
 
-\bibliographystyle{alpha}
+\bibliographystyle{unsrtdin}
 \bibliography{bib/references}
 
 %\printindex
