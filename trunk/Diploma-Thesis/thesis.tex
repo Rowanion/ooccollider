@@ -40,15 +40,15 @@
 \newcommand{\thesisauthor}{Timo Wiesemann}
 \newcommand{\matrikelnr}{6015295}
 \newcommand{\zuerlangendertitel}{Diplom-Informatiker}
-\newcommand{\studium}{Software Engineering \& Internet Computing}
+\newcommand{\studium}{Informatik}
 
-\newcommand{\institut}{Institut f\"{u}r rechnergest\"{u}tzte Sprachengraphik- und Wirkungsinteraktivit\"{a}t}
-\newcommand{\institutsuni}{Johannes Kepler Universit\"{a}t Linz} % disabled by default
-\newcommand{\betreuer}{o.Univ.Prof. Dipl.-Ing. Dr. Dr.h.c.mult. Montgomery Burns}
-\newcommand{\assistent}{Univ.-Ass. Dr. Waylon Smithers}
+\newcommand{\institut}{Heinz-Nixdorf-Institut}
+\newcommand{\institutsuni}{Universität Paderborn} % disabled by default
+\newcommand{\betreuer}{o.Dipl.-Inf. Dr. Matthias Fischer}
+\newcommand{\assistent}{Univ.-Ass. Dipl.-Inf. Tim Süß}
 
 %
-% Globale Weichenstellungen fÃ¼rs ganze Dokument.
+% Globale Weichenstellungen fürs ganze Dokument.
 %
 \documentclass[%
   pdftex,%              PDFTex verwenden
@@ -56,12 +56,13 @@
   oneside,%             Einseitig
   bibtotocnumbered,%    Literaturverzeichnis nummeriert einfÃ¼gen
   idxtotoc,%            Index ins Verzeichnis einfÃ¼gen
-  liststotoc,
-  halfparskip,%         EuropÃ¤ischer Satz mit abstand zwischen AbsÃ¤tzen
+  %liststotoc,
+  liststotocnumbered,
+  halfparskip,%         Europäischer Satz mit abstand zwischen AbsÃ¤tzen
   chapterprefix,%       Kapitel anschreiben als Kapitel
   %headsepline,%         Linie nach Kopfzeile
   %footsepline,%         Linie vor Fusszeile
-  12pt%                 GrÃ¶Ãere Schrift, besser lesbar am Bildschrim
+  12pt%                 Größere Schrift, besser lesbar am Bildschrim
 ]{scrbook}
 
 
@@ -336,18 +337,18 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 
 \appendix
 
-\input{chapters/appendix-acronyms}
-\input{chapters/appendix-div}
-\input{chapters/appendix-figures}
-\input{chapters/appendix-diagrams}
+\bibliographystyle{unsrtdin}
+\bibliography{bib/references}
+
 \listoffigures
 %\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}
 \listoftables
 %\addcontentsline{toc}{chapter}{Tabellenverzeichnis}
 
-
-\bibliographystyle{unsrtdin}
-\bibliography{bib/references}
+\input{chapters/appendix-acronyms}
+\input{chapters/appendix-figures}
+\input{chapters/appendix-diagrams}
+\input{chapters/appendix-div}
 
 %\printindex
 \end{document}
