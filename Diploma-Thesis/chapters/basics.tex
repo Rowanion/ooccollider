@@ -75,8 +75,8 @@ Soll vermieden werden, dass Objekte, die durch andere Polygongruppen verdeckt si
 \begin{figure}
   \centering
   \includegraphics[scale=0.8]{images/oculling.pdf}
-  \caption{Problem beim Occlusion Culling: Die Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind.}
-  \label{fig:basics:oculling}
+  \caption{\label{fig:basics:oculling}Problem beim Occlusion Culling: Die Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind.}
+  
 \end{figure}
 
 \subsection{Datenmanagement}
@@ -84,7 +84,7 @@ Soll vermieden werden, dass Objekte, die durch andere Polygongruppen verdeckt si
 \todo[size=\small, inline]{Skizze zum $c$-Collision Protokoll? *nichtmag*}
 Das $c$-Collision Protokoll wird in Kapitel \ref{chap:relwork} genauer beschrieben. In dieser Arbeit wird es verwendet, um Datenanfragen möglichst gleichmäßig im Netzwerk zu verteilen. Jedes VBO (siehe \ref{sec:basics:computergrafik}) wird zufällig und redundant im Netzwerk verteilt. Alle Anfragen von allen Renderern werden jeden Frame gesammelt. Anschließend werden diese Anfragen zu Paketen gebündelt, die ebenso viele Anfragen enthalten wie es Datenknoten im Netzwerk gibt. Das $c$-Collision Protokoll wird immer auf einem Anfragenpaket ausgeführt. Begonnen wird mit $c = 2$. Sollte in einer Runde kein weiterer Auftrag vergeben werden, obwohl noch offene Aufträge vorhanden sind, wird das $c$ erhöht. Dies wird so lange wiederholt, bis alle Aufträge aus einem Paket vergeben sind. Das $c$ wird für weitere Pakete wieder auf 2 gesetzt. Sollten innerhalb einer Paketrunde mehrere Datenknoten gleiches Anrecht auf die Bearbeitung des Auftrags haben, wird der Auftrag zufällig an einen Knoten vergeben. Dabei wird jedoch die bisherige Last an bereits vergebenen Aufträgen dieser Runde berücksichtigt. Diese Last in Form von Dreiecken wird somit als Gewichtung für das $c$-Collision Protokoll benutzt. In den Tests wurden verschiedene Seeds für die Zufallsverteilung gewählt. Innerhalb eines Tests wurde jedoch immer derselbe Seed benutzt, um das Ergebnis reproduzieren und vergleichen zu können.
 
-Im Rahmen dieser Arbeit wurden verschiedene Typen von Rechenknoten entwickelt (siehe Kapitel \ref{chap:impl}). Die Renderknoten sind dabei für das Rendering der Kacheln zuständig. Zur Lastbalancierung der Renderknoten wurde hier eine dynamische Kachelung implementiert. Nach einer festgelegten Framezahl schicken die Renderknoten ihre gemittelten Renderzeiten für einen Frame an den Masterknoten, welcher anhand dieser dann neue Kachelgrößen vergibt. In der vorliegenden Arbeit wird ein Split-Tree verwendet, um die Kachelgrößen festzulegen. Dieser teilt, ähnlich einem KD-Tree \cite{RTR3}, den Bildschirm entlang einer Kante und die so entstandenen Kacheln ebenfalls, bis sich so viele Kacheln wie Renderer ergeben. 
+Im Rahmen dieser Arbeit wurden verschiedene Typen von Rechenknoten entwickelt (siehe Kapitel \ref{sec:impl:renderalgo}). Die Renderknoten sind dabei für das Rendering der Kacheln zuständig. Zur Lastbalancierung der Renderknoten wurde hier eine dynamische Kachelung implementiert. Nach einer festgelegten Framezahl schicken die Renderknoten ihre gemittelten Renderzeiten für einen Frame an den Masterknoten, welcher anhand dieser dann neue Kachelgrößen vergibt. In der vorliegenden Arbeit wird ein Split-Tree verwendet, um die Kachelgrößen festzulegen. Dieser teilt, ähnlich einem KD-Tree \cite{RTR3}, den Bildschirm entlang einer Kante und die so entstandenen Kacheln ebenfalls, bis sich so viele Kacheln wie Renderer ergeben. 
 
 \subsection{Speichermanagement}
 \label{sec:basics:speicher}

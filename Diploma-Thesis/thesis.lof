@@ -16,46 +16,42 @@
 \contentsline {figure}{\numberline {3.6}{\ignorespaces Problem beim Occlusion Culling: Die Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind.}}{19}{figure.3.6}
 \contentsline {figure}{\numberline {3.7}{\ignorespaces Popping-Effekte durch schlechtes Prefetching bei einem Kameraschwenk von links nach rechts. \textit {Links: Ausgangssituation. Die Kachelrenderer 1 und 2 haben alle ben\IeC {\"o}tigten Daten gerendert. Rechts: Durch den Rechtsschwenk fehlen bei Renderer 1 Objekte, die zuvor Renderer 2 gerendert hat. Renderer 2 hingegen hat noch nicht alle Objekte am rechten Kachelrand geladen.}}}{21}{figure.3.7}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Der Pseudo-Code des Masterknotens.}}{26}{figure.4.1}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Der Pseudo-Code des Renderknotens.}}{26}{figure.4.2}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Der Pseudo-Code des Datenknotens.}}{27}{figure.4.3}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{28}{figure.4.4}
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{29}{figure.4.5}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{31}{figure.4.1}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{32}{figure.4.2}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {D.1}{\ignorespaces Kameraposition 1 \textit {(Heck au\IeC {\ss }en)}}}{43}{figure.D.1}
+\contentsline {figure}{\numberline {D.2}{\ignorespaces Kameraposition 2 \textit {(Heck innen)}}}{43}{figure.D.2}
+\contentsline {figure}{\numberline {D.3}{\ignorespaces Kameraposition 3 \textit {(Passagierbereich)}}}{44}{figure.D.3}
+\contentsline {figure}{\numberline {D.4}{\ignorespaces Kameraposition 4 \textit {(Stauraum)}}}{44}{figure.D.4}
+\contentsline {figure}{\numberline {D.5}{\ignorespaces Kameraposition 5 \textit {(Fahrwerk/Fl\IeC {\"u}gel)}}}{44}{figure.D.5}
+\contentsline {figure}{\numberline {D.6}{\ignorespaces Kameraposition 6 \textit {(Turbine)}}}{45}{figure.D.6}
+\contentsline {figure}{\numberline {D.7}{\ignorespaces Kameraposition 7 \textit {(Nase innen)}}}{45}{figure.D.7}
+\contentsline {figure}{\numberline {D.8}{\ignorespaces Kameraposition 8 \textit {(Cockpit)}}}{45}{figure.D.8}
+\contentsline {figure}{\numberline {D.9}{\ignorespaces Kameraposition 9 \textit {(Nase au\IeC {\ss }en)}}}{46}{figure.D.9}
+\contentsline {figure}{\numberline {D.10}{\ignorespaces Kameraposition 10 \textit {(Fl\IeC {\"u}gel-Rumpf Bereich)}}}{46}{figure.D.10}
+\contentsline {figure}{\numberline {D.11}{\ignorespaces T\IeC {\"u}rknopf \textit {(Bug)}}}{46}{figure.D.11}
+\contentsline {figure}{\numberline {D.12}{\ignorespaces Profil \textit {(Bug)}}}{47}{figure.D.12}
+\contentsline {figure}{\numberline {D.13}{\ignorespaces Profil \textit {(Heck)}}}{47}{figure.D.13}
+\contentsline {figure}{\numberline {D.14}{\ignorespaces Triebwerk 1}}{47}{figure.D.14}
+\contentsline {figure}{\numberline {D.15}{\ignorespaces Triebwerk 2}}{48}{figure.D.15}
+\contentsline {figure}{\numberline {D.16}{\ignorespaces Fahrwerk \textit {(Heck)}}}{48}{figure.D.16}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {E.1}{\ignorespaces Kameraposition 1 \textit {(Heck au\IeC {\ss }en)}}}{41}{figure.E.1}
-\contentsline {figure}{\numberline {E.2}{\ignorespaces Kameraposition 2 \textit {(Heck innen)}}}{41}{figure.E.2}
-\contentsline {figure}{\numberline {E.3}{\ignorespaces Kameraposition 3 \textit {(Passagierbereich)}}}{42}{figure.E.3}
-\contentsline {figure}{\numberline {E.4}{\ignorespaces Kameraposition 4 \textit {(Stauraum)}}}{42}{figure.E.4}
-\contentsline {figure}{\numberline {E.5}{\ignorespaces Kameraposition 5 \textit {(Fahrwerk/Fl\IeC {\"u}gel)}}}{42}{figure.E.5}
-\contentsline {figure}{\numberline {E.6}{\ignorespaces Kameraposition 6 \textit {(Turbine)}}}{43}{figure.E.6}
-\contentsline {figure}{\numberline {E.7}{\ignorespaces Kameraposition 7 \textit {(Nase innen)}}}{43}{figure.E.7}
-\contentsline {figure}{\numberline {E.8}{\ignorespaces Kameraposition 8 \textit {(Cockpit)}}}{43}{figure.E.8}
-\contentsline {figure}{\numberline {E.9}{\ignorespaces Kameraposition 9 \textit {(Nase au\IeC {\ss }en)}}}{44}{figure.E.9}
-\contentsline {figure}{\numberline {E.10}{\ignorespaces Kameraposition 10 \textit {(Fl\IeC {\"u}gel-Rumpf Bereich)}}}{44}{figure.E.10}
-\contentsline {figure}{\numberline {E.11}{\ignorespaces T\IeC {\"u}rknopf \textit {(Bug)}}}{44}{figure.E.11}
-\contentsline {figure}{\numberline {E.12}{\ignorespaces Profil \textit {(Bug)}}}{45}{figure.E.12}
-\contentsline {figure}{\numberline {E.13}{\ignorespaces Profil \textit {(Heck)}}}{45}{figure.E.13}
-\contentsline {figure}{\numberline {E.14}{\ignorespaces Triebwerk 1}}{45}{figure.E.14}
-\contentsline {figure}{\numberline {E.15}{\ignorespaces Triebwerk 2}}{46}{figure.E.15}
-\contentsline {figure}{\numberline {E.16}{\ignorespaces Fahrwerk \textit {(Heck)}}}{46}{figure.E.16}
-\addvspace {10\p@ }
-\contentsline {figure}{\numberline {F.1}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{47}{figure.F.1}
-\contentsline {figure}{\numberline {F.2}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{48}{figure.F.2}
-\contentsline {figure}{\numberline {F.3}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{48}{figure.F.3}
-\contentsline {figure}{\numberline {F.4}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1.}}{49}{figure.F.4}
-\contentsline {figure}{\numberline {F.5}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1.}}{49}{figure.F.5}
-\contentsline {figure}{\numberline {F.6}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2.}}{50}{figure.F.6}
-\contentsline {figure}{\numberline {F.7}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2.}}{50}{figure.F.7}
-\contentsline {figure}{\numberline {F.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2.}}{51}{figure.F.8}
-\contentsline {figure}{\numberline {F.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3.}}{51}{figure.F.9}
-\contentsline {figure}{\numberline {F.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3.}}{52}{figure.F.10}
-\contentsline {figure}{\numberline {F.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{52}{figure.F.11}
-\contentsline {figure}{\numberline {F.12}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)}}{53}{figure.F.12}
-\contentsline {figure}{\numberline {F.13}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{53}{figure.F.13}
-\contentsline {figure}{\numberline {F.14}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)}}{54}{figure.F.14}
+\contentsline {figure}{\numberline {E.1}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{49}{figure.E.1}
+\contentsline {figure}{\numberline {E.2}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{50}{figure.E.2}
+\contentsline {figure}{\numberline {E.3}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{50}{figure.E.3}
+\contentsline {figure}{\numberline {E.4}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1.}}{51}{figure.E.4}
+\contentsline {figure}{\numberline {E.5}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1.}}{51}{figure.E.5}
+\contentsline {figure}{\numberline {E.6}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2.}}{52}{figure.E.6}
+\contentsline {figure}{\numberline {E.7}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2.}}{52}{figure.E.7}
+\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2.}}{53}{figure.E.8}
+\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3.}}{53}{figure.E.9}
+\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3.}}{54}{figure.E.10}
+\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{54}{figure.E.11}
+\contentsline {figure}{\numberline {E.12}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)}}{55}{figure.E.12}
+\contentsline {figure}{\numberline {E.13}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{55}{figure.E.13}
+\contentsline {figure}{\numberline {E.14}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)}}{56}{figure.E.14}
