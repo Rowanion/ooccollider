@@ -290,7 +290,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \usepackage{pgfplots}
 
 \usepackage{algorithm}
-\usepackage{algorithmic}
+\usepackage{algorithmic, algorithmic-fix}
 \renewcommand{\algorithmiccomment}[1]{//\textit{#1}}
 
 \usepackage{caption}
@@ -334,6 +334,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 
 \renewcommand\listfigurename{Abbildungsverzeichnis}
 \renewcommand\listtablename{Tabellenverzeichnis}
+\renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
 
 \appendix
 
@@ -342,7 +343,8 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 
 \listoffigures
 %\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}
-\listoftables
+%\listoftables
+%\listofalgorithms
 %\addcontentsline{toc}{chapter}{Tabellenverzeichnis}
 
 \input{chapters/appendix-acronyms}
