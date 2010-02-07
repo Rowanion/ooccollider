@@ -29,12 +29,24 @@
 %  (end of template credits)
 %
 
-\chapter{Abk\"{u}rzungen}
+\chapter{Glossar}
 
 \begin{acronym}
-\acro{VHDL}{Very High Speed Integrated Circuit Hardware Description Language}
-\acro{VPMA}{Virtually Parallel Machine Architecture}
-\acro{GPU}{Graphics Processing Unit}
+\acro{API}{Application Programming Interface}
+\acro{CAD}{Computer Aided Design}
+\acro{CPU}{Central Processing Unit (Hauptprozessor)}
+\acro{FPS}{Frames per second}
+\acro{GPU}{Graphics Processing Unit (Grafikprozessor)}
+\acro{HLOD}{Hierarchical Level-Of-Detail \cite{hlod}}
+\acro{LOD}{Level-Of-Detail \cite{RTR3}}
+\acro{PLP}{Prioritized-Layered Projection \cite{plp}}
+\acro{peer-to-peer}{Peer-to-peer Netzwerke sind Netzwerksysteme ohne zentrale Zugriffskontrolle, in denen alle Rechner gleichberechtigt agieren. Eine Datenverbindung besteht dabei immer direkt von einem Teilnehmer zum anderen.}
+\acro{PVS}{Potentially Visible Set \cite{RTR3}}
+\acro{Rasterisierung}{Überführung eines kontinuierlichen Raums in einen diskreten Raum (Pixel).}
+\acro{Rendering}{Erzeugt ein 2D-Bild aus einer 3D-Szene.}
+\acro{screen-space}{Projektion einer 3D-Szene in einen zweidimensionalen Raum (Bild).}
+\acro{SLI}{Scalable Link Interface; Zusammenschluss mehrer Grafikchips}
+\acro{View-Frustum}{Sichtfeld der Kamera}
 \end{acronym}
 
 %

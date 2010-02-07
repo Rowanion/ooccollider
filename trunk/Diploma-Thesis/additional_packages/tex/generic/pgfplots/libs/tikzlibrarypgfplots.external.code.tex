@@ -1,0 +1,98 @@
+%--------------------------------------------
+%
+% Package pgfplots, library for high-level coordinates.
+%
+% Copyright 2007/2008/2009 by Christian Feuersänger.
+%
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%--------------------------------------------
+
+% This file is a wrapper which loads the external library.
+%
+% If we have a recent pgf version, use its external lib. If not: load
+% the copy shipped with pgfplots.
+%
+% NOTE:
+%   the external library has been written by Christian Feuersänger as
+%   part of his work on pgfplots -- since it is general purpose, it is
+%   part of tikz. A copy comes with pgfplots.
+%
+%
+
+\def\pgfplots@orig@pgfincludeexternalgraphics#1{%
+	\begingroup
+	\openin\r@pgfplots@reada=#1.dpth
+	\setbox1=\hbox{\pgfkeysvalueof{/pgf/images/include external/.@cmd}{#1}\pgfeov}%
+	\ifeof\r@pgfplots@reada
+		\box1
+	\else
+		\read\r@pgfplots@reada to\pgfincludeexternalgraphics@dp
+		\closein\r@pgfplots@reada
+		\dimen0=\pgfincludeexternalgraphics@dp\relax
+		\hbox{\lower\dimen0 \box1 }%
+	\fi
+	\endgroup
+}
+\def\pgfplots@orig@pgf@external@grab#1{%
+  \def\pgf@filename{#1}%
+  \setbox\pgfpic=\hbox\bgroup\bgroup%
+    \let\endpgfgraphicnamed=\pgf@externalend%
+}
+\def\pgfplots@orig@pgf@externalend{%
+  \unskip\egroup\egroup%
+  {%
+    \parindent0pt%
+%    \leftmargin0pt%
+%    \rightmargin0pt%
+    \dimen0\ht\pgfpic%
+    \advance\dimen0\dp\pgfpic%
+	\ifdim\dp\pgfpic=0pt\relax
+	\else% store the picture's depth. Otherwise, it would be lost.
+		\immediate\openout\pgf@plotwrite=\pgf@filename.dpth
+		\immediate\write\pgf@plotwrite{\the\dp\pgfpic}%
+		\immediate\closeout\pgf@plotwrite
+	\fi
+    \pgfsys@papersize{\the\wd\pgfpic}{\the\dimen0}%
+    \setbox0=\vbox{%
+      \kern -1truein%
+      \hbox{%
+        \kern -1truein%
+        \hbox to0pt{%
+          \wd\pgfexternal@startupbox=0pt%
+          \ht\pgfexternal@startupbox=0pt%
+          \dp\pgfexternal@startupbox=0pt%
+          \box\pgfexternal@startupbox%
+          \pgfsys@atbegindocument\hss}%
+        \box\pgfpic%
+        \kern 1truein}%
+      \kern1truein}%
+    \pgfexternal@originalshipout\box0%
+  }%
+}
+
+\pgfplotsiffileexists{tikzlibraryexternal.code.tex}{%
+	\usetikzlibrary{external}%
+}{%
+	% Backwards compatibility:
+	\input pgfplotsoldpgfsupp_tikzlibraryexternal.code.tex
+	\pgfkeys{
+		/pgf/images/include external/.code={\pgfimage{#1}},
+	}%
+	\let\pgfincludeexternalgraphics=\pgfplots@orig@pgfincludeexternalgraphics
+	\let\pgf@external@grab=\pgfplots@orig@pgf@external@grab
+	\let\pgf@externalend=\pgfplots@orig@pgf@externalend
+}%
+
+\endinput

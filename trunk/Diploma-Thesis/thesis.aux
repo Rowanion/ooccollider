@@ -57,12 +57,13 @@
 \@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Kapitel: Human proofreading}}{4}{section*.5}}
 \pgfsyspdfmark {pgfid3}{19562756}{32798899}
 \citation{molnar}
-\citation{molnar}
-\citation{molnar}
+\citation{medieninfo}
 \citation{molnar}
 \citation{molnar}
 \@writefile{toc}{\contentsline {section}{\numberline {2.1}Paralleles Rendering}{5}{section.2.1}}
 \newlabel{sec:relwork:parrender}{{2.1}{5}{Paralleles Rendering\relax }{section.2.1}{}}
+\citation{molnar}
+\citation{molnar}
 \citation{molnar}
 \citation{molnar}
 \citation{samanta}
@@ -73,18 +74,18 @@
 \citation{abraham}
 \@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces Sort-First. Umverteilung von unverarbeiteten Primitiven w\IeC {\"a}hrend der Geometrieverarbeitung. \textit  {Quelle: nach \cite  {molnar}}}}{6}{figure.2.1}}
 \newlabel{fig:relwork:sortfirst}{{2.1}{6}{Paralleles Rendering\relax }{figure.2.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit  {Quelle: nach \cite  {molnar}}}}{6}{figure.2.2}}
-\newlabel{fig:relwork:sortmiddle}{{2.2}{6}{Paralleles Rendering\relax }{figure.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit  {Quelle: nach \cite  {molnar}}}}{7}{figure.2.2}}
+\newlabel{fig:relwork:sortmiddle}{{2.2}{7}{Paralleles Rendering\relax }{figure.2.2}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces Sort-Last. Umverteilung von Pixeln, Samples oder Pixelfragmenten w\IeC {\"a}hrend der Rasterisierung. \textit  {Quelle: nach \cite  {molnar}}}}{7}{figure.2.3}}
 \newlabel{fig:relwork:sortlast}{{2.3}{7}{Paralleles Rendering\relax }{figure.2.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.2}Out-of-Core Rendering}{8}{section.2.2}}
-\newlabel{sec:relwork:oocrender}{{2.2}{8}{Out-of-Core Rendering\relax }{section.2.2}{}}
 \citation{manocha}
 \citation{wagner1}
 \citation{wagner2}
 \citation{iwalk}
 \citation{plp}
 \citation{wald}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Out-of-Core Rendering}{9}{section.2.2}}
+\newlabel{sec:relwork:oocrender}{{2.2}{9}{Out-of-Core Rendering\relax }{section.2.2}{}}
 \@writefile{toc}{\contentsline {chapter}{\numberline {3}Grundlagen}{11}{chapter.3}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -136,77 +137,81 @@
 \citation{RTR3}
 \@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Verschiedene Culling-Techniken. Entfernte Geometrie ist durch gestrichelte Linien dargestellt. \textit  {Quelle: nach \cite  {culling}} }}{17}{figure.3.5}}
 \newlabel{fig:basics:culling}{{3.5}{17}{Culling\relax }{figure.3.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces Problem beim Occlusion Culling: Die Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind.}}{19}{figure.3.6}}
-\newlabel{fig:basics:oculling}{{3.6}{19}{\label {fig:basics:oculling}Problem beim Occlusion Culling: Die Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind}{figure.3.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces Problem beim Occlusion-Culling: Die Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind.}}{19}{figure.3.6}}
+\newlabel{fig:basics:oculling}{{3.6}{19}{\label {fig:basics:oculling}Problem beim Occlusion-Culling: Die Boundingbox zweier Objekte ist sichtbar, obwohl die darin enthaltenen Objekte verdeckt sind}{figure.3.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Datenmanagement}{19}{subsection.3.3.2}}
 \newlabel{sec:basics:daten}{{3.3.2}{19}{Datenmanagement\relax }{subsection.3.3.2}{}}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Skizze zum $c$-Collision Protokoll? *nichtmag*}}{19}{section*.10}}
-\pgfsyspdfmark {pgfid10}{19562756}{29298779}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ c-Collision: Abstand der Bildunterschrift zum folgen Flie\IeC {\ss }text korrieren?! Evtl. alle Unterschiften kursiv.}}{19}{section*.10}}
+\pgfsyspdfmark {pgfid10}{19562756}{17385307}
 \citation{RTR3}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces  Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (gr\IeC {\"u}n). Alle Ressourcen die nach einer Runde h\IeC {\"o}chstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt.}}{20}{figure.3.7}}
+\newlabel{fig:basics:ccollision}{{3.7}{20}{\label {fig:basics:ccollision} Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (grün). Alle Ressourcen die nach einer Runde höchstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt}{figure.3.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Speichermanagement}{20}{subsection.3.3.3}}
 \newlabel{sec:basics:speicher}{{3.3.3}{20}{Speichermanagement\relax }{subsection.3.3.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces Popping-Effekte durch schlechtes Prefetching bei einem Kameraschwenk von links nach rechts. \textit  {Links: Ausgangssituation. Die Kachelrenderer 1 und 2 haben alle ben\IeC {\"o}tigten Daten gerendert. Rechts: Durch den Rechtsschwenk fehlen bei Renderer 1 Objekte, die zuvor Renderer 2 gerendert hat. Renderer 2 hingegen hat noch nicht alle Objekte am rechten Kachelrand geladen.}}}{21}{figure.3.7}}
-\newlabel{fig:basics:prefetching}{{3.7}{21}{\label {fig:basics:prefetching}Popping-Effekte durch schlechtes Prefetching bei einem Kameraschwenk von links nach rechts. \textit {Links: Ausgangssituation. Die Kachelrenderer 1 und 2 haben alle benötigten Daten gerendert. Rechts: Durch den Rechtsschwenk fehlen bei Renderer 1 Objekte, die zuvor Renderer 2 gerendert hat. Renderer 2 hingegen hat noch nicht alle Objekte am rechten Kachelrand geladen.}\relax }{figure.3.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces Popping-Effekte durch schlechtes Prefetching bei einem Kameraschwenk von links nach rechts. \textit  {Links: Ausgangssituation. Die Kachelrenderer 1 und 2 haben alle ben\IeC {\"o}tigten Daten gerendert. Rechts: Durch den Rechtsschwenk fehlen bei Renderer 1 Objekte, die zuvor Renderer 2 gerendert hat. Renderer 2 hingegen hat noch nicht alle Objekte am rechten Kachelrand geladen.}}}{22}{figure.3.8}}
+\newlabel{fig:basics:prefetching}{{3.8}{22}{\label {fig:basics:prefetching}Popping-Effekte durch schlechtes Prefetching bei einem Kameraschwenk von links nach rechts. \textit {Links: Ausgangssituation. Die Kachelrenderer 1 und 2 haben alle benötigten Daten gerendert. Rechts: Durch den Rechtsschwenk fehlen bei Renderer 1 Objekte, die zuvor Renderer 2 gerendert hat. Renderer 2 hingegen hat noch nicht alle Objekte am rechten Kachelrand geladen.}\relax }{figure.3.8}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.4}Approximation}{22}{section.3.4}}
 \newlabel{sec:basics:approximation}{{3.4}{22}{Approximation\relax }{section.3.4}{}}
 \citation{mpi}
 \citation{obj}
-\@writefile{toc}{\contentsline {chapter}{\numberline {4}Implementierung}{23}{chapter.4}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Implementierung}{24}{chapter.4}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{chap:impl}{{4}{23}{Implementierung\relax }{chapter.4}{}}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Machine proofreading}}{23}{section*.11}}
+\newlabel{chap:impl}{{4}{24}{Implementierung\relax }{chapter.4}{}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Non-Tim understanding}}{24}{section*.11}}
 \pgfsyspdfmark {pgfid11}{19562756}{36611118}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Tim understanding}}{23}{section*.12}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Human proofreading}}{24}{section*.12}}
 \pgfsyspdfmark {pgfid12}{19562756}{34755150}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Non-Tim understanding}}{23}{section*.13}}
-\pgfsyspdfmark {pgfid13}{19562756}{32899182}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Human proofreading}}{23}{section*.14}}
-\pgfsyspdfmark {pgfid14}{19562756}{31043214}
-\@writefile{toc}{\contentsline {section}{\numberline {4.1}Preprocessing}{23}{section.4.1}}
-\newlabel{sec:impl:preprocessing}{{4.1}{23}{Preprocessing\relax }{section.4.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Preprocessing}{24}{section.4.1}}
+\newlabel{sec:impl:preprocessing}{{4.1}{24}{Preprocessing\relax }{section.4.1}{}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ @Leser: Wird das klar im Folgenden mit dem Text-Format vs. Bin\IeC {\"a}r-Format?}}{24}{section*.13}}
+\pgfsyspdfmark {pgfid13}{19562756}{19333343}
 \citation{pc2}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ \textbf  {BLABLABLA} = meine Rechnerkonfiguration da reinschreiben.}}{24}{section*.15}}
-\pgfsyspdfmark {pgfid15}{19562756}{17544348}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Konfiguration des Arminius-Clusters}}{25}{table.4.1}}
-\newlabel{tab:impl:arminius}{{4.1}{25}{Netzwerkarchitektur\relax }{table.4.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Netzwerkarchitektur}{25}{section.4.2}}
-\newlabel{sec:impl:netzwerkarchitektur}{{4.2}{25}{Netzwerkarchitektur\relax }{section.4.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}Rendering-Algorithmus}{25}{section.4.3}}
-\newlabel{sec:impl:renderalgo}{{4.3}{25}{Rendering-Algorithmus\relax }{section.4.3}{}}
-\newlabel{alg:impl:masternode}{{1}{26}{Rendering-Algorithmus\relax }{algorithm.1}{}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces MasterNode (auf Visualisierungsknoten)}}{26}{algorithm.1}}
-\newlabel{alg:impl:rendernode}{{2}{28}{Rendering-Algorithmus\relax }{algorithm.2}{}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces RenderNode (auf Visualisierungsknoten)}}{28}{algorithm.2}}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Maximale Objektgr\IeC {\"o}\IeC {\ss }e, bzw. Verteilung ebd. ermitteln. $\rightarrow $ Diagramm? =)}}{28}{section*.16}}
-\pgfsyspdfmark {pgfid16}{19562756}{21198254}
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}Kommunikation}{29}{section.4.4}}
-\newlabel{sec:impl:kommunikation}{{4.4}{29}{Kommunikation\relax }{section.4.4}{}}
-\newlabel{alg:impl:datanode}{{3}{30}{Rendering-Algorithmus\relax }{algorithm.3}{}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces DataNode (auf Rechenknoten)}}{30}{algorithm.3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{31}{figure.4.1}}
-\newlabel{fig:impl:seqdiagrender}{{4.1}{31}{\label {fig:impl:seqdiagrender}Sequenzdiagramm: Kommunikation für die Render-Schleife\relax }{figure.4.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{32}{figure.4.2}}
-\newlabel{fig:impl:seqdiagdepth}{{4.2}{32}{\label {fig:impl:seqdiagdepth}Sequenzdiagramm: Kommunikation für ein Tiefenbuffer-Update\relax }{figure.4.2}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Evaluierung}{33}{chapter.5}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Konfiguration des Arminius-Clusters}}{26}{table.4.1}}
+\newlabel{tab:impl:arminius}{{4.1}{26}{Netzwerkarchitektur\relax }{table.4.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Netzwerkarchitektur}{26}{section.4.2}}
+\newlabel{sec:impl:netzwerkarchitektur}{{4.2}{26}{Netzwerkarchitektur\relax }{section.4.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Rendering-Algorithmus}{26}{section.4.3}}
+\newlabel{sec:impl:renderalgo}{{4.3}{26}{Rendering-Algorithmus\relax }{section.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Der Masterknoten}{27}{subsection.4.3.1}}
+\newlabel{sec:impl:master}{{4.3.1}{27}{Der Masterknoten\relax }{subsection.4.3.1}{}}
+\newlabel{alg:impl:masternode}{{1}{28}{Der Masterknoten\relax }{algorithm.1}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces MasterNode (auf Visualisierungsknoten)}}{28}{algorithm.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Die Renderknoten}{29}{subsection.4.3.2}}
+\newlabel{sec:impl:render}{{4.3.2}{29}{Die Renderknoten\relax }{subsection.4.3.2}{}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Maximale Objektgr\IeC {\"o}\IeC {\ss }e, bzw. Verteilung ebd. ermitteln. $\rightarrow $ Diagramm? =)}}{29}{section*.14}}
+\pgfsyspdfmark {pgfid14}{19562756}{17203001}
+\newlabel{alg:impl:rendernode}{{2}{30}{Die Renderknoten\relax }{algorithm.2}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces RenderNode (auf Visualisierungsknoten)}}{30}{algorithm.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Die Datenknoten}{30}{subsection.4.3.3}}
+\newlabel{sec:impl:daten}{{4.3.3}{30}{Die Datenknoten\relax }{subsection.4.3.3}{}}
+\newlabel{alg:impl:datanode}{{3}{31}{Die Renderknoten\relax }{algorithm.3}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces DataNode (auf Rechenknoten)}}{31}{algorithm.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Kommunikation}{32}{section.4.4}}
+\newlabel{sec:impl:kommunikation}{{4.4}{32}{Kommunikation\relax }{section.4.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{32}{figure.4.1}}
+\newlabel{fig:impl:seqdiagrender}{{4.1}{32}{\label {fig:impl:seqdiagrender}Sequenzdiagramm: Kommunikation für die Render-Schleife\relax }{figure.4.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{33}{figure.4.2}}
+\newlabel{fig:impl:seqdiagdepth}{{4.2}{33}{\label {fig:impl:seqdiagdepth}Sequenzdiagramm: Kommunikation für ein Tiefenbuffer-Update\relax }{figure.4.2}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Evaluierung}{34}{chapter.5}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{chap:eval}{{5}{33}{Evaluierung\relax }{chapter.5}{}}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color  {blue!40}o}}\ Kapitel: Evaluierung}}{33}{section*.17}}
-\pgfsyspdfmark {pgfid17}{19562756}{36611118}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Diagramme f\IeC {\"u}r Reload: eins mit median und 10\% Quantilen aus einem durchgang; evtl. gemittelt; eins mit min-, oder max-, oder median-werten}}{33}{section*.18}}
-\pgfsyspdfmark {pgfid18}{19562756}{16023998}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ absolutes in und max bei den Quantilen angeben und dann einen Block f\IeC {\"u}r die Quartile (0.25 und 0.75) und dann den Median eintragen.}}{33}{section*.19}}
-\pgfsyspdfmark {pgfid19}{19562756}{12988744}
+\newlabel{chap:eval}{{5}{34}{Evaluierung\relax }{chapter.5}{}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{blue!40}{\leavevmode {\color  {blue!40}o}}\ Kapitel: Evaluierung}}{34}{section*.15}}
+\pgfsyspdfmark {pgfid15}{19562756}{36611118}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Diagramme f\IeC {\"u}r Reload: eins mit median und 10\% Quantilen aus einem durchgang; evtl. gemittelt; eins mit min-, oder max-, oder median-werten}}{34}{section*.16}}
+\pgfsyspdfmark {pgfid16}{19562756}{16023998}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ absolutes in und max bei den Quantilen angeben und dann einen Block f\IeC {\"u}r die Quartile (0.25 und 0.75) und dann den Median eintragen.}}{34}{section*.17}}
+\pgfsyspdfmark {pgfid17}{19562756}{12988744}
 \bibstyle{unsrtdin}
 \bibdata{bib/references}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Fazit und Ausblick}{34}{chapter.6}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Fazit und Ausblick}{35}{chapter.6}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{conclusion}{{6}{34}{Fazit und Ausblick\relax }{chapter.6}{}}
+\newlabel{conclusion}{{6}{35}{Fazit und Ausblick\relax }{chapter.6}{}}
 \bibcite{RTR3}{1}
 \bibcite{gpugems1}{2}
 \bibcite{gpugems2}{3}
@@ -215,29 +220,30 @@
 \bibcite{ccol3}{6}
 \bibcite{ccol4}{7}
 \bibcite{ccol2}{8}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Literaturverzeichnis}{35}{appendix.A}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Literaturverzeichnis}{36}{appendix.A}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
 \bibcite{molnar}{9}
-\bibcite{samanta}{10}
-\bibcite{baxter}{11}
-\bibcite{hlod}{12}
-\bibcite{DBLP:journals/ijvr/YinJSZ06}{13}
-\bibcite{abraham}{14}
-\bibcite{manocha}{15}
-\bibcite{wagner1}{16}
-\bibcite{wagner2}{17}
-\bibcite{iwalk}{18}
-\bibcite{plp}{19}
-\bibcite{wald}{20}
-\bibcite{wikioctree}{21}
-\bibcite{anteru}{22}
-\bibcite{klein}{23}
-\bibcite{culling}{24}
-\bibcite{mpi}{25}
-\bibcite{obj}{26}
-\bibcite{pc2}{27}
+\bibcite{medieninfo}{10}
+\bibcite{samanta}{11}
+\bibcite{baxter}{12}
+\bibcite{hlod}{13}
+\bibcite{DBLP:journals/ijvr/YinJSZ06}{14}
+\bibcite{abraham}{15}
+\bibcite{manocha}{16}
+\bibcite{wagner1}{17}
+\bibcite{wagner2}{18}
+\bibcite{iwalk}{19}
+\bibcite{plp}{20}
+\bibcite{wald}{21}
+\bibcite{wikioctree}{22}
+\bibcite{anteru}{23}
+\bibcite{klein}{24}
+\bibcite{culling}{25}
+\bibcite{mpi}{26}
+\bibcite{obj}{27}
+\bibcite{pc2}{28}
 \citation{molnar}
 \citation{molnar}
 \citation{molnar}
@@ -245,7 +251,7 @@
 \citation{anteru}
 \citation{klein}
 \citation{culling}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Abbildungsverzeichnis}{39}{appendix.B}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Abbildungsverzeichnis}{40}{appendix.B}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
@@ -253,88 +259,95 @@
 \citation{RTR3}
 \citation{plp}
 \citation{RTR3}
-\@writefile{toc}{\contentsline {chapter}{\numberline {C}Glossar}{42}{appendix.C}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {C}Glossar}{43}{appendix.C}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
 \newacro{API}[\AC@hyperlink{API}{API}]{Application Programming Interface}
 \newacro{CAD}[\AC@hyperlink{CAD}{CAD}]{Computer Aided Design}
+\newacro{CPU}[\AC@hyperlink{CPU}{CPU}]{Central Processing Unit (Hauptprozessor)}
 \newacro{FPS}[\AC@hyperlink{FPS}{FPS}]{Frames per second}
-\newacro{GPU}[\AC@hyperlink{GPU}{GPU}]{Graphics Processing Unit}
+\newacro{GPU}[\AC@hyperlink{GPU}{GPU}]{Graphics Processing Unit (Grafikprozessor)}
 \newacro{HLOD}[\AC@hyperlink{HLOD}{HLOD}]{Hierarchical Level-Of-Detail \cite  {hlod}}
+\newacro{KD-Baum}[\AC@hyperlink{KD-Baum}{KD-Baum}]{Ein k-dimensionaler Baum oder KD-Baum ist ein unbalancierter Suchbaum zur Speicherung von Punkten.}
 \newacro{LOD}[\AC@hyperlink{LOD}{LOD}]{Level-Of-Detail \cite  {RTR3}}
 \newacro{PLP}[\AC@hyperlink{PLP}{PLP}]{Prioritized-Layered Projection \cite  {plp}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ @Tim: Octree/KD-Baum definition in ordnung so?!}}{43}{section*.18}}
+\pgfsyspdfmark {pgfid18}{20032480}{22038593}
+\newacro{Octree}[\AC@hyperlink{Octree}{Octree}]{Ein Octree ist eine r\IeC {\"a}umliche Datenstruktur, bestehend aus einem gewurzelten Baum, dessen Knoten jeweils entweder acht direkte Nachfolger oder gar keine Nachfolger haben.}
+\newacro{peer-to-peer}[\AC@hyperlink{peer-to-peer}{peer-to-peer}]{Peer-to-peer Netzwerke sind Netzwerksysteme ohne zentrale Zugriffskontrolle, in denen alle Rechner gleichberechtigt agieren. Eine Datenverbindung besteht dabei immer direkt von einem Teilnehmer zum anderen.}
 \newacro{PVS}[\AC@hyperlink{PVS}{PVS}]{Potentially Visible Set \cite  {RTR3}}
 \newacro{Rasterisierung}[\AC@hyperlink{Rasterisierung}{Rasterisierung}]{\IeC {\"U}berf\IeC {\"u}hrung eines kontinuierlichen Raums in einen diskreten Raum (Pixel).}
 \newacro{Rendering}[\AC@hyperlink{Rendering}{Rendering}]{Erzeugt ein 2D-Bild aus einer 3D-Szene.}
 \newacro{screen-space}[\AC@hyperlink{screen-space}{screen-space}]{Projektion einer 3D-Szene in einen zweidimensionalen Raum (Bild).}
+\newacro{SGI}[\AC@hyperlink{SGI}{SGI}]{SGI ist ein Hersteller von Computern, die besonders auf dem Gebiet der grafischen Darstellung leistungsstark sind (Grafik-Workstation).}
 \newacro{SLI}[\AC@hyperlink{SLI}{SLI}]{Scalable Link Interface; Zusammenschluss mehrer Grafikchips}
 \newacro{View-Frustum}[\AC@hyperlink{View-Frustum}{View-Frustum}]{Sichtfeld der Kamera}
-\@writefile{toc}{\contentsline {chapter}{\numberline {D}Zus\IeC {\"a}tzliche Abbildungen}{43}{appendix.D}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {D}Zus\IeC {\"a}tzliche Abbildungen}{45}{appendix.D}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.1}{\ignorespaces Kameraposition 1 \textit  {(Heck au\IeC {\ss }en)}}}{43}{figure.D.1}}
-\newlabel{fig:eval:pos1}{{D.1}{43}{\label {fig:eval:pos1}Kameraposition 1 \textit {(Heck außen)}\relax }{figure.D.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.2}{\ignorespaces Kameraposition 2 \textit  {(Heck innen)}}}{43}{figure.D.2}}
-\newlabel{fig:eval:pos2}{{D.2}{43}{\label {fig:eval:pos2}Kameraposition 2 \textit {(Heck innen)}\relax }{figure.D.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.3}{\ignorespaces Kameraposition 3 \textit  {(Passagierbereich)}}}{44}{figure.D.3}}
-\newlabel{fig:eval:pos3}{{D.3}{44}{\label {fig:eval:pos3}Kameraposition 3 \textit {(Passagierbereich)}\relax }{figure.D.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.4}{\ignorespaces Kameraposition 4 \textit  {(Stauraum)}}}{44}{figure.D.4}}
-\newlabel{fig:eval:pos4}{{D.4}{44}{\label {fig:eval:pos4}Kameraposition 4 \textit {(Stauraum)}\relax }{figure.D.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.5}{\ignorespaces Kameraposition 5 \textit  {(Fahrwerk/Fl\IeC {\"u}gel)}}}{44}{figure.D.5}}
-\newlabel{fig:eval:pos5}{{D.5}{44}{\label {fig:eval:pos5}Kameraposition 5 \textit {(Fahrwerk/Flügel)}\relax }{figure.D.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.6}{\ignorespaces Kameraposition 6 \textit  {(Turbine)}}}{45}{figure.D.6}}
-\newlabel{fig:eval:pos6}{{D.6}{45}{\label {fig:eval:pos6}Kameraposition 6 \textit {(Turbine)}\relax }{figure.D.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.7}{\ignorespaces Kameraposition 7 \textit  {(Nase innen)}}}{45}{figure.D.7}}
-\newlabel{fig:eval:pos7}{{D.7}{45}{\label {fig:eval:pos7}Kameraposition 7 \textit {(Nase innen)}\relax }{figure.D.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.8}{\ignorespaces Kameraposition 8 \textit  {(Cockpit)}}}{45}{figure.D.8}}
-\newlabel{fig:eval:pos8}{{D.8}{45}{\label {fig:eval:pos8}Kameraposition 8 \textit {(Cockpit)}\relax }{figure.D.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.9}{\ignorespaces Kameraposition 9 \textit  {(Nase au\IeC {\ss }en)}}}{46}{figure.D.9}}
-\newlabel{fig:eval:pos9}{{D.9}{46}{\label {fig:eval:pos9}Kameraposition 9 \textit {(Nase außen)}\relax }{figure.D.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.10}{\ignorespaces Kameraposition 10 \textit  {(Fl\IeC {\"u}gel-Rumpf Bereich)}}}{46}{figure.D.10}}
-\newlabel{fig:eval:pos10}{{D.10}{46}{\label {fig:eval:pos10}Kameraposition 10 \textit {(Flügel-Rumpf Bereich)}\relax }{figure.D.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.11}{\ignorespaces T\IeC {\"u}rknopf \textit  {(Bug)}}}{46}{figure.D.11}}
-\newlabel{fig:eval:button}{{D.11}{46}{\label {fig:eval:button}Türknopf \textit {(Bug)}\relax }{figure.D.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.12}{\ignorespaces Profil \textit  {(Bug)}}}{47}{figure.D.12}}
-\newlabel{fig:eval:prof_bug}{{D.12}{47}{\label {fig:eval:prof_bug}Profil \textit {(Bug)}\relax }{figure.D.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.13}{\ignorespaces Profil \textit  {(Heck)}}}{47}{figure.D.13}}
-\newlabel{fig:eval:prof_heck}{{D.13}{47}{\label {fig:eval:prof_heck}Profil \textit {(Heck)}\relax }{figure.D.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.14}{\ignorespaces Triebwerk 1}}{47}{figure.D.14}}
-\newlabel{fig:eval:turbine_innen}{{D.14}{47}{\label {fig:eval:turbine_innen}Triebwerk 1\relax }{figure.D.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.15}{\ignorespaces Triebwerk 2}}{48}{figure.D.15}}
-\newlabel{fig:eval:turbine_innen2}{{D.15}{48}{\label {fig:eval:turbine_innen2}Triebwerk 2\relax }{figure.D.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.16}{\ignorespaces Fahrwerk \textit  {(Heck)}}}{48}{figure.D.16}}
-\newlabel{fig:eval:fahrwerk}{{D.16}{48}{\label {fig:eval:fahrwerk}Fahrwerk \textit {(Heck)}\relax }{figure.D.16}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {E}Zus\IeC {\"a}tzliche Diagramme}{49}{appendix.E}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.1}{\ignorespaces Kameraposition 1 \textit  {(Heck au\IeC {\ss }en)}}}{45}{figure.D.1}}
+\newlabel{fig:eval:pos1}{{D.1}{45}{\label {fig:eval:pos1}Kameraposition 1 \textit {(Heck außen)}\relax }{figure.D.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.2}{\ignorespaces Kameraposition 2 \textit  {(Heck innen)}}}{45}{figure.D.2}}
+\newlabel{fig:eval:pos2}{{D.2}{45}{\label {fig:eval:pos2}Kameraposition 2 \textit {(Heck innen)}\relax }{figure.D.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.3}{\ignorespaces Kameraposition 3 \textit  {(Passagierbereich)}}}{46}{figure.D.3}}
+\newlabel{fig:eval:pos3}{{D.3}{46}{\label {fig:eval:pos3}Kameraposition 3 \textit {(Passagierbereich)}\relax }{figure.D.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.4}{\ignorespaces Kameraposition 4 \textit  {(Stauraum)}}}{46}{figure.D.4}}
+\newlabel{fig:eval:pos4}{{D.4}{46}{\label {fig:eval:pos4}Kameraposition 4 \textit {(Stauraum)}\relax }{figure.D.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.5}{\ignorespaces Kameraposition 5 \textit  {(Fahrwerk/Fl\IeC {\"u}gel)}}}{46}{figure.D.5}}
+\newlabel{fig:eval:pos5}{{D.5}{46}{\label {fig:eval:pos5}Kameraposition 5 \textit {(Fahrwerk/Flügel)}\relax }{figure.D.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.6}{\ignorespaces Kameraposition 6 \textit  {(Turbine)}}}{47}{figure.D.6}}
+\newlabel{fig:eval:pos6}{{D.6}{47}{\label {fig:eval:pos6}Kameraposition 6 \textit {(Turbine)}\relax }{figure.D.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.7}{\ignorespaces Kameraposition 7 \textit  {(Nase innen)}}}{47}{figure.D.7}}
+\newlabel{fig:eval:pos7}{{D.7}{47}{\label {fig:eval:pos7}Kameraposition 7 \textit {(Nase innen)}\relax }{figure.D.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.8}{\ignorespaces Kameraposition 8 \textit  {(Cockpit)}}}{47}{figure.D.8}}
+\newlabel{fig:eval:pos8}{{D.8}{47}{\label {fig:eval:pos8}Kameraposition 8 \textit {(Cockpit)}\relax }{figure.D.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.9}{\ignorespaces Kameraposition 9 \textit  {(Nase au\IeC {\ss }en)}}}{48}{figure.D.9}}
+\newlabel{fig:eval:pos9}{{D.9}{48}{\label {fig:eval:pos9}Kameraposition 9 \textit {(Nase außen)}\relax }{figure.D.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.10}{\ignorespaces Kameraposition 10 \textit  {(Fl\IeC {\"u}gel-Rumpf Bereich)}}}{48}{figure.D.10}}
+\newlabel{fig:eval:pos10}{{D.10}{48}{\label {fig:eval:pos10}Kameraposition 10 \textit {(Flügel-Rumpf Bereich)}\relax }{figure.D.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.11}{\ignorespaces T\IeC {\"u}rknopf \textit  {(Bug)}}}{48}{figure.D.11}}
+\newlabel{fig:eval:button}{{D.11}{48}{\label {fig:eval:button}Türknopf \textit {(Bug)}\relax }{figure.D.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.12}{\ignorespaces Profil \textit  {(Bug)}}}{49}{figure.D.12}}
+\newlabel{fig:eval:prof_bug}{{D.12}{49}{\label {fig:eval:prof_bug}Profil \textit {(Bug)}\relax }{figure.D.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.13}{\ignorespaces Profil \textit  {(Heck)}}}{49}{figure.D.13}}
+\newlabel{fig:eval:prof_heck}{{D.13}{49}{\label {fig:eval:prof_heck}Profil \textit {(Heck)}\relax }{figure.D.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.14}{\ignorespaces Triebwerk 1}}{49}{figure.D.14}}
+\newlabel{fig:eval:turbine_innen}{{D.14}{49}{\label {fig:eval:turbine_innen}Triebwerk 1\relax }{figure.D.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.15}{\ignorespaces Triebwerk 2}}{50}{figure.D.15}}
+\newlabel{fig:eval:turbine_innen2}{{D.15}{50}{\label {fig:eval:turbine_innen2}Triebwerk 2\relax }{figure.D.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.16}{\ignorespaces Fahrwerk \textit  {(Heck)}}}{50}{figure.D.16}}
+\newlabel{fig:eval:fahrwerk}{{D.16}{50}{\label {fig:eval:fahrwerk}Fahrwerk \textit {(Heck)}\relax }{figure.D.16}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {E}Zus\IeC {\"a}tzliche Diagramme}{51}{appendix.E}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.1}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{49}{figure.E.1}}
-\newlabel{fig:eval:reaload1}{{E.1}{49}{\label {fig:eval:reaload1}Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)\relax }{figure.E.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.2}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{50}{figure.E.2}}
-\newlabel{fig:eval:reload2}{{E.2}{50}{\label {fig:eval:reload2}Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)\relax }{figure.E.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.3}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{50}{figure.E.3}}
-\newlabel{fig:eval:cCol1}{{E.3}{50}{\label {fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1}{figure.E.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.4}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1.}}{51}{figure.E.4}}
-\newlabel{fig:eval:cCol2}{{E.4}{51}{\label {fig:eval:cCol2}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1}{figure.E.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.5}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1.}}{51}{figure.E.5}}
-\newlabel{fig:eval:cCol3}{{E.5}{51}{\label {fig:eval:cCol3}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1}{figure.E.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.6}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2.}}{52}{figure.E.6}}
-\newlabel{fig:eval:cCol4}{{E.6}{52}{\label {fig:eval:cCol4}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2}{figure.E.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.7}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2.}}{52}{figure.E.7}}
-\newlabel{fig:eval:cCol5}{{E.7}{52}{\label {fig:eval:cCol5}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2}{figure.E.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2.}}{53}{figure.E.8}}
-\newlabel{fig:eval:cCol6}{{E.8}{53}{\label {fig:eval:cCol6}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2}{figure.E.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3.}}{53}{figure.E.9}}
-\newlabel{fig:eval:cCol7}{{E.9}{53}{\label {fig:eval:cCol7}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3}{figure.E.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3.}}{54}{figure.E.10}}
-\newlabel{fig:eval:cCol8}{{E.10}{54}{\label {fig:eval:cCol8}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3}{figure.E.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{54}{figure.E.11}}
-\newlabel{fig:eval:cCol9}{{E.11}{54}{\label {fig:eval:cCol9}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3}{figure.E.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.12}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)}}{55}{figure.E.12}}
-\newlabel{fig:eval:fps1}{{E.12}{55}{\label {fig:eval:fps1}FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.13}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{55}{figure.E.13}}
-\newlabel{fig:eval:fps2}{{E.13}{55}{\label {fig:eval:fps2}FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.14}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)}}{56}{figure.E.14}}
-\newlabel{fig:eval:fps3}{{E.14}{56}{\label {fig:eval:fps3}FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.1}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{51}{figure.E.1}}
+\newlabel{fig:eval:reaload1}{{E.1}{51}{\label {fig:eval:reaload1}Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)\relax }{figure.E.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.2}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{52}{figure.E.2}}
+\newlabel{fig:eval:reload2}{{E.2}{52}{\label {fig:eval:reload2}Zeit zum Vollständigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)\relax }{figure.E.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.3}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{52}{figure.E.3}}
+\newlabel{fig:eval:cCol1}{{E.3}{52}{\label {fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1}{figure.E.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.4}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1.}}{53}{figure.E.4}}
+\newlabel{fig:eval:cCol2}{{E.4}{53}{\label {fig:eval:cCol2}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1}{figure.E.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.5}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1.}}{53}{figure.E.5}}
+\newlabel{fig:eval:cCol3}{{E.5}{53}{\label {fig:eval:cCol3}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1}{figure.E.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.6}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2.}}{54}{figure.E.6}}
+\newlabel{fig:eval:cCol4}{{E.6}{54}{\label {fig:eval:cCol4}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2}{figure.E.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.7}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2.}}{54}{figure.E.7}}
+\newlabel{fig:eval:cCol5}{{E.7}{54}{\label {fig:eval:cCol5}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2}{figure.E.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2.}}{55}{figure.E.8}}
+\newlabel{fig:eval:cCol6}{{E.8}{55}{\label {fig:eval:cCol6}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2}{figure.E.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3.}}{55}{figure.E.9}}
+\newlabel{fig:eval:cCol7}{{E.9}{55}{\label {fig:eval:cCol7}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3}{figure.E.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3.}}{56}{figure.E.10}}
+\newlabel{fig:eval:cCol8}{{E.10}{56}{\label {fig:eval:cCol8}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3}{figure.E.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{56}{figure.E.11}}
+\newlabel{fig:eval:cCol9}{{E.11}{56}{\label {fig:eval:cCol9}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3}{figure.E.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.12}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)}}{57}{figure.E.12}}
+\newlabel{fig:eval:fps1}{{E.12}{57}{\label {fig:eval:fps1}FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.13}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{57}{figure.E.13}}
+\newlabel{fig:eval:fps2}{{E.13}{57}{\label {fig:eval:fps2}FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.14}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)}}{58}{figure.E.14}}
+\newlabel{fig:eval:fps3}{{E.14}{58}{\label {fig:eval:fps3}FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.14}{}}
