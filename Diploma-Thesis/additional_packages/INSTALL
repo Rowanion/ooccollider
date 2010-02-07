@@ -1,0 +1,34 @@
+Zusätzliche Packete:
+- Aktuelles pgf: http://www.texample.net/tikz/builds/
+- pgfplots: http://www.texample.net/tikz/examples/pgfplots/
+- pgf-uml
+- tikz
+- algorithm, algorithmic, algorithmic-fix
+- caption
+
+Zusätzliche Bibtex-Styles:
+- alphadin
+- abbrvdin
+- natdin
+- plaindin
+- unsrtdin
+
+alle hier vorhandenen Unterverzeichnisse können nach ~/texmf/ kopiert werden.
+Außer tikz, pgf, algorithm, algorithmic und caption sind dann alle schon vorhanden.
+
+Das Verzeichnis tufonts enthält die verwendeten Schriftarten. In dem Verzeichnis ist auch ein install-script (sudo).
+
+Anschließend ein 'sudo mktexlsr' nicht vergessen.
+
+Da einige Diagramme _sehr_ große Datenmengen enthalten kommt Latex nicht mit der Standard-Menge an Speicher aus.
+Deshalb muss in der Datei /etc/texmf/texmf.cnf
+der Eintrag
+main_memory = 1500000
+mit
+main_memory = 10500000
+geändert. 5 MB reichen _nicht_ aus! 
+Anschließend 'sudo texconfig-sys init' diese Änderungen übernehmen!
+
+Hier, im Basedir befinden sich 2 scripte, tikz2pdf und mkTikz.
+mkTikz ist ein frontend für tikz2pdf. Es konvertiert eine *.tikz-Datei in eine ./images/*.pdf-Datei.
+
