@@ -79,7 +79,7 @@ die Summe der bisher vergebenen Dreiecke all dieser Knoten. Die Wahrscheinlichke
   \[p_k=\frac{T-t_k}{\sum_{j=0}^{n} \left(T-t_j\right)}.\]
 Gibt es zum Beispiel 3 Knoten $N_0,\; N_1,\; N_2$ die ein bestimmtes Objekt besitzen, mit einer Last von je 10, 1 und 89 bisher erhaltenen Dreiecken, so ergeben sich die Wahrscheinlichkeiten
 \[p_0=\frac{100-10}{200}, \;p_1=\frac{100-1}{200}\; und \;p_2=\frac{100-89}{200}\]
-für diese Knoten. Sollten nicht alle Aufträge mit dem anfänglichen $c=2$ vergeben werden können, wird das $c$ erhöht. Nachdem alle Aufträge eines Frames vergeben wurden, wird die akkumulierte Last wieder zurückgesetzt. Die ermittelte Auftragsverteilung wird danach an die Datenknoten geschickt.\\
+für diese Knoten. So erhalten Knoten mit geringerer Last als Andere, Aufträge mit einer höheren Wahrscheinlichkeit. Sollten nicht alle Aufträge mit dem anfänglichen $c=2$ vergeben werden können, wird das $c$ erhöht. Nachdem alle Aufträge eines Frames vergeben wurden, wird die akkumulierte Last wieder zurückgesetzt. Die ermittelte Auftragsverteilung wird danach an die Datenknoten geschickt.\\
 Anschließend wartet der Masterknoten auf die Bildkacheln von allen Renderern und zeigt das fertige Bild an.
 
 \subsection{Die Renderknoten}

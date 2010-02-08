@@ -14,7 +14,7 @@ open INFILE, "+<", "$fileName" or die $!;
 my @lines = <INFILE>;
 close INFILE;
 open OUTFILE, "+>", "$fileName" or die $!;
-$count = 0;
+$count = 1;
 foreach (@lines){
 	#print "$_ ";
 	if (substr($_,0,1)!="#"){

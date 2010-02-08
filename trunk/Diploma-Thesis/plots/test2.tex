@@ -1,0 +1,36 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+  \begin{axis}[xlabel=Kameraposition, 
+	       ylabel={Zeit (in Sekunden)},xtick=\empty]
+  \addplot[color=red,
+	   mark=|,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={red, error bars options={line width=2pt}}]
+    table[col sep=comma,x index=0,y index=1,y error index=2, header=false]
+    {data/2.data};
+  \addlegendentry{Extrema}
+  \addplot[color=cyan,
+	   mark=|,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={cyan, very thick},
+	   ultra thick] 
+    table[col sep=comma,x index=0,y index=3,y error index=4, header=false]
+    {data/2.data};
+  \addlegendentry{Quartile}
+  \addplot[color=black,
+	   mark=x,
+	   only marks] 
+    table[col sep=comma,x index=0,y index=5, header=false]
+    {data/2.data};
+  \addlegendentry{Median}
+  \end{axis}
+\end{tikzpicture}
