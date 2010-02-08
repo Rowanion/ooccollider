@@ -1,0 +1,21 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+  \begin{axis}[xlabel=Kameraposition, 
+	       ylabel={Zeit (in Sekunden)}]
+  \addplot+[only marks] 
+    table[col sep=comma,x index=0,y index=1, header=false]
+    {data/ReloadTest_Redundance3_R2_D24.2010-1-27.log_medians.data};
+  \addlegendentry{24 Datenknoten}
+  \addplot+[only marks] 
+    table[col sep=comma,x index=0,y index=1, header=false]
+    {data/ReloadTest_Redundance3_R2_D28.2010-1-28.log_medians.data};
+  \addlegendentry{28 Datenknoten}
+  \addplot+[only marks] 
+    table[col sep=comma,x index=0,y index=1, header=false]
+    {data/ReloadTest_Redundance3_R2_D32.2010-1-28.log_medians.data};
+  \addlegendentry{32 Datenknoten}
+  \end{axis}
+\end{tikzpicture}

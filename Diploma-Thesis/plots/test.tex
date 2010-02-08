@@ -1,0 +1,87 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+  \begin{axis}[xlabel=Kameraposition, 
+	       ylabel={Zeit (in Sekunden)}]
+  \addplot[color=red,
+	   mark=|,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={red, error bars options={line width=2pt}}] 
+    coordinates { (2,-2.8559703) +- (0.1,1) 
+		  (3,-3.5301677) +- (0.1,1) 
+		  (4,-4.3050655) +- (0.1,1) 
+		  (5,-5.1413136) +- (0.1,1) 
+		  (6,-6.0322865) +- (0.1,1) 
+		  (7,-6.9675052) +- (0.1,1) 
+		  (8,-7.9377747) }; 
+  \addplot[color=cyan,
+	   mark=|,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={cyan, very thick},
+	   ultra thick] 
+    coordinates { (2,-2.8559703) +- (0.1,0.5) 
+		  (3,-3.5301677) +- (0.1,0.5) 
+		  (4,-4.3050655) +- (0.1,0.5) 
+		  (5,-5.1413136) +- (0.1,0.5) 
+		  (6,-6.0322865) +- (0.1,0.5) 
+		  (7,-6.9675052) +- (0.1,0.5) 
+		  (8,-7.9377747) }; 
+  \addplot[color=black,
+	   mark=x,
+	   only marks] 
+    coordinates { (2,-2.8559703) +- (0.1,0.5) 
+		  (3,-3.5301677) +- (0.1,0.5) 
+		  (4,-4.3050655) +- (0.1,0.5) 
+		  (5,-5.1413136) +- (0.1,0.5) 
+		  (6,-6.0322865) +- (0.1,0.5) 
+		  (7,-6.9675052) +- (0.1,0.5) 
+		  (8,-7.9377747) }; 
+  \addplot[color=red,
+	   mark=|,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={red, error bars options={line width=2pt}}] 
+    coordinates { (2.5,-2.8559703) +- (0.1,1) 
+		  (3.5,-3.5301677) +- (0.1,1) 
+		  (4.5,-4.3050655) +- (0.1,1) 
+		  (5.5,-5.1413136) +- (0.1,1) 
+		  (6.5,-6.0322865) +- (0.1,1) 
+		  (7.5,-6.9675052) +- (0.1,1) 
+		  (8.5,-7.9377747) }; 
+  \addplot[color=cyan,
+	   mark=|,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={cyan, very thick},
+	   ultra thick] 
+    coordinates { (2.5,-2.8559703) +- (0.1,0.5) 
+		  (3.5,-3.5301677) +- (0.1,0.5) 
+		  (4.5,-4.3050655) +- (0.1,0.5) 
+		  (5.5,-5.1413136) +- (0.1,0.5) 
+		  (6.5,-6.0322865) +- (0.1,0.5) 
+		  (7.5,-6.9675052) +- (0.1,0.5) 
+		  (8.5,-7.9377747) }; 
+  \addplot[color=black,
+	   mark=x,
+	   only marks] 
+    coordinates { (2.5,-2.8559703) +- (0.1,0.5) 
+		  (3.5,-3.5301677) +- (0.1,0.5) 
+		  (4.5,-4.3050655) +- (0.1,0.5) 
+		  (5.5,-5.1413136) +- (0.1,0.5) 
+		  (6.5,-6.0322865) +- (0.1,0.5) 
+		  (7.5,-6.9675052) +- (0.1,0.5) 
+		  (8.5,-7.9377747) }; 
+  \end{axis}
+\end{tikzpicture}
