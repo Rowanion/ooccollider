@@ -4,7 +4,7 @@
 
 \begin{tikzpicture}[>=stealth]
   \begin{axis}[name=plotxz,width=10cm,view={0}{0},xlabel=Walkthrough-Position,zlabel={Auslastung (Normalisiert)},ylabel={Anfragen pro Frame},
-	zmax=0.21]
+	zmax=0.21,, legend pos=north west]
     \addplot3[mark=|,blue,
       only marks,
       error bars/.cd,
