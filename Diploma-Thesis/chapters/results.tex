@@ -10,34 +10,88 @@
 \todo[size=\small, inline]{absolutes in und max bei den Quantilen angeben und dann einen Block für die Quartile (0.25 und 0.75) und dann den Median eintragen.}%
 
 Um die Effektivität des in dieser Arbeit entstandenen Systems überprüfen zu können, wurden verschiedene Tests durchgeführt.
-Beim ersten Test, dem \textit{FPS-Test}, wurden bei einem Walkthrough durch die Szene die Bilder pro Sekunde aufgezeichnet. Der \textit{Reload-Test} hat bei verschiedenen Systemkonfigurationen an festen Kamerapositionen die Zeit gemessen, die ein erneutes Laden der Szene benötigt. Beim \textit{$c$-Collision-Test} wurde die List auf den einzelnen Datenknoten gemessen.\\
+Beim ersten Test, dem \textit{FPS-Test}, wurden bei einem Walkthrough durch die Szene die Bilder pro Sekunde aufgezeichnet. Der \textit{Reload-Test} hat bei verschiedenen Systemkonfigurationen an festen Kamerapositionen die Zeit gemessen, die ein erneutes Laden der Szene benötigt. Beim \textit{$c$-Collision-Test} wurde die List auf den einzelnen Datenknoten gemessen. Die einzelnen Testläufe unterscheiden sich dabei in der verwendeten Anzahl an Datenknoten und Redundanzen. Redundanz bedeutet, wie oft das Modell der Boeing vollständig im Netzwerk verteilt wurde. \\
 Weitere Diagramme und Abbildungen sind in den Anhängen \ref{chap:add_diag} und \ref{chap:add_fig} zu finden.
 
 \section{FPS-Test}
 \label{sec:eval:fps}
 
 \todo[inline]{FPS-Test - da muss ich noch mal ran!}
-Bei diesem Test wurde in einem festgelegten Walkthrough durch die 3D-Szene gemessen, wieviele Bilder pro Sekunde an welcher Stelle der Szene erreicht werden konnten. Dazu wurden drei verschiedene Konfigurationen getestet:
-\begin{itemize}
-  \item 2 Renderknoten, je 24, 28 und 32 Datenknoten und Redundanz = 1 
-  \item 2 Renderknoten, je 24, 28 und 32 Datenknoten und Redundanz = 2
-  \item 2 Renderknoten,je 24, 28 und 32 Datenknoten und Redundanz = 3
-\end{itemize}
+Bei diesem Test wurde in einem festgelegten Walkthrough durch die 3D-Szene gemessen, wieviele Bilder pro Sekunde an welcher Stelle der Szene erreicht werden konnten. Dazu wurde der Walkthrough auf je 24, 28 und 32 Datenknoten mit einer Redundanz von 1, 2 und 3 durchgeführt. Die y-Achse der Diagramme \ref{fig:eval:fps1} und \ref{fig:eval:fps3} stellt die Bilder pro Sekunde und die x-Achse die Position des Walkthroughs dar.
+\begin{figure}
+\centering
+\input{plots/diag_fps_redundancy1.tex}
+  \caption{\label{fig:eval:fps1}FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)}
+\end{figure}
+An den Diagrammen kann man sehen, dass sich die Bildrate bei verschiedenen Konfigurationen ähnelt. Allerdings lassen sich keine Zusammenhänge zwischen Bildrate und Redundanz oder Knotenanzahl herstellen. Die Bildrate gibt eher Rückschlüsse darauf, wie die Szene an den einzelnen Positionen beschaffen ist. An Stellen des Modells, wo sehr viel Geometrie angefordert werden muss, ist die Bildrate vermutlich geringer, als an Stellen, an denen weniger Angefordert wird. Hinzu kommt der Umstand, dass die Grafikkarten der Datenknoten im hier verwendeten Test-Cluster, etwas älter sind. In Testumgebungen mit aktuellerer Grafikhardware würde die Zahl der Redundanzen und der Knoten möglicherweise stärker ins Gewicht fallen.
 
-Redundanz bedeutet, wie oft das Modell der Boeing vollständig im Netzwerk verteilt wurde. An den Diagrammen kann man sehen, dass die FPS im Durchnitt unabhängig von der Anzahl der Datenknoten oder der Redundanzen sind. Dies bedeutet, dass dieses System entkoppelt arbeitet. Es gibt hin und wieder Ausreißer, bei denen die Bildrate über 50 steigt oder bei 1 liegt. Im Grunde die einzelnen Kurven aber recht ähnlich. Die Grafikkarten der Datenknoten sind relativ schwach. Mit eine anderen Cluster-Konfiguration ließen sich möglicherweise andere Ergebnisse feststellen.
-
-\begin{Bild}
-\input{plots/diag_fps_redundancy2.tex}
-  \captionof{figure}{\label{fig:eval:fps2}FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}
-\end{Bild}
+\begin{figure}
+\centering
+\input{plots/diag_fps_redundancy3.tex}
+  \caption{\label{fig:eval:fps3}FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)}
+\end{figure}
 
 \section{Reload-Test}
 \label{sec:eval:reload}
 
-Beim Reload-Test wurde gemessen, wie lange die einzelnen Datenknoten benötigen, bei festgelegten Kamerapositionen die Szene komplett zu laden. Dazu wurden sämtliche auf den Renderern befindliche Objekte verworfen und erneut angefordert. Wenn ein Datenknoten mit der kompletten Arbeit fertig war, hat er sich beim Masterknoten gemeldet.\\
-Die Diagramme enthalten auf der x-Achse die Kameraposition und auf der y-Achse die normalisierte Zeit. Davon ausgehend, dass bei einem Testlauf nur ein einzige Datenknoten Aufträge bekäme, wäre seine zeitliche laste bei 1.0. In den Diagrammen ist zu erkennen, dass der Median bei allen Diagrammen sehr nah am Durchschnitt liegt. Das bedeutet, dass das System sehr gut balanciert. Alle Datenknoten benötigen für einen Testlauf eine ähnliche Zeit. Es gibt auch hier ab und zu Ausreißer. An den Quartilen lässt sich jedoch erkennen, dass 50\% der Datenknoten näher am Median liegen, als an den Extrema.\\
-Die Zeit, die benötigt wird um die gesamte Szene zu laden ist gleich dem Maximum der gemessenen Zeiten der Datenknoten. Dieses Maximum variiert zwar stark, allerdings ist zu bedenknen, dass es sich bei den gemessenen Zeit um Sekunden handelte. Diese unterscheiden sich, je nach Kameraposition, nur im Hundertstel oder Tausendstel-Bereich.\\
-Was jedoch auffällt: 24 Datenknoten unterscheiden sich zu 32 Datenknoten darin, dass die einzelnen Knoten weniger Zeit für ihre Aufträge benötigen und somit die Szene auch schneller geladen ist.
+Beim Reload-Test wurde gemessen, wie lange die einzelnen Datenknoten benötigen, bei festgelegten Kamerapositionen die Szene komplett zu laden. Dazu wurden sämtliche auf den Renderern befindliche Objekte verworfen und erneut angefordert. Wenn ein Datenknoten mit der kompletten Arbeit fertig war, hat er sich beim Masterknoten gemeldet, welcher die Zeit gespeichert hat.\\
+Die Diagramme \ref{fig:eval:reload1} und \ref{fig:eval:reload2} enthalten auf der x-Achse die Kameraposition und auf der y-Achse die Render-Zeit in Sekunden. In den Diagrammen ist zu erkennen, dass der Median meist nahe am Durchschnitt liegt. Die Messungen wurden dabei mehrfach durchgeführt und die Ergebnisse wurden gemittelt. Ab und zu sind zwar einige Ausreißer zu erkennen, aber selbst die 0.25 und 0.75 Quantile liegen meist sehr dicht am Median. Das bedeutet, dass das System gut balanciert. Nur wenige Knoten benötigen mehr Zeit für die Szene als der Median. Jedoch lässt auch dieser Test keinen Zusammenhang zwischen Redundanzen, Knotenanzahl und der benötigten Zeit erkennen. Die Zeit, die eine Kamerposition zum Laden benötigt, scheint ausschlaggebend für die gesamte benötigte Zeit zu sein.
+
+\begin{Bild}
+\input{plots/test10.tex}
+  \captionof{figure}{\label{fig:eval:reload1}Reloadtest: Redundanz 1, 2 Renderknoten, 24 Datenknoten.}
+\end{Bild}
+
+\begin{Bild}
+\input{plots/test11.tex}
+  \captionof{figure}{\label{fig:eval:reload2}Reloadtest: Redundanz 1, 2 Renderknoten, 28 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/test12.tex}
+  \captionof{figure}{\label{fig:eval:reload3}Reloadtest: Redundanz 1, 2 Renderknoten, 32 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/test13.tex}
+  \captionof{figure}{\label{fig:eval:reload4}Reloadtest: Redundanz 3, 2 Renderknoten, 24 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/test14.tex}
+  \captionof{figure}{\label{fig:eval:reload5}Reloadtest: Redundanz 3, 2 Renderknoten, 28 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/test15.tex}
+  \captionof{figure}{\label{fig:eval:reload6}Reloadtest: Redundanz 3, 2 Renderknoten, 32 Datenknoten.}
+\end{Bild}
+
+
+
+
+\begin{comment}
+\begin{Bild}
+\input{plots/Reload7_r1_24.tex}
+  \captionof{figure}{Reloadtest: R1, 24 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/Reload7_r1_28.tex}
+  \captionof{figure}{Reloadtest: R1, 28 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/Reload7_r1_32.tex}
+  \captionof{figure}{Reloadtest: R1, 32 Datenknoten.}
+\end{Bild}
+
+\begin{Bild}
+\input{plots/Reload7_r3_24.tex}
+  \captionof{figure}{Reloadtest: R3, 24 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/Reload7_r3_28.tex}
+  \captionof{figure}{Reloadtest: R3, 28 Datenknoten.}
+\end{Bild}
+\begin{Bild}
+\input{plots/Reload7_r3_32.tex}
+  \captionof{figure}{Reloadtest: R3, 32 Datenknoten.}
+\end{Bild}
 
 \begin{Bild}
 \input{plots/test5.tex}
@@ -48,12 +102,14 @@ Was jedoch auffällt: 24 Datenknoten unterscheiden sich zu 32 Datenknoten darin,
 \input{plots/test9.tex}
   \captionof{figure}{Reloadtest: Redundanz 2, 2 Renderknoten, 24 Datenknoten.}
 \end{Bild}
+\end{comment}
 
 \section{\textit{c}-Collision-Test}
 \label{sec:eval:ccollision}
 
-Der Test für das $c$-Collision Protkoll wurde als Einziger nicht im Cluster durchgeführt, sondern ausschließlich in einer Simulation. Dafür wurden alle Anfragen bei einem Walkthrough durch den Cluster aufgezeichnet, unmittelbar bevor sie durch das $c$-Collision Protkoll vergeben wurden. Anschließend wurden diese Aufzeichnungen genutzt, um eine beliebige Datenknotenmenge zu simulieren. Dieser Test arbeitet mit 24, 80 und 120 Datenknoten. Dabei wurde die Last in Form von Dreiecken gemessen, die in jedem Frame an jeden Datenknoten vergeben wurde.\\
-Das linke Diagramm zeigt jeweils die Walkthrough-Position (x-Achse) in Relation zur Lastverteilung (y-Achse). Das rechte Diagramm zeigt jeweils die Anfragenmenge, die durch das $c$-Collisione protkoll verteilt wurden (x-Achse) in Relation zur Lastverteilung (y-Achse). Bei Betrachtung des linken Diagramms fallen einige Positionen auf, an denen die Last sehr ungleich verteilt ist und der Median 0 ist. Im rechten Diagramm kann man sehen, dass dies immer dann der Fall ist, wenn sehr wenige Anfragen an das $c$-Collision Protkoll übergeben wurden. Dieses Protokoll dient dazu, Bälle in Körbe zu verteilen. Hat viel weniger Bälle als Körbe, ist das System natürlich nicht gleichmäßig balanciert. Diese Aufträge werden nicht weiter unterteilt. Je nach Zufallsverteilung der Daten auf den Knoten, kann es bei zu geringen Redundanzen auch vorkommen, dass die Wenigen Aufträge nur auf wenige Knoten verteilt werden können.
+Der Test für das $c$-Collision Protkoll wurde als Einziger nicht im Cluster durchgeführt, sondern ausschließlich in einer Simulation. Dafür wurden alle Anfragen bei einem Walkthrough durch den Cluster aufgezeichnet, unmittelbar bevor sie durch das $c$-Collision Protkoll vergeben wurden. Anschließend wurden diese Aufzeichnungen genutzt, um eine beliebige Datenknotenmenge zu simulieren. Im Cluster standen für diese Arbeit maximal 32 Datenknoten zur Verfügung, weshalb die Menge der Datenknoten bei diesem Test erhöht wurde. Dieser Test arbeitet mit 24, 80 und 120 Datenknoten. Dabei wurde die Last in Form von Dreiecken gemessen, die in jedem Frame an jeden Datenknoten vergeben wurde. In diesem Test wurden verschiedene Zufalls-Seed benutzt und das Ergebnis wurde gemittelt.\\
+Das linke Diagramm zeigt jeweils die Walkthrough-Position (x-Achse) in Relation zur Lastverteilung (y-Achse). Das rechte Diagramm zeigt jeweils die Anfragenmenge, die durch das $c$-Collision Protkoll pro Frame verteilt wurde (x-Achse) in Relation zur Lastverteilung (y-Achse). Bei Betrachtung des linken Diagramms fallen einige Positionen auf, an denen die Last sehr ungleich verteilt ist oder der Median 0 ist. Im rechten Diagramm kann man sehen, dass dies immer dann der Fall ist, wenn sehr wenige Anfragen an das $c$-Collision Protkoll übergeben wurden. Dieses Protokoll dient ursprünglich dazu, Bälle möglichst gleichmäßig auf Körbe zu verteilen. Hat man viel weniger Bälle als Körbe, ist das System natürlich nicht gleichmäßig balanciert. Sowohl die Bälle als auch die Anfragen sind atomar und werden nicht weiter unterteilt. Je nach initialer Zufallsverteilung der Daten auf den Knoten, kann es bei wenig Redundanzen auch vorkommen, dass die Aufträge nur auf wenige Knoten verteilt werden können. Im Falle des benutzen Walkthroughs, treten die unbalancierten Stelle da auf, wo das Model betreten und verlassen wird. Dort ist sehr wenig Geometrie sichtbar.\\
+Bei diesem Test ist zu erkennen, dass sowohl die Menge an Knoten als auch die Zahl der Redundanzen eine Rolle bei der gleichmäßigen Lastverteilung spielt. Bei erhöhter Redundanz ist zu beobachen, dass die 0.1 und 0.9 Quantile sehr viel Näher am Median liegen als bei geringerer Redundanz. Mehr Datenknoten sorgen dafür, dass die Spitzenwerte an unbalancierten Stellen geringer ausfallen.
 
 \begin{itemize}
 \item $c$-Collision: Mehr Redundanz = Mittlere Auslastung wird reduziert (blaue durchscnittsdistanz zum median)

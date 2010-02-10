@@ -20,46 +20,50 @@
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife}}{32}{figure.4.1}
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update}}{33}{figure.4.2}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{35}{figure.5.1}
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Reloadtest: Redundanz 2, 2 Renderknoten, 32 Datenknoten.}}{36}{figure.5.2}
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Reloadtest: Redundanz 2, 2 Renderknoten, 24 Datenknoten.}}{37}{figure.5.3}
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{38}{figure.5.4}
-\contentsline {figure}{\numberline {5.5}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{39}{figure.5.5}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)}}{35}{figure.5.1}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)}}{36}{figure.5.2}
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 24 Datenknoten.}}{37}{figure.5.3}
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 28 Datenknoten.}}{37}{figure.5.4}
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 32 Datenknoten.}}{38}{figure.5.5}
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 24 Datenknoten.}}{38}{figure.5.6}
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 28 Datenknoten.}}{39}{figure.5.7}
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 32 Datenknoten.}}{39}{figure.5.8}
+\contentsline {figure}{\numberline {5.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{41}{figure.5.9}
+\contentsline {figure}{\numberline {5.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{41}{figure.5.10}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {D.1}{\ignorespaces Kameraposition 1 \textit {(Heck au\IeC {\ss }en, 3.352.475 sichtbare Dreiecke)}}}{50}{figure.D.1}
-\contentsline {figure}{\numberline {D.2}{\ignorespaces Kameraposition 2 \textit {(Heck innen, 2.045.104 sichtbare Dreiecke)}}}{50}{figure.D.2}
-\contentsline {figure}{\numberline {D.3}{\ignorespaces Kameraposition 3 \textit {(Passagierbereich, 3.749.977 sichtbare Dreiecke)}}}{51}{figure.D.3}
-\contentsline {figure}{\numberline {D.4}{\ignorespaces Kameraposition 4 \textit {(Stauraum, 8.381.277 sichtbare Dreiecke)}}}{51}{figure.D.4}
-\contentsline {figure}{\numberline {D.5}{\ignorespaces Kameraposition 5 \textit {(Fahrwerk/Fl\IeC {\"u}gel, 5.776.159 sichtbare Dreiecke)}}}{51}{figure.D.5}
-\contentsline {figure}{\numberline {D.6}{\ignorespaces Kameraposition 6 \textit {(Turbine, 3.381.998 sichtbare Dreiecke)}}}{52}{figure.D.6}
-\contentsline {figure}{\numberline {D.7}{\ignorespaces Kameraposition 7 \textit {(Nase innen, 1.481.706 sichtbare Dreiecke)}}}{52}{figure.D.7}
-\contentsline {figure}{\numberline {D.8}{\ignorespaces Kameraposition 8 \textit {(Cockpit, 4.558.623 sichtbare Dreiecke)}}}{52}{figure.D.8}
-\contentsline {figure}{\numberline {D.9}{\ignorespaces Kameraposition 9 \textit {(Nase au\IeC {\ss }en, 7.439.695 sichtbare Dreiecke)}}}{53}{figure.D.9}
-\contentsline {figure}{\numberline {D.10}{\ignorespaces Kameraposition 10 \textit {(Fl\IeC {\"u}gel-Rumpf Bereich, 4.066.296 sichtbare Dreiecke)}}}{53}{figure.D.10}
-\contentsline {figure}{\numberline {D.11}{\ignorespaces T\IeC {\"u}rknopf \textit {(Bug)}}}{53}{figure.D.11}
-\contentsline {figure}{\numberline {D.12}{\ignorespaces Profil \textit {(Bug)}}}{54}{figure.D.12}
-\contentsline {figure}{\numberline {D.13}{\ignorespaces Profil \textit {(Heck)}}}{54}{figure.D.13}
-\contentsline {figure}{\numberline {D.14}{\ignorespaces Triebwerk 1}}{54}{figure.D.14}
-\contentsline {figure}{\numberline {D.15}{\ignorespaces Triebwerk 2}}{55}{figure.D.15}
-\contentsline {figure}{\numberline {D.16}{\ignorespaces Fahrwerk \textit {(Heck)}}}{55}{figure.D.16}
+\contentsline {figure}{\numberline {D.1}{\ignorespaces Kameraposition 1 \textit {(Heck au\IeC {\ss }en, 3.352.475 sichtbare Dreiecke)}}}{53}{figure.D.1}
+\contentsline {figure}{\numberline {D.2}{\ignorespaces Kameraposition 2 \textit {(Heck innen, 2.045.104 sichtbare Dreiecke)}}}{53}{figure.D.2}
+\contentsline {figure}{\numberline {D.3}{\ignorespaces Kameraposition 3 \textit {(Passagierbereich, 3.749.977 sichtbare Dreiecke)}}}{54}{figure.D.3}
+\contentsline {figure}{\numberline {D.4}{\ignorespaces Kameraposition 4 \textit {(Stauraum, 8.381.277 sichtbare Dreiecke)}}}{54}{figure.D.4}
+\contentsline {figure}{\numberline {D.5}{\ignorespaces Kameraposition 5 \textit {(Fahrwerk/Fl\IeC {\"u}gel, 5.776.159 sichtbare Dreiecke)}}}{54}{figure.D.5}
+\contentsline {figure}{\numberline {D.6}{\ignorespaces Kameraposition 6 \textit {(Turbine, 3.381.998 sichtbare Dreiecke)}}}{55}{figure.D.6}
+\contentsline {figure}{\numberline {D.7}{\ignorespaces Kameraposition 7 \textit {(Nase innen, 1.481.706 sichtbare Dreiecke)}}}{55}{figure.D.7}
+\contentsline {figure}{\numberline {D.8}{\ignorespaces Kameraposition 8 \textit {(Cockpit, 4.558.623 sichtbare Dreiecke)}}}{55}{figure.D.8}
+\contentsline {figure}{\numberline {D.9}{\ignorespaces Kameraposition 9 \textit {(Nase au\IeC {\ss }en, 7.439.695 sichtbare Dreiecke)}}}{56}{figure.D.9}
+\contentsline {figure}{\numberline {D.10}{\ignorespaces Kameraposition 10 \textit {(Fl\IeC {\"u}gel-Rumpf Bereich, 4.066.296 sichtbare Dreiecke)}}}{56}{figure.D.10}
+\contentsline {figure}{\numberline {D.11}{\ignorespaces T\IeC {\"u}rknopf \textit {(Bug)}}}{56}{figure.D.11}
+\contentsline {figure}{\numberline {D.12}{\ignorespaces Profil \textit {(Bug)}}}{57}{figure.D.12}
+\contentsline {figure}{\numberline {D.13}{\ignorespaces Profil \textit {(Heck)}}}{57}{figure.D.13}
+\contentsline {figure}{\numberline {D.14}{\ignorespaces Triebwerk 1}}{57}{figure.D.14}
+\contentsline {figure}{\numberline {D.15}{\ignorespaces Triebwerk 2}}{58}{figure.D.15}
+\contentsline {figure}{\numberline {D.16}{\ignorespaces Fahrwerk \textit {(Heck)}}}{58}{figure.D.16}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {E.1}{\ignorespaces Reloadtest: Redundanz 2, 2 Renderknoten, 28 Datenknoten.}}{56}{figure.E.1}
-\contentsline {figure}{\numberline {E.2}{\ignorespaces Der Median bei 2 Renderern, unterschiedlichen Datenknoten, Redundanz 3 bei unterschiedlichen Kamerapositionen.}}{57}{figure.E.2}
-\contentsline {figure}{\numberline {E.3}{\ignorespaces Der Median bei 2 Renderern, 32 Datenknoten, unterschiedliche Redundanzen bei unterschiedlichen Kamerapositionen.}}{57}{figure.E.3}
-\contentsline {figure}{\numberline {E.4}{\ignorespaces Position 2 f\IeC {\"u}r 32 Knoten und Redundanz 3 jeweils Extrema, die Quartile und der Median}}{58}{figure.E.4}
-\contentsline {figure}{\numberline {E.5}{\ignorespaces TEST}}{58}{figure.E.5}
-\contentsline {figure}{\numberline {E.6}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{59}{figure.E.6}
-\contentsline {figure}{\numberline {E.7}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{59}{figure.E.7}
-\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1.}}{60}{figure.E.8}
-\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1.}}{60}{figure.E.9}
-\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2.}}{61}{figure.E.10}
-\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2.}}{61}{figure.E.11}
-\contentsline {figure}{\numberline {E.12}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2.}}{62}{figure.E.12}
-\contentsline {figure}{\numberline {E.13}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3.}}{62}{figure.E.13}
-\contentsline {figure}{\numberline {E.14}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3.}}{63}{figure.E.14}
-\contentsline {figure}{\numberline {E.15}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$1, 2 Renderer und 24-32 Datenknoten)}}{63}{figure.E.15}
-\contentsline {figure}{\numberline {E.16}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$3, 2 Renderer und 24-32 Datenknoten)}}{64}{figure.E.16}
+\contentsline {figure}{\numberline {E.1}{\ignorespaces Reloadtest: Redundanz 2, 2 Renderknoten, 28 Datenknoten.}}{59}{figure.E.1}
+\contentsline {figure}{\numberline {E.2}{\ignorespaces Der Median bei 2 Renderern, unterschiedlichen Datenknoten, Redundanz 3 bei unterschiedlichen Kamerapositionen.}}{60}{figure.E.2}
+\contentsline {figure}{\numberline {E.3}{\ignorespaces Der Median bei 2 Renderern, 32 Datenknoten, unterschiedliche Redundanzen bei unterschiedlichen Kamerapositionen.}}{60}{figure.E.3}
+\contentsline {figure}{\numberline {E.4}{\ignorespaces Position 2 f\IeC {\"u}r 32 Knoten und Redundanz 3 jeweils Extrema, die Quartile und der Median}}{61}{figure.E.4}
+\contentsline {figure}{\numberline {E.5}{\ignorespaces TEST}}{61}{figure.E.5}
+\contentsline {figure}{\numberline {E.6}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{62}{figure.E.6}
+\contentsline {figure}{\numberline {E.7}{\ignorespaces Zeit zum Vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{62}{figure.E.7}
+\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$1.}}{63}{figure.E.8}
+\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$1.}}{63}{figure.E.9}
+\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$2.}}{64}{figure.E.10}
+\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$2.}}{64}{figure.E.11}
+\contentsline {figure}{\numberline {E.12}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$2.}}{65}{figure.E.12}
+\contentsline {figure}{\numberline {E.13}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$3.}}{65}{figure.E.13}
+\contentsline {figure}{\numberline {E.14}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 80 Datenknoten und Redundanz$=$3.}}{66}{figure.E.14}
+\contentsline {figure}{\numberline {E.15}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{66}{figure.E.15}

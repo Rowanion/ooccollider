@@ -1,0 +1,44 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+  \begin{axis}[xlabel=Kameraposition, 
+	       ylabel={Zeit (Sekunden)},xtick=\empty, legend pos=north west, ymax=35]
+  \addplot[color=red,
+	   mark=|,dashed,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={red, error bars options={line width=2pt}}]
+    table[col sep=comma,x index=0,y index=2,y error index=3, header=false]
+    {data/ReloadTest_Redundance1_R2_D32.2010-1-27.log_abs.data};
+  \addlegendentry{Extrema}
+  \addplot[color=cyan,
+	   mark=|,
+	   only marks,
+	   error bars/.cd,
+	   y dir=both,
+	   y explicit,
+	   error bar style={cyan, very thick},
+	   ultra thick] 
+    table[col sep=comma,x index=0,y index=4,y error index=5, header=false]
+    {data/ReloadTest_Redundance1_R2_D32.2010-1-27.log_abs.data};
+  \addlegendentry{Quartile}
+%\begin{comment}
+  \addplot[color=green,
+	   only marks,
+	   mark=*] 
+    table[col sep=comma,x index=0,y index=6, header=false]
+    {data/ReloadTest_Redundance1_R2_D32.2010-1-27.log_abs.data};
+  \addlegendentry{Average}
+%\end{comment}
+  \addplot[color=black,
+	   mark=x,
+	   only marks] 
+    table[col sep=comma,x index=0,y index=1, header=false]
+    {data/ReloadTest_Redundance1_R2_D32.2010-1-27.log_abs.data};
+  \addlegendentry{Median}
+  \end{axis}
+\end{tikzpicture}
