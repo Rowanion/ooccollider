@@ -176,7 +176,8 @@
 %
 % Paket für Links innerhalb des PDF Dokuments
 %
-\definecolor{LinkColor}{rgb}{0,0,0.5}
+%\definecolor{LinkColor}{rgb}{0,0,0.5}
+\definecolor{LinkColor}{rgb}{0,0,0}
 
 \usepackage[
 pdfauthor={\thesisauthor},
@@ -187,6 +188,7 @@ bookmarksopenlevel=1, % The open level in PDF bookmarks.
 hyperindex=true, % Hyperlinked index.
 plainpages=false, % Name arabic and roman page numbers differently.
 colorlinks=true, % Links are marked as coloured text, not coloured box.
+linkcolor=linkc, % The colour for in-document links (e.g. in the table of contents).
 linkcolor=linkc, % The colour for in-document links (e.g. in the table of contents).
 citecolor = citec, % The colour for bibliographic citations.
 urlcolor=urlc, % The colour for hyperlinks to the Net.
@@ -297,6 +299,8 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \newenvironment{Bild}
   {\par\noindent\minipage{\textwidth}\centering}
   {\endminipage}
+
+\usepackage{verbatim} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
