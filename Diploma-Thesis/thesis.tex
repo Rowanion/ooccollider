@@ -309,9 +309,14 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\renewcommand\contentsname{Inhaltsverzeichnis}
+\renewcommand\listfigurename{Abbildungsverzeichnis}
+\renewcommand\listtablename{Tabellenverzeichnis}
+\renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
 
 \pagenumbering{alph}
 \input{chapters/titlepage}
+\input{chapters/erklaerung}
 
 \selectlanguage{german}
 \pagenumbering{roman}
@@ -321,7 +326,6 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \addcontentsline{toc}{chapter}{ToDoList}
 
 
-\renewcommand\contentsname{Inhaltsverzeichnis}
 \tableofcontents
 \addcontentsline{toc}{chapter}{Inhaltsverzeichnis}
 
@@ -336,9 +340,6 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \input{chapters/conclusion}
 
 
-\renewcommand\listfigurename{Abbildungsverzeichnis}
-\renewcommand\listtablename{Tabellenverzeichnis}
-\renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
 
 \appendix
 
@@ -346,6 +347,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \bibliography{bib/references}
 
 \listoffigures
+
 %\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}
 %\listoftables
 %\listofalgorithms
@@ -355,8 +357,6 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \input{chapters/appendix-figures}
 \input{chapters/appendix-diagrams}
 \input{chapters/appendix-div}
-
-\input{chapters/erklaerung}
 
 %\printindex
 \end{document}
