@@ -1,0 +1,69 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[>=stealth]
+  \begin{axis}[name=plotxz,width=10cm,xlabel=Kameraposition,
+               ylabel={Zeit (Sekunden)},xtick=\empty, legend pos=north west, ymax=25]
+  \addplot[color=red,
+           mark=|,dashed,
+           only marks,
+           error bars/.cd,
+           y dir=both,
+           y explicit,
+           error bar style={red}]
+    table[col sep=comma,x index=0,y index=2,y error index=3, header=false]
+    {data/ReloadTest_Redundance1_R2_D24.2010-1-27.log_abs.data};
+  \addlegendentry{Extrema}
+  \addplot[color=cyan,
+           mark=|,
+	   ultra thick,
+           only marks,
+           error bars/.cd,
+           y dir=both,
+           y explicit,
+           error bar style={cyan, very thick}]
+    table[col sep=comma,x index=0,y index=4,y error index=5, header=false]
+    {data/ReloadTest_Redundance1_R2_D24.2010-1-27.log_abs.data};
+  \addlegendentry{Quartile}
+  \addplot[color=black,
+           mark=x,
+           only marks]
+    table[col sep=comma,x index=0,y index=1, header=false]
+    {data/ReloadTest_Redundance1_R2_D24.2010-1-27.log_abs.data};
+  \addlegendentry{Median}
+  \end{axis}
+
+  \begin{axis}[name=plotyz,width=10cm,at={($(plotxz.east)+(1.5cm,0)$)},anchor=west,xlabel=Kameraposition,
+               xtick=\empty, legend pos=north west, ymax=25]
+  \addplot[color=red,
+           mark=|,dashed,
+           only marks,
+           error bars/.cd,
+           y dir=both,
+           y explicit,
+           error bar style={red}]
+    table[col sep=comma,x index=0,y index=2,y error index=3, header=false]
+    {data/ReloadTest_Redundance3_R2_D32.2010-1-28.log_abs.data};
+  \addlegendentry{Extrema}
+  \addplot[color=cyan,
+           mark=|,
+	   ultra thick,
+           only marks,
+           error bars/.cd,
+           y dir=both,
+           y explicit,
+           error bar style={cyan, very thick}]
+    table[col sep=comma,x index=0,y index=4,y error index=5, header=false]
+    {data/ReloadTest_Redundance3_R2_D32.2010-1-28.log_abs.data};
+  \addlegendentry{Quartile}
+  \addplot[color=black,
+           mark=x,
+           only marks]
+    table[col sep=comma,x index=0,y index=1, header=false]
+    {data/ReloadTest_Redundance3_R2_D32.2010-1-28.log_abs.data};
+  \addlegendentry{Median}
+  \end{axis}
+\end{tikzpicture}
+
+
