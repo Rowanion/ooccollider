@@ -1,0 +1,135 @@
+/**
+ * @file	declarations.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 04.05.2009
+ * @brief 	declarations class declaration.
+ */
+
+
+#ifndef DECLARATIONS_H_
+#define DECLARATIONS_H_
+
+// project-wide defines
+#define GET_GLERROR(ret) \
+{ \
+         GLenum err = glGetError(); \
+         if (err != GL_NO_ERROR) { \
+                 fprintf(stderr, "[%s line %d] GL Error: %s\n", \
+                 __FILE__, __LINE__, gluErrorString(err)); \
+                 fflush(stderr); \
+         } \
+}
+#undef SHOW_RENDER_IMAGE
+#undef SHOW_DEPTH_IMAGE
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+#define TARGET_WIDTH 640
+#define TARGET_HEIGHT 480
+#define DEPTHBUFFER_INTERVAL 16
+#define CAMERA_OFFSET 15.0f
+#define FAR_CLIPPING_PLANE 100.0f
+#define MAX_TREE_ITERATIONS 3000
+#define BASE_FOVY 70.0
+#define PRESELECTED_SEED 670274678
+#define MODULO_FRAMECOUNT 5000
+#define CCOLLISION_AVG 50
+#define DISPLAY_AVG 50
+#define OCULLING_AVG 50
+#define REQUESTDATA_AVG 50
+#define FRUSTUMCULLING_AVG 50
+#define DEPTH_AVG 10
+#define DISTANCE_RENEWAL 10
+#define LVL_OF_REDUNDANCY 1
+#define MODEL_DIR "/SampleTree_packed"
+#define MAX_OFFLINE_FRAMES 200
+
+#undef DEBUG_CCOLLISION
+#undef DEBUG_RENDERLOOP
+#undef DEBUG_FRUSTUMCULLING
+#undef DEBUG_OCULLING
+#undef DEBUG_REQUESTDATA
+#undef DEBUG_INITIAL_SEND
+#define DEBUG_DEPTH_RESEND
+#define KEEP_VBOS_RESIDENT
+
+#define RENDER_TIME_TEST
+#undef C_COLLISION_BALANCE_TEST
+#undef FPS_TEST
+
+#ifdef OFFICE
+#define SHOW_RENDER_IMAGE
+#undef SHOW_DEPTH_IMAGE
+#define MAX_OFFLINE_VBOS 4000
+#define MAX_LOADS_PER_FRAME 1000
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model"
+#define L1_CACHE_THRESHOLD 412000000
+#define L1_CACHE_VBO_LIMIT 20000
+//#define L2_CACHE_THRESHOLD 1073741824
+#define L2_CACHE_THRESHOLD 736870912
+#endif
+
+#ifdef PC2
+#undef SHOW_RENDER_IMAGE
+#undef SHOW_DEPTH_IMAGE
+#define TRANSMIT_DISTRIBUTION
+#define KEEP_VBOS_RESIDENT
+#define MAX_OFFLINE_VBOS 4000
+#define MAX_LOADS_PER_FRAME 1000
+//#define BASE_MODEL_PATH "/home-pc2/user/ava/Diplom/Model"
+#define BASE_MODEL_PATH "/scratch/tsuess/ava/Model"
+#define L1_CACHE_THRESHOLD 412000000
+#define L1_CACHE_VBO_LIMIT 10000
+//#define L2_CACHE_THRESHOLD 1073741824
+#define L2_CACHE_THRESHOLD 736870912
+#endif
+
+#ifdef HOME
+#undef KEEP_VBOS_RESIDENT
+#undef TRANSMIT_DISTRIBUTION
+#define SHOW_RENDER_IMAGE
+#define SHOW_DEPTH_IMAGE
+#define MAX_OFFLINE_VBOS 1500
+#define MAX_LOADS_PER_FRAME 40
+#define BASE_MODEL_PATH "/home/ava/Diplom/Model"
+#define L1_CACHE_THRESHOLD 412000000
+#define L1_CACHE_VBO_LIMIT 8000
+#define L2_CACHE_THRESHOLD 512*1024*1024
+#endif
+
+// class declarations
+class AbstractEventHandler;
+class AbstractGlFrame;
+class DataCore;
+class DataCoreGlFrame;
+class MemTools;
+class OOCCamera;
+class OOCWindow;
+class RenderCore;
+class RenderCoreGlFrame;
+class RenderMasterCore;
+class SimpleGlFrame;
+
+//events
+class AccumulatedRendertimeEvent;
+class CameraMovedEvent;
+class ClearCacheEvent;
+class DepthBufferEvent;
+class EndOfFrameEvent;
+class EndTransmissionEvent;
+class InfoRequestEvent;
+class KeyPressedEvent;
+class KeyReleasedEvent;
+class MouseButtonEvent;
+class MouseButtonStateChangeEvent;
+class MouseDraggedEvent;
+class MouseMovedEvent;
+class MouseWheelEvent;
+class RandomSeedEvent;
+class VboEvent;
+class WindowClosedEvent;
+class WindowResizedEvent;
+
+// struct declarations
+
+#endif /* DECLARATIONS_H_ */
