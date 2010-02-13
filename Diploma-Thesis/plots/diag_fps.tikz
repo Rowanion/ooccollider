@@ -12,7 +12,7 @@
     \addlegendentry{32 Datenknoten}
   \end{axis}
 
-  \begin{axis}[name=plotyz,width=10cm,at={($(plotxz.east)+(1.5cm,0)$)},anchor=west, xlabel=Position, ylabel={FPS}, ymax=60, legend pos=north west]
+  \begin{axis}[name=plotyz,width=10cm,at={($(plotxz.east)+(1.8cm,0)$)},anchor=west, xlabel=Position, ymax=60, legend pos=north west]
     \addplot[smooth,red,samples=500] table[col sep=comma,x index=0,y index=1,header=false] {data/FPSWalkthroughTest_Redundance3_R2_D24.2010-1-25.log};
     \addlegendentry{24 Datenknoten}
     \addplot[smooth,green,samples=500] table[col sep=comma,x index=0,y index=1,header=false] {data/FPSWalkthroughTest_Redundance3_R2_D28.2010-1-25.log};
