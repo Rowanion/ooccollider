@@ -1,14 +1,12 @@
 \chapter{Grundlagen}
 \label{chap:basics}
-\todo[size=\small, color=yellow!40, inline]{Kapitel: Non-Tim understanding}%
 \todo[size=\small, color=yellow!40, inline]{Kapitel: Human proofreading}%
 \todo[size=\small, inline]{Evtl. besseren Namen für Kapitel "`Grundlagen"' finden $\rightarrow$ Grundlegende Algorithmen/Techniken?!}%
 An dieser Stelle soll zunächst ein Überblick über die in der vorliegenden Arbeit verwendeten Techniken gegeben werden. Diese beinhalten unter anderem Algorithmen der Computergrafik, verwendete Datenstrukturen und die Organisation der Speicherverwaltung.
 
 \section{Datenstrukturen}
 \label{sec:basics:datenstrukturen}
-3D-Modelle aus Computer Aided Design - Anwendungen (CAD) werden üblicherweise nach ihrer Funktion gruppiert. Das mag beim Entwurf solcher Systeme auch praktisch sein, bei der Visualisierung kann dies jedoch zu Problemen führen. Bei CAD-Modellen in Größenordnung der Boeing 777\footnote{\todo[size=\small, inline]{Boeing Herkunftshinweis verschieben an die erste Stelle wo es erwähnt wird.}%
-Das 3D-Modell der Boeing 777 (ca. 350 Millionen Dreiecke, 10 GiB) wurde freundlicherweise zur Verfügung gestellt von The Boeing Company, Seattle, WA, USA.} ist es wichtig, dass diese in eine geeignete räumliche Unterteilung überführt werden. Da ein Out-Of-Core-Renderer entwickelt wurde, findet ein ständiges Laden und Verwerfen von Teilmodellen statt. Je länger ein Renderer benötigt, um herauszufinden, welche Teile des Modells er verwerfen kann und welche er als erstes anfordern sollte, desto länger braucht er auch um ein Bild zu erstellen. In dieser Arbeit wurde als hierarchische räumliche Unterteilung ein Randomized Sampletree (siehe Kapitel \ref{sec:basics:sampletree}) und zum Vergleich ein Loose Octree gewählt.
+3D-Modelle aus Computer Aided Design - Anwendungen (CAD) werden üblicherweise nach ihrer Funktion gruppiert. Das mag beim Entwurf solcher Systeme auch praktisch sein, bei der Visualisierung kann dies jedoch zu Problemen führen. Bei CAD-Modellen in Größenordnung der Boeing 777 ist es wichtig, dass diese in eine geeignete räumliche Unterteilung überführt werden. Da ein Out-Of-Core-Renderer entwickelt wurde, findet ein ständiges Laden und Verwerfen von Teilmodellen statt. Je länger ein Renderer benötigt, um herauszufinden, welche Teile des Modells er verwerfen kann und welche er als erstes anfordern sollte, desto länger braucht er auch um ein Bild zu erstellen. In dieser Arbeit wurde als hierarchische räumliche Unterteilung ein Randomized Sampletree (siehe Kapitel \ref{sec:basics:sampletree}) und zum Vergleich ein Loose Octree gewählt.
 
 \subsection{Loose Octree}
 \label{sec:basics:octree}
