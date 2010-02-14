@@ -4,7 +4,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=chapters/results.tex
+lastDocument=thesis.tex
 masterDocument=
 name=Diploma-Thesis
 pkg_extIsRegExp=false
@@ -18,12 +18,12 @@ QuickBuild=
 
 [item:bib/references.bib]
 archive=true
-column=8
+column=14
 encoding=UTF-8
 highlight=BibTeX
-line=182
+line=312
 open=true
-order=2
+order=3
 
 [item:chapters/appendix-acronyms.tex]
 archive=true
@@ -32,15 +32,15 @@ encoding=UTF-8
 highlight=LaTeX
 line=30
 open=true
-order=8
+order=4
 
 [item:chapters/appendix-diagrams.tex]
 archive=true
-column=113
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=173
-open=true
+line=0
+open=false
 order=12
 
 [item:chapters/appendix-div.tex]
@@ -54,19 +54,19 @@ order=11
 
 [item:chapters/appendix-figures.tex]
 archive=true
-column=1
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=29
-open=true
+line=0
+open=false
 order=10
 
 [item:chapters/basics.tex]
 archive=true
-column=0
+column=369
 encoding=UTF-8
 highlight=LaTeX
-line=2
+line=106
 open=true
 order=6
 
@@ -77,25 +77,25 @@ encoding=UTF-8
 highlight=LaTeX
 line=33
 open=true
-order=9
+order=7
 
 [item:chapters/erklaerung.tex]
 archive=true
-column=0
+column=40
 encoding=UTF-8
 highlight=LaTeX
-line=26
+line=10
 open=true
-order=13
+order=10
 
 [item:chapters/implementation.tex]
 archive=true
-column=0
+column=23
 encoding=UTF-8
 highlight=LaTeX
-line=3
+line=121
 open=true
-order=4
+order=9
 
 [item:chapters/introduction.tex]
 archive=true
@@ -113,25 +113,25 @@ encoding=UTF-8
 highlight=LaTeX
 line=4
 open=true
-order=3
+order=8
 
 [item:chapters/results.tex]
 archive=true
-column=0
+column=44
 encoding=UTF-8
 highlight=LaTeX
-line=3
+line=8
 open=true
-order=5
+order=1
 
 [item:chapters/titlepage.tex]
 archive=true
-column=13
+column=14
 encoding=UTF-8
 highlight=LaTeX
-line=94
+line=92
 open=true
-order=1
+order=2
 
 [item:images/1d_texture.pdf]
 archive=true
@@ -589,7 +589,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=true
+open=false
 order=11
 
 [item:plots/test8.tex]
@@ -621,9 +621,9 @@ order=-1
 
 [item:thesis.tex]
 archive=true
-column=32
+column=12
 encoding=UTF-8
 highlight=LaTeX
-line=289
+line=354
 open=true
-order=7
+order=5
