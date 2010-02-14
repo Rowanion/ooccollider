@@ -295,12 +295,19 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \usepackage{algorithmic, algorithmic-fix}
 \renewcommand{\algorithmiccomment}[1]{//\textit{#1}}
 
-\usepackage{caption}
+% make boldfaced caption-ids, and justification left
+\usepackage[bf,font=footnotesize,justification=raggedright,singlelinecheck=false]{caption}
+\addtokomafont{captionlabel}{\textbf}
+
+% making the captions kursive/slanted
+\renewcommand{\captionfont}{\small\slshape}
+
 \newenvironment{Bild}
   {\par\noindent\minipage{\textwidth}\centering}
   {\endminipage}
 
 \usepackage{verbatim} 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -313,6 +320,7 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \renewcommand\listfigurename{Abbildungsverzeichnis}
 \renewcommand\listtablename{Tabellenverzeichnis}
 \renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
+
 
 \pagenumbering{alph}
 \input{chapters/titlepage}

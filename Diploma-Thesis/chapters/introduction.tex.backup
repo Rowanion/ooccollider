@@ -31,14 +31,12 @@
 
 \chapter{Einleitung}
 
-\begin{itemize}
- \item Was habe ich gemacht?
- \item Zusammenfassung vorweggenommen
- \item c-Collision Protokoll nicht vergessen!
-\end{itemize}
+In dieser Arbeit wurde sich der Aufgabe gestellt, ein paralleles Out-Of-Core Rendering-System zu entwickeln, mit dem große 3D-Modelle auf einem PC-Cluster gerendert werden können. Als Test-Szene wurde das Modell einer Boeing 777\footnote{Das 3D-Modell der Boeing 777 (ca. 350 Millionen Dreiecke, 10 GiB) wurde freundlicherweise zur Verfügung gestellt von The Boeing Company, Seattle, WA, USA.} gewählt. Da Modelle dieser Größenordnung weder in den Speicher von Consumer-Grafikkarten, noch in den System-Speicher passen, wurde nach einer guten Verteilung der Daten im Netzwerk gesucht. Mehrere Renderknoten fordern benötigte geometrische Objekte von Datenknoten an und rendern einen Bildausschnitt des finalen Bildes. Um zu verhindern, dass Datenknoten durch große Anfragenmengen überlastet werden, wurde das $c$-Collision Protokoll als gewichteter Datenbalancierer eingesetzt. Ziel dieser Arbeit ist es, die Tauglichkeit des $c$-Collision Protokolls als Lastbalancierer in so einem Rendering-System zu untersuchen. Im Zuge dessen wurden auf dem hier entwickelten System verschiedene Tests durchgeführt. Jeder Test wurde auf unterschiedlichen Systemkonfigurationen durchgeführt, was bedeutet, dass die Anzahl an Renderern, Datenknoten und Redundanzen des Modells jeweils geändert wurde. Ein Test hat die Bilder pro Sekunde aufgezeichnet, die bei einem Walkthrough\footnote{Ein Walkthrough bezeichnet hier eine Navigation durch eine 3D-Szene, bei der möglichst viele signifikante Stellen des Modells besucht werden.} durch die Szene gemessen werden konnten. Ein weitere Test bestand darin, an festen Kamerapositionen die Zeit zu messen, die benötigt wird, die Szene vollständig zu laden. Als letzter Test wurde überprüft, wie die Anfragenlast im Netzwerk durch das $c$-Collision Protokoll verteilt wird.
 
 \section{Motivation}
-\label{introduction:motivation}
+\label{sec:intro:motivation}
+\todo[size=\small, color=blue!40, inline]{Kapitel: Motivation}%
+Die Leistung von modernen Grafikkarten steigt stetig an. SO ist es möglich immer komplexere 3D-Szenen darzustellen. Aber gerade im Bereich des Computer Aided Designs (CAD) entstehen 3D-Modelle, welche auch moderne Grafikkarten vor große Herausforderungen stellen. Auch diese SSolche Szenen 
 
 \begin{itemize}
  \item Herausforderung
@@ -51,17 +49,8 @@
  \item Format
  \item Cluster-Konfiguration
  \item Graphics-Workstations mit SharedMemory, mehreren Prozessoren und mehreren synchronisierten Graphic-Pipelines sind teuer
- \item PC-Cluster ist besser skalierbar als eine ``eng zusammenhängende'' Worstation.
-
+ \item PC-Cluster ist besser skalierbar als eine eng "`zusammenhängende"' Workstation.
 \end{itemize}
-
-Considering \cite{602108}, we follow that ... blah, blah ... so that it becomes
-clear that ... blah, blah ... upon which we may safely assume that Wilcox is
-actually correct in his reasoning, and by investigating ... blah, blah ...
-we hope to gain detailed insight into this topic.
-
--
-
 
 %
 % EOF
