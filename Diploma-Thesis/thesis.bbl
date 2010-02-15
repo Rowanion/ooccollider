@@ -54,7 +54,7 @@ Steven Molnar, Michael Cox, David Ellsworth, and Henry Fuchs.
 \newblock {\em IEEE Comput. Graph. Appl.}, 14(4):23--32, 1994.
 
 \bibitem{medieninfo}
-Klaus Bruns, Kai; Meyer-Wegener.
+Kai Bruns and Klaus Meyer-Wegener.
 \newblock {\em {Taschenbuch der Medieninformatik}}.
 \newblock Hanser Fachbuchverlag Leipzig, 2005.
 
@@ -66,7 +66,8 @@ Rudrajit Samanta, Thomas Funkhouser, Kai Li, and Jaswinder~Pal Singh.
   workshop on Graphics hardware}, pages 97--108, New York, NY, USA, 2000. ACM.
 
 \bibitem{baxter}
-William~V. Baxter, III, Avneesh Sud, Naga~K. Govindaraju, and Dinesh Manocha.
+W.~V. Baxter, Avneesh Sud, Naga~K. Govindaraju, Iii Avneesh, Sud Naga,
+  K.~Govindaraju, and Dinesh Manocha.
 \newblock Gigawalk: interactive walkthrough of complex environments.
 \newblock In {\em EGRW '02: Proceedings of the 13th Eurographics workshop on
   Rendering}, pages 203--214, Aire-la-Ville, Switzerland, 2002. Eurographics
@@ -132,12 +133,12 @@ Ingo Wald, Andreas Dietrich, and Philipp Slusallek.
 \bibitem{wikioctree}
 Wikipedia, the free encyclopedia.
 \newblock \url{http://de.wikipedia.org/wiki/Octree}, 2010.
-\newblock Zuletzt abgerufen, Januar 2010.
+\newblock Zuletzt abgerufen: Januar 2010.
 
 \bibitem{anteru}
 Anteru's blog - graphics, programming and software engineering.
 \newblock \url{http://anteru.net/2008/11/14/315/}, 2010.
-\newblock Zuletzt abgerufen, Januar 2010.
+\newblock Zuletzt abgerufen: Januar 2010.
 
 \bibitem{klein}
 Jan Klein, Jens Krokowski, Matthias Fischer, Michael Wand, Rolf Wanka, and
@@ -155,13 +156,14 @@ D.~Cohen-Or, Y.L. Chrysanthou, C.T. Silva, and F.~Durand.
 
 \bibitem{mpi}
 Open mpi: Open source high performance computing.
+\newblock Zuletzt abgerufen: Februar 2010.
 
 \bibitem{obj}
 Object files (.obj).
-\newblock OBJ file format specification.
+\newblock OBJ file format specification, Zuletzt abgerufen: Februar 2010.
 
 \bibitem{pc2}
 Arminius - large scale high performance system.
-\newblock Der Arminius-Cluster.
+\newblock Der Arminius-Cluster, Zuletzt abgerufen: Februar 2010.
 
 \end{thebibliography}

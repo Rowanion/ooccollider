@@ -37,20 +37,19 @@
 
 \begin{minipage}[t]{0.3\linewidth}
 \begin{flushleft}
-\includegraphics[width=3.49cm,height=5.0cm]{Logo_Uni_Paderborn.pdf}
-%\includegraphics[width=3.49cm,height=1.65cm]{images/fakultaet-fuer-informatik-logo.png}
+\begin{center}
+ \includegraphics[scale=0.75]{images/Logo_Uni_Paderborn.pdf}
+ % Logo_Uni_Paderborn.pdf: 442x117 pixel, 72dpi, 15.59x4.13 cm, bb=0 0 442 117
+\end{center}
+
 \end{flushleft}
-\end{minipage}
-\begin{minipage}[t]{0.7\linewidth}
-\begin{flushright}
-\vspace*{-1.65cm}
-\includegraphics[width=9.34cm,height=0.53cm]{images/fakultaet-fuer-informatik-text.png}
-\end{flushright}
 \end{minipage}
 
 \vspace{1.0cm}
 
 \begin{center}
+\begin{Large}\thesistype \end{Large}  \\
+\begin{normalsize}DPO4 \end{normalsize} \bigskip \\
 \dmseries\huge{\thesistitle \\ \thesissubtitle}
 \end{center}
 
@@ -59,14 +58,16 @@
 \renewcommand{\bigskip}{\vspace*{0.43cm}}
 
 \begin{center}
-\begin{Large}\thesistype \end{Large} \bigskip \\
-\begin{normalsize}zur Erlangung des akademischen Grades \end{normalsize} \bigskip \\
+\begin{normalsize}vorgelegt von \end{normalsize} \\
+\begin{Large}\dmseries\thesisauthor\end{Large} \bigskip \bigskip\\
+\begin{normalsize}Vorgelegt bei: \end{normalsize} \\
+
 \begin{Large}\dmseries\zuerlangendertitel\end{Large} \bigskip \\
 \begin{normalsize}im Rahmen des Studiums\end{normalsize} \bigskip \\
 \begin{large}\dmseries\studium\end{large} \bigskip \\
 \begin{normalsize}ausgef\"{u}hrt von \end{normalsize} \bigskip \\
 \begin{large}\dmseries\thesisauthor\end{large} \\
-\begin{normalsize}Matrikelnummer \matrikelnr\end{normalsize} \\
+\begin{normalsize}Matrikelnummer: \matrikelnr\end{normalsize} \\
 \end{center}
 
 \begin{flushleft}
@@ -93,7 +94,7 @@ Betreuung: \\
 %Wien, \today & \hspace*{0.5cm} & \underline{\hspace*{5.2cm}} & \hspace*{1.0cm} & \underline{\hspace*{5.2cm}}\\
 %                       &                 &         Unterschrift Verfasserin  & & Unterschrift Betreuer
 \hspace{4.5cm} \= \hspace{5cm} \= \hspace{5cm} \kill
-\textit{Wien, \today} \> \underline{\hspace*{5cm}} \> \hspace{0.8cm} \underline{\hspace*{5cm}} \\
+\textit{Paderborn, \today} \> \underline{\hspace*{5cm}} \> \hspace{0.8cm} \underline{\hspace*{5cm}} \\
      \> \hspace{0.1cm} (Unterschrift Verfasser/in) \> \hspace{1.0cm} (Unterschrift Betreuer/in) \\
 \end{tabbing}
 \end{flushleft}

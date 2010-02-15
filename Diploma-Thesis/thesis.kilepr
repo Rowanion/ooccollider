@@ -3,8 +3,8 @@ def_graphic_ext=
 img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
-kileversion=2.1 beta2
-lastDocument=thesis.tex
+kileversion=2.1
+lastDocument=chapters/basics.tex
 masterDocument=
 name=Diploma-Thesis
 pkg_extIsRegExp=false
@@ -18,12 +18,12 @@ QuickBuild=
 
 [item:bib/references.bib]
 archive=true
-column=14
+column=21
 encoding=UTF-8
 highlight=BibTeX
-line=312
+line=44
 open=true
-order=3
+order=6
 
 [item:chapters/appendix-acronyms.tex]
 archive=true
@@ -32,7 +32,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=30
 open=true
-order=4
+order=7
 
 [item:chapters/appendix-diagrams.tex]
 archive=true
@@ -40,8 +40,8 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
-order=12
+open=true
+order=8
 
 [item:chapters/appendix-div.tex]
 archive=true
@@ -58,35 +58,35 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
-order=10
+open=true
+order=22
 
 [item:chapters/basics.tex]
 archive=true
-column=369
+column=784
 encoding=UTF-8
 highlight=LaTeX
-line=106
+line=87
 open=true
-order=6
+order=4
 
 [item:chapters/conclusion.tex]
 archive=true
-column=0
+column=8
 encoding=UTF-8
 highlight=LaTeX
-line=33
+line=16
 open=true
-order=7
+order=37
 
 [item:chapters/erklaerung.tex]
 archive=true
-column=40
+column=1
 encoding=UTF-8
 highlight=LaTeX
-line=10
+line=2
 open=true
-order=10
+order=35
 
 [item:chapters/implementation.tex]
 archive=true
@@ -95,25 +95,25 @@ encoding=UTF-8
 highlight=LaTeX
 line=121
 open=true
-order=9
+order=5
 
 [item:chapters/introduction.tex]
 archive=true
-column=0
+column=359
 encoding=UTF-8
 highlight=LaTeX
-line=34
+line=38
 open=true
 order=0
 
 [item:chapters/relatedwork.tex]
 archive=true
-column=0
+column=791
 encoding=UTF-8
 highlight=LaTeX
-line=4
+line=53
 open=true
-order=8
+order=36
 
 [item:chapters/results.tex]
 archive=true
@@ -126,10 +126,10 @@ order=1
 
 [item:chapters/titlepage.tex]
 archive=true
-column=14
+column=31
 encoding=UTF-8
 highlight=LaTeX
-line=92
+line=67
 open=true
 order=2
 
@@ -175,7 +175,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=23
 
 [item:plots/Reload7_r1_28.tex]
@@ -184,7 +184,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=24
 
 [item:plots/Reload7_r1_32.tex]
@@ -193,7 +193,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=25
 
 [item:plots/Reload7_r2_24.tex]
@@ -229,7 +229,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=26
 
 [item:plots/Reload7_r3_28.tex]
@@ -238,7 +238,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=27
 
 [item:plots/Reload7_r3_32.tex]
@@ -247,7 +247,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=28
 
 [item:plots/diag2.tex]
@@ -328,7 +328,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=10
 
 [item:plots/diag_cCol_red2_render4_data120_2x.tikz]
@@ -409,7 +409,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=14
 
 [item:plots/diag_fps_redundancy2.tex]
@@ -418,7 +418,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=16
 
 [item:plots/diag_fps_redundancy3.tex]
@@ -427,7 +427,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=17
 
 [item:plots/diag_reload_red1_render2_data32.tex]
@@ -481,7 +481,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=9
 
 [item:plots/test10.tex]
@@ -490,7 +490,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=29
 
 [item:plots/test11.tex]
@@ -499,7 +499,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=30
 
 [item:plots/test12.tex]
@@ -508,7 +508,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=31
 
 [item:plots/test13.tex]
@@ -517,7 +517,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=32
 
 [item:plots/test14.tex]
@@ -526,7 +526,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=33
 
 [item:plots/test15.tex]
@@ -535,7 +535,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=34
 
 [item:plots/test2.tex]
@@ -544,7 +544,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=11
 
 [item:plots/test3.tex]
@@ -553,7 +553,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=12
 
 [item:plots/test4.tex]
@@ -562,7 +562,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=13
 
 [item:plots/test5.tex]
@@ -571,7 +571,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=15
 
 [item:plots/test6.tex]
@@ -580,7 +580,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=18
 
 [item:plots/test7.tex]
@@ -589,8 +589,8 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
-order=11
+open=true
+order=19
 
 [item:plots/test8.tex]
 archive=true
@@ -598,7 +598,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=20
 
 [item:plots/test9.tex]
@@ -607,7 +607,7 @@ column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
-open=false
+open=true
 order=21
 
 [item:thesis.kilepr]
@@ -621,9 +621,9 @@ order=-1
 
 [item:thesis.tex]
 archive=true
-column=12
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=354
+line=216
 open=true
-order=5
+order=3
