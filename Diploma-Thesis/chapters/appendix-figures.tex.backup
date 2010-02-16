@@ -29,23 +29,80 @@
 %  (end of template credits)
 %
 
-\chapter{Glossar}
+\chapter{Zusätzliche Abbildungen}
+\label{chap:add_fig}
 
-\begin{acronym}
-\acro{API}{Application Programming Interface}
-\acro{CAD}{Computer Aided Design}
-\acro{FPS}{Frames per second}
-\acro{GPU}{Graphics Processing Unit}
-\acro{HLOD}{Hierarchical Level-Of-Detail \cite{hlod}}
-\acro{LOD}{Level-Of-Detail \cite{RTR3}}
-\acro{PLP}{Prioritized-Layered Projection \cite{plp}}
-\acro{PVS}{Potentially Visible Set \cite{RTR3}}
-\acro{Rasterisierung}{Überführung eines kontinuierlichen Raums in einen diskreten Raum (Pixel).}
-\acro{Rendering}{Erzeugt ein 2D-Bild aus einer 3D-Szene.}
-\acro{screen-space}{Projektion einer 3D-Szene in einen zweidimensionalen Raum (Bild).}
-\acro{SLI}{Scalable Link Interface; Zusammenschluss mehrer Grafikchips}
-\acro{View-Frustum}{Sichtfeld der Kamera}
-\end{acronym}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos1.pdf}
+\captionof{figure}{\label{fig:eval:pos1}Kameraposition 1. (Heck außen, 3.352.475 sichtbare Dreiecke bei der Messung, im Bild sind es mehr.)}
+\end{Bild}
+\vspace{1.5cm}
+%\rule{\textwidth}{0.005in}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos2.pdf}
+\captionof{figure}{\label{fig:eval:pos2}Kameraposition 2. (Heck innen, 2.045.104 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet.)}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos4.pdf}
+\captionof{figure}{\label{fig:eval:pos4}Kameraposition 4. (Stauraum, 8.381.277 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet.)}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos6.pdf}
+\captionof{figure}{\label{fig:eval:pos6}Kameraposition 6. (Turbine, 3.381.998 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet.)}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos7.pdf}
+\captionof{figure}{\label{fig:eval:pos7}Kameraposition 7. (Nase innen, 1.481.706 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet.)}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos8.pdf}
+\captionof{figure}{\label{fig:eval:pos8}Kameraposition 8. (Cockpit, 4.558.623 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet.)}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos9.pdf}
+\captionof{figure}{\label{fig:eval:pos9}Kameraposition 9. (Nase außen, 7.439.695 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet.)}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/pos10.pdf}
+\captionof{figure}{\label{fig:eval:pos10}Kameraposition 10. Flügel-Rumpf Bereich, 4.066.296 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet.)}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/button.pdf}
+\captionof{figure}{\label{fig:eval:button}Türknopf. (Bug)}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/profil_bug.pdf}
+\captionof{figure}{\label{fig:eval:prof_bug}Profil. (Bug)}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/profil_heck.pdf}
+\captionof{figure}{\label{fig:eval:prof_heck}Profil. (Heck)}
+\end{Bild}
+
+\begin{Bild}
+\includegraphics[scale=0.40]{images/turbine_innen.pdf}
+\captionof{figure}{\label{fig:eval:turbine_innen}Triebwerk 1.}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/turbine_innen2.pdf}
+\captionof{figure}{\label{fig:eval:turbine_innen2}Triebwerk 2.}
+\end{Bild}
+\vspace{0.9cm}
+\begin{Bild}
+\includegraphics[scale=0.40]{images/fahrwerk.pdf}
+\captionof{figure}{\label{fig:eval:fahrwerk}Fahrwerk. (Heck)}
+\end{Bild}
 
 %
 % EOF

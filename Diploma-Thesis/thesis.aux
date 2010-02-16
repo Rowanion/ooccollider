@@ -38,11 +38,6 @@
 \pgfsyspdfmark {pgfid1}{19562756}{36611118}
 \@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Human proofreading}}{2}{section*.4}}
 \pgfsyspdfmark {pgfid2}{19562756}{34755150}
-\citation{RTR3}
-\citation{gpugems1}
-\citation{gpugems2}
-\citation{gpugems3}
-\citation{cgtutorial}
 \citation{ccol3}
 \citation{ccol4}
 \citation{ccol2}
@@ -53,7 +48,7 @@
 \@writefile{loa}{\addvspace {10\p@ }}
 \newlabel{chap:relwork}{{2}{4}{Verwandte Arbeiten\relax }{chapter.2}{}}
 \@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Kapitel: Human proofreading}}{4}{section*.5}}
-\pgfsyspdfmark {pgfid3}{19562756}{35643217}
+\pgfsyspdfmark {pgfid3}{19562756}{36984507}
 \citation{molnar}
 \@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces  Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (gr\IeC {\"u}n). Alle Ressourcen, die nach einer Runde h\IeC {\"o}chstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt.}}{5}{figure.2.1}}
 \newlabel{fig:relwork:ccollision}{{2.1}{5}{\label {fig:relwork:ccollision} Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (grün). Alle Ressourcen, die nach einer Runde höchstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt}{figure.2.1}{}}
@@ -84,6 +79,17 @@
 \citation{plp}
 \citation{wald}
 \citation{RTR3}
+\citation{gpugems1}
+\citation{gpugems2}
+\citation{gpugems3}
+\citation{cgtutorial}
+\citation{humphreys}
+\citation{dpbp}
+\citation{RehbergS99}
+\citation{gao}
+\citation{cave}
+\citation{c++}
+\citation{RTR3}
 \@writefile{toc}{\contentsline {chapter}{\numberline {3}Grundlagen}{12}{chapter.3}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -95,7 +101,7 @@
 \newlabel{sec:basics:datenstrukturen}{{3.1}{12}{Datenstrukturen\relax }{section.3.1}{}}
 \citation{wikioctree}
 \citation{anteru}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. \textit  {Links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung. Quelle: \cite  {wikioctree}}}}{13}{figure.3.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. Links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung. Quelle: \cite  {wikioctree}}}{13}{figure.3.1}}
 \newlabel{fig:basics:octree}{{3.1}{13}{Loose Octree\relax }{figure.3.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Loose Octree}{13}{subsection.3.1.1}}
 \newlabel{sec:basics:octree}{{3.1.1}{13}{Loose Octree\relax }{subsection.3.1.1}{}}
@@ -106,7 +112,7 @@
 \newlabel{fig:basics:looseoctree}{{3.2}{14}{Loose Octree\relax }{figure.3.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Randomized Sampletree}{14}{subsection.3.1.2}}
 \newlabel{sec:basics:sampletree}{{3.1.2}{14}{Randomized Sampletree\relax }{subsection.3.1.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Ein Sampletree in einer 2D-Darstellung. Links: eine Aufteilung von Polygonen in verschiedene Quadtree Zellen. Rechts: die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an, welche Polygonteile der linken Seite in welchen Knoten gespeichert wurden. Quelle: nach \cite  {klein}}}{15}{figure.3.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Ein Sampletree in einer 2D-Darstellung. Links: eine Aufteilung von Polygonen in verschiedene Quadtree Zellen, rechts: die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an, welche Polygonteile der linken Seite in welchem Baum-Level wurden. Quelle: nach \cite  {klein}}}{15}{figure.3.3}}
 \newlabel{fig:basics:sampletree}{{3.3}{15}{Randomized Sampletree\relax }{figure.3.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3.2}Computergrafik}{15}{section.3.2}}
 \newlabel{sec:basics:computergrafik}{{3.2}{15}{Computergrafik\relax }{section.3.2}{}}
@@ -158,94 +164,105 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Der Masterknoten}{27}{subsection.4.3.1}}
 \newlabel{sec:impl:master}{{4.3.1}{27}{Der Masterknoten\relax }{subsection.4.3.1}{}}
 \@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Breite des Pseudocodes anpassen und auf eine Abbildung statt Pseudocode referenzieren.}}{27}{section*.9}}
-\pgfsyspdfmark {pgfid9}{19562756}{20740856}
+\pgfsyspdfmark {pgfid9}{19562756}{17203001}
 \newlabel{alg:impl:masternode}{{1}{28}{Der Masterknoten\relax }{algorithm.1}{}}
 \@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces MasterNode (auf Visualisierungsknoten)}}{28}{algorithm.1}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Der Pseudo-Code des Masterknotens.}}{28}{figure.4.1}}
+\newlabel{fig:impl:masternode}{{4.1}{28}{\label {fig:impl:masternode}Der Pseudo-Code des Masterknotens}{figure.4.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Die Renderknoten}{29}{subsection.4.3.2}}
 \newlabel{sec:impl:render}{{4.3.2}{29}{Die Renderknoten\relax }{subsection.4.3.2}{}}
 \@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Maximale Objektgr\IeC {\"o}\IeC {\ss }e, bzw. Verteilung ebd. ermitteln. $\rightarrow $ Diagramm? =)}}{29}{section*.10}}
-\pgfsyspdfmark {pgfid10}{19562756}{14844431}
+\pgfsyspdfmark {pgfid10}{19562756}{10127291}
 \newlabel{alg:impl:rendernode}{{2}{30}{Die Renderknoten\relax }{algorithm.2}{}}
 \@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces RenderNode (auf Visualisierungsknoten)}}{30}{algorithm.2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Der Pseudo-Code eines Renderknotens.}}{30}{figure.4.2}}
+\newlabel{fig:impl:rendernode}{{4.2}{30}{\label {fig:impl:rendernode}Der Pseudo-Code eines Renderknotens}{figure.4.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Die Datenknoten}{30}{subsection.4.3.3}}
 \newlabel{sec:impl:daten}{{4.3.3}{30}{Die Datenknoten\relax }{subsection.4.3.3}{}}
 \newlabel{alg:impl:datanode}{{3}{31}{Die Renderknoten\relax }{algorithm.3}{}}
 \@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces DataNode (auf Rechenknoten)}}{31}{algorithm.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Der Pseudo-Code eines Datenknotens.}}{31}{figure.4.3}}
+\newlabel{fig:impl:datanode}{{4.3}{31}{\label {fig:impl:datanode}Der Pseudo-Code eines Datenknotens}{figure.4.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.4}Kommunikation}{32}{section.4.4}}
 \newlabel{sec:impl:kommunikation}{{4.4}{32}{Kommunikation\relax }{section.4.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife.}}{32}{figure.4.2}}
-\newlabel{fig:impl:seqdiagrender}{{4.2}{32}{\label {fig:impl:seqdiagrender}Sequenzdiagramm: Kommunikation für die Render-Schleife}{figure.4.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update.}}{33}{figure.4.3}}
-\newlabel{fig:impl:seqdiagdepth}{{4.3}{33}{\label {fig:impl:seqdiagdepth}Sequenzdiagramm: Kommunikation für ein Tiefenbuffer-Update}{figure.4.3}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {5}Evaluierung}{34}{chapter.5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife.}}{32}{figure.4.4}}
+\newlabel{fig:impl:seqdiagrender}{{4.4}{32}{\label {fig:impl:seqdiagrender}Sequenzdiagramm: Kommunikation für die Render-Schleife}{figure.4.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update.}}{34}{figure.4.5}}
+\newlabel{fig:impl:seqdiagdepth}{{4.5}{34}{\label {fig:impl:seqdiagdepth}Sequenzdiagramm: Kommunikation für ein Tiefenbuffer-Update}{figure.4.5}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Evaluierung}{35}{chapter.5}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{chap:eval}{{5}{34}{Evaluierung\relax }{chapter.5}{}}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Walkthrough-Pfad noch einf\IeC {\"u}gen hier}}{34}{section*.11}}
+\newlabel{chap:eval}{{5}{35}{Evaluierung\relax }{chapter.5}{}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Walkthrough-Pfad noch einf\IeC {\"u}gen hier}}{35}{section*.11}}
 \pgfsyspdfmark {pgfid11}{19562756}{36611118}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Human proofreading}}{34}{section*.12}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Human proofreading}}{35}{section*.12}}
 \pgfsyspdfmark {pgfid12}{19562756}{34755150}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces FPS in einem Walkthrough mit 4 Renderknoten und 24-32 Datenknoten. \textit  {links: Redundanz$=$1; rechts: Redundanz$=$3.}}}{35}{figure.5.1}}
-\newlabel{fig:eval:fps}{{5.1}{35}{\label {fig:eval:fps}FPS in einem Walkthrough mit 4 Renderknoten und 24-32 Datenknoten. \textit {links: Redundanz$=$1; rechts: Redundanz$=$3.}\relax }{figure.5.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.1}FPS-Test}{35}{section.5.1}}
-\newlabel{sec:eval:fps}{{5.1}{35}{FPS-Test\relax }{section.5.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Reload-Test mit 2 Renderknoten: \textit  {links: Redundanz 1 und 24 Renderknoten; rechts: Redundanz 3 und 32 Renderknoten}.}}{36}{figure.5.2}}
-\newlabel{fig:eval:reload}{{5.2}{36}{\label {fig:eval:reload}Reload-Test mit 2 Renderknoten: \textit {links: Redundanz 1 und 24 Renderknoten; rechts: Redundanz 3 und 32 Renderknoten}}{figure.5.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5.2}Reload-Test}{36}{section.5.2}}
-\newlabel{sec:eval:reload}{{5.2}{36}{Reload-Test\relax }{section.5.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Kameraposition 3: \textit  {links: die Szene im normalen Rendering-Modus; rechts: die Szene im Gitternetz-Modus (Passagierbereich, 3.749.977 sichtbare Dreiecke).}}}{37}{figure.5.3}}
-\newlabel{fig:eval:pos3}{{5.3}{37}{\label {fig:eval:pos3}Kameraposition 3: \textit {links: die Szene im normalen Rendering-Modus; rechts: die Szene im Gitternetz-Modus (Passagierbereich, 3.749.977 sichtbare Dreiecke).}\relax }{figure.5.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Kameraposition 5 \textit  {links: die Szene im normalen Rendering-Modus; rechts: die Szene im Gitternetz-Modus (Fahrwerk/Fl\IeC {\"u}gel, 5.776.159 sichtbare Dreiecke).}}}{37}{figure.5.4}}
-\newlabel{fig:eval:pos5}{{5.4}{37}{\label {fig:eval:pos5}Kameraposition 5 \textit {links: die Szene im normalen Rendering-Modus; rechts: die Szene im Gitternetz-Modus (Fahrwerk/Flügel, 5.776.159 sichtbare Dreiecke).}\relax }{figure.5.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{38}{figure.5.5}}
-\newlabel{fig:eval:cCol1}{{5.5}{38}{\label {fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1}{figure.5.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces FPS in einem Walkthrough mit 4 Renderknoten und 24-32 Datenknoten. Links: Redundanz$=$1, rechts: Redundanz$=$3.}}{36}{figure.5.1}}
+\newlabel{fig:eval:fps}{{5.1}{36}{\label {fig:eval:fps}FPS in einem Walkthrough mit 4 Renderknoten und 24-32 Datenknoten. Links: Redundanz$=$1, rechts: Redundanz$=$3}{figure.5.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}FPS-Test}{36}{section.5.1}}
+\newlabel{sec:eval:fps}{{5.1}{36}{FPS-Test\relax }{section.5.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces Reload-Test mit 2 Renderknoten. Links: Redundanz 1 und 24 Renderknoten, rechts: Redundanz 3 und 32 Renderknoten.}}{37}{figure.5.2}}
+\newlabel{fig:eval:reload}{{5.2}{37}{\label {fig:eval:reload}Reload-Test mit 2 Renderknoten. Links: Redundanz 1 und 24 Renderknoten, rechts: Redundanz 3 und 32 Renderknoten}{figure.5.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Reload-Test}{37}{section.5.2}}
+\newlabel{sec:eval:reload}{{5.2}{37}{Reload-Test\relax }{section.5.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Kameraposition 3. Links: die Szene im normalen Rendering-Modus, rechts: die Szene im Gitternetz-Modus (Passagierbereich, 3.749.977 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet).}}{38}{figure.5.3}}
+\newlabel{fig:eval:pos3}{{5.3}{38}{\label {fig:eval:pos3}Kameraposition 3. Links: die Szene im normalen Rendering-Modus, rechts: die Szene im Gitternetz-Modus (Passagierbereich, 3.749.977 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet)}{figure.5.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.3}\textit  {c}-Collision-Test}{38}{section.5.3}}
 \newlabel{sec:eval:ccollision}{{5.3}{38}{\textit {c}-Collision-Test\relax }{section.5.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{39}{figure.5.6}}
-\newlabel{fig:eval:cCol9}{{5.6}{39}{\label {fig:eval:cCol9}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3}{figure.5.6}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {6}Fazit und Ausblick}{40}{chapter.6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Kameraposition 5. Links: die Szene im normalen Rendering-Modus, rechts: die Szene im Gitternetz-Modus (Fahrwerk/Fl\IeC {\"u}gel, 5.776.159 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet).}}{39}{figure.5.4}}
+\newlabel{fig:eval:pos5}{{5.4}{39}{\label {fig:eval:pos5}Kameraposition 5. Links: die Szene im normalen Rendering-Modus, rechts: die Szene im Gitternetz-Modus (Fahrwerk/Flügel, 5.776.159 sichtbare Dreiecke bei einer Sichtweite von 400, wie sie in der Messung verwendet wurde. Im Bild wurde eine Sichtweite von 1600 verwendet)}{figure.5.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1.}}{40}{figure.5.5}}
+\newlabel{fig:eval:cCol1}{{5.5}{40}{\label {fig:eval:cCol1}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 24 Datenknoten und Redundanz$=$1}{figure.5.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}}{40}{figure.5.6}}
+\newlabel{fig:eval:cCol9}{{5.6}{40}{\label {fig:eval:cCol9}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3}{figure.5.6}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Fazit und Ausblick}{41}{chapter.6}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{conclusion}{{6}{40}{Fazit und Ausblick\relax }{chapter.6}{}}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Human proofreading}}{40}{section*.13}}
+\newlabel{conclusion}{{6}{41}{Fazit und Ausblick\relax }{chapter.6}{}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{yellow!40}{\leavevmode {\color  {yellow!40}o}}\ Needs Human proofreading}}{41}{section*.13}}
 \pgfsyspdfmark {pgfid13}{19562756}{36984507}
-\bibstyle{unsrt}
+\bibstyle{unsrtdin}
 \bibdata{bib/references}
-\bibcite{RTR3}{1}
-\bibcite{gpugems1}{2}
-\bibcite{gpugems2}{3}
-\bibcite{gpugems3}{4}
-\bibcite{cgtutorial}{5}
-\bibcite{ccol3}{6}
-\bibcite{ccol4}{7}
-\bibcite{ccol2}{8}
-\bibcite{molnar}{9}
-\bibcite{medieninfo}{10}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Literaturverzeichnis}{42}{appendix.A}}
+\bibcite{ccol3}{1}
+\bibcite{ccol4}{2}
+\bibcite{ccol2}{3}
+\bibcite{molnar}{4}
+\bibcite{medieninfo}{5}
+\bibcite{samanta}{6}
+\bibcite{baxter}{7}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Literaturverzeichnis}{43}{appendix.A}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\bibcite{samanta}{11}
-\bibcite{baxter}{12}
-\bibcite{hlod}{13}
-\bibcite{DBLP:journals/ijvr/YinJSZ06}{14}
-\bibcite{abraham}{15}
-\bibcite{manocha}{16}
-\bibcite{wagner1}{17}
-\bibcite{wagner2}{18}
-\bibcite{iwalk}{19}
-\bibcite{plp}{20}
-\bibcite{wald}{21}
-\bibcite{wikioctree}{22}
-\bibcite{anteru}{23}
-\bibcite{klein}{24}
-\bibcite{culling}{25}
-\bibcite{mpi}{26}
-\bibcite{obj}{27}
-\bibcite{pc2}{28}
+\bibcite{hlod}{8}
+\bibcite{RTR3}{9}
+\bibcite{DBLP:journals/ijvr/YinJSZ06}{10}
+\bibcite{abraham}{11}
+\bibcite{manocha}{12}
+\bibcite{wagner1}{13}
+\bibcite{wagner2}{14}
+\bibcite{iwalk}{15}
+\bibcite{plp}{16}
+\bibcite{wald}{17}
+\bibcite{gpugems1}{18}
+\bibcite{gpugems2}{19}
+\bibcite{gpugems3}{20}
+\bibcite{cgtutorial}{21}
+\bibcite{humphreys}{22}
+\bibcite{dpbp}{23}
+\bibcite{RehbergS99}{24}
+\bibcite{gao}{25}
+\bibcite{cave}{26}
+\bibcite{c++}{27}
+\bibcite{wikioctree}{28}
+\bibcite{anteru}{29}
+\bibcite{klein}{30}
+\bibcite{culling}{31}
+\bibcite{mpi}{32}
+\bibcite{obj}{33}
+\bibcite{pc2}{34}
 \citation{molnar}
 \citation{molnar}
 \citation{molnar}
@@ -253,7 +270,7 @@
 \citation{anteru}
 \citation{klein}
 \citation{culling}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Abbildungsverzeichnis}{45}{appendix.B}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Abbildungsverzeichnis}{47}{appendix.B}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
@@ -262,7 +279,7 @@
 \citation{RTR3}
 \citation{plp}
 \citation{RTR3}
-\@writefile{toc}{\contentsline {chapter}{\numberline {C}Glossar}{48}{appendix.C}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {C}Glossar}{50}{appendix.C}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
@@ -278,77 +295,79 @@
 \newacro{Octree}[\AC@hyperlink{Octree}{Octree}]{Ein Octree ist eine r\IeC {\"a}umliche Datenstruktur, bestehend aus einem gewurzelten Baum, dessen Knoten jeweils entweder acht direkte Nachfolger oder gar keine Nachfolger haben.}
 \newacro{peer-to-peer}[\AC@hyperlink{peer-to-peer}{peer-to-peer}]{Peer-to-peer Netzwerke sind Netzwerksysteme ohne zentrale Zugriffskontrolle, in denen alle Rechner gleichberechtigt agieren. Eine Datenverbindung besteht dabei immer direkt von einem Teilnehmer zum anderen.}
 \newacro{PVS}[\AC@hyperlink{PVS}{PVS}]{Potentially Visible Set (siehe \cite  {RTR3}, Seite 660 ff.)}
+\newacro{Quantil}[\AC@hyperlink{Quantil}{Quantil}]{Ein $p$-Quantil ist ein Lagema\IeC {\ss } in der Statistik, wobei $p$ eine reelle Zahl zwischen 0 und 1 ist. Das $p$-Quantil ist ein Merkmalswert, der die Verteilung einer Variablen bzw. Zufallsvariablen in zwei Teile teilt. Links vom $p$-Quantil liegen $100\cdot p$ Prozent aller Beobachtungswerte bzw. $100\cdot p$ Prozent der Masse der Zufallsvariablen. Rechts davon liegen $100\cdot (1-p)$ Prozent aller Beobachtungswerte bzw. $100\cdot (1-p)$ Prozent der Masse der Zufallsvariablen.}
+\newacro{Quartil}[\AC@hyperlink{Quartil}{Quartil}]{Quartile sind die Quantile Q.25 (0,25-Quantil), Q.5 (0,5-Quantil=Median) und Q.75 (0,75-Quantil).}
 \newacro{Rasterisierung}[\AC@hyperlink{Rasterisierung}{Rasterisierung}]{\IeC {\"U}berf\IeC {\"u}hrung eines kontinuierlichen Raums in einen diskreten Raum (Pixel).}
 \newacro{Rendering}[\AC@hyperlink{Rendering}{Rendering}]{Erzeugt ein 2D-Bild aus einer 3D-Szene.}
 \newacro{screen-space}[\AC@hyperlink{screen-space}{screen-space}]{Projektion einer 3D-Szene in einen zweidimensionalen Raum (Bild).}
 \newacro{SGI}[\AC@hyperlink{SGI}{SGI}]{SGI ist ein Hersteller von Computern, die besonders auf dem Gebiet der grafischen Darstellung leistungsstark sind (Grafik-Workstation).}
 \newacro{SLI}[\AC@hyperlink{SLI}{SLI}]{Scalable Link Interface; Zusammenschluss mehrer Grafikchips}
 \newacro{View-Frustum}[\AC@hyperlink{View-Frustum}{View-Frustum}]{Sichtfeld der Kamera}
-\@writefile{toc}{\contentsline {chapter}{\numberline {D}Zus\IeC {\"a}tzliche Abbildungen}{50}{appendix.D}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {D}Zus\IeC {\"a}tzliche Abbildungen}{52}{appendix.D}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{chap:add_fig}{{D}{50}{Zusätzliche Abbildungen\relax }{appendix.D}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.1}{\ignorespaces Kameraposition 1 \textit  {(Heck au\IeC {\ss }en, 3.352.475 sichtbare Dreiecke)}}}{50}{figure.D.1}}
-\newlabel{fig:eval:pos1}{{D.1}{50}{\label {fig:eval:pos1}Kameraposition 1 \textit {(Heck außen, 3.352.475 sichtbare Dreiecke)}\relax }{figure.D.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.2}{\ignorespaces Kameraposition 2 \textit  {(Heck innen, 2.045.104 sichtbare Dreiecke)}}}{50}{figure.D.2}}
-\newlabel{fig:eval:pos2}{{D.2}{50}{\label {fig:eval:pos2}Kameraposition 2 \textit {(Heck innen, 2.045.104 sichtbare Dreiecke)}\relax }{figure.D.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.3}{\ignorespaces Kameraposition 4 \textit  {(Stauraum, 8.381.277 sichtbare Dreiecke)}}}{51}{figure.D.3}}
-\newlabel{fig:eval:pos4}{{D.3}{51}{\label {fig:eval:pos4}Kameraposition 4 \textit {(Stauraum, 8.381.277 sichtbare Dreiecke)}\relax }{figure.D.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.4}{\ignorespaces Kameraposition 6 \textit  {(Turbine, 3.381.998 sichtbare Dreiecke)}}}{51}{figure.D.4}}
-\newlabel{fig:eval:pos6}{{D.4}{51}{\label {fig:eval:pos6}Kameraposition 6 \textit {(Turbine, 3.381.998 sichtbare Dreiecke)}\relax }{figure.D.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.5}{\ignorespaces Kameraposition 7 \textit  {(Nase innen, 1.481.706 sichtbare Dreiecke)}}}{51}{figure.D.5}}
-\newlabel{fig:eval:pos7}{{D.5}{51}{\label {fig:eval:pos7}Kameraposition 7 \textit {(Nase innen, 1.481.706 sichtbare Dreiecke)}\relax }{figure.D.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.6}{\ignorespaces Kameraposition 8 \textit  {(Cockpit, 4.558.623 sichtbare Dreiecke)}}}{52}{figure.D.6}}
-\newlabel{fig:eval:pos8}{{D.6}{52}{\label {fig:eval:pos8}Kameraposition 8 \textit {(Cockpit, 4.558.623 sichtbare Dreiecke)}\relax }{figure.D.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.7}{\ignorespaces Kameraposition 9 \textit  {(Nase au\IeC {\ss }en, 7.439.695 sichtbare Dreiecke)}}}{52}{figure.D.7}}
-\newlabel{fig:eval:pos9}{{D.7}{52}{\label {fig:eval:pos9}Kameraposition 9 \textit {(Nase außen, 7.439.695 sichtbare Dreiecke)}\relax }{figure.D.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.8}{\ignorespaces Kameraposition 10 \textit  {(Fl\IeC {\"u}gel-Rumpf Bereich, 4.066.296 sichtbare Dreiecke)}}}{52}{figure.D.8}}
-\newlabel{fig:eval:pos10}{{D.8}{52}{\label {fig:eval:pos10}Kameraposition 10 \textit {(Flügel-Rumpf Bereich, 4.066.296 sichtbare Dreiecke)}\relax }{figure.D.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.9}{\ignorespaces T\IeC {\"u}rknopf \textit  {(Bug)}}}{53}{figure.D.9}}
-\newlabel{fig:eval:button}{{D.9}{53}{\label {fig:eval:button}Türknopf \textit {(Bug)}\relax }{figure.D.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.10}{\ignorespaces Profil \textit  {(Bug)}}}{53}{figure.D.10}}
-\newlabel{fig:eval:prof_bug}{{D.10}{53}{\label {fig:eval:prof_bug}Profil \textit {(Bug)}\relax }{figure.D.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.11}{\ignorespaces Profil \textit  {(Heck)}}}{53}{figure.D.11}}
-\newlabel{fig:eval:prof_heck}{{D.11}{53}{\label {fig:eval:prof_heck}Profil \textit {(Heck)}\relax }{figure.D.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.12}{\ignorespaces Triebwerk 1}}{54}{figure.D.12}}
-\newlabel{fig:eval:turbine_innen}{{D.12}{54}{\label {fig:eval:turbine_innen}Triebwerk 1\relax }{figure.D.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.13}{\ignorespaces Triebwerk 2}}{54}{figure.D.13}}
-\newlabel{fig:eval:turbine_innen2}{{D.13}{54}{\label {fig:eval:turbine_innen2}Triebwerk 2\relax }{figure.D.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {D.14}{\ignorespaces Fahrwerk \textit  {(Heck)}}}{54}{figure.D.14}}
-\newlabel{fig:eval:fahrwerk}{{D.14}{54}{\label {fig:eval:fahrwerk}Fahrwerk \textit {(Heck)}\relax }{figure.D.14}{}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {E}Zus\IeC {\"a}tzliche Diagramme}{55}{appendix.E}}
+\newlabel{chap:add_fig}{{D}{52}{Zusätzliche Abbildungen\relax }{appendix.D}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.1}{\ignorespaces Kameraposition 1. (Heck au\IeC {\ss }en, 3.352.475 sichtbare Dreiecke)}}{52}{figure.D.1}}
+\newlabel{fig:eval:pos1}{{D.1}{52}{\label {fig:eval:pos1}Kameraposition 1. (Heck außen, 3.352.475 sichtbare Dreiecke)\relax }{figure.D.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.2}{\ignorespaces Kameraposition 2. (Heck innen, 2.045.104 sichtbare Dreiecke)}}{53}{figure.D.2}}
+\newlabel{fig:eval:pos2}{{D.2}{53}{\label {fig:eval:pos2}Kameraposition 2. (Heck innen, 2.045.104 sichtbare Dreiecke)\relax }{figure.D.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.3}{\ignorespaces Kameraposition 4. (Stauraum, 8.381.277 sichtbare Dreiecke)}}{53}{figure.D.3}}
+\newlabel{fig:eval:pos4}{{D.3}{53}{\label {fig:eval:pos4}Kameraposition 4. (Stauraum, 8.381.277 sichtbare Dreiecke)\relax }{figure.D.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.4}{\ignorespaces Kameraposition 6. (Turbine, 3.381.998 sichtbare Dreiecke)}}{53}{figure.D.4}}
+\newlabel{fig:eval:pos6}{{D.4}{53}{\label {fig:eval:pos6}Kameraposition 6. (Turbine, 3.381.998 sichtbare Dreiecke)\relax }{figure.D.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.5}{\ignorespaces Kameraposition 7. (Nase innen, 1.481.706 sichtbare Dreiecke)}}{54}{figure.D.5}}
+\newlabel{fig:eval:pos7}{{D.5}{54}{\label {fig:eval:pos7}Kameraposition 7. (Nase innen, 1.481.706 sichtbare Dreiecke)\relax }{figure.D.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.6}{\ignorespaces Kameraposition 8. (Cockpit, 4.558.623 sichtbare Dreiecke)}}{54}{figure.D.6}}
+\newlabel{fig:eval:pos8}{{D.6}{54}{\label {fig:eval:pos8}Kameraposition 8. (Cockpit, 4.558.623 sichtbare Dreiecke)\relax }{figure.D.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.7}{\ignorespaces Kameraposition 9. (Nase au\IeC {\ss }en, 7.439.695 sichtbare Dreiecke)}}{54}{figure.D.7}}
+\newlabel{fig:eval:pos9}{{D.7}{54}{\label {fig:eval:pos9}Kameraposition 9. (Nase außen, 7.439.695 sichtbare Dreiecke)\relax }{figure.D.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.8}{\ignorespaces Kameraposition 10. Fl\IeC {\"u}gel-Rumpf Bereich, 4.066.296 sichtbare Dreiecke)}}{55}{figure.D.8}}
+\newlabel{fig:eval:pos10}{{D.8}{55}{\label {fig:eval:pos10}Kameraposition 10. Flügel-Rumpf Bereich, 4.066.296 sichtbare Dreiecke)\relax }{figure.D.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.9}{\ignorespaces T\IeC {\"u}rknopf. (Bug)}}{55}{figure.D.9}}
+\newlabel{fig:eval:button}{{D.9}{55}{\label {fig:eval:button}Türknopf. (Bug)\relax }{figure.D.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.10}{\ignorespaces Profil. (Bug)}}{55}{figure.D.10}}
+\newlabel{fig:eval:prof_bug}{{D.10}{55}{\label {fig:eval:prof_bug}Profil. (Bug)\relax }{figure.D.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.11}{\ignorespaces Profil. (Heck)}}{56}{figure.D.11}}
+\newlabel{fig:eval:prof_heck}{{D.11}{56}{\label {fig:eval:prof_heck}Profil. (Heck)\relax }{figure.D.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.12}{\ignorespaces Triebwerk 1.}}{56}{figure.D.12}}
+\newlabel{fig:eval:turbine_innen}{{D.12}{56}{\label {fig:eval:turbine_innen}Triebwerk 1}{figure.D.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.13}{\ignorespaces Triebwerk 2.}}{56}{figure.D.13}}
+\newlabel{fig:eval:turbine_innen2}{{D.13}{56}{\label {fig:eval:turbine_innen2}Triebwerk 2}{figure.D.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {D.14}{\ignorespaces Fahrwerk. (Heck)}}{57}{figure.D.14}}
+\newlabel{fig:eval:fahrwerk}{{D.14}{57}{\label {fig:eval:fahrwerk}Fahrwerk. (Heck)\relax }{figure.D.14}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {E}Zus\IeC {\"a}tzliche Diagramme}{58}{appendix.E}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\newlabel{chap:add_diag}{{E}{55}{Zusätzliche Diagramme\relax }{appendix.E}{}}
-\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Diesen Anhang noch sch\IeC {\"o}n machen. Welche Diags sollen rein; welche raus?}}{55}{section*.14}}
+\newlabel{chap:add_diag}{{E}{58}{Zusätzliche Diagramme\relax }{appendix.E}{}}
+\@writefile{tdo}{\contentsline {todo}{{\color@box {}{orange}{\leavevmode {\color  {orange}o}}\ Diesen Anhang noch sch\IeC {\"o}n machen. Welche Diags sollen rein; welche raus?}}{58}{section*.14}}
 \pgfsyspdfmark {pgfid14}{19562756}{36611118}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.1}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{55}{figure.E.1}}
-\newlabel{fig:app:fps2}{{E.1}{55}{\label {fig:app:fps2}FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.2}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 28 Datenknoten.}}{56}{figure.E.2}}
-\newlabel{fig:eval:reload2}{{E.2}{56}{\label {fig:eval:reload2}Reloadtest: Redundanz 1, 2 Renderknoten, 28 Datenknoten}{figure.E.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.3}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 32 Datenknoten.}}{56}{figure.E.3}}
-\newlabel{fig:eval:reload3}{{E.3}{56}{\label {fig:eval:reload3}Reloadtest: Redundanz 1, 2 Renderknoten, 32 Datenknoten}{figure.E.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.4}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 24 Datenknoten.}}{57}{figure.E.4}}
-\newlabel{fig:eval:reload4}{{E.4}{57}{\label {fig:eval:reload4}Reloadtest: Redundanz 3, 2 Renderknoten, 24 Datenknoten}{figure.E.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.5}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 28 Datenknoten.}}{57}{figure.E.5}}
-\newlabel{fig:eval:reload5}{{E.5}{57}{\label {fig:eval:reload5}Reloadtest: Redundanz 3, 2 Renderknoten, 28 Datenknoten}{figure.E.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.6}{\ignorespaces Zeit zum vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{58}{figure.E.6}}
-\newlabel{fig:app:reaload1}{{E.6}{58}{\label {fig:app:reaload1}Zeit zum vollständigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)\relax }{figure.E.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.7}{\ignorespaces Zeit zum vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{58}{figure.E.7}}
-\newlabel{fig:app:reload2}{{E.7}{58}{\label {fig:app:reload2}Zeit zum vollständigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)\relax }{figure.E.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$1.}}{59}{figure.E.8}}
-\newlabel{fig:app:cCol2}{{E.8}{59}{\label {fig:app:cCol2}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$1}{figure.E.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$1.}}{59}{figure.E.9}}
-\newlabel{fig:app:cCol3}{{E.9}{59}{\label {fig:app:cCol3}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$1}{figure.E.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$2.}}{60}{figure.E.10}}
-\newlabel{fig:app:cCol4}{{E.10}{60}{\label {fig:app:cCol4}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$2}{figure.E.10}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$2.}}{60}{figure.E.11}}
-\newlabel{fig:app:cCol5}{{E.11}{60}{\label {fig:app:cCol5}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$2}{figure.E.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.12}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$2.}}{61}{figure.E.12}}
-\newlabel{fig:app:cCol6}{{E.12}{61}{\label {fig:app:cCol6}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$2}{figure.E.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.13}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$3.}}{61}{figure.E.13}}
-\newlabel{fig:app:cCol7}{{E.13}{61}{\label {fig:app:cCol7}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$3}{figure.E.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {E.14}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$3.}}{62}{figure.E.14}}
-\newlabel{fig:app:cCol8}{{E.14}{62}{\label {fig:app:cCol8}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$3}{figure.E.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.1}{\ignorespaces FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)}}{58}{figure.E.1}}
+\newlabel{fig:app:fps2}{{E.1}{58}{\label {fig:app:fps2}FPS in einem Walkthrough. (Redundanz$=$2, 2 Renderer und 24-32 Datenknoten)\relax }{figure.E.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.2}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 28 Datenknoten.}}{59}{figure.E.2}}
+\newlabel{fig:eval:reload2}{{E.2}{59}{\label {fig:eval:reload2}Reloadtest: Redundanz 1, 2 Renderknoten, 28 Datenknoten}{figure.E.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.3}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 32 Datenknoten.}}{59}{figure.E.3}}
+\newlabel{fig:eval:reload3}{{E.3}{59}{\label {fig:eval:reload3}Reloadtest: Redundanz 1, 2 Renderknoten, 32 Datenknoten}{figure.E.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.4}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 24 Datenknoten.}}{60}{figure.E.4}}
+\newlabel{fig:eval:reload4}{{E.4}{60}{\label {fig:eval:reload4}Reloadtest: Redundanz 3, 2 Renderknoten, 24 Datenknoten}{figure.E.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.5}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 28 Datenknoten.}}{60}{figure.E.5}}
+\newlabel{fig:eval:reload5}{{E.5}{60}{\label {fig:eval:reload5}Reloadtest: Redundanz 3, 2 Renderknoten, 28 Datenknoten}{figure.E.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.6}{\ignorespaces Zeit zum vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)}}{61}{figure.E.6}}
+\newlabel{fig:app:reaload1}{{E.6}{61}{\label {fig:app:reaload1}Zeit zum vollständigen Neuladen an einer Kameraposition. (Redundanz$=$3, 2 Renderer und 32 Datenknoten)\relax }{figure.E.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.7}{\ignorespaces Zeit zum vollst\IeC {\"a}ndigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)}}{61}{figure.E.7}}
+\newlabel{fig:app:reload2}{{E.7}{61}{\label {fig:app:reload2}Zeit zum vollständigen Neuladen an einer Kameraposition. (Redundanz$=$2, 2 Renderer und 32 Datenknoten)\relax }{figure.E.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$1.}}{62}{figure.E.8}}
+\newlabel{fig:app:cCol2}{{E.8}{62}{\label {fig:app:cCol2}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$1}{figure.E.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$1.}}{62}{figure.E.9}}
+\newlabel{fig:app:cCol3}{{E.9}{62}{\label {fig:app:cCol3}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$1}{figure.E.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$2.}}{63}{figure.E.10}}
+\newlabel{fig:app:cCol4}{{E.10}{63}{\label {fig:app:cCol4}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$2}{figure.E.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$2.}}{63}{figure.E.11}}
+\newlabel{fig:app:cCol5}{{E.11}{63}{\label {fig:app:cCol5}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$2}{figure.E.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.12}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$2.}}{64}{figure.E.12}}
+\newlabel{fig:app:cCol6}{{E.12}{64}{\label {fig:app:cCol6}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$2}{figure.E.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.13}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$3.}}{64}{figure.E.13}}
+\newlabel{fig:app:cCol7}{{E.13}{64}{\label {fig:app:cCol7}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$3}{figure.E.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {E.14}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$3.}}{65}{figure.E.14}}
+\newlabel{fig:app:cCol8}{{E.14}{65}{\label {fig:app:cCol8}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$3}{figure.E.14}{}}
