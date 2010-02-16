@@ -131,6 +131,12 @@ IndexedVertexArray::IndexedVertexArray(const char* _data) :
 	mPriIndexData = new unsigned[mPriIndexCount];
 	mPriVertexData = new V4N4[mPriVertexCount];
 
+	// -------------------------------
+//	for (unsigned i=0; i< mPriVertexCount; ++i){
+//		cerr << "n0: " << (int)mPriVertexData[i].n[0] << ", n1: " << (int)mPriVertexData[i].n[1] << ", n2: " << (int)mPriVertexData[i].n[2] << ", n3: " << (int)mPriVertexData[i].n[3] << endl;
+//	}
+	// -------------------------------
+
 	memcpy(mPriIndexData, _data+sizeof(uint64_t)+(2*sizeof(unsigned)), sizeof(unsigned)*mPriIndexCount);
 	memcpy(mPriVertexData, _data+sizeof(uint64_t)+(2*sizeof(unsigned)+(sizeof(unsigned)*mPriIndexCount)), sizeof(V4N4)*mPriVertexCount);
 }
@@ -216,6 +222,22 @@ IndexedVertexArray::managedDraw()
 //	glVertexPointer(3, GL_FLOAT, sizeof(float) + 4*sizeof(char), mPriVertexData);
 	glVertexPointer(3, GL_FLOAT, sizeof(V4N4), mPriVertexData);
 	glDrawElements(GL_TRIANGLES, mPriIndexCount, GL_UNSIGNED_INT, mPriIndexData);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void
+IndexedVertexArray::managedDrawWithTex()
+{
+	char* nPtr = ((char*)mPriVertexData)+(4*sizeof(float));
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+
+//	glVertexPointer(3, GL_FLOAT, sizeof(float) + 4*sizeof(char), mPriVertexData);
+	glVertexPointer(4, GL_FLOAT, sizeof(V4N4), mPriVertexData);
+	glNormalPointer(GL_BYTE, sizeof(V4N4), nPtr);
+
+	glDrawElements(GL_TRIANGLES, mPriIndexCount, GL_UNSIGNED_INT, mPriIndexData);
+	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
