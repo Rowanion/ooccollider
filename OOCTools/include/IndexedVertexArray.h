@@ -35,6 +35,7 @@ public:
 	 * array := v1,v2,v3,n1,n2,3 => stride for V3 vertices is sizeof(v)*3 + sizeof(n)*3
 	 */
 	void managedDraw();
+	void managedDrawWithTex();
 	const V4N4* getVertexData() const {return (const V4N4*)mPriVertexData;};
 	const unsigned* getIndexData() const {return (const unsigned*)mPriIndexData;};
 	unsigned getVertexCount() const {return mPriVertexCount;};
