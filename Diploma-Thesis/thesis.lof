@@ -4,7 +4,7 @@
 \select@language {german}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (gr\IeC {\"u}n). Alle Ressourcen die nach einer Runde h\IeC {\"o}chstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt.}}{5}{figure.2.1}
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (gr\IeC {\"u}n). Alle Ressourcen, die nach einer Runde h\IeC {\"o}chstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt.}}{5}{figure.2.1}
 \contentsline {figure}{\numberline {2.2}{\ignorespaces Sort-First. Umverteilung von unverarbeiteten Primitiven w\IeC {\"a}hrend der Geometrieverarbeitung. \textit {Quelle: nach \cite {molnar}}}}{7}{figure.2.2}
 \contentsline {figure}{\numberline {2.3}{\ignorespaces Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit {Quelle: nach \cite {molnar}}}}{7}{figure.2.3}
 \contentsline {figure}{\numberline {2.4}{\ignorespaces Sort-Last. Umverteilung von Pixeln, Samples oder Pixelfragmenten w\IeC {\"a}hrend der Rasterisierung. \textit {Quelle: nach \cite {molnar}}}}{8}{figure.2.4}

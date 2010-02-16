@@ -56,7 +56,7 @@ Der Masterknoten reagiert auf Eingaben und zeigt das vollständig gerenderte Bil
       \STATE \textbf{send} alle Objektdaten an alle Datenknoten
       \WHILE{running}
 	\STATE \textbf{send} Kameraparameter und Eingaben an alle Renderer
-	\IF{ Frame-Nummer $>$ Schwellwert}
+	\IF{ Frame-Nummer $>$ Schwellenwert}
 	  \STATE Berechne neue Kachelgrößen
 	  \STATE \textbf{send} Kachelgrößen an alle Renderknoten
 	\ENDIF
