@@ -1,11 +1,3 @@
-@misc{wilcox,
-	author={Brian. H. Wilcox},
-	title={Robotic Vehicle System Engineering},
-	year={2003},
-	month={April},
-	howpublished={Internet},
-	note={\href{http://team.caltech.edu/members/RoboticVehicleSystemEngineering3.pdf}{http://team.caltech.edu/members/RoboticVehicleSystemEngineering3.pdf}}
-}
 @inproceedings{manocha,
  author = {Varadhan, Gokul and Manocha, Dinesh},
  title = {Out-of-core rendering of massive geometric environments},
@@ -36,8 +28,7 @@ volume={},
 number={},
 pages={ 214-220},
 keywords={ algorithm theory, distributed algorithms, distributed programming, parallel processing, rendering (computer graphics) DPBP, computational resources, data resources, dataset, distributed rendering, dynamic pixel bucket partition, multi-cluster, parallel rendering, real-time rendering, rendering performance, sort-first parallel rendering algorithm, visualization},
-doi={},
-ISSN={ }, }
+}
 
 @inproceedings{wagner1,
  author = {Corr\^{e}a, {Wagner T.} and Klosowski, {James T.} and Silva, {Cl\'{a}udio T.}},
@@ -56,7 +47,6 @@ ISSN={ }, }
  year = {2000},
  pages = {97--108},
  location = {Interlaken, Switzerland},
- doi = {http://doi.acm.org/10.1145/346876.348237},
  publisher = {ACM},
  address = {New York, NY, USA},
  }
@@ -71,29 +61,13 @@ ISSN={ }, }
  publisher = {Eurographics Association},
  address = {Aire-la-Ville, Switzerland},
  }
-@inproceedings{DBLP:conf/arcs/RehbergS99,
+@inproceedings{RehbergS99,
   author    = {Ulrich Rehberg and
                Klaus Schr{\"o}der},
   title     = {Almost Optimal Schedules with a Simple Protocol},
   booktitle = {ARCS Workshops},
   year      = {1999},
   pages     = {219-228},
-  crossref  = {DBLP:conf/arcs/1999-2},
-  bibsource = {DBLP, http://dblp.uni-trier.de}
-}
-@proceedings{DBLP:conf/arcs/1999-2,
-  editor    = {Werner Erhard and
-               Karl-Erwin Gro{\ss}pietsch and
-               W. Koch and
-               Erik Maehle and
-               Eberhard Zehendner},
-  title     = {Workshops zur Architektur von Rechensystemen - Vortr{\"a}ge
-               Workshops im Rahmen der 15. GI/ITG-Fachtagung ARCS '99,
-               4.-7. Oktober 1999, Jena, Germany},
-  booktitle = {ARCS},
-  publisher = {Universit{\"a}t Jena, Institut f{\"u}r Informatik},
-  year      = {1999},
-  bibsource = {DBLP, http://dblp.uni-trier.de}
 }
 @inproceedings{abraham,
  author = {Abraham, Frederico and Celes, Waldemar and Cerqueira, Renato and Campos, {Joao Luiz}},
@@ -155,7 +129,6 @@ ISSN={ }, }
   number    = {4},
   year      = {2006},
   pages     = {47-54},
-  ee        = {http://www.ijvr.org/issues/issue4/6.pdf},
 }
 @article{molnar,
  author = {Molnar, Steven and Cox, Michael and Ellsworth, David and Fuchs, Henry},
@@ -195,35 +168,30 @@ ISSN={ }, }
     year = {2002}
 }
 @book{gpugems1,
-  address = {Boston [u.a.]},
   author = {Randima Fernando},
-  interHash = {7728fcf63e1e226ff0b6452ea3b4fa6a},
-  intraHash = {ed067e966cdd5b01ecd92af192f7e290},
-  publisher = {Addision-Wesley},
   title = {GPU gems},
   year = {2004},
+  publisher = {Addision-Wesley},
+  address = {Boston [u.a.]},
 }
 @book{gpugems2,
-  address = {Upper Saddle River, NJ},
   author = {Matt Pharr},
-  interHash = {2c3059a090fead28e80a6542cb037166},
-  intraHash = {debe54941039b291a9de1504639737ec},
-  publisher = {Addison-Wesley},
   title = {GPU Gems 2},
   year = {2005},
+  publisher = {Addison-Wesley},
+  address = {Upper Saddle River, NJ},
 }
 @book{gpugems3,
-  address = {Upper Saddle River, NJ},
   author = {Hubert Nguyen},
-  publisher = {Addison-Wesley},
   title = {GPU Gems 3},
   year = {2008},
+  publisher = {Addison-Wesley},
+  address = {Upper Saddle River, NJ},
 }
 @book{RTR3,
  author = {{Akenine-M\"{o}ller}, Tomas and Haines, Eric and Hoffman, Natty},
  title = {Real-Time Rendering 3rd Edition},
  year = {2008},
- pages = {1045},
  publisher = {A. K. Peters, Ltd.},
  address = {Natick, MA, USA},
  }
@@ -277,7 +245,7 @@ ISSN={ }, }
  }
 @ARTICLE{culling,
 title={A survey of visibility for walkthrough applications},
-author={{Cohen-Or}, D. and Chrysanthou, {Y.L.} and Silva, {C.T.} and Durand, F.},
+author={{Cohen-Or}, Daniel and Chrysanthou, {Yiorgos L.} and Silva, {Claudio T.} and Durand, Fredo},
 journal={Visualization and Computer Graphics, IEEE Transactions on},
 year={2003},
 month={July-Sept.},
@@ -294,16 +262,16 @@ keywords={ computational geometry, rendering (computer graphics), visual percept
   address	= {M{\"u}nchen},
   edition	= {4.},
 }
-@Misc{wikioctree,
+@BOOKLET{wikioctree,
   title      = 	 {Wikipedia, the free encyclopedia},
   year = 2010,
-  howpublished = "\url{http://de.wikipedia.org/wiki/Octree}",
+  url = "http://de.wikipedia.org/wiki/Octree",
   lastchecked = "18.\,Jan.\,2010",
 }
-@Misc{anteru,
+@BOOKLET{anteru,
   title      = 	 {Anteru's blog - Graphics, programming and software engineering},
   year = 2010,
-  howpublished = "\url{http://anteru.net/2008/11/14/315/}",
+  url = "http://anteru.net/2008/11/14/315/",
   lastchecked = "18.\,Jan.\,2010",
 }
 @BOOKLET{obj,
@@ -316,22 +284,22 @@ keywords={ computational geometry, rendering (computer graphics), visual percept
   lastchecked = "4.\,Feb.\,2010",
   note = {OBJ file format specification},
 }
-@Misc{opengl,
+@BOOKLET{opengl,
   title      = 	 {OpenGL},
   year = 2010,
-  howpublished = "\url{http://www.opengl.org}",
+  url = "http://www.opengl.org",
   lastchecked = "18.\,Jan.\,2010",
 }
-@Misc{cg,
+@BOOKLET{cg,
   title      = 	 {nVidia Cg},
   year = 2010,
-  howpublished = "\url{http://developer.nvidia.com/page/cg_main.html}",
+  url = "http://developer.nvidia.com/page/cg_main.html",
   lastchecked = "4.\,Feb.\,2010",
 }
-@Misc{boost,
+@BOOKLET{boost,
   title      = 	 {boost - C++ Libraries},
   year = 2010,
-  howpublished = "\url{http://www.boost.org}",
+  url = "http://www.boost.org",
   lastchecked = "4.\,Feb.\,2010",
 }
 @BOOKLET{mpi,
@@ -358,4 +326,10 @@ keywords={ computational geometry, rendering (computer graphics), visual percept
   title		= {{Taschenbuch der Medieninformatik}},
   publisher	= {Hanser Fachbuchverlag Leipzig},
   year		= 2005,
+}
+@book{stochastik,
+  author	= {Henze, Norbert},
+  title		= {{Stochastik für Einsteiger. Eine Einführung in die faszinierende Welt des Zufalls. 3., erweit. Aufl. }},
+  publisher	= {Vieweg},
+  year		= 2000,
 }

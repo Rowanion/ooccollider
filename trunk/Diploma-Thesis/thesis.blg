@@ -1,52 +1,52 @@
 This is BibTeX, Version 0.99c (Web2C 7.5.6)
 The top-level auxiliary file: thesis.aux
 The style file: unsrtdin.bst
-Reallocated wiz_functions (elt_size=4) to 6000 items from 21474839480.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: bib/references.bib
 Warning--empty pages in humphreys
 Warning--empty author and editor in wikioctree
 Warning--empty author and editor in wikioctree
 Warning--empty author and editor in anteru
 Warning--empty author and editor in anteru
-You've used 34 entries,
+You've used 36 entries,
             4011 wiz_defined-function locations,
-            970 strings with 11497 characters,
-and the built_in function-call counts, 14872 in all, are:
-= -- 1371
-> -- 303
-< -- 703
-+ -- 717
-- -- 86
-* -- 931
-:= -- 2418
-add.period$ -- 51
-call.type$ -- 34
+            979 strings with 11855 characters,
+and the built_in function-call counts, 15628 in all, are:
+= -- 1427
+> -- 324
+< -- 739
++ -- 755
+- -- 92
+* -- 974
+:= -- 2552
+add.period$ -- 53
+call.type$ -- 36
 change.case$ -- 0
 chr.to.int$ -- 0
-cite$ -- 39
-duplicate$ -- 439
-empty$ -- 1270
-format.name$ -- 246
-if$ -- 2937
+cite$ -- 41
+duplicate$ -- 465
+empty$ -- 1340
+format.name$ -- 264
+if$ -- 3084
 int.to.chr$ -- 0
-int.to.str$ -- 35
-missing$ -- 103
-newline$ -- 197
-num.names$ -- 32
-pop$ -- 139
+int.to.str$ -- 37
+missing$ -- 111
+newline$ -- 207
+num.names$ -- 34
+pop$ -- 151
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 916
+skip$ -- 961
 stack$ -- 0
-substring$ -- 1025
-swap$ -- 146
-text.length$ -- 102
+substring$ -- 1055
+swap$ -- 154
+text.length$ -- 108
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 5
-while$ -- 148
-width$ -- 36
-write$ -- 442
+while$ -- 156
+width$ -- 38
+write$ -- 464
 (There were 5 warnings)
