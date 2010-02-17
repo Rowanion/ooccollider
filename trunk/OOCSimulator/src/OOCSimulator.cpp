@@ -30,8 +30,8 @@
 #include "Log.h"
 
 #define SEED1 670274678
-#define SEED2 1
-#define SEED3 1
+#define SEED2 2447873201
+#define SEED3 382658925
 #define SEED SEED1
 #define DATA_NODE_COUNT 120
 #define LVL_OF_REDUNDANCY 1
