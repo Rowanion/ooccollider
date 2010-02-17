@@ -16,6 +16,10 @@
 #include <cstring>
 #include <sstream>
 
+#include <sys/mman.h>
+#include <cstdio>
+#include <fcntl.h>
+
 #include "GeometricOps.h"
 #include "V3f.h"
 #include "EventManager.h"
@@ -31,6 +35,7 @@
 #include "Logger.h"
 #include "Log.h"
 #include "KeyReleasedEvent.h"
+#include "IndexedVbo.h"
 
 
 using namespace std;
@@ -48,6 +53,18 @@ SimpleGlFrame::SimpleGlFrame() : AbstractGlFrame(0,0,0,0),
 	// TODO Auto-generated constructor stub
 
 	mPriColorTable = ColorTable(string(BASE_MODEL_PATH) + string("/colortable.bin"));
+	VboManager::getSingleton()->setColorTable(mPriColorTable);
+	mPriColorTable.setupTexture();
+
+	myGlobalAmbient[0] = 0.1f;
+	myGlobalAmbient[1] = 0.1f;
+	myGlobalAmbient[2] = 0.1f;
+	myLightColor[0] = 0.95f;
+	myLightColor[1] = 0.95f;
+	myLightColor[2] = 0.95f;
+	lightPos[0] = 0.0;
+	lightPos[1] = 0.0;
+	lightPos[2] = 5.0;
 
 	for (unsigned i = 0; i < 10; ++i) {
 		fps[i] = 0.0f;
@@ -59,6 +76,10 @@ SimpleGlFrame::SimpleGlFrame() : AbstractGlFrame(0,0,0,0),
 	oocframework::EventManager::getSingleton()->addListener(this, KeyPressedEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, KeyReleasedEvent::classid());
 	oocframework::EventManager::getSingleton()->addListener(this, InfoRequestEvent::classid());
+
+	mPriRenderFrame = false;
+	mPriNearPlane = 0.1f;
+	mPriFarPlane = 2500.0f;
 }
 
 SimpleGlFrame::~SimpleGlFrame() {
@@ -77,13 +98,14 @@ SimpleGlFrame::~SimpleGlFrame() {
 
 void SimpleGlFrame::init() {
 	glewInit();
-	glDisable(GL_DEPTH_TEST);
-	glShadeModel(GL_FLAT);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glDisable(GL_CULL_FACE);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT, GL_FILL);
-	glDisable(GL_LIGHTING);
-	glDepthMask(GL_FALSE);
+	glShadeModel(GL_SMOOTH);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
 
 
 
@@ -95,7 +117,7 @@ void SimpleGlFrame::init() {
 	GET_GLERROR(0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 	mPriCamera.initMatrices();
 	mPriCamera.calcMatrix();
 	glGetFloatv(GL_MODELVIEW_MATRIX, mPriModelViewMatrix);
@@ -104,7 +126,13 @@ void SimpleGlFrame::init() {
 	mPriMinLvl = 7;
 	loadCameraPositions();
 	mPriFboWire = FboFactory::getSingleton()->createCompleteFbo(mPriCBufWidth,mPriCBufHeight);
+	mPriFboWire->bind();
+	mPriFboWire->clear();
+	mPriFboWire->unbind();
 	mPriFboSolid = FboFactory::getSingleton()->createCompleteFbo(mPriCBufWidth,mPriCBufHeight);
+	mPriFboSolid->bind();
+	mPriFboSolid->clear();
+	mPriFboSolid->unbind();
 	mPriCgt = ooctools::CgToolkit::getSingleton();
 	setupCg();
 	mPriLo = mPriOh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
@@ -116,12 +144,28 @@ void SimpleGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
 
-//	cgVertPostProc = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/gauss.cg", true, "gaussVP");
-	cgFragPostProc = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/gauss.cg", true, "gaussFP");
-	cgFragPostProc = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_boxcar.cg", true, "");
-	cgTexture = cgGetNamedParameter(cgFragPostProc,  "texture");
-	cgGLSetTextureParameter(cgTexture, mPriFboSolid->getColorTexId());
-	cgGLEnableTextureParameter(cgTexture);
+	cgVertNoLight = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_NoLightLut.cg", true, "");
+	cgFragNoLight = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_NoLightLut.cg", true, "");
+	cgNoLightLUT = cgGetNamedParameter(cgFragNoLight,  "colorLut");
+	cgGLSetTextureParameter(cgNoLightLUT, mPriColorTable.getTextureId());
+
+	g_cgVertexProg = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_phongDirectional.cg", true, "");
+	g_cgFragmentProg = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_phongDirectional.cg", true, "");
+	cgFragLUT = cgGetNamedParameter(g_cgFragmentProg,  "colorLut");
+	cgGLSetTextureParameter(cgFragLUT, mPriColorTable.getTextureId());
+
+	g_cgGlobalAmbient = cgGetNamedParameter(g_cgFragmentProg, "globalAmbient");
+	cgGLSetParameter3fv(g_cgGlobalAmbient, myGlobalAmbient);
+	g_cgLightColor = cgGetNamedParameter(g_cgFragmentProg, "lightColor");
+	cgGLSetParameter3fv(g_cgLightColor, myLightColor);
+	g_cgLightPosition = cgGetNamedParameter(g_cgFragmentProg, "lightPosition");
+	g_cgEyePosition = cgGetNamedParameter(g_cgFragmentProg, "eyePosition");
+	g_cgKe = cgGetNamedParameter(g_cgFragmentProg, "Ke");
+	g_cgKa = cgGetNamedParameter(g_cgFragmentProg, "Ka");
+	g_cgKd = cgGetNamedParameter(g_cgFragmentProg, "Kd");
+	g_cgKs = cgGetNamedParameter(g_cgFragmentProg, "Ks");
+	g_cgShininess = cgGetNamedParameter(g_cgFragmentProg, "shininess");
+	g_cgModelViewInv = cgGetNamedParameter(g_cgFragmentProg, "mvi");
 
 }
 void SimpleGlFrame::display()
@@ -151,15 +195,22 @@ void SimpleGlFrame::display()
 
 //	mPriCgt->startCgShader(mPriCgt->cgVertexProfile, cgVertPostProc);
 //	mPriCgt->startCgShader(mPriCgt->cgFragProfile, cgFragPostProc);
-	mPriFboWire->bind();
-//	glLoadMatrixf(mPriModelViewMatrix);
-	glLoadIdentity();
-	mPriCamera.calcMatrix();
-	glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderBBs(mPriLo);
-	mPriFboWire->unbind();
-	mPriFboWire->drawColorFSQuad();
+	if (mPriRenderFrame){
+		glLoadIdentity();
+		mPriCamera.calcMatrix();
+		mPriFboSolid->drawColorFSQuad();
+	}
+	else {
+		mPriFboWire->bind();
+		//	glLoadMatrixf(mPriModelViewMatrix);
+		glLoadIdentity();
+		mPriCamera.calcMatrix();
+		glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		renderBBs(mPriLo);
+		mPriFboWire->unbind();
+		mPriFboWire->drawColorFSQuad();
+	}
 
 //	mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
 //	mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
@@ -198,7 +249,7 @@ void SimpleGlFrame::reshape(int width, int height) {
 	glViewport(0, 0, (GLint)w, (GLint)h);
 
 	// Set the correct perspective.
-	gluPerspective(45.0f, ratio, 0.1f, 5000.0f);
+	gluPerspective(45.0f, ratio, mPriNearPlane, mPriFarPlane);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -363,6 +414,110 @@ void SimpleGlFrame::renderBBs(LooseRenderOctree* lro)
 
 }
 
+void SimpleGlFrame::renderFrame(unsigned _maxFiles)
+{
+//	glLoadIdentity();
+//	mPriCamera.calcMatrix();
+	mPriFboSolid->bind();
+	mPriFboSolid->clear();
+	cgGLSetParameter3fv(g_cgLightPosition,lightPos);
+	cgGLSetParameter3fv(g_cgEyePosition,lightPos);
+
+	glPushMatrix();
+		glPushMatrix();
+			cgGLSetStateMatrixParameter(g_cgModelViewInv,CG_GL_MODELVIEW_PROJECTION_MATRIX,CG_GL_MATRIX_IDENTITY);
+			glPushMatrix();
+				glPushMatrix();
+					glLoadIdentity();
+					glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+				glPopMatrix();
+
+	double time = glfwGetTime();
+	fs::path path = fs::path(string(BASE_MODEL_PATH)+string(MODEL_DIR));
+	unsigned fSize = 0;
+	int fHandle = 0;
+	char* map = 0;
+	char* ptr = 0;
+	uint64_t id = 0;
+	unsigned indexCount = 0;
+	unsigned vertexCount = 0;
+	IndexedVbo* ivbo = 0;
+	unsigned fileCount = 0;
+
+	set<uint64_t>::iterator idIt;
+	fs::directory_iterator end_itr; // default construction yields past-the-end
+	for (fs::directory_iterator itr(path); itr != end_itr; ++itr) {
+		if (itr->path().extension() == ".bin") {
+			mPriColorTable.bindTex();
+			cgGLEnableTextureParameter(cgFragLUT);
+			mPriCgt->startCgShader(mPriCgt->cgVertexProfile, g_cgVertexProg);
+			mPriCgt->startCgShader(mPriCgt->cgFragProfile, g_cgFragmentProg);
+
+			cerr << "rendering file " << itr->path() << "..." << endl;
+			fSize = fs::file_size(itr->path());
+			map = mapFile(itr->path(),fSize, fHandle);
+			ptr = map;
+			while (ptr < (map+fSize)){
+				id = ((uint64_t*)ptr)[0];
+				ivbo = new IndexedVbo(ptr);
+				ivbo->managedDraw(false);
+				ivbo->setOffline();
+				delete ivbo;
+				ivbo = 0;
+
+				indexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[0];
+				vertexCount = ((unsigned*)(ptr+sizeof(uint64_t)))[1];
+				ptr += sizeof(uint64_t)+(sizeof(unsigned)*2) + (indexCount*sizeof(unsigned)) + (vertexCount*sizeof(V4N4));
+			}
+			cgGLDisableTextureParameter(cgNoLightLUT);
+			mPriColorTable.unbindTex();
+
+			mPriCgt->stopCgShader(mPriCgt->cgVertexProfile);
+			mPriCgt->stopCgShader(mPriCgt->cgFragProfile);
+			umapFile(map, fSize, fHandle);
+			// -------------------------
+			if (fileCount>_maxFiles){
+				break;
+			}
+			fileCount++;
+			// -------------------------
+		}
+	}
+	glPopMatrix();
+	glPopMatrix();
+	glPopMatrix();
+	mPriFboSolid->unbind();
+
+	cerr << "operation took " << glfwGetTime()-time << "seconds." << endl;
+}
+
+char* SimpleGlFrame::mapFile(fs::path _path, unsigned _fileSize, int& _fHandle)
+{
+	char *map;  /* mmapped array of int's */
+
+	_fHandle = open(_path.string().c_str(), O_RDONLY);
+	if (_fHandle == -1) {
+		perror("Error opening file for reading");
+		exit(EXIT_FAILURE);
+	}
+	map = (char*)mmap(0, _fileSize, PROT_READ, MAP_SHARED, _fHandle, 0);
+	if (map == MAP_FAILED) {
+		close(_fHandle);
+		perror("Error mmapping the file");
+		exit(EXIT_FAILURE);
+	}
+	return map;
+}
+
+void SimpleGlFrame::umapFile(char* _map, unsigned _fileSize, int& _fHandle)
+{
+	if (munmap(_map, _fileSize) == -1) {
+		perror("Error un-mmapping the file");
+	}
+
+	close(_fHandle);
+}
+
 void SimpleGlFrame::notify(oocframework::IEvent& event)
 {
 	if (event.instanceOf(MouseDraggedEvent::classid())){
@@ -447,11 +602,34 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		KeyPressedEvent& kpe = (KeyPressedEvent&)event;
 //		cout << "KeyPressed" << endl;
 	    switch (kpe.getKey()) {
+			case 'R':
+				renderFrame();
+				mPriRenderFrame = true;
+			break;
+			case 'K':
+				renderFrame(3);
+				mPriRenderFrame = true;
+			break;
+			case 'L':
+				mPriRenderFrame = false;
+			break;
 			case GLFW_KEY_KP_ADD:
-				mPriMinLvl++;
+				if (glfwGetKey(GLFW_KEY_LCTRL) == GLFW_PRESS || glfwGetKey(GLFW_KEY_RCTRL) == GLFW_PRESS){
+					mPriNearPlane+=1000.0f;
+					mPriFarPlane+=1000.0f;
+				}
+				else {
+					mPriMinLvl++;
+				}
 			break;
 			case GLFW_KEY_KP_SUBTRACT:
-				mPriMinLvl--;
+				if (glfwGetKey(GLFW_KEY_LCTRL) == GLFW_PRESS || glfwGetKey(GLFW_KEY_RCTRL) == GLFW_PRESS){
+					mPriNearPlane-=1000.0f;
+					mPriFarPlane-=1000.0f;
+				}
+				else {
+					mPriMinLvl--;
+				}
 			break;
 			case GLFW_KEY_PAGEUP: // tilt up
 				mPriTiltUp = true;
