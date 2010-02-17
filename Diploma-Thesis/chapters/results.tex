@@ -1,17 +1,21 @@
 \chapter{Evaluierung}
 \label{chap:eval}
-\todo[size=\small, inline]{Walkthrough-Pfad noch einfügen hier}%
 \todo[size=\small, color=yellow!40, inline]{Needs Human proofreading}%
 
 Um die Effektivität des in dieser Arbeit entstandenen Systems überprüfen zu können, wurden verschiedene Tests durchgeführt.
-Beim ersten Test, dem \textit{FPS-Test}, wurde die gemessene Bildrate bei einem Walkthrough durch die Szene aufgezeichnet. Der \textit{Reload-Test} hat bei verschiedenen Systemkonfigurationen an festen Kamerapositionen die Zeit gemessen, die ein erneutes Laden der Szene benötigt. Beim \textit{$c$-Collision-Test} wurde die Anzahl an Dreiecken auf den einzelnen Datenknoten während eines Walkthroughs gemessen. Die einzelnen Testläufe unterscheiden sich dabei in der verwendeten Anzahl an Datenknoten und Redundanzen. Redundanz bedeutet hier, wie oft das Modell der Boeing vollständig im Netzwerk verteilt wurde. \\
+Beim ersten Test, dem \textit{FPS-Test}, wurde die gemessene Bildrate bei einem Walkthrough durch die Szene aufgezeichnet. In Abbildung \ref{fig:eval:walkthrough1} ist der Pfad zu sehen, der bei dem Walkthrough durch das Modell benutzt wurde. Der \textit{Reload-Test} hat bei verschiedenen Systemkonfigurationen an festen Kamerapositionen die Zeit gemessen, die ein erneutes Laden der Szene benötigt. Beim \textit{$c$-Collision-Test} wurde die Anzahl an Dreiecken auf den einzelnen Datenknoten während eines Walkthroughs gemessen. Die einzelnen Testläufe unterscheiden sich dabei in der verwendeten Anzahl an Datenknoten und Redundanzen. Redundanz bedeutet hier, wie oft das Modell der Boeing vollständig im Netzwerk verteilt wurde. \\
 Die Tests erfolgten auf dem Arminius-Cluster des Paderbon Centers for Parall Computing (siehe Tabelle \ref{tab:impl:arminius}). Zur Entwicklung des Systems wurde ein kleinerer Cluster benutzt, bestehend aus 8 Pentium Multicore-Rechnern in einem Gigabit Netzwerk sowie einem Quadcore-Pentium mit einer GeForce 260GTX Grafikkarte als Render- und Masterknoten, im Folgenden \textit{Entwicklungs-Cluster} genannt.\\
 Im Arminius-Cluster wurde der Compiler gcc v3.4.6, OpenGL als Grafik-API, nVidia Treiber v177 auf den Rechenknoten und v190 auf den Visualisierungsknoten benutzt sowie die Programmbibliotheken boost v1.38 und OpenMPI v1.2.9. Die Auflösung betrug jeweils 640$\times$480 Pixel für das normale Frustum und 800$\times$600 Pixel für das erweiterte Frustum.\\
 Zusätzliche Diagramme und Abbildungen sind in den Anhängen \ref{chap:add_diag} und \ref{chap:add_fig} zu finden.
+\begin{figure}
+\centering
+\includegraphics[scale=1.0]{images/walkthrough1.pdf}
+  \caption{\label{fig:eval:walkthrough1} Darstellung des Walkthrough-Pfads durch das 3D-Modell der Boeing 777.}
+\end{figure}
 
 \section{FPS-Test}
 \label{sec:eval:fps}
-Bei diesem Test wurde in einem festgelegten Walkthrough durch die 3D-Szene gemessen, wie viele Bilder pro Sekunde an welcher Stelle der Szene erreicht werden konnten. Dazu wurde der Walkthrough auf je 24, 28 und 32 Datenknoten mit einer Redundanz von 1, 2 und 3 durchgeführt. Die y-Achsen der Diagramme in Abbildung \ref{fig:eval:fps} stellen die Bilder pro Sekunde dar und die x-Achsen die Messpunkte während des Walkthroughs. Die Darstellung der in jedem einzelnen Frame ist nicht praktikabel, da diese stark schwanken. Daher wurden die gemessenen FPS in diesem Test jeweils über 20 Frames gemittelt.
+Bei diesem Test wurde in einem festgelegten Walkthrough durch die 3D-Szene gemessen, wie viele Bilder pro Sekunde an welcher Stelle der Szene erreicht werden konnten. Dazu wurde der Walkthrough auf je 24, 28 und 32 Datenknoten mit einer Redundanz von 1, 2 und 3 durchgeführt. Die y-Achsen der Diagramme in Abbildung \ref{fig:eval:fps} stellen die Bilder pro Sekunde dar und die x-Achsen die Messpunkte während des Walkthroughs. Die Darstellung der Bildrate in jedem einzelnen Frame ist nicht praktikabel, da diese stark schwankt. Daher wurden die gemessenen FPS in diesem Test jeweils über 20 Frames gemittelt.
 \begin{figure}
 \centering
 \includegraphics[scale=0.75]{images/diag_fps.pdf}
@@ -54,8 +58,9 @@ In diesem Test wurden 24, 80 und 120 Datenknoten simuliert. Dabei wurde die Last
 
 In den Abbildungen \ref{fig:eval:cCol1} und \ref{fig:eval:cCol9} zeigt das linke Diagramm jeweils die Walkthrough-Position (x-Achse) in Relation zur Lastverteilung (y-Achse). Das rechte Diagramm zeigt jeweils die Anfragenmenge, die durch das $c$-Collision Protokoll pro Frame verteilt wurde (x-Achse), in Relation zur Lastverteilung (y-Achse). In Abbildung \ref{fig:eval:cCol1} wurden 24 Datenknoten mit einer Redundanz von 1 simuliert, in Abbildung \ref{fig:eval:cCol9} wurden 120 Datenknoten mit einer Redundanz von 3 simuliert. Bei Betrachtung des linken Diagramms fallen einige Positionen auf, an denen die Last sehr ungleich verteilt ist oder der Median 0 ist. Im rechten Diagramm kann man sehen, dass dies immer dann der Fall ist, wenn das c-Collision Protokoll sehr wenige Anfragen verteilen musste. Dieses Protokoll dient ursprünglich dazu, Bälle möglichst gleichmäßig auf Körbe zu verteilen. Hat man viel weniger Bälle als Körbe, ist das System nicht gleichmäßig balanciert, da einige Körbe gar keine Bälle erhalten. So wie die Bälle sind auch die Anfragen im Test-System atomar und werden nicht weiter unterteilt. Je nach initialer Zufallsverteilung der Daten auf den Knoten kann es bei wenig Redundanzen auch vorkommen, dass die Aufträge nur auf wenige Knoten verteilt werden können. Im Falle des benutzten Walkthroughs treten die unbalancierten Stellen da auf, wo das Modell betreten und verlassen wird. An diesen Stellen gibt es sehr wenig sichtbare Geometrie.\\
 Bei diesem Test ist zu erkennen, dass sowohl die Menge an Knoten als auch die Zahl der Redundanzen eine Rolle bei der gleichmäßigen Lastverteilung spielt. Bei erhöhter Redundanz ist zu beobachten, dass die 0.1 und 0.9 Quantile sehr viel näher am Median liegen als bei geringerer Redundanz. Mehr Datenknoten sorgen dafür, dass die Spitzenwerte an unbalancierten Stellen geringer ausfallen.
-\begin{Bild}
+\begin{figure}
+ \centering
 \includegraphics[scale=0.75]{images/diag_cCol_red3_render4_data120_2x.pdf}
-  \captionof{figure}{\label{fig:eval:cCol9}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}
-\end{Bild}
+  \caption{\label{fig:eval:cCol9}Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten und 120 Datenknoten und Redundanz$=$3.}
+\end{figure}
 
