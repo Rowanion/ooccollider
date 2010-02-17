@@ -30,6 +30,7 @@ public:
 	IndexedVbo(fs::path path, uint64_t id, bool initiateOnline=true);
 	IndexedVbo(fs::ifstream* _iStream, unsigned _pos = 0, bool initiateOnline=true);
 	IndexedVbo(ooctools::Location _loc, bool initiateOnline = true);
+	IndexedVbo(char* _data);
 	virtual ~IndexedVbo();
 	void managedDraw(bool dataNodeMode = false);
 	void setOnline();
