@@ -111,10 +111,36 @@ private:
 	int mPriBBMode;
 	ooctools::ColorTable mPriColorTable;
 
-	CGprogram cgVertPostProc;
-	CGprogram cgFragPostProc;
-	CGparameter cgTexture;
+	CGprogram g_cgVertexProg;
+	CGparameter g_cgGlobalAmbient;
+	CGparameter g_cgLightColor;
+	CGparameter g_cgEyePosition;
+	CGparameter g_cgLightPosition;
+	CGparameter cgColorLut;
+	CGparameter cgNColors;
+
+	CGprogram g_cgFragmentProg;
+	CGparameter g_cgShininess;
+	CGparameter g_cgKs;
+	CGparameter g_cgKd;
+	CGparameter g_cgKa;
+	CGparameter g_cgKe;
+	CGparameter g_cgModelViewInv;
+	CGparameter cgFragLUT;
+
+	CGprogram cgVertNoLight;
+	CGprogram cgFragNoLight;
+	CGparameter cgNoLightLUT;
+
+	CGprogram cgVertDepthTex;
+	CGprogram cgFragDepthTex;
+	CGparameter cgDepthTex;
 	oocformats::OctreeHandler mPriOh;
+	bool mPriRenderFrame;
+	float lightPos[3];
+	float mPriNearPlane;
+	float mPriFarPlane;
+
 
 	void setupCg();
 
@@ -140,6 +166,9 @@ private:
 	void cameraInit();
 	void applyKeyEvents();
 	void renderBBs(oocformats::LooseRenderOctree* lro);
+	void renderFrame(unsigned _maxFiles = 100);
+	char* mapFile(fs::path _path, unsigned _fileSize, int& _fHandle);
+	void umapFile(char* _map, unsigned _fileSize, int& _fHandle);
 };
 
 #endif /* SIMPLEGLFRAME_H_ */
