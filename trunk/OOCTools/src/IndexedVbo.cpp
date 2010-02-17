@@ -182,14 +182,34 @@ IndexedVbo::IndexedVbo(ooctools::Location _loc, bool initiateOnline) :
 	inFile.close();
 }
 
+IndexedVbo::IndexedVbo(char* _data) :
+	 mPriVertexData(0), mPriIndexData(0), mPriId(0), mPriVertexCount(0), mPriIndexCount(0),
+	 mPriVertexId(0), mPriIdxId(0),
+	 mPriIsGpuOnly(false), mPriIsOffline(false)
+
+{
+
+	mPriId = ((uint64_t*)_data)[0];
+	mPriIndexCount = ((unsigned*)(_data+sizeof(uint64_t)))[0];
+	mPriVertexCount = ((unsigned*)(_data+sizeof(uint64_t)))[1];
+
+	mPriIndexData = new unsigned[mPriIndexCount];
+	mPriVertexData = new V4N4[mPriVertexCount];
+
+	memcpy(mPriIndexData, _data+sizeof(uint64_t)+(2*sizeof(unsigned)), sizeof(unsigned)*mPriIndexCount);
+	memcpy(mPriVertexData, _data+sizeof(uint64_t)+(2*sizeof(unsigned)+(sizeof(unsigned)*mPriIndexCount)), sizeof(V4N4)*mPriVertexCount);
+
+	setOnline();
+}
+
 IndexedVbo::~IndexedVbo() {
 	setOffline();
 
 	static unsigned blaCounter2 = 0;
 	blaCounter2++;
 	if (blaCounter2 == 501){
-		cerr << "indxPtr(DESTRUCT): " << (uint64_t)mPriIndexData << endl;
-		cerr << "vertPtr(DESTRUCT): " << (uint64_t)mPriVertexData << endl;
+//		cerr << "indxPtr(DESTRUCT): " << (uint64_t)mPriIndexData << endl;
+//		cerr << "vertPtr(DESTRUCT): " << (uint64_t)mPriVertexData << endl;
 	}
 
 	delete[] mPriVertexData;
