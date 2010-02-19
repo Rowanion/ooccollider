@@ -31,98 +31,93 @@
 
 \selectlanguage{german}
 \begin{titlepage}
+\parskip0pt
 \fontfamily{fts}\selectfont
 
 \vspace*{-0.75cm}
 
-\begin{minipage}[t]{0.3\linewidth}
-\begin{flushleft}
-\begin{center}
- \includegraphics[scale=0.75]{images/Logo_Uni_Paderborn.pdf}
+\hbox to \hsize{\includegraphics[scale=0.75]{images/Logo_Uni_Paderborn.pdf}\hss}
  % Logo_Uni_Paderborn.pdf: 442x117 pixel, 72dpi, 15.59x4.13 cm, bb=0 0 442 117
-\end{center}
 
-\end{flushleft}
-\end{minipage}
-
-\vspace{1.0cm}
+\vspace{1.2cm}
 
 \begin{center}
-\begin{Large}\thesistype \end{Large}  \\
-\begin{normalsize}DPO4 \end{normalsize} \bigskip \\
-\dmseries\huge{\thesistitle \\ \thesissubtitle}
+\begin{Large}\thesistype \end{Large}\vspace{1cm}
+ 
+\dmseries
+
+\huge{
+
+Effektivit\"{a}tsanalyse
+
+des \textit{c}-Collision Protokolls
+
+\hbox to \hsize{\hss als gewichteter Datenbalancierer\hss}
+
+in einem parallelen
+
+Out-of-Core Renderer
+} 
 \end{center}
 
-\vspace{0.4cm}
-%\vspace{-0.05cm}
-\renewcommand{\bigskip}{\vspace*{0.43cm}}
+\vfill
 
 \begin{center}
-\begin{normalsize}Vorgelegt von: \end{normalsize} \\
-\begin{Large}\dmseries\thesisauthor\end{Large} \\
-\begin{normalsize}Matrikelnummer: \matrikelnr\end{normalsize} \bigskip\\
-\begin{normalsize}Vorgelegt bei: \end{normalsize} \\
-\begin{large}\dmseries Dr. Matthias Fischer\end{large} \\
-\begin{large}\dmseries Prof. Gitta Domik\end{large}\bigskip \\
-\begin{normalsize}Betreuer: \end{normalsize} \\
-\begin{large}\dmseries Dipl.-Inform. Tim S\"{u}\ss\end{large} \bigskip\\
-\begin{normalsize}\institut\end{normalsize}\\
-\begin{normalsize}\institutsuni\end{normalsize}\bigskip \\
-\begin{normalsize}Paderborn, im Februar 2010\end{normalsize}
+\begin{Large}\dmseries\thesisauthor\end{Large} 
+
+
 \end{center}
-\begin{comment}
-\begin{Large}\dmseries\zuerlangendertitel\end{Large} \bigskip \\
-\begin{normalsize}im Rahmen des Studiums\end{normalsize} \bigskip \\
-\begin{large}\dmseries\studium\end{large} \bigskip \\
-\begin{normalsize}ausgef\"{u}hrt von \end{normalsize} \bigskip \\
-\begin{large}\dmseries\thesisauthor\end{large} \\
-\begin{normalsize}Matrikelnummer: \matrikelnr\end{normalsize} \\
 
-\begin{flushleft}
-am: \\ \textit{\institut} \\
-%\small{der \institutsuni} \\
-\end{flushleft}
+% 2. Seite...
 
+\newpage~\newpage
+\thispagestyle{empty}
 
-\begin{flushleft}
-\smallskip
-Betreuung: \\
-\textit{Betreuer: \betreuer} \\
-\textit{Mitwirkung: \assistent}
-\end{flushleft}
+\parskip12pt
 
-\date{\today}
-\numdate
-
-\footnotesize
-\vspace{1.5cm}
-
-\begin{flushleft}
-\begin{tabbing}%
-%Wien, \today & \hspace*{0.5cm} & \underline{\hspace*{5.2cm}} & \hspace*{1.0cm} & \underline{\hspace*{5.2cm}}\\
-%                       &                 &         Unterschrift Verfasserin  & & Unterschrift Betreuer
-\hspace{4.5cm} \= \hspace{5cm} \= \hspace{5cm} \kill
-\textit{Paderborn, \today} \> \underline{\hspace*{5cm}} \> \hspace{0.8cm} \underline{\hspace*{5cm}} \\
-     \> \hspace{0.1cm} (Unterschrift Verfasser/in) \> \hspace{1.0cm} (Unterschrift Betreuer/in) \\
-\end{tabbing}
-\end{flushleft}
-
-\vspace{0.9cm}
-
-\begin{minipage}[b]{1.0\linewidth}
 \begin{center}
-\underline{\hspace*{15.5cm}}
-\scriptsize{
-Technische Universit\"{a}t Wien \\
-A-1040 Wien \hspace{0.5cm} Karlsplatz 13 \hspace{0.5cm} Tel. +43/(0)1/58801-0 \hspace{0.5cm} http://www.tuwien.ac.at
-}
-\end{center}
-\end{minipage}
+  \begin{Large}\thesistype \end{Large}  
 
-\vspace*{-2.5cm}
-\end{comment}
+
+  \begin{normalsize}DPO4 \end{normalsize} \bigskip 
+
+
+  \vspace{2.0cm}
+  \begin{normalsize}Vorgelegt von: \end{normalsize} 
+
+
+  \begin{Large}\dmseries\thesisauthor\end{Large} 
+
+
+  \begin{normalsize}Matrikelnummer: \matrikelnr\end{normalsize} \bigskip
+
+
+  \vspace{1.0cm}
+  \begin{normalsize}Vorgelegt bei: \end{normalsize} 
+
+
+  \begin{large}\dmseries Dr. Matthias Fischer\end{large} 
+
+
+  \begin{large}\dmseries Prof. Gitta Domik\end{large}\bigskip 
+
+
+  \begin{normalsize}Betreuer: \end{normalsize} 
+
+
+  \begin{large}\dmseries Dipl.-Inform. Tim S\"{u}\ss\end{large} \bigskip
+
+
+  \vspace{3.0cm}
+  \begin{normalsize}\institut\end{normalsize}\\
+  \begin{normalsize}\institutsuni\end{normalsize}\bigskip 
+
+
+  \begin{normalsize}Paderborn, im Februar 2010\end{normalsize}
+
+\end{center}
 \end{titlepage}
-
+\newpage~\newpage
 %
 % EOF
 %

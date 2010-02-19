@@ -1,26 +1,24 @@
 \newpage
 \thispagestyle{empty}
-Wiesemann, Timo \\
+%Wiesemann, Timo 
+
+
 
 \begin{center}
   \textit{\textbf{Erklärung}}
 \end{center}
 
-\hspace*{60mm}\\
+\hspace*{60mm}
 
-Hiermit versichere ich, die Diplomarbeit selbstständig verfasst und dabei keine anderen als die angegebenen und bei Zitaten kenntlich gemachten Quellen als Hilfsmittel verwendet zu haben.
-\bigskip
-\\
-\\
-\\
-\\
-\\
-\begin{minipage}{25cm}
-  \begin{flushright}
-    \begin{center}
-      \rule{7cm}{0.2mm}\\
+
+
+Hiermit versichere ich, Timo Wiesemann, die Diplomarbeit selbstständig verfasst und dabei keine anderen als die angegebenen und bei Zitaten kenntlich gemachten Quellen als Hilfsmittel verwendet zu haben.
+\vskip180pt
+
+\hbox to \hsize{\begin{center}
+      \rule{7cm}{0.2mm}
+
+
       Datum, Unterschrift
-      \end{center}
-  \end{flushright}
-\end{minipage}
+      \end{center}}
 \newpage

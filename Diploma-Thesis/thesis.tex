@@ -34,8 +34,8 @@
 % Die grobe Dokumentenstruktur findet sich übrigens ganz unten in dieser Datei.
 %
 \newcommand{\thesistype}{DIPLOMARBEIT}
-\newcommand{\thesistitle}{Effektivit\"{a}tsanalyse\\ \vspace{-0.15cm}des \textit{c}-Collision Protokolls}
-\newcommand{\thesissubtitle}{\vspace{-0.15cm}als gewichteter Datenbalancierer\\ \vspace{-0.15cm}in einem parallelen\\ \vspace{-0.15cm}Out-of-Core Renderer}
+%\newcommand{\thesistitle}{Effektivit\"{a}tsanalyse\\ \vspace{-0.15cm}des \textit{c}-Collision Protokolls}
+%\newcommand{\thesissubtitle}{\vspace{-0.15cm}als gewichteter Datenbalancierer\\ \vspace{-0.15cm}in einem parallelen\\ \vspace{-0.15cm}Out-of-Core Renderer}
 
 \newcommand{\thesisauthor}{Timo Wiesemann}
 \newcommand{\matrikelnr}{6015295}
@@ -53,7 +53,8 @@
 \documentclass[%
   pdftex,%              PDFTex verwenden
   a4paper,%             A4 Papier
-  oneside,%             Einseitig
+  twoside,%             Einseitig
+openany,
   bibtotocnumbered,%    Literaturverzeichnis nummeriert einfügen
   idxtotoc,%            Index ins Verzeichnis einfügen
   %liststotoc,
@@ -62,7 +63,7 @@
   chapterprefix,%       Kapitel anschreiben als Kapitel
   %headsepline,%         Linie nach Kopfzeile
   %footsepline,%         Linie vor Fusszeile
-  12pt%                 Größere Schrift, besser lesbar am Bildschrim
+  11pt%                 Größere Schrift, besser lesbar am Bildschrim
 ]{scrbook}
 
 
@@ -253,11 +254,6 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
   extendedchars=true,
   backgroundcolor=\color{lbcolor}
 }
-% ---------------------------------------------------------------------------
-% Selbentrennung
-% ---------------------------------------------------------------------------
-\hyphenation{Bild-ra-ten Mo-dell Mo-dells Mo-del-le Spei-cher-ver-wal-tung ge-o-me-tri-e pa-ral-lel pa-ral-le-len Ope-ra-ti-on Ope-ra-ti-o-nen Ap-pro-xi-ma-ti-on ent-sprech-en-den Netz-werk er-reicht}
-\sloppy
 
 %----------------------------------------------------------------------------
 % Tabellenlinien und sonstige nützliche Dinge
@@ -285,9 +281,9 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 %\usepackage[underline=true,rounded corners=false]{pgf-umlsd} % changed to following parameter-values:
 \usepackage[underline=false,rounded corners=true]{pgf-umlsd}
 
-% todo notes, add disbale to remove them. BUT: need to remove the toc-insertion manually
+% todo notes, add disbale to remove them. BUT: need to remove the toc-insertion manually 
 %\usepackage[colorlinks]{hyperref}
-\usepackage[colorinlistoftodos, shadow]{todonotes}
+\usepackage[colorinlistoftodos, shadow, disable]{todonotes}
 
 \usepackage{pgfplots}
 
@@ -308,6 +304,28 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 
 \usepackage{verbatim} 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% format special
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textwidth 14.1cm
+%advance\hoffset by 7mm
+
+\advance\oddsidemargin by 2.1cm
+\advance\evensidemargin by -0.5cm
+
+\def\mycite#1{{~\cite{#1}}}
+
+\clubpenalty4000
+\widowpenalty4000
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -322,23 +340,49 @@ pdfpagelayout=OneColumn % Continuous page scrolling.
 \renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
 
 
-\pagenumbering{alph}
+\selectlanguage{german}
+
+\pagestyle{empty}
+
 \input{chapters/titlepage}
 \input{chapters/erklaerung}
 
-\selectlanguage{german}
-\pagenumbering{roman}
-\setcounter{page}{1}
+% ---------------------------------------------------------------------------
+% Selbentrennung
+% ---------------------------------------------------------------------------
+\hyphenation{Bild-ra-ten Mo-dell Mo-dells Mo-del-le Spei-cher-ver-wal-tung ge-o-me-tri-e pa-ral-lel pa-ral-le-len Ope-ra-ti-on Ope-ra-ti-o-nen Ap-pro-xi-ma-ti-on ent-sprech-en-den Netz-werk er-reicht Ren-de-rer Ren-de-ring Da-ten-kno-ten Pro-ceed-ings ap-pli-ca-tions Boeing Bild-er-zeu-gung Cache}
 
-\listoftodos
-\addcontentsline{toc}{chapter}{ToDoList}
+\pagenumbering{roman}
+\setcounter{page}{2}
+\pagestyle{plain}
+
+%\sloppy
+
+%\listoftodos
+%\addcontentsline{toc}{chapter}{ToDoList}
 
 
 \tableofcontents
-\addcontentsline{toc}{chapter}{Inhaltsverzeichnis}
+
+~ \newpage 
+\thispagestyle{empty}
+~ \newpage 
+
+
+
+%\cleardoublepage
+
+\let\oldchapter=\chapter
+
+\def\chapter#1{\cleardoublepage\oldchapter{#1}}
+
 
 \pagenumbering{arabic}
 \setcounter{page}{1}
+\pagestyle{plain}
+
+%\addcontentsline{toc}{chapter}{Inhaltsverzeichnis}
+
 
 \input{chapters/introduction}
 \input{chapters/relatedwork}
