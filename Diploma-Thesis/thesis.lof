@@ -4,17 +4,17 @@
 \select@language {german}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (gr\IeC {\"u}n). Alle Ressourcen, die nach einer Runde h\IeC {\"o}chstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt.}}{4}{figure.2.1}
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Sort-First. Umverteilung von unverarbeiteten Primitiven w\IeC {\"a}hrend der Geometrieverarbeitung. \textit {Quelle: nach{~\cite {molnar}}}}}{6}{figure.2.2}
-\contentsline {figure}{\numberline {2.3}{\ignorespaces Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit {Quelle: nach{~\cite {molnar}}}}}{7}{figure.2.3}
-\contentsline {figure}{\numberline {2.4}{\ignorespaces Sort-Last. Umverteilung von Pixeln, Samples oder Pixelfragmenten w\IeC {\"a}hrend der Rasterisierung. \textit {Quelle: nach{~\cite {molnar}}}}}{7}{figure.2.4}
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Das $c$-Collision Protokoll}}{4}{figure.2.1}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Sort-First}}{6}{figure.2.2}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Sort-Middle}}{7}{figure.2.3}
+\contentsline {figure}{\numberline {2.4}{\ignorespaces Sort-Last}}{7}{figure.2.4}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree der Tiefe 2. Links: die r\IeC {\"a}umliche Darstellung, rechts: die Baumdarstellung. Quelle:{~\cite {wikioctree}}}}{14}{figure.3.1}
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Ein Loose Octree in einer 2D-Darstellung. Das Zentrum des Objekts (rosa) befindet sich innerhalb der Octree Zelle, das gesamte Objekt befindet sich innerhalb der Loose Box. Quelle: nach{~\cite {anteru}}}}{15}{figure.3.2}
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Ein Sampletree in einer 2D-Darstellung. Links: eine Aufteilung von Polygonen in verschiedene Quadtree Zellen, rechts: die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an, welche Polygonteile der linken Seite in welchem Baum-Level gespeichert wurden. Quelle: nach{~\cite {klein}}}}{16}{figure.3.3}
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Ein Octree}}{14}{figure.3.1}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Ein Loose Octree}}{15}{figure.3.2}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Ein Sampletree}}{16}{figure.3.3}
 \contentsline {figure}{\numberline {3.4}{\ignorespaces Farb-Textur des Boeing-Modells.}}{17}{figure.3.4}
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Verschiedene Culling-Techniken. Teile der Geometrie, die durch den Einsatz von Culling-Algorithmen entfallen w\IeC {\"u}rden, sind durch gestrichelte Linien dargestellt. \textit {Quelle: nach{~\cite {culling}}} }}{19}{figure.3.5}
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Problem beim Occlusion-Culling: Die Boundingbox zweier Objekte ist sichtbar, die Objekte innerhalb der Box sind jedoch vollst\IeC {\"a}ndig verdeckt.}}{21}{figure.3.6}
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Culling-Techniken}}{19}{figure.3.5}
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Problem beim Occlusion-Culling}}{21}{figure.3.6}
 \contentsline {figure}{\numberline {3.7}{\ignorespaces Popping-Effekte durch schlechtes Prefetching.}}{23}{figure.3.7}
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Der Pseudo-Code des Masterknotens.}}{28}{figure.4.1}
@@ -23,7 +23,7 @@
 \contentsline {figure}{\numberline {4.4}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r die Render-Schleife.}}{34}{figure.4.4}
 \contentsline {figure}{\numberline {4.5}{\ignorespaces Sequenzdiagramm: Kommunikation f\IeC {\"u}r ein Tiefenbuffer-Update.}}{35}{figure.4.5}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Darstellung des Walkthrough-Pfads durch das 3D-Modell der Boeing 777.}}{37}{figure.5.1}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Walkthrough-Pfad}}{37}{figure.5.1}
 \contentsline {figure}{\numberline {5.2}{\ignorespaces FPS in einem Walkthrough mit 4 Renderknoten und 24-32 Datenknoten. Links: Redundanz$=$1, rechts: Redundanz$=$3.}}{39}{figure.5.2}
 \contentsline {figure}{\numberline {5.3}{\ignorespaces Reload-Test mit 2 Renderknoten. Links: Redundanz 1 und 24 Renderknoten, rechts: Redundanz 3 und 32 Renderknoten.}}{40}{figure.5.3}
 \contentsline {figure}{\numberline {5.4}{\ignorespaces Kameraposition 3.}}{41}{figure.5.4}
@@ -55,12 +55,10 @@
 \contentsline {figure}{\numberline {E.3}{\ignorespaces Reloadtest: Redundanz 1, 2 Renderknoten, 32 Datenknoten.}}{64}{figure.E.3}
 \contentsline {figure}{\numberline {E.4}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 24 Datenknoten.}}{65}{figure.E.4}
 \contentsline {figure}{\numberline {E.5}{\ignorespaces Reloadtest: Redundanz 3, 2 Renderknoten, 28 Datenknoten.}}{65}{figure.E.5}
-\contentsline {figure}{\numberline {E.6}{\ignorespaces Reloadtest}}{66}{figure.E.6}
-\contentsline {figure}{\numberline {E.7}{\ignorespaces Reloadtest}}{66}{figure.E.7}
-\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$1.}}{67}{figure.E.8}
-\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$1.}}{67}{figure.E.9}
-\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$2.}}{68}{figure.E.10}
-\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$2.}}{68}{figure.E.11}
-\contentsline {figure}{\numberline {E.12}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$2.}}{69}{figure.E.12}
-\contentsline {figure}{\numberline {E.13}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$3.}}{69}{figure.E.13}
-\contentsline {figure}{\numberline {E.14}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$3.}}{70}{figure.E.14}
+\contentsline {figure}{\numberline {E.6}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$1.}}{66}{figure.E.6}
+\contentsline {figure}{\numberline {E.7}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$1.}}{66}{figure.E.7}
+\contentsline {figure}{\numberline {E.8}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$2.}}{67}{figure.E.8}
+\contentsline {figure}{\numberline {E.9}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$2.}}{67}{figure.E.9}
+\contentsline {figure}{\numberline {E.10}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 120 Datenknoten und Redundanz$=$2.}}{68}{figure.E.10}
+\contentsline {figure}{\numberline {E.11}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 24 Datenknoten und Redundanz$=$3.}}{68}{figure.E.11}
+\contentsline {figure}{\numberline {E.12}{\ignorespaces Die Auslastung der Datenknoten in einem Walkthrough bei 4 Renderknoten, 80 Datenknoten und Redundanz$=$3.}}{69}{figure.E.12}

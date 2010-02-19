@@ -7,7 +7,7 @@ Das $c$-Collision Protokoll\mycite{ccol3} ist ein Protokoll, welches eine mögli
 \begin{figure}
   \centering
   \includegraphics[scale=0.55]{images/ccollision2.pdf}
-  \caption{\label{fig:relwork:ccollision} Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (grün). Alle Ressourcen, die nach einer Runde höchstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt.}\phantom{\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;}
+  \caption[Das $c$-Collision Protokoll]{\label{fig:relwork:ccollision} Das $c$-Collision Protokoll: Eine Anfrage wird an alle Ressourcen gestellt, die ein gesuchtes Datum besitzen (grün). Alle Ressourcen, die nach einer Runde höchstens $c=2$ Anfragen haben, beantworten diese (magenta). Alle beantworteten Anfragen werden entfernt.}\phantom{\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;}
 \end{figure}
 
 In der Arbeit von Petra Berenbrink et al.\mycite{ccol2} wird das $c$-Collision Protokoll von Volker Stemann\mycite{ccol3} modifiziert, um mit gewichteten Aufgaben arbeiten zu können. Ausgehend von $m$ Bällen, welche auf $n$ Körbe verteilt werden, wird eine untere Schranke für $m \ge n$ ermittelt, in Abhängigkeit der Runden und Anzahl der Körbe. Da jeder Ball ein bestimmtes Gewicht besitzt, wird die Summe über alle Gewichte von Bällen in einem Korb als Last bezeichnet. Außerdem wird ein Zusammenhang zwischen der Anzahl der Bälle, der Gleichförmigkeit ihrer Gewichte sowie der benötigten Laufzeit zur Erreichung einer gegebenen Last untersucht. In dem Algorithmus, dem "`$c$-Load Collision Protocol"', wählt jeder Ball zufällig drei Körbe. Es werden mehrere Runden durchgeführt. In jeder Runde stellt jeder Ball eine Anfrage an alle gewählten Körbe und übermittelt sein Gewicht. Jeder Korb berechnet die Summe der Gewichte von allen Anfragen an ihn. Ist diese Summe höchstens $c$, akzeptiert er, sonst lehnt er ab. Hat ein Ball mindestens eine akzeptierende Antwort bekommen, wird der Ball samt der durch ihn gestellten Anfragen aus dem Protokoll entfernt.
@@ -25,7 +25,7 @@ Sort-First-Algorithmen teilen den Bildschirm in Regionen ein (Kacheln) und weise
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/sort-first.pdf}
-  \caption{Sort-First. Umverteilung von unverarbeiteten Primitiven während der Geometrieverarbeitung. \textit{Quelle: nach\mycite{molnar}}}
+  \caption[Sort-First]{Sort-First. Umverteilung von unverarbeiteten Primitiven während der Geometrieverarbeitung. \textit{Quelle: nach\mycite{molnar}}}
  \label{fig:relwork:sortfirst}
 \end{figure}
 
@@ -33,7 +33,7 @@ Sort-Middle-Algorithmen hingegen verteilen Primitive in der Mitte der Ren\-de\-r
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/sort-middle.pdf}
-  \caption{Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit{Quelle: nach\mycite{molnar}}}
+  \caption[Sort-Middle]{Sort-Middle. Umverteilung von screen-space Primitiven zwischen Geometrieverarbeitung und Rasterisierung. \textit{Quelle: nach\mycite{molnar}}}
  \label{fig:relwork:sortmiddle}
 \end{figure}
 
@@ -41,7 +41,7 @@ Bei Sort-Last-Algorithmen werden geometrische Objekte an einzelne Renderer verte
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/sort-last.pdf}
-  \caption{Sort-Last. Umverteilung von Pixeln, Samples oder Pixelfragmenten während der Rasterisierung. \textit{Quelle: nach\mycite{molnar}}}
+  \caption[Sort-Last]{Sort-Last. Umverteilung von Pixeln, Samples oder Pixelfragmenten während der Rasterisierung. \textit{Quelle: nach\mycite{molnar}}}
  \label{fig:relwork:sortlast}
 \end{figure}
 Rudrajit Samanta et al.\mycite{samanta} haben einen hybriden Renderer entwickelt, welcher Sort-First und Sort-Last-Ansätze kombiniert. Geometrische Objekte werden nach der minimalen Überlappung ihrer Boundingboxen gruppiert und anschließend auf Sort-Last Rechenknoten verteilt. Wird ein Objekt von mehreren Knoten gerendert, weil es deren Kachelgrenzen schneidet, werden die errechneten Tiefenwerte zwischen den betroffenen Knoten ausgetauscht und mit ihren eigenen Tiefenwerten ergänzt. So erhält jeder Renderer ein approximiertes Tiefenabbild. Die fertigen Farbpixel werden am Ende an einen speziellen Kachelrenderer weitergeleitet, welcher lediglich die Kacheln zusammensetzt und darstellt. Der gesamte Pixelversand wird mittels peer-to-peer im Netz\-werk verteilt, wodurch eine verbesserte Netzlastnutzung mit verringerten Latenzen möglich ist.
