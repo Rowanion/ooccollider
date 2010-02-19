@@ -37,11 +37,11 @@
 \acro{CPU}{Central Processing Unit (Hauptprozessor)}
 \acro{FPS}{Frames per second}
 \acro{GPU}{Graphics Processing Unit (Grafikprozessor)}
-\acro{HLOD}{Hierarchical Level-Of-Detail \cite{hlod}}
-\acro{LOD}{Level-Of-Detail \cite{RTR3}}
-\acro{PLP}{Prioritized-Layered Projection \cite{plp}}
+\acro{HLOD}{Hierarchical Level-Of-Detail\mycite{hlod}}
+\acro{LOD}{Level-Of-Detail\mycite{RTR3}}
+\acro{PLP}{Prioritized-Layered Projection\mycite{plp}}
 \acro{peer-to-peer}{Peer-to-peer Netzwerke sind Netzwerksysteme ohne zentrale Zugriffskontrolle, in denen alle Rechner gleichberechtigt agieren. Eine Datenverbindung besteht dabei immer direkt von einem Teilnehmer zum anderen.}
-\acro{PVS}{Potentially Visible Set \cite{RTR3}}
+\acro{PVS}{Potentially Visible Set\mycite{RTR3}}
 \acro{Rasterisierung}{Überführung eines kontinuierlichen Raums in einen diskreten Raum (Pixel).}
 \acro{Rendering}{Erzeugt ein 2D-Bild aus einer 3D-Szene.}
 \acro{screen-space}{Projektion einer 3D-Szene in einen zweidimensionalen Raum (Bild).}
