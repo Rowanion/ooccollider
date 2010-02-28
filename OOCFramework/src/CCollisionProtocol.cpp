@@ -446,6 +446,24 @@ void CCollisionProtocol::searchEqualNodes(vector<VirtualNode>::reverse_iterator 
 	}
 }
 
+void CCollisionProtocol::setSeed(unsigned _seed)
+{
+	mPriMTwister.seed(_seed);
+	mPriSeed = _seed;
+
+	// check if there's already a distribution present
+	if (!mPriIdToNodeMap.empty()){
+		mPriIdToNodeMap.clear();
+	}
+	if (!mPriNodeToIdMap.empty()){
+		mPriNodeToIdMap.clear();
+	}
+	if (!mPriLoTriMap.empty()){
+		mPriLoTriMap.clear();
+	}
+
+}
+
 void CCollisionProtocol::debug()
 {
 		cerr << "mPriIdToNodeMap: " << mPriIdToNodeMap.size() << endl;

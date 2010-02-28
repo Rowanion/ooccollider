@@ -59,6 +59,7 @@ public:
 	 *
 	 */
 	unsigned solveCCollision(unsigned _cConst, unsigned int _assignedValue = 0);
+	void setSeed(unsigned _seed);
 	void debug();
 private:
 	oocframework::MpiControl* mPriMpiCon;
