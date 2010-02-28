@@ -18,7 +18,7 @@ Erfüllt ein Octree-Knoten eines dieser Kriterien, wird nicht weiter unterteilt.
  \centering
   \includegraphics[scale=0.5]{images/octree.pdf}
  % octree.pdf: 640x368 pixel, 72dpi, 22.58x12.98 cm, bb=0 0 640 368
-  \caption[Ein Octree]{Ein Octree der Tiefe 2. Links: die räumliche Darstellung, rechts: die Baumdarstellung. Quelle:\mycite{wikioctree}}
+  \caption{Ein Octree der Tiefe 2. Links: die räumliche Darstellung, rechts: die Baumdarstellung. Quelle:\mycite{wikioctree}}
  \label{fig:basics:octree}
 \end{figure}
 In dieser Arbeit wurde jedoch eine spezielle Form des Octrees verwendet: der Loose Octree. Dieser erweitert den Octree um eine weitere Box pro Knoten: die sogenannte Loosebox. Sie teilt sich ihr Zentrum mit der Octree-Boundingbox, besitzt aber doppelte Kantenlängen. Wird nun festgestellt, dass in einem Knoten mehr als 5.000 Dreiecke liegen, wird die Größe der einzelnen Dreiecke anhand der Looseboxen der Kindknoten geprüft. Liegt ein Dreieck vollständig in der Loosebox mit seinem Zentrum in der eigentlichen Boundingbox des Kindknotens, kann es in den Knoten verschoben werden. Ist dies nicht der Fall, bleibt das Dreieck im aktuellen Knoten (Abbildung \ref{fig:basics:looseoctree}).
@@ -28,7 +28,7 @@ Dies hat den Vorteil, dass große Dreiecke relativ weit oben im Baum zum liegen 
 \begin{figure}
  \centering
   \includegraphics[scale=0.8]{images/looseoctree.pdf}
-  \caption[Ein Loose Octree]{Ein Loose Octree in einer 2D-Darstellung. Das Zentrum des Objekts (rosa) befindet sich innerhalb der Octree Zelle, das gesamte Objekt befindet sich innerhalb der Loose Box. Quelle: nach\mycite{anteru}}
+  \caption{Ein Loose Octree in einer 2D-Darstellung. Das Zentrum des Objekts (rosa) befindet sich innerhalb der Octree Zelle, das gesamte Objekt befindet sich innerhalb der Loose Box. Quelle: nach\mycite{anteru}}
  \label{fig:basics:looseoctree}
 \end{figure}
 
@@ -38,7 +38,7 @@ Als spezielle Ausprägung eines Loose Octrees gibt es den Randomized Sampletree\
 \begin{figure}
  \centering
   \includegraphics[scale=1.7]{images/sampletree2.pdf}
-  \caption[Ein Sampletree]{Ein Sampletree in einer 2D-Darstellung. Links: eine Aufteilung von Polygonen in verschiedene Quadtree Zellen, rechts: die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an, welche Polygonteile der linken Seite in welchem Baum-Level gespeichert wurden. Quelle: nach\mycite{klein}}
+  \caption{Ein Sampletree in einer 2D-Darstellung. Links: eine Aufteilung von Polygonen in verschiedene Quadtree Zellen, rechts: die Baumdarstellung des Sampletrees. Die farbigen Knoten geben an, welche Polygonteile der linken Seite in welchem Baum-Level gespeichert wurden. Quelle: nach\mycite{klein}}
  \label{fig:basics:sampletree}
 \end{figure}
 
@@ -73,7 +73,7 @@ Einige dieser Culling-Verfahren sind in der Hardware implementiert und können d
 \begin{figure}
   \centering
   \includegraphics[scale=0.8]{images/culling.pdf}
-  \caption[Culling-Techniken]{Verschiedene Culling-Techniken. Teile der Geometrie, die durch den Einsatz von Culling-Algorithmen entfallen würden, sind durch gestrichelte Linien dargestellt. \textit{Quelle: nach\mycite{culling}} }
+  \caption{Verschiedene Culling-Techniken. Teile der Geometrie, die durch den Einsatz von Culling-Algorithmen entfallen würden, sind durch gestrichelte Linien dargestellt. \textit{Quelle: nach\mycite{culling}} }
   \label{fig:basics:culling}
 \end{figure}
 Beim Back-Face-Culling\footnote{\cite{RTR3}, Seite 662 ff.} werden diejenigen Polygone entfernt, die vom Betrachter abgewandt sind. In Abbildung \ref{fig:basics:culling} würden bei den blauen Polygonen die vorderen Flächen gerendert, wobei die hinteren entfernt würden (gestrichelte Linien). Dabei muss jede Fläche separat auf ihre Ausrichtung überprüft werden. In dieser Arbeit wird die von OpenGL angebotene Funktion für Back-Face-Culling verwendet.
@@ -86,7 +86,7 @@ Soll vermieden werden, dass Objekte, die durch andere Polygongruppen verdeckt si
 \begin{figure}
   \centering
   \includegraphics[scale=0.8]{images/oculling.pdf}
-  \caption[Problem beim Occlusion-Culling]{\label{fig:basics:oculling}Problem beim Occlusion-Culling: Die Boundingbox zweier Objekte ist sichtbar, die Objekte innerhalb der Box sind jedoch vollständig verdeckt.}
+  \caption{\label{fig:basics:oculling}Problem beim Occlusion-Culling: Die Boundingbox zweier Objekte ist sichtbar, die Objekte innerhalb der Box sind jedoch vollständig verdeckt.}
 \end{figure}
 
 \subsection{Datenmanagement}
@@ -105,7 +105,7 @@ Bei 3D-Szenen in der Größenordnung der Boeing 777 bedarf es einiger Mechanisme
 Um die Datenmenge, die in jedem Frame über das Netzwerk verschickt werden muss, möglichst gering zu halten, wird in dieser Arbeit ein Caching-Mechanismus für die Renderknoten entwickelt. Dabei spielt die Cache-Verdrängung eine wichtige Rolle, denn der Hauptspeicher ist begrenzt. Wird ein Objekt im Verlauf des Frustum-Tests als sichtbar markiert und ist noch nicht auf dem Renderer vorhanden, so fordert dieser es an. Zwischen der Anforderung eines Objekts und dessen Eintreffen können mehrere Frames liegen. Deshalb wird beim Eintreffen eines solchen Objekts zunächst durch einen lokalen Occlusion-Test untersucht, ob das Objekt noch immer sichtbar ist. Ist es sichtbar, wird es in den Speicher der Grafikkarte gelesen (\emph{Online}), andernfalls verbleibt es lediglich im Hauptspeicher (\emph{Offline}). So ist das Objekt, sollte es in absehbarer Zeit benötigt werden, schneller verfügbar. In jedem Frame wird die gesamte Liste an verfügbaren Objekten auf Verdrängungsmöglichkeiten untersucht. Zum Einen ist darauf zu achten, dass nicht zu viele Objekte im Grafik-RAM liegen, da die Simulation sonst zu langsam wird, zum Anderen sollte die gesamte Objektliste auch nicht zu lang werden, weil dies ebenfalls zulasten der Rendergeschwindigkeit geht.
 
 
-Um dies zu regulieren, erhält jedes vorhandene Objekt einen Statuszähler. Dieser wird bei einem Statuswechsel, zum Beispiel von Offline zu Online, zurückgesetzt. Ändert er sich nicht, wird er in jedem Frame erhöht. Wird dabei ein gewisser Schwellenwert überschritten, werden diese Objekte erneut lokal auf ihre Sichtbarkeit hin überprüft und gegebenenfalls auf Online oder Offline gesetzt. Zusätzlich erhält jedes Objekt einen Offlinezähler. Dieser wird in jedem Frame erhöht, in dem besagtes Objekt den Zustand Offline besitzt. Beim Übersteigen eines Schwellenwerts wird angenommen, dass das Objekt auch in absehbarer Zeit nicht benötigt wird und das Objekt wird aus dem Cache gelöscht.
+Um dies zu regulieren, erhält jedes vorhandene Objekt einen Statuszähler. Dieser wird bei einem Statuswechsel, zum Beispiel von Offline zu Online, zurückgesetzt. Ändert er sich nicht, wird er in jedem Frame erhöht. Wird dabei ein gewisser Schwellwert überschritten, werden diese Objekte erneut lokal auf ihre Sichtbarkeit hin überprüft und gegebenenfalls auf Online oder Offline gesetzt. Zusätzlich erhält jedes Objekt einen Offlinezähler. Dieser wird in jedem Frame erhöht, in dem besagtes Objekt den Zustand Offline besitzt. Beim Übersteigen eines Schwellwerts wird angenommen, dass das Objekt auch in absehbarer Zeit nicht benötigt wird und das Objekt wird aus dem Cache gelöscht.
 \begin{figure}
 \centering
 \includegraphics[width=\hsize]{images/prefetching.pdf}

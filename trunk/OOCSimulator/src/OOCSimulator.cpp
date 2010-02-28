@@ -33,7 +33,7 @@
 #define SEED2 2447873201
 #define SEED3 382658925
 #define SEED SEED1
-#define DATA_NODE_COUNT 120
+#define DATA_NODE_COUNT 32
 #define LVL_OF_REDUNDANCY 1
 
 #ifdef HOME
