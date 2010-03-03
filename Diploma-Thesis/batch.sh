@@ -1,5 +1,5 @@
 #!/bin/sh
-
+./mkTikz plots/diag_cCol_red2_render4_data32_NoRandom_2x.tikz diag_cCol_red1_render4_data32_NoRandom_2x.pdf
 ./mkTikz plots/diag_cCol_red2_render4_data32_NoRandom_2x.tikz diag_cCol_red2_render4_data32_NoRandom_2x.pdf
 ./mkTikz plots/diag_cCol_red3_render4_data32_NoRandom_2x.tikz diag_cCol_red3_render4_data32_NoRandom_2x.pdf
 ./mkTikz plots/diag_cCol_red1_render4_data24_NoRandom_2x.tikz diag_cCol_red1_render4_data24_NoRandom_2x.pdf
