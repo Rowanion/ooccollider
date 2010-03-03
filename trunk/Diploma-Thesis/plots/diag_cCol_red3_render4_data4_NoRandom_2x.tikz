@@ -1,0 +1,32 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[>=stealth]
+  \begin{axis}[name=plotxz,width=10cm,view={0}{0},xlabel=Walkthrough-Position,zlabel={Auslastung (Normalisiert)},ylabel={Anfragen pro Frame},
+	legend pos=north west, scaled ticks=false]
+    \addplot3[mark=|,blue,
+      only marks,
+      error bars/.cd,
+      z dir=both,
+      z explicit,
+      error bar style={blue}] table[col sep=comma,x index=0,z index=2,y index=1,z error index=3,header=false] {data/cCollision_Seed1_Redun3_DataNodes4_NoRandomness.2010-3-3.log};
+    \addlegendentry{0.1 / 0.9 Quantile}
+    \addplot3[red,mark=x,only marks] table[col sep=comma,x index=0,z index=4,y index=1,header=false] {data/cCollision_Seed1_Redun3_DataNodes4_NoRandomness.2010-3-3.log};
+    \addlegendentry{Median}
+  \end{axis}
+  \begin{axis}[name=plotyz,width=10cm,view={90}{0},at={($(plotxz.east)+(1.5cm,0)$)},anchor=west, xlabel=Walkthrough-Position,ylabel={Anfragen pro Frame},
+	scaled ticks=false]
+    \addplot3[mark=|,blue,
+      only marks,
+      error bars/.cd,
+      z dir=both,
+      z explicit,
+      error bar style={blue}] table[col sep=comma,x index=0,z index=2,y index=1,z error index=3,header=false] {data/cCollision_Seed1_Redun3_DataNodes4_NoRandomness.2010-3-3.log};
+    \addlegendentry{0.1 / 0.9 Quantile}
+    \addplot3[red,mark=x,only marks] table[col sep=comma,x index=0,z index=4,y index=1,header=false] {data/cCollision_Seed1_Redun3_DataNodes4_NoRandomness.2010-3-3.log};
+    \addlegendentry{Median}
+  \end{axis}
+\end{tikzpicture}
+
+
