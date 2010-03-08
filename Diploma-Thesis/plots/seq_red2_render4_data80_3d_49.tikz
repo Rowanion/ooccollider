@@ -1,0 +1,20 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beispieldiagramm mit pgfplot und datenfile
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{tikzpicture}[>=stealth]
+  \begin{axis}[name=plotxz,view={49}{23},width=16cm,xlabel=Walkthrough-Position,zlabel={Auslastung (Normalisiert)},ylabel={Anzahl an Anfragen},
+	zmax=0.2]
+    \addplot3[mark=|,blue,
+      only marks,
+      error bars/.cd,
+      z dir=both,
+      z explicit,
+      error bar style={blue}] table[col sep=comma,x index=0,z index=2,y index=1,z error index=3,header=false] {data/cCollision_Seed1_Redun2_DataNodes80.2010-1-31.log};
+    \addlegendentry{Min/Max Quantile}
+    \addplot3[red,mark=x,only marks] table[col sep=comma,x index=0,z index=4,y index=1,header=false] {data/cCollision_Seed1_Redun2_DataNodes80.2010-1-31.log};
+    \addlegendentry{Median}
+  \end{axis}
+\end{tikzpicture}
+
+
