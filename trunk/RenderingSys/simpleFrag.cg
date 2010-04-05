@@ -1,0 +1,18 @@
+// data interpolated from vertex program output
+
+struct V2FI
+{
+  float3 color		: COLOR0;
+  float texCoord;
+};
+
+
+void main(out float3 color     : COLOR0)
+{
+
+	color.xyz = float3(1.0,0.0,0.0);
+}
+
+
+
+

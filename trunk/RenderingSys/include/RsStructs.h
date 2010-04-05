@@ -24,6 +24,12 @@ struct RsTGAimage
 	unsigned int components;
 };
 
+struct Tuplef
+{
+	Tuplef();
+	float data[2];
+};
+
 struct Triplef
 {
 	Triplef();
@@ -36,4 +42,35 @@ struct Tripleuc
 	unsigned char data[3];
 };
 
+struct Quadruplef
+{
+	Quadruplef();
+	float data[4];
+};
+
+struct Quadrupleuc
+{
+	Quadrupleuc();
+	unsigned char data[4];
+};
+
+
+struct RsV3N4
+{
+	Triplef v;
+	Quadrupleuc n;
+};
+
+struct RsV3N4T2
+{
+	Triplef v;
+	Quadrupleuc n;
+	Tuplef t;
+};
+
+struct RsV4T2
+{
+	Quadruplef v;
+	Tuplef t;
+};
 #endif /* RSSTRUCTS_H_ */

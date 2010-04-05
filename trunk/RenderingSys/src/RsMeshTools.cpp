@@ -59,6 +59,14 @@ void RsMeshTools::loadObj(fs::path* _file)
 	 * case2: v1//vn1
 	 * case3: v1/vt1
 	 * case4: v1/vt1/vn1
+	 *
+	 * Another important sidenote:
+	 * If we want to cull within a single obj or object, we have to break groups apart,
+	 * making it harder to animate the model, because no inter-group-connections are known.
+	 * Thus each group gets its own vertexbuffer and indexbuffer.
+	 * If we know for sure, that there is no culling or within a particular obj,
+	 * we can have an indexbuffer for each group, sharing a vertexbuffer with all
+	 * its fellow groups.
 	 */
 	std::string line;
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -67,7 +75,6 @@ void RsMeshTools::loadObj(fs::path* _file)
 	tokenizer face_tokens = tokenizer(line, blank_sep);
 	const boost::regex usemtl_expr("usemtl");
 	const boost::regex mtllib_expr("mtllib");
-	const boost::regex sComponent_expr("(\\d+)");
 	const boost::regex mComponents_expr("(\\d+)/?(\\d*)/?(\\d*)");
 
 	fs::ifstream inFile;

@@ -62,7 +62,6 @@ void RsWindow::close()
 {
 	instance->mPriWindowClosing = true;
 	glutLeaveMainLoop();
-	instance->mPriRenderer->exit();
 }
 
 void RsWindow::keyboard(unsigned char _key, int _x, int _y)
