@@ -1,0 +1,33 @@
+struct Output{
+	float4 pos : POSITION;
+	float4 col : COLOR0;
+};
+
+Output main(in float4 inPos)
+{
+
+	Output OUT;
+  // project point onto screen
+  OUT.pos = mul(glstate.matrix.mvp, inPos);
+  OUT.col = inPos;  
+  return OUT;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

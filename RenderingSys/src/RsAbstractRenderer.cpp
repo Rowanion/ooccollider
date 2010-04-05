@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+CGerror RsAbstractRenderer::cgLastError = CG_NO_ERROR;
+
 RsAbstractRenderer::RsAbstractRenderer()
 {
 	// TODO Auto-generated constructor stub
@@ -87,4 +89,33 @@ void RsAbstractRenderer::animator(int* _present)
 void RsAbstractRenderer::debug()
 {
 	std::cerr << "in AbstractClass" << std::endl;
+}
+
+void RsAbstractRenderer::cgErrorHandler(CGcontext _context, CGerror _error, void* _data)
+{
+	if (_data != 0){
+		std::cerr << (char*)_data << ": Error: " << cgGetErrorString(_error) << std::endl;
+	}
+	else {
+		std::cerr << "Error: " << cgGetErrorString(_error) << std::endl;
+	}
+}
+
+void RsAbstractRenderer::cgCompileErrorHandler(CGcontext _context, CGerror _error, void* _data)
+{
+	cgLastError = _error;
+	std::cerr << CG_COMPILER_ERROR << std::endl;
+
+	if (_data != 0){
+		std::cerr << (char*)_data << ": CG Error: " << cgGetErrorString(_error) << std::endl;
+
+	}
+	else {
+		std::cerr << "Error (" << _error << "): " << cgGetErrorString(_error) << std::endl;
+	}
+	if (_context != 0) {
+		std::cerr << "" << cgGetLastListing(_context) << std::endl;
+	}
+
+//	exit(0);
 }

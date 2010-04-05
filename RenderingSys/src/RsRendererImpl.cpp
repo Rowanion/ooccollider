@@ -45,11 +45,15 @@ RsRendererImpl::RsRendererImpl()
 	mPriCam.initMatrices();
 	mPriWalkingSpeed = 10.0f;
 
+	c = 0.0;
+
 }
 
 RsRendererImpl::~RsRendererImpl()
 {
 	// TODO Auto-generated destructor stub
+	FTGL::ftglDestroyFont((FTGL::FTGLfont*)font);
+	delete font;
 }
 
 void RsRendererImpl::display()
@@ -59,7 +63,9 @@ void RsRendererImpl::display()
 	applyKeyEvents();
 	glLoadIdentity();									// Reset The Current Modelview Matrix
 	mPriCam.calcMatrix();
-
+	cgGLEnableProfile(fprof);
+	cgGLEnableProfile(vprof);
+	cgGLBindProgram(shader);
 	glTranslatef(-1.5f,0.0f,-6.0f);						// Move Left 1.5 Units And Into The Screen 6.0
 	glBegin(GL_TRIANGLES);								// Drawing Using Triangles
 //		glColor3f(1.0f,0.0f,0.0f);						// Set The Color To Red
@@ -69,6 +75,13 @@ void RsRendererImpl::display()
 //		glColor3f(0.0f,0.0f,1.0f);						// Set The Color To Blue
 		glVertex3f( 1.0f,-1.0f, 0.0f);					// Bottom Right
 	glEnd();											// Finished Drawing The Triangle
+
+	cgGLUnbindProgram(fprof);
+	cgGLUnbindProgram(vprof);
+	cgGLDisableProfile(fprof);
+	cgGLDisableProfile(vprof);
+//	printf("%s\n", cgGetErrorString(cgGetError()));
+
 	glTranslatef(3.0f,0.0f,0.0f);						// Move Right 3 Units
 //	glColor3f(0.5f,0.5f,1.0f);							// Set The Color To Blue One Time Only
 	glEnable(GL_TEXTURE_2D);
@@ -84,6 +97,24 @@ void RsRendererImpl::display()
 	glEnd();											// Done Drawing The Quad
 	glDisable(GL_TEXTURE_2D);
 
+
+
+	c+=0.001;
+	glGetDoublev(GL_MODELVIEW_MATRIX, mv);
+	glGetDoublev(GL_PROJECTION_MATRIX, pr);
+	glGetIntegerv(GL_VIEWPORT, vp);
+	gluProject(-1.0, 1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
+	textPoint = FTPoint(wp[0], wp[1], wp[2]);
+	font->Render("-1, 1, 0", -1,textPoint);
+	gluProject(1.0, 1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
+	textPoint = FTPoint(wp[0], wp[1], wp[2]);
+	font->Render("1, 1, 0", -1,textPoint);
+	gluProject(1.0, -1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
+	textPoint = FTPoint(wp[0], wp[1], wp[2]);
+	font->Render("1, -1, 0", -1,textPoint);
+	gluProject(-1.0, -1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
+	textPoint = FTPoint(wp[0], wp[1], wp[2]);
+	font->Render("-1, -1, 0", -1,textPoint);
 
   glutSwapBuffers ( );
   // Swap The Buffers To Not Be Left With A Clear Screen
@@ -103,10 +134,6 @@ void RsRendererImpl::reshape(int _w, int _h)
 
 }
 
-void RsRendererImpl::exit()
-{
-	//TODO cleanup stuff here
-}
 
 void RsRendererImpl::keyboard(unsigned char _key, int _x, int _y, int* _present)
 {
@@ -300,16 +327,16 @@ void RsRendererImpl::init()
 	glGenBuffers(1, &buf);
 	glDeleteBuffers(1, &buf);
 
-	boost::filesystem::path texFile = boost::filesystem::path("/home/ava/green.tga");
+	boost::filesystem::path texFile = boost::filesystem::path("/home/ava/crate.tga");
 	RsImageTools* iTools = RsImageTools::getSingleton();
 	RsTGAimage img;
 	iTools->loadTGA(&texFile, &img);
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/bunny.obj");
-	RsMeshTools* mTools = RsMeshTools::getSingleton();
-	mTools->loadObj(&meshFile);
+	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/bunny.obj");
+//	RsMeshTools* mTools = RsMeshTools::getSingleton();
+//	mTools->loadObj(&meshFile);
 
 	glGenTextures(1, &mPriTexture);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture);
@@ -319,9 +346,55 @@ void RsRendererImpl::init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	// -------------------------------------------
+	std::string code = std::string("void main(in float4 inCol:COLOR0,out float4 color  :   COLOR0)\n {\n color = lerp(float4(1.0,0.0,1.0,1.0), inCol, 0.5);\n }");
+	context = cgCreateContext();
+	cgSetErrorHandler(cgCompileErrorHandler, 0);
+	fprof = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+	vprof = cgGLGetLatestProfile(CG_GL_VERTEX);
+	CGerror cgError;
+
+	fshader = cgCreateProgram(context, CG_SOURCE, code.c_str(), fprof, "main", 0);
+	cgError = cgGetError();
+	if (cgError == CG_COMPILER_ERROR){
+		cerr << "---- PROGRAM BEGIN ----" << endl << cgGetProgramString(fshader, CG_COMPILED_PROGRAM) << "---- PROGRAM END ----" << endl;
+		exit(0);
+	}
+//	cerr << cgGetLastListing(context) << "----" << endl;
+//	cerr << "---- PROGRAM BEGIN ----" << endl << cgGetProgramString(fshader, CG_COMPILED_PROGRAM) << "---- PROGRAM END ----" << endl;
+	vshader = cgCreateProgramFromFile(context, CG_SOURCE, "simpleVert.cg", vprof, "main",0);
+	cgError = cgGetError();
+	if (cgError == CG_COMPILER_ERROR){
+		cerr << "---- PROGRAM BEGIN ----" << endl << cgGetProgramString(vshader, CG_PROGRAM_SOURCE) << "---- PROGRAM END ----" << endl;
+		exit(0);
+	}
+//	printf("%s\n", cgGetErrorString(cgGetError()));
+//	shader = cgCreateProgramFromFile(context, CG_SOURCE, "simpleFrag.cg", prof, "main",0);
+	shader = cgCombinePrograms2(fshader, vshader);
+	cgDestroyProgram(fshader);
+	cgDestroyProgram(vshader);
+	cgGLLoadProgram(shader);
+//	printf("%s\n", cgGetErrorString(cgGetError()));
+	cgSetErrorHandler(cgErrorHandler, 0);
+
+	// -------------------------------------------
+
+	// Create a pixmap font from a TrueType file.
+	font = new FTBitmapFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf");
+
+	// If something went wrong, bail out.
+	if(font->Error())
+		exit(0);
+
+	// Set the font size and render a small text.
+	font->FaceSize(9);
+//	font.Depth(10.0);
+//	font->UseDisplayList(true);
+
 }
 
 void RsRendererImpl::debug()
 {
 	std::cerr << "in ImplClass" << std::endl;
 }
+

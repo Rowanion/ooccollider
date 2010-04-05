@@ -12,6 +12,10 @@
 #include "OOCCamera.h"
 
 #include "GL/glew.h"
+#include "Cg/cg.h"
+#include "Cg/cgGL.h"
+
+#include <FTGL/ftgl.h>
 
 #define GET_GLERROR(ret) \
 { \
@@ -30,7 +34,6 @@ public:
 	virtual ~RsRendererImpl();
 	virtual void init();
 	virtual void display();
-	virtual void exit();
 	virtual void reshape(int _w, int _h);
 	virtual void keyboard(unsigned char _key, int _x, int _y, int* _present = 0);
 	virtual void specialKeys(int _key, int _x, int _y, int* _present = 0);
@@ -61,6 +64,22 @@ private:
 	bool mPriTurnUp;
 	bool mPriTurnDown;
 
+	CGcontext context;
+	CGprofile vprof;
+	CGprofile fprof;
+	CGprogram fshader;
+	CGprogram vshader;
+	CGprogram shader;
+	CGparameter mvp;
+
+	FTPoint textPoint;
+	FTBitmapFont* font;
+	double mv[16];
+	double pr[16];
+	int vp[4];
+	GLdouble wp[3];
+
+	double c;
 };
 
 #endif /* RSRENDERERIMPL_H_ */
