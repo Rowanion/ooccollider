@@ -1,0 +1,72 @@
+
+
+// data interpolated from vertex program output
+
+struct V2FI
+{
+  float3 position : TEXCOORD0;
+  float3 normal   : TEXCOORD1;
+  float4  color    : COLOR0;
+};
+
+
+void main(V2FI IN,
+
+	  out float4 color     : COLOR0,
+              uniform float3 globalAmbient,
+              uniform float3 lightColor,
+              uniform float4 lightPosition,
+              uniform float4 eyePosition,
+              uniform float3 Ke,
+              uniform float3 Ka,
+              uniform float3 Kd,
+              uniform float3 Ks,
+              uniform float  shininess,
+              uniform float4x4 modelViewInv)
+{
+	//Kd = float3(IN.color.r, IN.color.g, IN.color.b);    
+	 
+  float3 P = IN.position.xyz;
+  float3 N = normalize(IN.normal);
+
+  // transforming eyePosition and LightPosition into object-space
+  float4 temp = mul(modelViewInv, lightPosition);
+  float3 lPos = float3(temp.x, temp.y, temp.z);
+  temp = mul(modelViewInv, eyePosition);
+  float3 ePos = float3(temp.x, temp.y, temp.z);  
+
+  // Compute emissive term
+  float3 emissive = Ke;
+
+  // Compute ambient term
+  float3 ambient = Ka * globalAmbient;
+
+  // Compute the diffuse term
+  float3 L = normalize(lPos - P);
+  float diffuseLight = max(dot(L, N), 0);
+  float3 diffuse = Kd * lightColor * diffuseLight;
+
+  // Compute the specular term
+  float3 V = normalize(ePos - P);
+  float3 H = normalize(L + V);
+  float specularLight = pow(max(dot(H, N), 0), shininess);
+  if (diffuseLight <= 0) specularLight = 0;
+  float3 specular = Ks * lightColor * specularLight;
+
+  color.xyz = emissive + ambient + diffuse + specular;
+  
+  color.w = 1;
+    
+  //color.rgb = float3(1.0, 0.0, 0.0);
+  
+  // debug
+  /*
+  if (eyePosition.z==8.0f)  
+  	color.xyz = float3(0.0, 1.0, 0.0);
+  else color.xyz = float3(1.0, 0.0, 0.0);
+  */
+}
+
+
+
+

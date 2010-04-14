@@ -1,0 +1,43 @@
+// geometric input (sent by application)
+
+struct appin
+{
+  float4 position     : POSITION;
+  float3 texCoord	  : TEXCOORD0;
+};
+
+// vertex program output
+
+struct V2FI
+{
+  	float4 oPos : POSITION;
+	float3 oTexCoord   : TEXCOORD0;
+};
+
+V2FI main(appin IN)
+{
+  V2FI OUT;
+
+	OUT.oPos = mul(glstate.matrix.mvp, IN.position);
+	OUT.oTexCoord = IN.texCoord;
+  return OUT;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
