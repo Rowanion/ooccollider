@@ -1,0 +1,12 @@
+
+void main(  float4 inPos: POSITION,
+			float3 inNormal: NORMAL,
+			
+			out float4 outPos: POSITION,
+			out float4 outCol: COLOR)
+{
+	float4 pos = mul(glstate.matrix.mvp, float4(inPos.xyz, 1.0));
+	float depth = pos.z/pos.w;
+	outPos = pos;
+	outCol = float4((normalize(inNormal)*0.5 + 0.5).xyz,depth);
+}

@@ -1,0 +1,69 @@
+// geometric input (sent by application)
+
+struct appin
+{
+  float4 position     : POSITION;
+  float3 normal       : NORMAL;
+  float4 color         : COLOR0;
+};
+
+// vertex program output
+
+struct V2FI
+{
+  float4 oPosition : POSITION;
+  float3 objectPos : TEXCOORD0;
+  float3 oNormal   : TEXCOORD1;
+  float4 oColor     : COLOR0;
+};
+
+V2FI main(appin IN,
+	  uniform float4x4 modelViewProj)
+{
+  V2FI OUT;
+
+  // project point onto screen
+  OUT.oPosition = mul(modelViewProj, IN.position);
+  
+  // copy position
+  OUT.objectPos = IN.position.xyz;
+  
+  // copy Normal
+  OUT.oNormal = IN.normal;
+  
+  float4 red = float4(1.0, 0.0, 0.0, 1.0);
+  float4 green = float4(0.0, 1.0, 0.0, 1.0);
+  float4 blue = float4(0.0, 0.0, 1.0, 1.0);
+  float4 yellow = float4(1.0, 1.0, 0.0, 1.0);
+  float4 magenta = float4(1.0, 0.0, 1.0, 1.0);
+  
+  if (IN.color.r<0.43999)
+  	OUT.oColor = red;
+  else if (IN.color.r>117)
+  	OUT.oColor = green;
+  else
+  	OUT.oColor = blue;
+  	
+  OUT.oColor = IN.color;
+
+  return OUT;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
