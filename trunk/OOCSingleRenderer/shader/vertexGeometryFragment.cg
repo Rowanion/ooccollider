@@ -1,0 +1,140 @@
+
+void VPmain(in float4 inPos : POSITION, 
+		out float4 outPos : POSITION, 
+		out float4 col : COLOR0)		
+{
+	outPos = mul(glstate.matrix.mvp, inPos);
+	col = inPos;
+}
+
+void VPnoProject(in float4 inPos : POSITION, 
+		out float4 outPos : POSITION, 
+		out float4 col : COLOR0)		
+{
+	outPos = inPos;
+	col = inPos;
+}
+
+// geometry program to subdivide a triangle into 4 triangles	
+TRIANGLE
+void GPmain(AttribArray<float4> position : POSITION)
+
+{
+	float3 red = float3(1.0, 0.0, 0.0);
+	float3 green = float3(0.0, 1.0, 0.0);
+	float3 blue = float3(0.0, 0.0, 1.0);
+	float3 magenta = float3(1.0, 0.0, 1.0);
+	float3 yellow = float3(1.0, 1.0, 0.0);
+	float3 cyan = float3(0.0, 1.0, 1.0);
+	
+	float4 v0 = position[0];
+	float4 v1 = position[1];
+	float4 v2 = position[2];
+	
+	// compute midpoints
+	float4 m0 = (v0 + v1) * 0.5;
+	float4 m1 = (v1 + v2) * 0.5;
+	float4 m2 = (v2 + v0) * 0.5;
+	
+	// output 3 triangles as triangle strip
+	emitVertex(v1 : POSITION, v1 : COLOR);
+	emitVertex(m1 : POSITION, m1 : COLOR);
+	emitVertex(m0 : POSITION, m0 : COLOR);
+	emitVertex(m2 : POSITION, m2 : COLOR);
+	emitVertex(v0 : POSITION, v0 : COLOR);
+	
+	restartStrip();	
+	
+	// output 4th triangle
+	emitVertex(m2 : POSITION, m2 : COLOR);
+	emitVertex(m1 : POSITION, m1 : COLOR);
+	emitVertex(v2 : POSITION, v2 : COLOR);
+}
+
+
+// std geometry program:
+// LINE // input type
+// POINT_OUT // output type
+// void main()
+//
+
+// multiple ideas:
+// only submit centers of BBs as points with a normal as x-,y-, and z-distance to bb edge
+// calculate everything in shader
+// variant: 4th component of point is octree-level. apriori upload of all bb-dimensions for each level 
+
+// calculate face-normals in shader and find the three closest faces.
+// problem: no single color for one face when rendering tri-strips -> 3 strips á 4 vertices
+// -> with 3 vertices only used once, 1 vertex used 3 times and 3 used twice.
+// fragment shader seemingly useless for correct coloring this way.
+
+// What about transform feedback? 
+
+
+/*
+
+    7+------+6
+    /      /|
+   /      / |
+ 3+------+2 |
+  |  +---|--+5
+  | /4   | /
+  |/     |/
+ 0+------+1
+*/
+LINE
+TRIANGLE_OUT
+void GPcubify(AttribArray<float4> position : POSITION,
+			uniform float4x4 modelViewProj : state.matrix.mvp,
+			uniform float3 cameraPosition)
+
+{
+	float3 red = float3(1.0, 0.0, 0.0);
+	float3 green = float3(0.0, 1.0, 0.0);
+	float3 blue = float3(0.0, 0.0, 1.0);
+	float3 magenta = float3(1.0, 0.0, 1.0);
+	float3 yellow = float3(1.0, 1.0, 0.0);
+	float3 cyan = float3(0.0, 1.0, 1.0);
+	
+	float4 v0 = float4(position[0].x, position[0].y, position[0].z, 1.0);
+	float4 v6 = float4(position[1].x, position[1].y, position[1].z, 1.0);
+	float4 v1 = mul(modelViewProj, float4(v6.x, v0.y, v0.z, 1.0));
+	float4 v2 = mul(modelViewProj, float4(v6.x, v6.y, v0.z, 1.0));
+	float4 v3 = mul(modelViewProj, float4(v0.x, v6.y, v0.z, 1.0));
+	float4 v4 = mul(modelViewProj, float4(v0.x, v0.y, v6.z, 1.0));
+	float4 v5 = mul(modelViewProj, float4(v6.x, v0.y, v6.z, 1.0));
+	float4 v7 = mul(modelViewProj, float4(v0.x, v6.y, v6.z, 1.0));
+
+	v0 = mul(modelViewProj, v0);
+	v6 = mul(modelViewProj, v6);
+
+	// output 3 quad-faces as triangle strip
+	emitVertex(v7 : POSITION, red : COLOR);
+	emitVertex(v4 : POSITION, red : COLOR);
+	emitVertex(v6 : POSITION, red : COLOR);
+	emitVertex(v5 : POSITION, red : COLOR);
+	emitVertex(v2 : POSITION, red : COLOR);
+	emitVertex(v1 : POSITION, red : COLOR);
+	emitVertex(v3 : POSITION, red : COLOR);
+	emitVertex(v0 : POSITION, red : COLOR);
+	restartStrip();
+	// output 3 quad-faces as triangle strip
+	emitVertex(v6 : POSITION, blue : COLOR);
+	emitVertex(v2 : POSITION, blue : COLOR);
+	emitVertex(v7 : POSITION, blue : COLOR);
+	emitVertex(v3 : POSITION, blue : COLOR);
+	emitVertex(v4 : POSITION, blue : COLOR);
+	emitVertex(v0 : POSITION, blue : COLOR);
+	emitVertex(v5 : POSITION, blue : COLOR);
+	emitVertex(v1 : POSITION, blue : COLOR);
+}
+
+
+void FPmain(in float4 col : COLOR0, 
+			out float4 color : COLOR0)
+{
+	color = col;
+	//color = float4(0.5, 0.5, 0.5, 1.0);
+}
+
+

@@ -50,8 +50,6 @@ SimpleGlFrame::SimpleGlFrame() : AbstractGlFrame(0,0,0,0),
 	mPriRollLeft(false), mPriRollRight(false), mPriTiltUp(false), mPriTiltDown(false), mPriTurnLeft(false), mPriTurnRight(false), mPriTurnUp(false),
 	mPriTurnDown(false), mPriBBMode(0), mPriOh(OctreeHandler())
 {
-	// TODO Auto-generated constructor stub
-
 	mPriColorTable = ColorTable(string(BASE_MODEL_PATH) + string("/colortable.bin"));
 	VboManager::getSingleton()->setColorTable(mPriColorTable);
 	mPriColorTable.setupTexture();
@@ -80,6 +78,11 @@ SimpleGlFrame::SimpleGlFrame() : AbstractGlFrame(0,0,0,0),
 	mPriRenderFrame = false;
 	mPriNearPlane = 0.1f;
 	mPriFarPlane = 2500.0f;
+
+	for (unsigned i=0; i<15; ++i)
+	{
+		mPriBoxCount[i] = 0;
+	}
 }
 
 SimpleGlFrame::~SimpleGlFrame() {
@@ -137,12 +140,24 @@ void SimpleGlFrame::init() {
 	setupCg();
 	mPriLo = mPriOh.loadLooseRenderOctreeSkeleton(fs::path(string(BASE_MODEL_PATH)+"/skeleton.bin"));
 
+	countBBs(mPriLo);
+	unsigned totalCount = 0;
+	for (unsigned i=0; i<15; ++i){
+		cerr << "Level " << i << ": " << mPriBoxCount[i] << " BBs." << endl;
+		totalCount += mPriBoxCount[i];
+	}
+	cerr << "Total number of BBs: " << totalCount << endl;
+
 
 }
 
 void SimpleGlFrame::setupCg()
 {
 	mPriCgt->initCG(true);
+
+	vpProxy = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vertexGeometryFragment.cg", true, "VPnoProject");
+	gpProxy = mPriCgt->loadCgShader(mPriCgt->cgGeometryProfile, "shader/vertexGeometryFragment.cg", true, "GPcubify");
+	fpProxy = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/vertexGeometryFragment.cg", true, "FPmain");
 
 	cgVertNoLight = mPriCgt->loadCgShader(mPriCgt->cgVertexProfile, "shader/vp_NoLightLut.cg", true, "");
 	cgFragNoLight = mPriCgt->loadCgShader(mPriCgt->cgFragProfile, "shader/fp_NoLightLut.cg", true, "");
@@ -207,7 +222,15 @@ void SimpleGlFrame::display()
 		mPriCamera.calcMatrix();
 		glClearColor(0.5490196078f, 0.7607843137f, 0.9803921569f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		renderBBs(mPriLo);
+		mPriCgt->getSingleton()->startCgShader(mPriCgt->cgVertexProfile, vpProxy);
+		mPriCgt->getSingleton()->startCgShader(mPriCgt->cgGeometryProfile, gpProxy);
+		mPriCgt->getSingleton()->startCgShader(mPriCgt->cgFragProfile, fpProxy);
+//		renderBBs(mPriLo);
+//		renderBBsSolid(mPriLo);
+		renderBBLines(mPriLo);
+		mPriCgt->getSingleton()->stopCgShader(mPriCgt->cgFragProfile);
+		mPriCgt->getSingleton()->stopCgShader(mPriCgt->cgGeometryProfile);
+		mPriCgt->getSingleton()->stopCgShader(mPriCgt->cgVertexProfile);
 		mPriFboWire->unbind();
 		mPriFboWire->drawColorFSQuad();
 	}
@@ -408,6 +431,54 @@ void SimpleGlFrame::renderBBs(LooseRenderOctree* lro)
 			}
 			else if (child->hasData()){
 				renderBBs(child);
+			}
+		}
+	}
+
+}
+
+void SimpleGlFrame::renderBBsSolid(LooseRenderOctree* lro)
+{
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+
+//		glBegin(GL_LINES);
+//			glVertex3fv(lro->getBb().getMin().getData());
+//			glVertex3fv(lro->getBb().getMax().getData());
+//		glEnd();
+	LooseRenderOctree* child = 0;
+	for (unsigned i=0; i< 8; ++i){
+		child = lro->getChild(i);
+		if (child != 0){
+			if (child->getLevel() == mPriMinLvl){
+				lro->getBb().drawSolid();
+			}
+			else if (child->hasData()){
+				renderBBsSolid(child);
+			}
+		}
+	}
+
+}
+
+void SimpleGlFrame::renderBBLines(LooseRenderOctree* lro)
+{
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+
+//		glBegin(GL_LINES);
+//			glVertex3fv(lro->getBb().getMin().getData());
+//			glVertex3fv(lro->getBb().getMax().getData());
+//		glEnd();
+	LooseRenderOctree* child = 0;
+	for (unsigned i=0; i< 8; ++i){
+		child = lro->getChild(i);
+		if (child != 0){
+			if (child->getLevel() == mPriMinLvl){
+				lro->getBb().drawMinMaxLine();
+			}
+			else if (child->hasData()){
+				renderBBLines(child);
 			}
 		}
 	}
@@ -620,6 +691,7 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				else {
 					mPriMinLvl++;
+					cerr << "Switching to OctreeLevel " << mPriMinLvl << " (" << mPriBoxCount[mPriMinLvl] << " BBs)" << endl;
 				}
 			break;
 			case GLFW_KEY_KP_SUBTRACT:
@@ -629,6 +701,7 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 				}
 				else {
 					mPriMinLvl--;
+					cerr << "Switching to OctreeLevel " << mPriMinLvl << " (" << mPriBoxCount[mPriMinLvl] << " BBs)" << endl;
 				}
 			break;
 			case GLFW_KEY_PAGEUP: // tilt up
@@ -853,5 +926,21 @@ void SimpleGlFrame::notify(oocframework::IEvent& event)
 		cout << "---------------------------------------" << endl;
 	}
 
+}
+
+void SimpleGlFrame::countBBs(LooseRenderOctree* lro)
+{
+	LooseRenderOctree* child = 0;
+	if (lro->hasData()){
+		mPriBoxCount[lro->getLevel()] ++;
+	}
+	if (!lro->isLeaf()){
+		for (unsigned i=0; i< 8; ++i){
+			child = lro->getChild(i);
+			if (child != 0){
+				countBBs(child);
+			}
+		}
+	}
 
 }
