@@ -63,6 +63,8 @@ public:
 	void drawSolid(float texCoord) const;
 	void drawSolidTriFan() const;
 	void drawSolidTriFan(float texCoord) const;
+	void drawMinMaxLine() const;
+	void drawMinMaxLine(float texCoord) const;
 	void saveToFile(fs::path bbFile);
 	void saveToFile(std::string bbFile) const;
 	static BoundingBox fromFile(fs::path bbFile);
