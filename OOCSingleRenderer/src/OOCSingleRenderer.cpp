@@ -10,6 +10,6 @@
 
 int main(int arc, char* argv[])
 {
-	RenderMasterCore rmc = RenderMasterCore(640, 480);
+	RenderMasterCore rmc = RenderMasterCore(1024, 786);
 	return 0;
 }

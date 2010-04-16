@@ -111,6 +111,10 @@ private:
 	int mPriBBMode;
 	ooctools::ColorTable mPriColorTable;
 
+	CGprogram vpProxy;
+	CGprogram gpProxy;
+	CGprogram fpProxy;
+
 	CGprogram g_cgVertexProg;
 	CGparameter g_cgGlobalAmbient;
 	CGparameter g_cgLightColor;
@@ -141,6 +145,7 @@ private:
 	float mPriNearPlane;
 	float mPriFarPlane;
 
+	unsigned mPriBoxCount[15];
 
 	void setupCg();
 
@@ -166,9 +171,12 @@ private:
 	void cameraInit();
 	void applyKeyEvents();
 	void renderBBs(oocformats::LooseRenderOctree* lro);
+	void renderBBsSolid(oocformats::LooseRenderOctree* lro);
+	void renderBBLines(oocformats::LooseRenderOctree* lro);
 	void renderFrame(unsigned _maxFiles = 100);
 	char* mapFile(fs::path _path, unsigned _fileSize, int& _fHandle);
 	void umapFile(char* _map, unsigned _fileSize, int& _fHandle);
+	void countBBs(oocformats::LooseRenderOctree* lro);
 };
 
 #endif /* SIMPLEGLFRAME_H_ */
