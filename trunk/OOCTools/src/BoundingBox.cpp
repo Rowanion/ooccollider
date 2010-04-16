@@ -574,6 +574,24 @@ BoundingBox::drawSolidTriFan(float texCoord) const
 
 }
 
+void
+BoundingBox::drawMinMaxLine() const
+{
+	glBegin(GL_LINES);
+		glVertex3f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ());
+		glVertex3f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ());
+	glEnd();
+}
+
+void
+BoundingBox::drawMinMaxLine(float texCoord) const
+{
+	glBegin(GL_LINES);
+		glVertex4f(mPriMin.getX(), mPriMin.getY(), mPriMin.getZ(), texCoord);
+		glVertex4f(mPriMax.getX(), mPriMax.getY(), mPriMax.getZ(), texCoord);
+	glEnd();
+}
+
 //TODO
 void saveToFile(fs::path bbFile);
 void saveToFile(std::string bbFile);
