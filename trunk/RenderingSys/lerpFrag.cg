@@ -1,0 +1,68 @@
+// data interpolated from vertex program output
+
+float4 rand(float2 A,float2 B,float2 C,float2 D){ 
+        float2 s = float2(12.9898,78.233); 
+        float4 tmp = float4(dot(A,s),dot(B,s),dot(C,s),dot(D,s)); 
+        return frac(sin(tmp) * 43758.5453)* 2.0 - 1.0; 
+} 
+
+float noise(float2 coord,float d){ 
+
+        float2 C[4]; 
+        float d1 = 1.0/d;
+        C[0]=floor(coord*d)*d1; 
+        C[1]=C[0]+float2(d1,0.0); 
+        C[2]=C[0]+float2(d1,d1); 
+        C[3]=C[0]+float2(0.0,d1);
+
+        float2 p=frac(coord*d); 
+        float2 q=1.0-p; 
+        float4 w = float4(q.x*q.y,p.x*q.y,p.x*p.y,q.x*p.y); 
+        return dot(float4(rand(C[0],C[1],C[2],C[3])),w); 
+} 
+
+void main(	in float2 texCoord	: TEXCOORD0,
+			out float4 color     : COLOR0,
+			uniform sampler2D tex1 :	TEXUNIT0,
+			uniform sampler2D tex2 : 	TEXUNIT1,
+			uniform float lerpVal,
+			uniform sampler2D noiseTex	:	TEXUNIT2)
+{
+float4 tmpColor;
+	float mod = tex2D(noiseTex, texCoord).r;
+	color = lerp(tex2D(tex1, texCoord), tex2D(tex2, texCoord), mod*(mod-lerpVal));
+	//tmpColor = lerp(tex2D(tex1, texCoord), tex2D(tex2, texCoord), noise(texCoord, 128.0));
+	//tmpColor = float4(rand(texCoord), rand(texCoord), rand(texCoord), 1.0);
+	//color = tex2D(noiseTex, texCoord);
+	//color = float4(1.0,0.0,0.0,1.0);
+	//if (tmpColor.r < 0.2) {
+	//	discard;
+	//}
+	//else {
+	
+	// -------------------------------
+	float level= -1.0 -log2(min(length(ddx(texCoord)),length(ddy(texCoord))));
+        //-1.0 is a bias shift to avoid flickering
+
+    level = min(level,16.0); //limit the level. Equalient to a 65536x65536 texture
+    float n = 0.5;
+    for(int i = 3; i< level;i++){
+    	n +=  0.12 * noise(texCoord, exp2(i));
+	}
+
+    n +=  0.12 * noise(texCoord, exp2(floor(level)+1.0)) * frac(level);
+        // add the last level multiplied with the fraction of the 
+        // level calculation for a smooth filtering     
+    tmpColor = max(0.0,sin (n* 12.0))* float4(0.3,0.8,0.4,0.0) + float4(0.3,0.3,0.5,0.0) * n;
+	// -------------------------------------
+
+	
+	
+	
+		//color = tmpColor;
+	//}
+}
+
+
+
+

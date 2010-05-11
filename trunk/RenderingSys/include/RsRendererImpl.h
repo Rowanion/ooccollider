@@ -46,6 +46,8 @@ private:
 	OOCCamera mPriCam;
 	float mPriWalkingSpeed;
 	GLuint mPriTexture;
+	GLuint mPriTexture2;
+	GLuint mPriTexture3;
 	int mPriPrevMouseX;
 	int mPriPrevMouseY;
 	int mPriOldMousePosX;
@@ -71,6 +73,15 @@ private:
 	CGprogram vshader;
 	CGprogram shader;
 	CGparameter mvp;
+
+	CGprogram lerpFrag;
+	CGparameter lerpVal;
+	CGparameter cgTex1;
+	CGparameter cgTex2;
+	CGparameter cgNoiseTex;
+
+	float mPriLerp;
+	bool mPriUpDir;
 
 	FTPoint textPoint;
 	FTBitmapFont* font;
