@@ -47,6 +47,9 @@ RsRendererImpl::RsRendererImpl()
 
 	c = 0.0;
 
+	mPriLerp = 1.0;
+	mPriUpDir = false;
+
 }
 
 RsRendererImpl::~RsRendererImpl()
@@ -84,6 +87,15 @@ void RsRendererImpl::display()
 
 	glTranslatef(3.0f,0.0f,0.0f);						// Move Right 3 Units
 //	glColor3f(0.5f,0.5f,1.0f);							// Set The Color To Blue One Time Only
+	cgGLSetParameter1f(lerpVal, mPriLerp);
+	cgGLEnableProfile(fprof);
+	cgGLBindProgram(lerpFrag);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture3);
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);									// Draw A Quad
 		glTexCoord2f(0.0f,1.0f);
@@ -96,6 +108,8 @@ void RsRendererImpl::display()
 		glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
 	glEnd();											// Done Drawing The Quad
 	glDisable(GL_TEXTURE_2D);
+	cgGLUnbindProgram(fprof);
+	cgGLDisableProfile(fprof);
 
 
 
@@ -118,6 +132,21 @@ void RsRendererImpl::display()
 
   glutSwapBuffers ( );
   // Swap The Buffers To Not Be Left With A Clear Screen
+
+  if (mPriUpDir){
+	  mPriLerp+=0.001f;
+  }
+  else{
+	  mPriLerp -= 0.001f;
+  }
+  if (mPriLerp> 1.0f && mPriUpDir){
+	  mPriLerp = 1.0f;
+	  mPriUpDir = false;
+  }
+  else if (mPriLerp < 0.0f && !mPriUpDir){
+	  mPriLerp = 0.0f;
+	  mPriUpDir = true;
+  }
 }
 
 void RsRendererImpl::reshape(int _w, int _h)
@@ -327,7 +356,9 @@ void RsRendererImpl::init()
 	glGenBuffers(1, &buf);
 	glDeleteBuffers(1, &buf);
 
-	boost::filesystem::path texFile = boost::filesystem::path("/home/ava/crate.tga");
+	boost::filesystem::path texFile = boost::filesystem::path("plasma.tga");
+	boost::filesystem::path texFile2 = boost::filesystem::path("plasma2.tga");
+	boost::filesystem::path texFile3 = boost::filesystem::path("noise.tga");
 	RsImageTools* iTools = RsImageTools::getSingleton();
 	RsTGAimage img;
 	iTools->loadTGA(&texFile, &img);
@@ -346,6 +377,23 @@ void RsRendererImpl::init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	iTools->loadTGA(&texFile2, &img);
+	glGenTextures(1, &mPriTexture2);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+	glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	iTools->loadTGA(&texFile3, &img);
+	glGenTextures(1, &mPriTexture3);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture3);
+	glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// -------------------------------------------
 	std::string code = std::string("void main(in float4 inCol:COLOR0,out float4 color  :   COLOR0)\n {\n color = lerp(float4(1.0,0.0,1.0,1.0), inCol, 0.5);\n }");
 	context = cgCreateContext();
@@ -378,7 +426,18 @@ void RsRendererImpl::init()
 	cgSetErrorHandler(cgErrorHandler, 0);
 
 	// -------------------------------------------
+	lerpFrag = cgCreateProgramFromFile(context, CG_SOURCE, "lerpFrag.cg", fprof, "main",0);
+	cgGLLoadProgram(lerpFrag);
+	cgTex1 = cgGetNamedParameter(lerpFrag, "tex1");
+	cgTex2 = cgGetNamedParameter(lerpFrag, "tex2");
+	cgNoiseTex = cgGetNamedParameter(lerpFrag, "noiseTex");
+	lerpVal = cgGetNamedParameter(lerpFrag, "lerpVal");
+	cgGLSetTextureParameter(cgTex1, mPriTexture);
+	cgGLSetTextureParameter(cgTex2, mPriTexture2);
+	cgGLSetTextureParameter(cgNoiseTex, mPriTexture3);
+	cerr << "---- PROGRAM BEGIN ----" << endl << cgGetLastListing(context) << "---- PROGRAM END ----" << endl;
 
+	// -------------------------------------------
 	// Create a pixmap font from a TrueType file.
 	font = new FTBitmapFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf");
 
