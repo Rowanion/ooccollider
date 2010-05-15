@@ -27,31 +27,42 @@ struct RsTGAimage
 struct Tuplef
 {
 	Tuplef();
-	float data[2];
+	float x;
+	float y;
 };
 
 struct Triplef
 {
 	Triplef();
-	float data[3];
+	float x;
+	float y;
+	float z;
 };
 
 struct Tripleuc
 {
 	Tripleuc();
-	unsigned char data[3];
+	unsigned char x;
+	unsigned char y;
+	unsigned char z;
 };
 
 struct Quadruplef
 {
 	Quadruplef();
-	float data[4];
+	float x;
+	float y;
+	float z;
+	float w;
 };
 
 struct Quadrupleuc
 {
 	Quadrupleuc();
-	unsigned char data[4];
+	unsigned char x;
+	unsigned char y;
+	unsigned char z;
+	unsigned char w;
 };
 
 
