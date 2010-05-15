@@ -119,6 +119,41 @@ void RsRendererImpl::display()
 	float modY = 0.0f + (-1.0);
 	float rangeZ = 1.0f/mPriMath.abs(-10.0 - -13.0);
 	float modZ = 0.0f + (-13.0);
+
+//	glEnable(GL_CULL_FACE);
+	// right
+		glBegin(GL_QUADS);									// Draw A Quad
+			glColor3f(0.0, 1.0, 1.0);
+			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+			glVertex3f(1.0f,1.0f, -10.0f);					// Bottom Left
+			glColor3f(0.0, 1.0, 1.0);
+			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+			glVertex3f(1.0f,-1.0f, -10.0f);					// Bottom Right
+			glColor3f(0.0, 1.0, 1.0);
+			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+			glVertex3f(1.0f, -1.0f, -13.0f);					// Top Right
+			glColor3f(0.0, 1.0, 1.0);
+			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+			glVertex3f(1.0f, 1.0f, -13.0f);					// Top Left
+		glEnd();											// Done Drawing The Quad
+
+		// left
+			glBegin(GL_QUADS);									// Draw A Quad
+				glColor3f(1.0, 0.0, 1.0);
+				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+				glVertex3f(-1.0f, -1.0f, -13.0f);					// Top Right
+				glColor3f(1.0, 0.0, 1.0);
+				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+				glVertex3f(-1.0f,-1.0f, -10.0f);					// Bottom Right
+				glColor3f(1.0, 0.0, 1.0);
+				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+				glVertex3f(-1.0f,1.0f, -10.0f);					// Bottom Left
+				glColor3f(1.0, 0.0, 1.0);
+				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+				glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
+			glEnd();											// Done Drawing The Quad
+
+
 // back
 	glBegin(GL_QUADS);									// Draw A Quad
 		glColor3f(0.0, 1.0, 0.0);
@@ -208,16 +243,16 @@ void RsRendererImpl::display()
   // Swap The Buffers To Not Be Left With A Clear Screen
 
   if (mPriUpDir){
-	  mPriLerp+=0.0001f;
+	  mPriLerp+=0.001f;
   }
   else{
-	  mPriLerp -= 0.0001f;
+	  mPriLerp -= 0.001f;
   }
-  if (mPriLerp> 1.01f && mPriUpDir){
+  if (mPriLerp> 1.30f && mPriUpDir){
 //	  mPriLerp = -0.1f;
 	  mPriUpDir = false;
   }
-  else if (mPriLerp < -0.01f && !mPriUpDir){
+  else if (mPriLerp < -0.31f && !mPriUpDir){
 //	  mPriLerp = 0.0f;
 	  mPriUpDir = true;
   }
