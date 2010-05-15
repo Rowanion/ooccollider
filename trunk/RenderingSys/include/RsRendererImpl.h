@@ -17,6 +17,8 @@
 
 #include <FTGL/ftgl.h>
 
+#include "RsMathTools.h"
+
 #define GET_GLERROR(ret) \
 { \
          GLenum err = glGetError(); \
@@ -48,6 +50,7 @@ private:
 	GLuint mPriTexture;
 	GLuint mPriTexture2;
 	GLuint mPriTexture3;
+	GLuint mPriTexture4;
 	int mPriPrevMouseX;
 	int mPriPrevMouseY;
 	int mPriOldMousePosX;
@@ -79,6 +82,7 @@ private:
 	CGparameter cgTex1;
 	CGparameter cgTex2;
 	CGparameter cgNoiseTex;
+	CGparameter cgRndTex;
 
 	float mPriLerp;
 	bool mPriUpDir;
@@ -91,6 +95,8 @@ private:
 	GLdouble wp[3];
 
 	double c;
+
+	RsMathTools mPriMath;
 };
 
 #endif /* RSRENDERERIMPL_H_ */

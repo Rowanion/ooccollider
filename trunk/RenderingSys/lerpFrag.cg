@@ -21,16 +21,18 @@ float noise(float2 coord,float d){
         return dot(float4(rand(C[0],C[1],C[2],C[3])),w); 
 } 
 
-void main(	in float2 texCoord	: TEXCOORD0,
+void main(	in float3 texCoord	: TEXCOORD0,
 			out float4 color     : COLOR0,
 			uniform sampler2D tex1 :	TEXUNIT0,
 			uniform sampler2D tex2 : 	TEXUNIT1,
 			uniform float lerpVal,
-			uniform sampler2D noiseTex	:	TEXUNIT2)
+			uniform sampler2D noiseTex:	TEXUNIT2,
+			uniform sampler3D rndTex	:	TEXUNIT3)
 {
+float tolerance = 0.005;
 float4 tmpColor;
 	float mod = tex2D(noiseTex, texCoord).r;
-	color = lerp(tex2D(tex1, texCoord), tex2D(tex2, texCoord), mod*(mod-lerpVal));
+	//color = lerp(tex2D(tex1, texCoord), tex2D(tex2, texCoord), mod*(mod-lerpVal));
 	//tmpColor = lerp(tex2D(tex1, texCoord), tex2D(tex2, texCoord), noise(texCoord, 128.0));
 	//tmpColor = float4(rand(texCoord), rand(texCoord), rand(texCoord), 1.0);
 	//color = tex2D(noiseTex, texCoord);
@@ -60,6 +62,22 @@ float4 tmpColor;
 	
 	
 		//color = tmpColor;
+	//color = tex3D(rndTex, texCoord).aaaa;
+	
+	float dissolve = tex3D(rndTex, texCoord).a; 
+	float diff = abs(dissolve-lerpVal-tolerance);
+	if (lerpVal+tolerance > dissolve && lerpVal-tolerance < dissolve){
+		color = lerp(float4(1.0f,0,0,1), tex2D(tex1, texCoord.xy), diff);
+	}
+	else if (lerpVal-tolerance > dissolve){
+		discard;
+		//color = tex2D(tex2, texCoord.xy);
+	}
+	else {
+	//color = tex2D(rndTex, texCoord).aaaa;
+	color = tex2D(tex1, texCoord.xy);
+	}
+	
 	//}
 }
 
