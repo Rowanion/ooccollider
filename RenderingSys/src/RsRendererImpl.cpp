@@ -476,6 +476,7 @@ void RsRendererImpl::init()
 //		cerr << rfTex[i] << endl;
 //	}
 //	exit(0);
+	//TODO create vbo with multitexturing and derive unit-tex-coords generically
 	glGenTextures(1, &mPriTexture4);
 	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_ALPHA16, 64, 64, 64, 0, GL_ALPHA, GL_FLOAT, rfTex);
