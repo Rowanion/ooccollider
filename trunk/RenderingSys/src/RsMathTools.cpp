@@ -170,6 +170,7 @@ float* RsMathTools::generatePerlinTexture(unsigned _x, unsigned _y, bool _create
 
 float* RsMathTools::generatePerlinTexture(unsigned _x, unsigned _y, unsigned _z, bool _createColor)
 {
+	//TODO try to create 1byte-texture opposed to float
 	PerlinNoise pn = PerlinNoise();
 	ImprovedPerlinNoise ipn = ImprovedPerlinNoise();
 
