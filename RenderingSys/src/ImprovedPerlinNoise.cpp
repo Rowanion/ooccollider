@@ -96,14 +96,14 @@ double ImprovedPerlinNoise::noiseV1(double x, double y, double z) {
 	float ii = 1;
 
 	for (unsigned i=0; i<octaves; i++){
-		sum += abs(this->noise(ii*x,ii*y,ii*z)/ii);
+		sum += this->abs(this->noise(ii*x,ii*y,ii*z)/ii);
 		ii *= 2;
 	}
 	return sum;
 }
 
 double ImprovedPerlinNoise::noiseV2(double x, double y, double z) {
-	unsigned octaves = 6;
+	unsigned octaves = 16;
 	double sum = 0.0;
 	float ii = 1;
 
