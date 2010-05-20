@@ -54,3 +54,14 @@ Quadrupleuc::Quadrupleuc()
 	w = 0;
 }
 
+ObjInfo::ObjInfo()
+{
+	groupCount = 0;
+	vertexCount = 0;
+	texCount = 0;
+	faceCount = 0;
+	normalCount = 0;
+	materialCount = 0;
+	groupBits = std::vector<unsigned>();
+	groupFaces = std::vector<unsigned>();
+}
