@@ -15,9 +15,15 @@
 class VboV4T2 : public Vbo{
 public:
 	VboV4T2();
+	VboV4T2(unsigned _faceCount, unsigned _vertexCount);
 	virtual ~VboV4T2();
+	virtual void draw();
+	virtual unsigned getIndexCount() const;
+	virtual unsigned getVertexCount() const;
+	virtual uint64_t getComponentBytes() const;
 protected:
-	RsV4T2 mProData;
+	RsV4T2* mProData;
+	unsigned* mProFaces;
 };
 
 #endif /* VBOV4T2_H_ */

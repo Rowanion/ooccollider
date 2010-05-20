@@ -11,6 +11,7 @@
 
 
 #include "RsStructs.h"
+#include "ObjModel.h"
 
 using namespace std;
 namespace fs = boost::filesystem;
@@ -142,6 +143,7 @@ void RsMeshTools::loadObj(fs::path* _file)
 		std::cerr << "." << std::endl;
 	}
 	std::cerr << "Materials :" << modelInfo.materialCount << std::endl;
+	ObjModel* model = new ObjModel(&modelInfo);
 	exit(0);
 	// second pass
 
