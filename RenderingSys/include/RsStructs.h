@@ -8,6 +8,8 @@
 #ifndef RSSTRUCTS_H_
 #define RSSTRUCTS_H_
 
+#include <vector>
+
 #define TGA_ALPHA 0x1906
 #define TGA_RGB 0x1907
 #define TGA_RGBA 0x1908
@@ -65,6 +67,10 @@ struct Quadrupleuc
 	unsigned char w;
 };
 
+struct RsV4
+{
+	Quadruplef v;
+};
 
 struct RsV3N4
 {
@@ -83,5 +89,18 @@ struct RsV4T2
 {
 	Quadruplef v;
 	Tuplef t;
+};
+
+struct ObjInfo
+{
+	ObjInfo();
+	unsigned groupCount;
+	unsigned vertexCount;
+	unsigned texCount;
+	unsigned faceCount;
+	unsigned normalCount;
+	unsigned materialCount;
+	std::vector<unsigned> groupBits;
+	std::vector<unsigned> groupFaces;
 };
 #endif /* RSSTRUCTS_H_ */

@@ -243,10 +243,10 @@ void RsRendererImpl::display()
   // Swap The Buffers To Not Be Left With A Clear Screen
 
   if (mPriUpDir){
-	  mPriLerp+=0.001f;
+	  mPriLerp+=0.0001f;
   }
   else{
-	  mPriLerp -= 0.001f;
+	  mPriLerp -= 0.0001f;
   }
   if (mPriLerp> 1.30f && mPriUpDir){
 //	  mPriLerp = -0.1f;
@@ -474,9 +474,9 @@ void RsRendererImpl::init()
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/bunny.obj");
-//	RsMeshTools* mTools = RsMeshTools::getSingleton();
-//	mTools->loadObj(&meshFile);
+	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/bunny.obj");
+	RsMeshTools* mTools = RsMeshTools::getSingleton();
+	mTools->loadObj(&meshFile);
 
 	glGenTextures(1, &mPriTexture);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture);

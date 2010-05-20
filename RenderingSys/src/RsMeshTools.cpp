@@ -9,11 +9,8 @@
 
 #include <iostream>
 
-#include <boost/system/config.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/regex.hpp>
 
+#include "RsStructs.h"
 
 using namespace std;
 namespace fs = boost::filesystem;
@@ -46,6 +43,62 @@ RsMeshTools::~RsMeshTools()
 	// TODO Auto-generated destructor stub
 }
 
+void RsMeshTools::parseObj(fs::path* _file, ObjInfo* _info)
+{
+	if (_info == 0)
+		return;
+
+	std::string line;
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> blank_sep(" ");
+	tokenizer tokens = tokenizer(line, blank_sep);
+	tokenizer face_tokens = tokenizer(line, blank_sep);
+
+	fs::ifstream inFile;
+	inFile.open(*_file);
+	while (std::getline(inFile, line)) {
+		tokens.assign(line, blank_sep);
+		if (tokens.begin()!= tokens.end()){
+			string type = (*tokens.begin());
+			switch (type[0]){
+			case 'u':	// Probable point of mtllib
+				_info->materialCount++;
+				break;
+			case 'g':	// Probable point of mtllib
+				_info->groupCount++;
+				_info->groupFaces.push_back(0);
+				_info->groupBits.push_back(0);
+				break;
+			case 'f':	// Probable point of mtllib
+				_info->faceCount++;
+				if (_info->groupCount == 0){
+					_info->groupCount++;
+					_info->groupFaces.push_back(0);
+					_info->groupBits.push_back(0);
+				}
+
+				if (_info->groupFaces.back() == 0){
+					_info->groupBits.back() = analyzeFaceLine(&tokens);
+				}
+				_info->groupFaces.back()++;
+				break;
+			case 'v':{
+				if (type.size() == 1){ // Probable point of vertex-entry
+					_info->vertexCount++;
+				}
+				else if (type[1]=='t'){ // Probable point of texture-entry
+					_info->texCount++;
+				}
+				else if (type[1]=='n'){ // Probable point of normal-entry
+					_info->normalCount++;
+				}
+				break;}
+			}
+		}
+	}
+	inFile.close();
+}
+
 void RsMeshTools::loadObj(fs::path* _file)
 {
 	/**
@@ -68,8 +121,31 @@ void RsMeshTools::loadObj(fs::path* _file)
 	 * we can have an indexbuffer for each group, sharing a vertexbuffer with all
 	 * its fellow groups.
 	 */
+
+	// first pass
+	ObjInfo modelInfo = ObjInfo();
+	this->parseObj(_file, &modelInfo);
+	std::cerr << "File :" << *_file << std::endl;
+	std::cerr << "Vertices :" << modelInfo.vertexCount << std::endl;
+	std::cerr << "Normals :" << modelInfo.normalCount << std::endl;
+	std::cerr << "TexCoords :" << modelInfo.texCount << std::endl;
+	std::cerr << "Faces :" << modelInfo.faceCount << std::endl;
+	std::cerr << "Groups :" << modelInfo.groupCount << std::endl;
+	for (unsigned i=0; i< modelInfo.groupCount; i++){
+		std::cerr << "Group " << i << " has " << modelInfo.groupFaces[i] << " faces";
+		if (modelInfo.groupBits[i] & 1){
+			std::cerr << " and has Textures";
+		}
+		if (modelInfo.groupBits[i] & 2){
+			std::cerr << " and has Normals";
+		}
+		std::cerr << "." << std::endl;
+	}
+	std::cerr << "Materials :" << modelInfo.materialCount << std::endl;
+	exit(0);
+	// second pass
+
 	std::string line;
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> blank_sep(" ");
 	tokenizer tokens = tokenizer(line, blank_sep);
 	tokenizer face_tokens = tokenizer(line, blank_sep);
@@ -127,4 +203,29 @@ void RsMeshTools::loadObj(fs::path* _file)
 		}
 	}
 	inFile.close();
+}
+
+unsigned RsMeshTools::analyzeFaceLine(tokenizer* _tokens)
+{
+	// 01 => textures = true
+	// 10 => normals = true
+	unsigned bitField = 0;
+
+
+	const boost::regex mComponents_expr("(\\d+)/?(\\d*)/?(\\d*)");
+
+	for(tokenizer::iterator tok_iter=_tokens->begin(); tok_iter!=_tokens->end(); ++tok_iter){
+		boost::smatch what;
+		if (boost::regex_match(*tok_iter, what, mComponents_expr, boost::match_extra)){
+			unsigned i, mult;
+			for(mult = 1, i = 2; i < what.size(); ++i, mult *= 2){
+//				std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
+				if (what[i].str().size() != 0){
+					bitField |= mult;
+				}
+			}
+			return bitField;
+		}
+	}
+	return bitField;
 }
