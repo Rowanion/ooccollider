@@ -144,9 +144,43 @@ void RsMeshTools::loadObj(fs::path* _file)
 	}
 	std::cerr << "Materials :" << modelInfo.materialCount << std::endl;
 	ObjModel* model = new ObjModel(&modelInfo);
-	exit(0);
-	// second pass
+//	exit(0);
 
+	// generate temporary space for model
+	float* vertices = new float[modelInfo.vertexCount*3];
+	unsigned vCount = 0;
+	char* normals = 0;
+	unsigned nCount = 0;
+	float* texCoords = 0;
+	unsigned tCount = 0;
+	unsigned char* colors = 0;
+	unsigned cCount = 0;
+	unsigned** group = new unsigned*[modelInfo.groupCount];
+	for (unsigned i = 0; i< modelInfo.groupCount; ++i){
+		if (modelInfo.groupBits[i]>2){
+			group[i] = new unsigned[modelInfo.groupFaces[i]*3*3];
+		}
+		else if (modelInfo.groupBits[i]>0){
+			group[i] = new unsigned[modelInfo.groupFaces[i]*2*3];
+		}
+		else{
+			group[i] = new unsigned[modelInfo.groupFaces[i]*3];
+		}
+	}
+	unsigned groupFaceCount = 0;
+	int gCount = -1;
+	if (modelInfo.normalCount>0){
+		normals = new char[modelInfo.normalCount*3];
+	}
+	if (modelInfo.texCount>0){
+		texCoords = new float[modelInfo.texCount*2];
+	}
+	if (modelInfo.materialCount>0){
+		colors = new unsigned char[modelInfo.materialCount*4];
+	}
+
+
+	// second pass
 	std::string line;
 	boost::char_separator<char> blank_sep(" ");
 	tokenizer tokens = tokenizer(line, blank_sep);
@@ -172,15 +206,37 @@ void RsMeshTools::loadObj(fs::path* _file)
 
 				}
 				break;
+			case 'g':	// Probable point of group
+				gCount++;
+				groupFaceCount = 0;
+				break;
 			case 'v':{
 				if (type.size() == 1){ // Probable point of vertex-entry
 					//TODO
+					tokenizer::iterator tok_iter=tokens.begin();
+					tok_iter++;
+					for(; tok_iter!=tokens.end();++tok_iter){
+						vertices[vCount] = atof(tok_iter->c_str());
+						vCount++;
+					}
 				}
 				else if (type[1]=='t'){ // Probable point of texture-entry
 					//TODO
+					tokenizer::iterator tok_iter=tokens.begin();
+					tok_iter++;
+					for(; tok_iter!=tokens.end();++tok_iter){
+						texCoords[tCount] = atof(tok_iter->c_str());
+						tCount++;
+					}
 				}
 				else if (type[1]=='n'){ // Probable point of normal-entry
 					//TODO
+					tokenizer::iterator tok_iter=tokens.begin();
+					tok_iter++;
+					for(; tok_iter!=tokens.end();++tok_iter){
+						normals[nCount] = (char)(atof(tok_iter->c_str())*128);
+						nCount++;
+					}
 				}
 //				for(tokenizer::iterator tok_iter=tokens.begin(); tok_iter!=tokens.end();++tok_iter){
 //					std::cout << "<" << *tok_iter << "> ";
@@ -188,16 +244,25 @@ void RsMeshTools::loadObj(fs::path* _file)
 //				std::cout << "\n";
 				break;}
 			case 'f':{	// Probable point of face-entry
+				if (gCount<0){
+					gCount = 0;
+					groupFaceCount = 0;
+				}
 				for(tokenizer::iterator tok_iter=tokens.begin(); tok_iter!=tokens.end();++tok_iter){
-					std::cout << "<" << *tok_iter << "> ";
+//					std::cout << "<" << *tok_iter << "> ";
 					boost::smatch what;
 					if (boost::regex_match(*tok_iter, what, mComponents_expr, boost::match_extra)){
-						for(unsigned i = 0; i < what.size(); ++i)
-							std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
+						for(unsigned i = 1; i < what.size(); ++i){
+//							std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
+							if (what.str().size() != 0){
+								group[gCount][groupFaceCount] = atoi(what.str().c_str())-1;
+								groupFaceCount++;
+							}
+						}
 					}
 				}
-				cerr << line << endl;
-				std::cout << "\n";
+//				cerr << line << endl;
+//				std::cout << "\n";
 				break;}
 			default:
 				break;
@@ -205,6 +270,16 @@ void RsMeshTools::loadObj(fs::path* _file)
 		}
 	}
 	inFile.close();
+
+	delete[] vertices;
+	delete[] normals;
+	delete[] texCoords;
+	delete[] colors;
+	for (unsigned i = 0; i< modelInfo.groupCount; ++i){
+		delete[] group[i];
+	}
+	delete group;
+
 }
 
 unsigned RsMeshTools::analyzeFaceLine(tokenizer* _tokens)
