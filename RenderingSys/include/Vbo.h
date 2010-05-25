@@ -19,6 +19,7 @@ public:
 	virtual unsigned getIndexCount() const = 0;
 	virtual unsigned getVertexCount() const = 0;
 	virtual uint64_t getComponentBytes() const = 0;
+	virtual void debug();
 protected:
 private:
 

@@ -272,6 +272,8 @@ void RsMeshTools::loadObj(fs::path* _file)
 	}
 	inFile.close();
 
+	model->addVbo(&modelInfo, 0, group[0], vertices, normals, texCoords, colors);
+
 	delete[] vertices;
 	delete[] normals;
 	delete[] texCoords;

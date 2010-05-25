@@ -16,3 +16,8 @@ Vbo::Vbo() {
 Vbo::~Vbo() {
 	// TODO Auto-generated destructor stub
 }
+
+void Vbo::debug()
+{
+
+}

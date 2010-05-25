@@ -180,13 +180,3 @@ bool RsV3N4T2::operator<(const RsV3N4T2& _rhs) const
 	return this->v < _rhs.v;
 }
 
-bool operator<(const RsV3N4T2& _lhs, const RsV3N4T2& _rhs)
-{
-	if(_lhs.v == _rhs.v){
-		if (_lhs.n == _rhs.n){
-			return _lhs.t < _rhs.t;
-		}
-		return _lhs.n < _rhs.n;
-	}
-	return _lhs.v < _rhs.v;
-}

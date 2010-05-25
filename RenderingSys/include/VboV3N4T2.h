@@ -12,18 +12,23 @@
 #include "Vbo.h"
 #include "RsStructs.h"
 
+#include <map>
+
 class VboV3N4T2 : public Vbo{
 public:
 	VboV3N4T2();
-	VboV3N4T2(unsigned _faceCount, unsigned _vertexCount);
+	VboV3N4T2(unsigned _indexCount, unsigned* _indices, std::map<RsV3N4T2, unsigned>* _data);
 	virtual ~VboV3N4T2();
 	virtual void draw();
 	virtual unsigned getIndexCount() const;
 	virtual unsigned getVertexCount() const;
 	virtual uint64_t getComponentBytes() const;
+	virtual void debug();
 protected:
 	RsV3N4T2* mProData;
-	unsigned* mProFaces;
+	unsigned mProDataCount;
+	unsigned* mProIndices;
+	unsigned mProIndexCount;
 };
 
 #endif /* VBOV3N4T2_H_ */
