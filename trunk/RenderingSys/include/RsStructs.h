@@ -29,6 +29,8 @@ struct RsTGAimage
 struct Tuplef
 {
 	Tuplef();
+	bool operator==(const Tuplef& _rhs) const;
+	bool operator<(const Tuplef& _rhs) const;
 	float x;
 	float y;
 };
@@ -36,6 +38,8 @@ struct Tuplef
 struct Triplef
 {
 	Triplef();
+	bool operator<(const Triplef& _rhs) const;
+	bool operator==(const Triplef& _rhs) const;
 	float x;
 	float y;
 	float z;
@@ -44,6 +48,14 @@ struct Triplef
 struct Tripleuc
 {
 	Tripleuc();
+	unsigned char x;
+	unsigned char y;
+	unsigned char z;
+};
+
+struct Triplec
+{
+	Triplec();
 	unsigned char x;
 	unsigned char y;
 	unsigned char z;
@@ -67,6 +79,17 @@ struct Quadrupleuc
 	unsigned char w;
 };
 
+struct Quadruplec
+{
+	Quadruplec();
+	bool operator==(const Quadruplec& _rhs) const;
+	bool operator<(const Quadruplec& _rhs) const;
+	char x;
+	char y;
+	char z;
+	char w;
+};
+
 struct RsV4
 {
 	Quadruplef v;
@@ -75,15 +98,20 @@ struct RsV4
 struct RsV3N4
 {
 	Triplef v;
-	Quadrupleuc n;
+	Quadruplec n;
 };
 
 struct RsV3N4T2
 {
+	RsV3N4T2();
+	RsV3N4T2(const float* _v, const char* _n, const float* _t);
+	bool operator<(const RsV3N4T2& _rhs) const;
 	Triplef v;
-	Quadrupleuc n;
+	Quadruplec n;
 	Tuplef t;
 };
+
+bool operator<(const RsV3N4T2& _lhs, const RsV3N4T2& _rhs);
 
 struct RsV4T2
 {

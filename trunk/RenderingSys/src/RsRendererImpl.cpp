@@ -474,8 +474,8 @@ void RsRendererImpl::init()
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/bunny.obj");
-//	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/bunny.obj");
+//	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/bunny.obj");
+	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/happy_buddha.obj");
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	mTools->loadObj(&meshFile);
 
