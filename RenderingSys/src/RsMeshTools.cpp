@@ -156,7 +156,7 @@ void RsMeshTools::loadObj(fs::path* _file)
 	unsigned char* colors = 0;
 	unsigned cCount = 0;
 	unsigned** group = new unsigned*[modelInfo.groupCount];
-	for (unsigned i = 0; i< modelInfo.groupCount; ++i){
+	for (unsigned i = 0; i < modelInfo.groupCount; ++i){
 		if (modelInfo.groupBits[i]>2){
 			group[i] = new unsigned[modelInfo.groupFaces[i]*3*3];
 		}
@@ -254,8 +254,9 @@ void RsMeshTools::loadObj(fs::path* _file)
 					if (boost::regex_match(*tok_iter, what, mComponents_expr, boost::match_extra)){
 						for(unsigned i = 1; i < what.size(); ++i){
 //							std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
-							if (what.str().size() != 0){
-								group[gCount][groupFaceCount] = atoi(what.str().c_str())-1;
+							if (what[i].str().size() != 0){
+//								cerr << "" << endl;
+								group[gCount][groupFaceCount] = atoi(what[i].str().c_str())-1;
 								groupFaceCount++;
 							}
 						}
