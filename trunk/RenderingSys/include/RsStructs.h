@@ -111,8 +111,6 @@ struct RsV3N4T2
 	Tuplef t;
 };
 
-bool operator<(const RsV3N4T2& _lhs, const RsV3N4T2& _rhs);
-
 struct RsV4T2
 {
 	Quadruplef v;
