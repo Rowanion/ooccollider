@@ -87,30 +87,30 @@ void RsRendererImpl::display()
 
 	glTranslatef(3.0f,0.0f,0.0f);						// Move Right 3 Units
 //	glColor3f(0.5f,0.5f,1.0f);							// Set The Color To Blue One Time Only
-	cgGLSetParameter1f(lerpVal, mPriLerp);
-	cgGLEnableProfile(fprof);
-	cgGLBindProgram(lerpFrag);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mPriTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, mPriTexture3);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
-	GET_GLERROR(0);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_TEXTURE_3D);
-	glBegin(GL_QUADS);									// Draw A Quad
-		glTexCoord3f(0.0f,0.0f, 0.5f);
-		glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
-		glTexCoord3f(1.0f,0.0f, 0.5f);
-		glVertex3f( 1.0f,-1.0f, 0.0f);					// Bottom Right
-		glTexCoord3f(1.0f,1.0f, 0.5f);
-		glVertex3f( 1.0f, 1.0f, 0.0f);					// Top Right
-		glTexCoord3f(0.0f,1.0f, 0.5f);
-		glVertex3f(-1.0f, 1.0f, 0.0f);					// Top Left
-	glEnd();											// Done Drawing The Quad
+//	cgGLSetParameter1f(lerpVal, mPriLerp);
+//	cgGLEnableProfile(fprof);
+//	cgGLBindProgram(lerpFrag);
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindTexture(GL_TEXTURE_2D, mPriTexture);
+//	glActiveTexture(GL_TEXTURE1);
+//	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+//	glActiveTexture(GL_TEXTURE2);
+//	glBindTexture(GL_TEXTURE_2D, mPriTexture3);
+//	glActiveTexture(GL_TEXTURE3);
+//	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
+//	GET_GLERROR(0);
+//	glEnable(GL_TEXTURE_2D);
+//	glEnable(GL_TEXTURE_3D);
+//	glBegin(GL_QUADS);									// Draw A Quad
+//		glTexCoord3f(0.0f,0.0f, 0.5f);
+//		glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
+//		glTexCoord3f(1.0f,0.0f, 0.5f);
+//		glVertex3f( 1.0f,-1.0f, 0.0f);					// Bottom Right
+//		glTexCoord3f(1.0f,1.0f, 0.5f);
+//		glVertex3f( 1.0f, 1.0f, 0.0f);					// Top Right
+//		glTexCoord3f(0.0f,1.0f, 0.5f);
+//		glVertex3f(-1.0f, 1.0f, 0.0f);					// Top Left
+//	glEnd();											// Done Drawing The Quad
 
 
 	float rangeX = 1.0f/mPriMath.abs(-1.0 - 1.0);
@@ -122,105 +122,105 @@ void RsRendererImpl::display()
 
 //	glEnable(GL_CULL_FACE);
 	// right
-		glBegin(GL_QUADS);									// Draw A Quad
-			glColor3f(0.0, 1.0, 1.0);
-			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-			glVertex3f(1.0f,1.0f, -10.0f);					// Bottom Left
-			glColor3f(0.0, 1.0, 1.0);
-			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-			glVertex3f(1.0f,-1.0f, -10.0f);					// Bottom Right
-			glColor3f(0.0, 1.0, 1.0);
-			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-			glVertex3f(1.0f, -1.0f, -13.0f);					// Top Right
-			glColor3f(0.0, 1.0, 1.0);
-			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-			glVertex3f(1.0f, 1.0f, -13.0f);					// Top Left
-		glEnd();											// Done Drawing The Quad
+//		glBegin(GL_QUADS);									// Draw A Quad
+//			glColor3f(0.0, 1.0, 1.0);
+//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//			glVertex3f(1.0f,1.0f, -10.0f);					// Bottom Left
+//			glColor3f(0.0, 1.0, 1.0);
+//			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//			glVertex3f(1.0f,-1.0f, -10.0f);					// Bottom Right
+//			glColor3f(0.0, 1.0, 1.0);
+//			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//			glVertex3f(1.0f, -1.0f, -13.0f);					// Top Right
+//			glColor3f(0.0, 1.0, 1.0);
+//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//			glVertex3f(1.0f, 1.0f, -13.0f);					// Top Left
+//		glEnd();											// Done Drawing The Quad
 
 		// left
-			glBegin(GL_QUADS);									// Draw A Quad
-				glColor3f(1.0, 0.0, 1.0);
-				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-				glVertex3f(-1.0f, -1.0f, -13.0f);					// Top Right
-				glColor3f(1.0, 0.0, 1.0);
-				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-				glVertex3f(-1.0f,-1.0f, -10.0f);					// Bottom Right
-				glColor3f(1.0, 0.0, 1.0);
-				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-				glVertex3f(-1.0f,1.0f, -10.0f);					// Bottom Left
-				glColor3f(1.0, 0.0, 1.0);
-				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-				glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
-			glEnd();											// Done Drawing The Quad
+//			glBegin(GL_QUADS);									// Draw A Quad
+//				glColor3f(1.0, 0.0, 1.0);
+//				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//				glVertex3f(-1.0f, -1.0f, -13.0f);					// Top Right
+//				glColor3f(1.0, 0.0, 1.0);
+//				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//				glVertex3f(-1.0f,-1.0f, -10.0f);					// Bottom Right
+//				glColor3f(1.0, 0.0, 1.0);
+//				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//				glVertex3f(-1.0f,1.0f, -10.0f);					// Bottom Left
+//				glColor3f(1.0, 0.0, 1.0);
+//				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//				glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
+//			glEnd();											// Done Drawing The Quad
 
 
 // back
-	glBegin(GL_QUADS);									// Draw A Quad
-		glColor3f(0.0, 1.0, 0.0);
-		glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-		glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
-		glColor3f(0.0, 1.0, 0.0);
-		glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-		glVertex3f(1.0f, 1.0f, -13.0f);					// Top Right
-		glColor3f(0.0, 1.0, 0.0);
-		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-		glVertex3f(1.0f,-1.0f, -13.0f);					// Bottom Right
-		glColor3f(0.0, 1.0, 0.0);
-		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-		glVertex3f(-1.0f,-1.0f, -13.0f);					// Bottom Left
-	glEnd();											// Done Drawing The Quad
+//	glBegin(GL_QUADS);									// Draw A Quad
+//		glColor3f(0.0, 1.0, 0.0);
+//		glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//		glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
+//		glColor3f(0.0, 1.0, 0.0);
+//		glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//		glVertex3f(1.0f, 1.0f, -13.0f);					// Top Right
+//		glColor3f(0.0, 1.0, 0.0);
+//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//		glVertex3f(1.0f,-1.0f, -13.0f);					// Bottom Right
+//		glColor3f(0.0, 1.0, 0.0);
+//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//		glVertex3f(-1.0f,-1.0f, -13.0f);					// Bottom Left
+//	glEnd();											// Done Drawing The Quad
 // front
-	glBegin(GL_QUADS);									// Draw A Quad
-		glColor3f(0.0, 1.0, 1.0);
-		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-		glVertex3f(-1.0f,-1.0f, -10.0f);					// Bottom Left
-		glColor3f(0.0, 1.0, 1.0);
-		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-		glVertex3f(1.0f,-1.0f, -10.0f);					// Bottom Right
-		glColor3f(0.0, 1.0, 1.0);
-		glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-		glVertex3f(1.0f, 1.0f, -10.0f);					// Top Right
-		glColor3f(0.0, 1.0, 1.0);
-		glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-		glVertex3f(-1.0f, 1.0f, -10.0f);					// Top Left
-	glEnd();											// Done Drawing The Quad
+//	glBegin(GL_QUADS);									// Draw A Quad
+//		glColor3f(0.0, 1.0, 1.0);
+//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//		glVertex3f(-1.0f,-1.0f, -10.0f);					// Bottom Left
+//		glColor3f(0.0, 1.0, 1.0);
+//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//		glVertex3f(1.0f,-1.0f, -10.0f);					// Bottom Right
+//		glColor3f(0.0, 1.0, 1.0);
+//		glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//		glVertex3f(1.0f, 1.0f, -10.0f);					// Top Right
+//		glColor3f(0.0, 1.0, 1.0);
+//		glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//		glVertex3f(-1.0f, 1.0f, -10.0f);					// Top Left
+//	glEnd();											// Done Drawing The Quad
 
 	// top
-		glBegin(GL_QUADS);									// Draw A Quad
-			glColor3f(0.0, 0.0, 1.0);
-			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-			glVertex3f(1.0f, 1.0f, -13.0f);					// Top Right
-			glColor3f(0.0, 0.0, 1.0);
-			glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-			glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
-			glColor3f(0.0, 0.0, 1.0);
-			glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-			glVertex3f(-1.0f, 1.0f, -10.0f);					// Top Left
-			glColor3f(0.0, 0.0, 1.0);
-			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-			glVertex3f(1.0f, 1.0f, -10.0f);					// Top Right
-		glEnd();											// Done Drawing The Quad
+//		glBegin(GL_QUADS);									// Draw A Quad
+//			glColor3f(0.0, 0.0, 1.0);
+//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//			glVertex3f(1.0f, 1.0f, -13.0f);					// Top Right
+//			glColor3f(0.0, 0.0, 1.0);
+//			glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//			glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
+//			glColor3f(0.0, 0.0, 1.0);
+//			glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//			glVertex3f(-1.0f, 1.0f, -10.0f);					// Top Left
+//			glColor3f(0.0, 0.0, 1.0);
+//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//			glVertex3f(1.0f, 1.0f, -10.0f);					// Top Right
+//		glEnd();											// Done Drawing The Quad
 
 		// bottom
-	glBegin(GL_QUADS);									// Draw A Quad
-		glColor3f(1.0, 0.0, 1.0);
-		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-		glVertex3f(1.0f, -1.0f, -10.0f);					// Top Right
-		glColor3f(1.0, 0.0, 1.0);
-		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-		glVertex3f(-1.0f, -1.0f, -10.0f);					// Top Left
-		glColor3f(1.0, 0.0, 1.0);
-		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-		glVertex3f(-1.0f, -1.0f, -13.0f);					// Top Left
-		glColor3f(1.0, 0.0, 1.0);
-		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-		glVertex3f(1.0f, -1.0f, -13.0f);					// Top Right
-	glEnd();											// Done Drawing The Quad
-
-	glDisable(GL_TEXTURE_3D);
-	glDisable(GL_TEXTURE_2D);
-	cgGLUnbindProgram(fprof);
-	cgGLDisableProfile(fprof);
+//	glBegin(GL_QUADS);									// Draw A Quad
+//		glColor3f(1.0, 0.0, 1.0);
+//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//		glVertex3f(1.0f, -1.0f, -10.0f);					// Top Right
+//		glColor3f(1.0, 0.0, 1.0);
+//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
+//		glVertex3f(-1.0f, -1.0f, -10.0f);					// Top Left
+//		glColor3f(1.0, 0.0, 1.0);
+//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//		glVertex3f(-1.0f, -1.0f, -13.0f);					// Top Left
+//		glColor3f(1.0, 0.0, 1.0);
+//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
+//		glVertex3f(1.0f, -1.0f, -13.0f);					// Top Right
+//	glEnd();											// Done Drawing The Quad
+//
+//	glDisable(GL_TEXTURE_3D);
+//	glDisable(GL_TEXTURE_2D);
+//	cgGLUnbindProgram(fprof);
+//	cgGLDisableProfile(fprof);
 
 	c+=0.001;
 	glGetDoublev(GL_MODELVIEW_MATRIX, mv);
@@ -238,6 +238,23 @@ void RsRendererImpl::display()
 	gluProject(-1.0, -1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
 	textPoint = FTPoint(wp[0], wp[1], wp[2]);
 	font->Render("-1, -1, 0", -1,textPoint);
+
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	cgGLEnableProfile(fprof);
+	cgGLEnableProfile(vprof);
+	cgGLBindProgram(vpLight);
+	cgGLBindProgram(fpLight);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+	glEnable(GL_TEXTURE_2D);
+
+	model->draw();
+	glDisable(GL_TEXTURE_2D);
+	glPolygonMode(GL_FRONT, GL_FILL);
+	cgGLUnbindProgram(fprof);
+	cgGLUnbindProgram(vprof);
+	cgGLDisableProfile(fprof);
+	cgGLDisableProfile(vprof);
 
   glutSwapBuffers ( );
   // Swap The Buffers To Not Be Left With A Clear Screen
@@ -461,10 +478,6 @@ void RsRendererImpl::init()
 	glEnable ( GL_COLOR_MATERIAL );
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-	GLuint buf;
-	glGenBuffers(1, &buf);
-	glDeleteBuffers(1, &buf);
-
 	boost::filesystem::path texFile = boost::filesystem::path("plasma.tga");
 	boost::filesystem::path texFile2 = boost::filesystem::path("plasma2.tga");
 	boost::filesystem::path texFile3 = boost::filesystem::path("noise.tga");
@@ -474,10 +487,10 @@ void RsRendererImpl::init()
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/mini_obj2.obj");
-//	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/happy_buddha.obj");
+//	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/mini_obj2.obj");
+	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
-	mTools->loadObj(&meshFile);
+	model = mTools->loadObj(&meshFile);
 
 	glGenTextures(1, &mPriTexture);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture);
@@ -555,6 +568,12 @@ void RsRendererImpl::init()
 	cgSetErrorHandler(cgErrorHandler, 0);
 
 	// -------------------------------------------
+	vpLight = cgCreateProgramFromFile(context, CG_SOURCE, "vp_phong.cg", vprof, "main",0);
+	cgGLLoadProgram(vpLight);
+	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "fp_phong.cg", fprof, "main",0);
+	cgGLLoadProgram(fpLight);
+	cerr << cgGetLastListing(context) << "----" << endl;
+
 	lerpFrag = cgCreateProgramFromFile(context, CG_SOURCE, "lerpFrag.cg", fprof, "main",0);
 	cgGLLoadProgram(lerpFrag);
 	cgTex1 = cgGetNamedParameter(lerpFrag, "tex1");
@@ -562,6 +581,7 @@ void RsRendererImpl::init()
 	cgNoiseTex = cgGetNamedParameter(lerpFrag, "noiseTex");
 	cgRndTex = cgGetNamedParameter(lerpFrag, "rndTex");
 	lerpVal = cgGetNamedParameter(lerpFrag, "lerpVal");
+
 	cgGLSetTextureParameter(cgTex1, mPriTexture);
 	cgGLEnableTextureParameter(cgTex1);
 	cgGLSetTextureParameter(cgTex2, mPriTexture2);
@@ -570,6 +590,11 @@ void RsRendererImpl::init()
 	cgGLEnableTextureParameter(cgNoiseTex);
 	cgGLSetTextureParameter(cgRndTex, mPriTexture4);
 	cgGLEnableTextureParameter(cgRndTex);
+
+	lightTex = cgGetNamedParameter(fpLight, "tex1");
+	cgGLSetTextureParameter(lightTex, mPriTexture2);
+	cgGLEnableTextureParameter(lightTex);
+
 	cerr << "---- PROGRAM BEGIN ----" << endl << cgGetLastListing(context) << "---- PROGRAM END ----" << endl;
 
 	// -------------------------------------------

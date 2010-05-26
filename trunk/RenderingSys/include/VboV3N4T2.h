@@ -12,6 +12,8 @@
 #include "Vbo.h"
 #include "RsStructs.h"
 
+#include <GL/glew.h>
+
 #include <map>
 
 class VboV3N4T2 : public Vbo{
@@ -29,6 +31,10 @@ protected:
 	unsigned mProDataCount;
 	unsigned* mProIndices;
 	unsigned mProIndexCount;
+private:
+	GLuint mPriDataId;
+	GLuint mPriIndexId;
+
 };
 
 #endif /* VBOV3N4T2_H_ */

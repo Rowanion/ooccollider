@@ -41,4 +41,6 @@ Tuplef operator-(const Tuplef& _lhs, const Tuplef& _rhs);
 Triplef operator+(const Triplef& _lhs, const Triplef& _rhs);
 Triplef operator-(const Triplef& _lhs, const Triplef& _rhs);
 
+void normalize(Triplec* _data);
+
 #endif /* RSVECTORMATH_H_ */

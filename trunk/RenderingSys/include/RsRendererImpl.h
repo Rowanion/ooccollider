@@ -18,6 +18,7 @@
 #include <FTGL/ftgl.h>
 
 #include "RsMathTools.h"
+#include "ObjModel.h"
 
 #define GET_GLERROR(ret) \
 { \
@@ -84,6 +85,10 @@ private:
 	CGparameter cgNoiseTex;
 	CGparameter cgRndTex;
 
+	CGprogram fpLight;
+	CGprogram vpLight;
+	CGparameter lightTex;
+
 	float mPriLerp;
 	bool mPriUpDir;
 
@@ -97,6 +102,8 @@ private:
 	double c;
 
 	RsMathTools mPriMath;
+
+	ObjModel* model;
 };
 
 #endif /* RSRENDERERIMPL_H_ */

@@ -14,12 +14,13 @@
 #include <boost/regex.hpp>
 
 #include "RsStructs.h"
+#include "ObjModel.h"
 
 class RsMeshTools
 {
 public:
 	static RsMeshTools* getSingleton();
-	void loadObj(boost::filesystem::path* _file);
+	ObjModel* loadObj(boost::filesystem::path* _file);
 	void parseObj(boost::filesystem::path* _file, ObjInfo* _info);
 private:
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
