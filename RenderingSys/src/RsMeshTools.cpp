@@ -12,6 +12,7 @@
 
 #include "RsStructs.h"
 #include "ObjModel.h"
+#include "RsVectorMath.h"
 
 using namespace std;
 namespace fs = boost::filesystem;
@@ -100,7 +101,7 @@ void RsMeshTools::parseObj(fs::path* _file, ObjInfo* _info)
 	inFile.close();
 }
 
-void RsMeshTools::loadObj(fs::path* _file)
+ObjModel* RsMeshTools::loadObj(fs::path* _file)
 {
 	/**
 	 * Idea: make multiple expressions for each case of the face-formats
@@ -148,11 +149,11 @@ void RsMeshTools::loadObj(fs::path* _file)
 
 	// generate temporary space for model
 	float* vertices = new float[modelInfo.vertexCount*3];
-	unsigned vCount = 0;
+	unsigned vComponentCount = 0;
 	char* normals = 0;
-	unsigned nCount = 0;
+	unsigned nComponentCount = 0;
 	float* texCoords = 0;
-	unsigned tCount = 0;
+	unsigned tComponentCount = 0;
 	unsigned char* colors = 0;
 	unsigned cCount = 0;
 	unsigned** group = new unsigned*[modelInfo.groupCount];
@@ -167,7 +168,7 @@ void RsMeshTools::loadObj(fs::path* _file)
 			group[i] = new unsigned[modelInfo.groupFaces[i]*3];
 		}
 	}
-	unsigned groupFaceCount = 0;
+	unsigned groupIndexComponentCount = 0;
 	int gCount = -1;
 	if (modelInfo.normalCount>0){
 		normals = new char[modelInfo.normalCount*3];
@@ -208,7 +209,7 @@ void RsMeshTools::loadObj(fs::path* _file)
 				break;
 			case 'g':	// Probable point of group
 				gCount++;
-				groupFaceCount = 0;
+				groupIndexComponentCount = 0;
 				break;
 			case 'v':{
 				if (type.size() == 1){ // Probable point of vertex-entry
@@ -216,8 +217,8 @@ void RsMeshTools::loadObj(fs::path* _file)
 					tokenizer::iterator tok_iter=tokens.begin();
 					tok_iter++;
 					for(; tok_iter!=tokens.end();++tok_iter){
-						vertices[vCount] = atof(tok_iter->c_str());
-						vCount++;
+						vertices[vComponentCount] = atof(tok_iter->c_str());
+						vComponentCount++;
 					}
 				}
 				else if (type[1]=='t'){ // Probable point of texture-entry
@@ -225,8 +226,8 @@ void RsMeshTools::loadObj(fs::path* _file)
 					tokenizer::iterator tok_iter=tokens.begin();
 					tok_iter++;
 					for(; tok_iter!=tokens.end();++tok_iter){
-						texCoords[tCount] = atof(tok_iter->c_str());
-						tCount++;
+						texCoords[tComponentCount] = atof(tok_iter->c_str());
+						tComponentCount++;
 					}
 				}
 				else if (type[1]=='n'){ // Probable point of normal-entry
@@ -234,19 +235,23 @@ void RsMeshTools::loadObj(fs::path* _file)
 					tokenizer::iterator tok_iter=tokens.begin();
 					tok_iter++;
 					for(; tok_iter!=tokens.end();++tok_iter){
-						normals[nCount] = (char)(atof(tok_iter->c_str())*128);
-						nCount++;
+						// adjust to signed char range: -128 to 127
+						float comp = atof(tok_iter->c_str());
+						if (comp <0){
+							normals[nComponentCount] = (char)(comp*128.0);
+						}
+						else{
+							normals[nComponentCount] = (char)(comp*127.0);
+						}
+
+						nComponentCount++;
 					}
 				}
-//				for(tokenizer::iterator tok_iter=tokens.begin(); tok_iter!=tokens.end();++tok_iter){
-//					std::cout << "<" << *tok_iter << "> ";
-//				}
-//				std::cout << "\n";
 				break;}
 			case 'f':{	// Probable point of face-entry
 				if (gCount<0){
 					gCount = 0;
-					groupFaceCount = 0;
+					groupIndexComponentCount = 0;
 				}
 				for(tokenizer::iterator tok_iter=tokens.begin(); tok_iter!=tokens.end();++tok_iter){
 //					std::cout << "<" << *tok_iter << "> ";
@@ -256,8 +261,8 @@ void RsMeshTools::loadObj(fs::path* _file)
 //							std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
 							if (what[i].str().size() != 0){
 //								cerr << "" << endl;
-								group[gCount][groupFaceCount] = atoi(what[i].str().c_str())-1;
-								groupFaceCount++;
+								group[gCount][groupIndexComponentCount] = atoi(what[i].str().c_str())-1;
+								groupIndexComponentCount++;
 							}
 						}
 					}
@@ -272,7 +277,9 @@ void RsMeshTools::loadObj(fs::path* _file)
 	}
 	inFile.close();
 
-	model->addVbo(&modelInfo, 0, group[0], vertices, normals, texCoords, colors);
+	for (unsigned i=0; i< modelInfo.groupCount; ++i){
+		model->addVbo(&modelInfo, i, group[i], vertices, normals, texCoords, colors);
+	}
 
 	delete[] vertices;
 	delete[] normals;
@@ -282,7 +289,7 @@ void RsMeshTools::loadObj(fs::path* _file)
 		delete[] group[i];
 	}
 	delete group;
-
+	return model;
 }
 
 unsigned RsMeshTools::analyzeFaceLine(tokenizer* _tokens)

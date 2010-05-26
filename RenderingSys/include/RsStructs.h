@@ -104,7 +104,7 @@ struct RsV3N4
 struct RsV3N4T2
 {
 	RsV3N4T2();
-	RsV3N4T2(const float* _v, const char* _n, const float* _t);
+	RsV3N4T2(const float* _v, const float* _t, const char* _n);
 	bool operator<(const RsV3N4T2& _rhs) const;
 	Triplef v;
 	Quadruplec n;
@@ -129,4 +129,7 @@ struct ObjInfo
 	std::vector<unsigned> groupBits;
 	std::vector<unsigned> groupFaces;
 };
+
+inline char* bufferOffset(int i){return (char *)0 + (i);}
+
 #endif /* RSSTRUCTS_H_ */

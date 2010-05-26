@@ -161,7 +161,7 @@ ObjInfo::ObjInfo()
 
 RsV3N4T2::RsV3N4T2(){};
 
-RsV3N4T2::RsV3N4T2(const float* _v, const char* _n, const float* _t)
+RsV3N4T2::RsV3N4T2(const float* _v, const float* _t, const char* _n)
 {
 	memcpy(&this->v, _v, sizeof(float)*3);
 	memcpy(&this->n, _n, sizeof(char)*3);

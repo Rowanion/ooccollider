@@ -8,6 +8,8 @@
 
 #include "RsVectorMath.h"
 
+#include <cmath>
+
 V2f::V2f() {
 	// TODO Auto-generated constructor stub
 
@@ -110,3 +112,10 @@ Triplef operator-(const Triplef& _lhs, const Triplef& _rhs)
 	return result;
 }
 
+void normalize(Triplec* _data)
+{
+	double d = 1.0 / sqrt((_data->x*_data->x) + (_data->y*_data->y) + (_data->z*_data->z));
+	_data->x = (char)(d*_data->x);
+	_data->y = (char)(d*_data->y);
+	_data->z = (char)(d*_data->z);
+}
