@@ -240,6 +240,7 @@ void RsRendererImpl::display()
 	font->Render("-1, -1, 0", -1,textPoint);
 
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	cgGLSetParameter1f(lightLerp, mPriLerp);
 	cgGLEnableProfile(fprof);
 	cgGLEnableProfile(vprof);
 	cgGLBindProgram(vpLight);
@@ -247,8 +248,12 @@ void RsRendererImpl::display()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
 	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
+	glEnable(GL_TEXTURE_3D);
 
 	model->draw();
+	glDisable(GL_TEXTURE_3D);
 	glDisable(GL_TEXTURE_2D);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	cgGLUnbindProgram(fprof);
@@ -260,10 +265,10 @@ void RsRendererImpl::display()
   // Swap The Buffers To Not Be Left With A Clear Screen
 
   if (mPriUpDir){
-	  mPriLerp+=0.0001f;
+	  mPriLerp+=0.001f;
   }
   else{
-	  mPriLerp -= 0.0001f;
+	  mPriLerp -= 0.001f;
   }
   if (mPriLerp> 1.30f && mPriUpDir){
 //	  mPriLerp = -0.1f;
@@ -487,8 +492,8 @@ void RsRendererImpl::init()
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
-//	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/mini_obj2.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
+	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/mini_obj2.obj");
+//	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
 
@@ -520,7 +525,7 @@ void RsRendererImpl::init()
 
 	mPriMath = RsMathTools();
 	unsigned char* rTex = mPriMath.generateRandomTexture(128*128,1,false);
-	float* rfTex = mPriMath.generatePerlinTexture(64, 64, 64, false);
+	float* rfTex = mPriMath.generatePerlinTexture(128, 128, 128, false);
 //	for (unsigned i=0; i<128*128; ++i){
 //		cerr << rfTex[i] << endl;
 //	}
@@ -528,7 +533,7 @@ void RsRendererImpl::init()
 	//TODO create vbo with multitexturing and derive unit-tex-coords generically
 	glGenTextures(1, &mPriTexture4);
 	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_ALPHA16, 64, 64, 64, 0, GL_ALPHA, GL_FLOAT, rfTex);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_ALPHA16, 128, 128, 128, 0, GL_ALPHA, GL_FLOAT, rfTex);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -588,12 +593,16 @@ void RsRendererImpl::init()
 	cgGLEnableTextureParameter(cgTex2);
 	cgGLSetTextureParameter(cgNoiseTex, mPriTexture3);
 	cgGLEnableTextureParameter(cgNoiseTex);
-	cgGLSetTextureParameter(cgRndTex, mPriTexture4);
-	cgGLEnableTextureParameter(cgRndTex);
+//	cgGLSetTextureParameter(cgRndTex, mPriTexture4);
+//	cgGLEnableTextureParameter(cgRndTex);
 
 	lightTex = cgGetNamedParameter(fpLight, "tex1");
+	lightNoiseTex = cgGetNamedParameter(fpLight, "tex2");
+	lightLerp = cgGetNamedParameter(fpLight, "lerpVal");
 	cgGLSetTextureParameter(lightTex, mPriTexture2);
 	cgGLEnableTextureParameter(lightTex);
+	cgGLSetTextureParameter(lightNoiseTex, mPriTexture4);
+	cgGLEnableTextureParameter(lightNoiseTex);
 
 	cerr << "---- PROGRAM BEGIN ----" << endl << cgGetLastListing(context) << "---- PROGRAM END ----" << endl;
 

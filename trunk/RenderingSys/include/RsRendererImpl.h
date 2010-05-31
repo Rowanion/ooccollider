@@ -88,6 +88,8 @@ private:
 	CGprogram fpLight;
 	CGprogram vpLight;
 	CGparameter lightTex;
+	CGparameter lightNoiseTex;
+	CGparameter lightLerp;
 
 	float mPriLerp;
 	bool mPriUpDir;

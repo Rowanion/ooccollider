@@ -111,6 +111,14 @@ struct RsV3N4T2
 	Tuplef t;
 };
 
+struct RsV3N4T2T3
+{
+	Triplef v;
+	Quadruplec n;
+	Tuplef t;
+	Triplef t3D;
+};
+
 struct RsV4T2
 {
 	Quadruplef v;

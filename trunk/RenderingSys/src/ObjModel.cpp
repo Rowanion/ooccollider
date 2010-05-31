@@ -4,6 +4,7 @@
  * @version 1.0
  * @date	Created on: 20.05.2010
  * @brief 	ObjModel class declaration.
+ * @todo 	Need individualized shader for each VBO-Type
  */
 
 #include "ObjModel.h"
