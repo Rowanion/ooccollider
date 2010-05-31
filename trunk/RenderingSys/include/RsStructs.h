@@ -97,8 +97,18 @@ struct RsV4
 
 struct RsV3N4
 {
+	RsV3N4();
+	RsV3N4(const float* _v, const char* _n);
+	bool operator<(const RsV3N4& _rhs) const;
 	Triplef v;
 	Quadruplec n;
+};
+
+struct RsV3N4T3
+{
+	Triplef v;
+	Quadruplec n;
+	Triplef t3D;
 };
 
 struct RsV3N4T2

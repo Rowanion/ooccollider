@@ -180,3 +180,19 @@ bool RsV3N4T2::operator<(const RsV3N4T2& _rhs) const
 	return this->v < _rhs.v;
 }
 
+RsV3N4::RsV3N4(){};
+
+RsV3N4::RsV3N4(const float* _v, const char* _n)
+{
+	memcpy(&this->v, _v, sizeof(float)*3);
+	memcpy(&this->n, _n, sizeof(char)*3);
+	this->n.w = 1;
+}
+
+bool RsV3N4::operator<(const RsV3N4& _rhs) const
+{
+	if(this->v == _rhs.v){
+		return this->n < _rhs.n;
+	}
+	return this->v < _rhs.v;
+}

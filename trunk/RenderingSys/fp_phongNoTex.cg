@@ -1,0 +1,130 @@
+
+
+struct V2FI
+{
+  float2 texCoord	: TEXCOORD0;
+  float3 tex3DCoord	: TEXCOORD1;
+  float3 position 	: TEXCOORD2;
+  float3 normal   	: TEXCOORD3;
+  float3 color		: COLOR0;
+};
+
+struct Material{
+	float3 Ke;
+	float3 Ka;
+	float3 Kd;
+	float3 Ks;
+	float shininess;
+};
+
+struct Light{
+	float3 position;
+	float3 color;
+};
+
+float3 lighting(Material material,
+				Light light,
+				float3 globalAmbient,
+				float3 P,
+				float3 N,
+				float3 eyePosition)
+{
+	// Compute emissive term
+	float3 emissive = material.Ke;
+	
+	// Compute ambient term
+  	float3 ambient = material.Ka * globalAmbient;
+
+  	// Compute the diffuse term
+  	float3 L = normalize(light.position - P);
+  	float diffuseLight = max(dot(N, L), 0);
+  	float3 diffuse = material.Kd * light.color * diffuseLight;
+
+  	// Compute the specular term
+  	float3 V = normalize(eyePosition - P);
+  	float3 H = normalize(L + V);
+  	float specularLight = pow(max(dot(N, H), 0), material.shininess);
+  	if (diffuseLight <= 0) specularLight = 0;
+  	float3 specular = material.Ks * light.color * specularLight;
+
+  	return emissive + ambient + diffuse + specular;
+	
+}
+
+void main(V2FI IN,
+
+	  out float3 color     : COLOR0,
+              uniform float3 globalAmbient,
+              uniform float4 lightPosition,
+              uniform float4 eyePosition,
+        	  uniform float4x4 mvi,
+        	  uniform float4x4 mvpi,
+        	  uniform sampler3D tex2 :	TEXUNIT1,
+        	  uniform float lerpVal)
+{
+
+	float3 diffuseColor = float3(0.73725, 0.729411, 0.176470);
+	float dissolve = tex3D(tex2, IN.tex3DCoord).a;
+	float3 tempColor;
+
+	// -------------------------------------------
+	// Noise Params
+	// -------------------------------------------
+	float tolerance = 0.05;
+	float diff = abs(dissolve-lerpVal-tolerance);
+	if (lerpVal+tolerance > dissolve && lerpVal-tolerance < dissolve){
+		tempColor = float3(1.0f,0,0);
+	}
+	else if (lerpVal-tolerance > dissolve){
+		//discard;
+		//color = tex2D(tex2, texCoord.xy);
+		tempColor = diffuseColor*float3(1.0f,0,0);
+		float absDiff = diff*4.0;
+		if (absDiff>= 1.0f){
+			discard;
+			//color = tex2D(tex2, texCoord.xy);
+		}
+		else {
+			tempColor = lerp(float3(1.0f,0,0), float3(0.25f,0.0f,0.5f), absDiff);
+			//color = lerp(float4(1.0f,0,0,1), tex2D(tex2, texCoord.xy), diff*4.0);
+		}
+	}
+	else {
+	//color = tex2D(rndTex, texCoord).aaaa;
+	tempColor = diffuseColor;
+	}
+
+	// -------------------------------------------
+	// Light Params
+	// -------------------------------------------
+
+
+	Material shiny;
+	shiny.Ke = float3(0.0, 0.0, 0.0);
+	shiny.Ka = float3(0.1, 0.1, 0.1);
+	shiny.Kd = tempColor;
+		//float3(0.2, 0.4, 0.2);
+	shiny.Ks = float3(0.8, 0.8, 0.8);
+	shiny.shininess = 90.0;
+	float3 P = IN.position.xyz;
+	float3 N = normalize(IN.normal);
+
+	Light l;
+	l.color = float3(0.3,0.8,0.0);
+
+  // transforming eyePosition and LightPosition into object-space
+  mvi = glstate.matrix.inverse.modelview[0];
+  mvpi = glstate.matrix.inverse.mvp;
+  
+  float4 temp = mul(mvi, lightPosition);
+  l.position = float3(temp.x, temp.y, temp.z);
+  temp = mul(mvi, eyePosition);
+  float3 ePos = float3(temp.x, temp.y, temp.z);
+
+  color = lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, float3(mvpi[3].xyz));
+
+}
+
+
+
+

@@ -11,19 +11,30 @@
 
 #include "Vbo.h"
 #include "RsStructs.h"
+#include "RsMathTools.h"
+
+#include <map>
+#include <GL/glew.h>
 
 class VboV3N4 : public Vbo{
 public:
 	VboV3N4();
-	VboV3N4(unsigned _faceCount, unsigned _vertexCount);
+	VboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4, unsigned>* _data);
 	virtual ~VboV3N4();
 	virtual void draw();
 	virtual unsigned getIndexCount() const;
 	virtual unsigned getVertexCount() const;
 	virtual uint64_t getComponentBytes() const;
 protected:
-	RsV3N4* mProData;
-	unsigned* mProFaces;
+	RsV3N4T3* mProData;
+	unsigned mProDataCount;
+	unsigned* mProIndices;
+	unsigned mProIndexCount;
+private:
+	GLuint mPriDataId;
+	GLuint mPriIndexId;
+	RsMathTools mPriMath;
+
 };
 
 #endif /* VBOV3N4_H_ */
