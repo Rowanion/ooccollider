@@ -492,7 +492,7 @@ void RsRendererImpl::init()
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/mini_obj2.obj");
+	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/Dragon.obj");
 //	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
@@ -575,7 +575,7 @@ void RsRendererImpl::init()
 	// -------------------------------------------
 	vpLight = cgCreateProgramFromFile(context, CG_SOURCE, "vp_phong.cg", vprof, "main",0);
 	cgGLLoadProgram(vpLight);
-	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "fp_phong.cg", fprof, "main",0);
+	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "fp_phongNoTex.cg", fprof, "main",0);
 	cgGLLoadProgram(fpLight);
 	cerr << cgGetLastListing(context) << "----" << endl;
 

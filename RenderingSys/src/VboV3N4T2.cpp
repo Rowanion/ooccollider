@@ -13,7 +13,8 @@
 #include <cstdlib>
 #include <float.h>
 
-VboV3N4T2::VboV3N4T2(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4T2, unsigned>* _data) : mProDataCount(0), mProIndexCount(_indexCount), mPriMath(RsMathTools())
+VboV3N4T2::VboV3N4T2(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4T2, unsigned>* _data) :
+	mProDataCount(0), mProIndexCount(_indexCount), mPriMath(RsMathTools())
 {
 	std::map<RsV3N4T2, unsigned>::const_iterator it;
 	unsigned entryCount = _data->size();
