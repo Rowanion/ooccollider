@@ -185,7 +185,7 @@ float* RsMathTools::generatePerlinTexture(unsigned _x, unsigned _y, unsigned _z,
 		for (unsigned y=0; y<_y; y++){
 			for (unsigned z=0; z<_z; z++){
 				//			tmp[(i*_y)+k] = (float)pn.PerlinNoise2D((xDiv*i)-1.0, (yDiv*k)-1.0, 1.0, 2.0, 16);
-				tmp[(_x*_y*z)+(y*_y)+x] = 0.5f*(float)ipn.noiseV2((float)(xDiv*x), (float)(yDiv*y), (float)(zDiv*z))+0.5f ;
+				tmp[(_x*_y*z)+(y*_y)+x] = 0.5f*(float)ipn.noiseV3((float)(xDiv*x), (float)(yDiv*y), (float)(zDiv*z))+0.5f ;
 				//			tmp[(i*_y)+k] = perlinNoise2D((float)i, (float)k);
 				if (tmp[(_x*_y*z)+(y*_y)+x] < min){
 					min = tmp[(_x*_y*z)+(y*_y)+x];

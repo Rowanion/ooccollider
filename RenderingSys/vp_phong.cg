@@ -7,6 +7,7 @@ struct appin
   float3 normal       : NORMAL;
   float3 color         : COLOR0;
   float2 texCoord		: TEXCOORD0;
+  float3 tex3DCoord		: TEXCOORD1;
 };
 
 // vertex program output
@@ -15,8 +16,9 @@ struct V2FI
 {
   float4 oPosition 		: POSITION;
   float2 oTexCoord		: TEXCOORD0;
-  float3 objectPos 		: TEXCOORD1;
-  float3 oNormal   		: TEXCOORD2;
+  float3 oTex3DCoord	: TEXCOORD1;
+  float3 objectPos 		: TEXCOORD2;
+  float3 oNormal   		: TEXCOORD3;
   float3 oColor			: COLOR0;
 };
 
@@ -25,6 +27,7 @@ V2FI main(appin IN)
   V2FI OUT;
 
   OUT.oTexCoord = IN.texCoord;
+  OUT.oTex3DCoord = IN.tex3DCoord;
 
   // project point onto screen
   OUT.oPosition = mul(glstate.matrix.mvp, IN.position);
