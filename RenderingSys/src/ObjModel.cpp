@@ -68,12 +68,12 @@ void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _gro
 				// Warning: there is no 4th component for normals.
 				// at this stage the normals have only 3 (!!) components. The 4th (be with you) will be added in the vbo-constructor.
 
-				// A single index in _group[groupId] refers either to a vertex-triple, a normal-quadrupel or a tex-tupel.
+				// A single index in _group[groupId] refers either to a vertex-triple, a normal-quadruple or a tex-tuple.
 				// Because all indices are stored in a single block, ie.
 				//		vi_a1, ti_a1, ni_a1, vi_a2, t1_a2, ni_a2, vi_a3, ti_a3, ni_a3
 				// 		=> this represents all indices for one single triangle (a) in the index-array.
-				// the *9-multiplicant jumps to face i; the added naumber refers to a single component within the face, i.e. a v-index
-				// and the last multiplicant (3, 4 or 2) jumps to the first component for the particular element, i.e. *2 for a tupel a.k.a texCoords
+				// the *9-multiplicand jumps to face i; the added number refers to a single component within the face, i.e. a v-index
+				// and the last multiplicand (3, 4 or 2) jumps to the first component for the particular element, i.e. *2 for a tuple a.k.a texCoords
 				RsV3N4T2 entry1 = RsV3N4T2(_vertices+(_group[(i*9)+0])*3, _texCoords+(_group[(i*9)+1])*2, _normals+(_group[(i*9)+2])*3);
 				RsV3N4T2 entry2 = RsV3N4T2(_vertices+(_group[(i*9)+3])*3, _texCoords+(_group[(i*9)+4])*2, _normals+(_group[(i*9)+5])*3);
 				RsV3N4T2 entry3 = RsV3N4T2(_vertices+(_group[(i*9)+6])*3, _texCoords+(_group[(i*9)+7])*2, _normals+(_group[(i*9)+8])*3);
@@ -187,4 +187,9 @@ void ObjModel::drawDebug()
 	glVertexPointer(3, GL_FLOAT, 3*sizeof(float), vData);
 	glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, iData);
 	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void ObjModel::calcWrapingTexCoords(bool _calcIndividual)
+{
+	//TODO
 }
