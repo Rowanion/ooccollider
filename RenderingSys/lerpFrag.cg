@@ -64,6 +64,7 @@ float4 tmpColor;
 		//color = tmpColor;
 	//color = tex3D(rndTex, texCoord).aaaa;
 	
+	
 	float dissolve = tex3D(rndTex, texCoord).a; 
 	float diff = abs(dissolve-lerpVal-tolerance);
 	if (lerpVal+tolerance > dissolve && lerpVal-tolerance < dissolve){

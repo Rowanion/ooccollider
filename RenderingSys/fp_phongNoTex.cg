@@ -116,12 +116,15 @@ void main(V2FI IN,
   mvi = glstate.matrix.inverse.modelview[0];
   mvpi = glstate.matrix.inverse.mvp;
   
-  float4 temp = mul(mvi, lightPosition);
+  //lightPos
+  float4 temp = mul(mvi, float4(0.0,0.0,5.0,1.0));
   l.position = float3(temp.x, temp.y, temp.z);
-  temp = mul(mvi, eyePosition);
+  
+  //eyePos
+  temp = mul(mvi, float4(0.0,0.0,5.0,1.0));
   float3 ePos = float3(temp.x, temp.y, temp.z);
 
-  color = lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, float3(mvpi[3].xyz));
+  color = lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, ePos);
 
 }
 
