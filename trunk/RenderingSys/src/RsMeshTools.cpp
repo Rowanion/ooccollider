@@ -183,7 +183,7 @@ ObjModel* RsMeshTools::loadObj(fs::path* _file)
 
 	// second pass
 	std::string line;
-	boost::char_separator<char> blank_sep(" ");
+	boost::char_separator<char> blank_sep(" \t");
 	tokenizer tokens = tokenizer(line, blank_sep);
 	tokenizer face_tokens = tokenizer(line, blank_sep);
 	const boost::regex usemtl_expr("usemtl");
@@ -258,8 +258,8 @@ ObjModel* RsMeshTools::loadObj(fs::path* _file)
 					boost::smatch what;
 					if (boost::regex_match(*tok_iter, what, mComponents_expr, boost::match_extra)){
 						for(unsigned i = 1; i < what.size(); ++i){
-//							std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
 							if (what[i].str().size() != 0){
+//								std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
 //								cerr << "" << endl;
 								group[gCount][groupIndexComponentCount] = atoi(what[i].str().c_str())-1;
 								groupIndexComponentCount++;
@@ -277,6 +277,12 @@ ObjModel* RsMeshTools::loadObj(fs::path* _file)
 	}
 	inFile.close();
 
+	// -----------------------------------
+	std::cerr << "Addresses: ( in tools) " << std::endl;
+	std::cerr << "objinfo: " << (uint64_t)(&modelInfo)<< std::endl;
+	std::cerr << modelInfo.groupFaces[0]*3 << std::endl;
+	std::cerr << ((modelInfo.groupBits[0] & 1) && (modelInfo.groupBits[0] & 2)) << std::endl;
+	// -----------------------------------
 	for (unsigned i=0; i< modelInfo.groupCount; ++i){
 		model->addVbo(&modelInfo, i, group[i], vertices, normals, texCoords, colors);
 	}

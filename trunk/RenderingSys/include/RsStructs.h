@@ -109,6 +109,9 @@ struct RsV3N4T3
 	Triplef v;
 	Quadruplec n;
 	Triplef t3D;
+#ifdef __x86_64
+	unsigned dummy;
+#endif
 };
 
 struct RsV3N4T2
@@ -127,6 +130,9 @@ struct RsV3N4T2T3
 	Quadruplec n;
 	Tuplef t;
 	Triplef t3D;
+#ifdef __x86_64
+	unsigned dummy;
+#endif
 };
 
 struct RsV4T2

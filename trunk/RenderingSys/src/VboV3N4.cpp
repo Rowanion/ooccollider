@@ -12,6 +12,9 @@
 
 #include <cstring>
 #include <float.h>
+#include <iostream>
+#include <cstdlib>
+#include <map>
 
 VboV3N4::VboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4, unsigned>* _data) :
 	mProDataCount(0), mProIndexCount(_indexCount), mPriMath(RsMathTools())
@@ -21,11 +24,12 @@ VboV3N4::VboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<
 	mProData = new RsV3N4T3[entryCount];
 	mProIndices = new unsigned[_indexCount];
 	// ----------------------------------
-//	unsigned testarray[_indexCount];
+
+//	unsigned* testarray = new unsigned[_indexCount];
 //	for (unsigned i=0; i<_indexCount; i++){
 //		testarray[i]= 0;
 //	}
-//	for (std::map<RsV3N4T2, unsigned>::iterator iter = _data->begin(); iter != _data->end(); iter++){
+//	for (std::map<RsV3N4, unsigned>::const_iterator iter = _data->begin(); iter != _data->end(); iter++){
 //		testarray[iter->second] = 1;
 //	}
 //	for (unsigned i=0; i<_indexCount; i++){
@@ -33,6 +37,7 @@ VboV3N4::VboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<
 //			std::cerr << "entry " << i << " is missing!"<< std::endl;
 //		}
 //	}
+//	delete[] testarray;
 //	exit(0);
 
 	// ----------------------------------
@@ -74,7 +79,7 @@ VboV3N4::VboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<
 	glGenBuffers(1, &mPriDataId);
 	glBindBuffer(GL_ARRAY_BUFFER, mPriDataId);
 
-	glBufferData(GL_ARRAY_BUFFER, mProDataCount*sizeof(RsV3N4T2T3), mProData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, entryCount*sizeof(RsV3N4T3), mProData, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &mPriIndexId);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIndexId);
@@ -114,7 +119,7 @@ void VboV3N4::draw()
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	glClientActiveTexture(GL_TEXTURE1_ARB);
+	glClientActiveTexture(GL_TEXTURE1);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glBindBuffer(GL_ARRAY_BUFFER, mPriDataId);
@@ -125,7 +130,7 @@ void VboV3N4::draw()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mPriIndexId);
 	glDrawElements(GL_TRIANGLES, mProIndexCount, GL_UNSIGNED_INT, bufferOffset(0));
 
-	glClientActiveTexture(GL_TEXTURE1_ARB);
+	glClientActiveTexture(GL_TEXTURE1);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);

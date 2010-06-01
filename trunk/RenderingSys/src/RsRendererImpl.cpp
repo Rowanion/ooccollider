@@ -43,7 +43,7 @@ RsRendererImpl::RsRendererImpl()
 	mPriOldMousePosY = 0;
 
 	mPriCam.initMatrices();
-	mPriWalkingSpeed = 10.0f;
+	mPriWalkingSpeed = 1.0f;
 
 	c = 0.0;
 
@@ -61,7 +61,7 @@ RsRendererImpl::~RsRendererImpl()
 
 void RsRendererImpl::display()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	applyKeyEvents();
 	glLoadIdentity();									// Reset The Current Modelview Matrix
@@ -245,16 +245,16 @@ void RsRendererImpl::display()
 	cgGLEnableProfile(vprof);
 	cgGLBindProgram(vpLight);
 	cgGLBindProgram(fpLight);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-	glEnable(GL_TEXTURE_2D);
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+//	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
 	glEnable(GL_TEXTURE_3D);
 
 	model->draw();
 	glDisable(GL_TEXTURE_3D);
-	glDisable(GL_TEXTURE_2D);
+//	glDisable(GL_TEXTURE_2D);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	cgGLUnbindProgram(fprof);
 	cgGLUnbindProgram(vprof);
@@ -492,8 +492,8 @@ void RsRendererImpl::init()
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/Dragon.obj");
-//	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
+//	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/Dragon.obj");
+	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/happy_buddha.obj");
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
 

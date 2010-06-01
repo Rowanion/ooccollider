@@ -51,12 +51,29 @@ ObjModel::ObjModel(const ObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 
 void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
 {
-	std::map<RsV4T2, unsigned> V4T2Map = std::map<RsV4T2, unsigned>();
-	std::map<RsV4, unsigned> V4Map = std::map<RsV4, unsigned>();
-	unsigned indices[_info->groupFaces[_gIdx]*3];
+	// -----------------------------------------------------
+	std::cerr << "Addresses: (in ObjModel) " << std::endl;
+	std::cerr << "objinfo: " << (uint64_t)_info << std::endl;
+	std::cerr << _info->groupFaces[_gIdx]*3 << std::endl;
+	std::cerr << (_info->groupBits[_gIdx] & 1)<< std::endl;
+	std::cerr << (_info->groupBits[_gIdx] & 2) << std::endl;
+	std::cerr << ((_info->groupBits[_gIdx] & 1) && (_info->groupBits[_gIdx] & 2)) << std::endl;
+	if ((_info->groupBits[_gIdx] & 1) && (_info->groupBits[_gIdx] & 2)){
+		std::cerr << "jau" << std::endl;
+	}
+	else {
+		std::cerr << "nej" << std::endl;
+	}
+
+	// -----------------------------------------------------
+
+	unsigned* indices = new unsigned[_info->groupFaces[_gIdx]*3];
 	unsigned mapSize = 0;
 	if (_info != 0){
-		if ((_info->groupBits[_gIdx] & 1) && (_info->groupBits[_gIdx] & 2)){ // normals AND textures
+		unsigned x = (_info->groupBits[_gIdx])&1;
+		unsigned y = _info->groupBits[_gIdx]&2;
+		if (x && y){ // normals AND textures
+			std::cerr << "assuming textures and normals..." << std::endl;
 			std::map<RsV3N4T2, unsigned> V3N4T2Map = std::map<RsV3N4T2, unsigned>();
 			std::map<RsV3N4T2, unsigned>::iterator it;
 			for (unsigned i=0; i<_info->groupFaces[_gIdx]; i++){
@@ -111,16 +128,25 @@ void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _gro
 
 			mPriVbos[_gIdx] = new VboV3N4T2(_info->groupFaces[_gIdx]*3, indices, &V3N4T2Map);
 			mPriVbos[_gIdx]->debug();
+
 		}
 		else if (_info->groupBits[_gIdx] & 1){ // only textures
+			std::cerr << "assuming textures only..." << std::endl;
+			std::map<RsV4T2, unsigned> V4T2Map = std::map<RsV4T2, unsigned>();
 			mPriVbos[_gIdx] = new VboV4T2();
-			V4T2Map.clear();
 			for (unsigned j=0; j<_info->groupFaces[_gIdx]; j++){
 			}
 		}
 		else if (_info->groupBits[_gIdx] & 2){ // only normals
+			std::cerr << "assuming normals only..." << std::endl;
 			std::map<RsV3N4, unsigned> V3N4Map = std::map<RsV3N4, unsigned>();
 			std::map<RsV3N4, unsigned>::iterator it;
+			// ---------------------------
+			unsigned minVIdx = 10000000;
+			unsigned maxVIdx = 0;
+			unsigned minNIdx = 10000000;
+			unsigned maxNIdx = 0;
+			// ---------------------------
 			for (unsigned i=0; i<_info->groupFaces[_gIdx]; i++){
 				// re-compose the vertex- and index-data.
 				// vertices are stored as v_a1, v_a2, v_a3, v_b1, v_b2, v_b3, v_b1,...
@@ -138,6 +164,21 @@ void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _gro
 				RsV3N4 entry1 = RsV3N4(_vertices+(_group[(i*6)+0])*3, _normals+(_group[(i*6)+1])*3);
 				RsV3N4 entry2 = RsV3N4(_vertices+(_group[(i*6)+2])*3, _normals+(_group[(i*6)+3])*3);
 				RsV3N4 entry3 = RsV3N4(_vertices+(_group[(i*6)+4])*3, _normals+(_group[(i*6)+5])*3);
+				// ----------------------------------------
+				if ((_group[(i*6)+0]*3)>maxVIdx) maxVIdx = _group[(i*6)+0]*3;
+				if ((_group[(i*6)+2]*3)>maxVIdx) maxVIdx = _group[(i*6)+2]*3;
+				if ((_group[(i*6)+4]*3)>maxVIdx) maxVIdx = _group[(i*6)+4]*3;
+				if ((_group[(i*6)+0]*3)<minVIdx) minVIdx = _group[(i*6)+0]*3;
+				if ((_group[(i*6)+2]*3)<minVIdx) minVIdx = _group[(i*6)+2]*3;
+				if ((_group[(i*6)+4]*3)<minVIdx) minVIdx = _group[(i*6)+4]*3;
+
+				if ((_group[(i*6)+1]*3)>maxNIdx) maxNIdx = _group[(i*6)+1]*3;
+				if ((_group[(i*6)+3]*3)>maxNIdx) maxNIdx = _group[(i*6)+3]*3;
+				if ((_group[(i*6)+5]*3)>maxNIdx) maxNIdx = _group[(i*6)+5]*3;
+				if ((_group[(i*6)+1]*3)<minNIdx) minNIdx = _group[(i*6)+1]*3;
+				if ((_group[(i*6)+3]*3)<minNIdx) minNIdx = _group[(i*6)+3]*3;
+				if ((_group[(i*6)+5]*3)<minNIdx) minNIdx = _group[(i*6)+5]*3;
+				// ----------------------------------------
 
 				// searching for triangle vertex 1....
 				it = V3N4Map.find(entry1);
@@ -173,17 +214,26 @@ void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _gro
 				}
 			}
 
+			std::cerr << "v indices: " << minVIdx << ", " << maxVIdx << std::endl;
+			std::cerr << "n indices: " << minNIdx << ", " << maxNIdx << std::endl;
+			std::cerr << "mapsize: " << V3N4Map.size() << std::endl;
+//			exit(0);
+
 			mPriVbos[_gIdx] = new VboV3N4(_info->groupFaces[_gIdx]*3, indices, &V3N4Map);
 			mPriVbos[_gIdx]->debug();
 		}
 		else {
+			std::cerr << "assuming vertices only..." << std::endl;
+			std::map<RsV4, unsigned> V4Map = std::map<RsV4, unsigned>();
 			mPriVbos[_gIdx] = new VboV4(); // just vertices
-			V4Map.clear();
 			for (unsigned j=0; j<_info->groupFaces[_gIdx]; j++){
 
 			}
 		}
 	}
+	delete[] indices;
+	indices = 0;
+
 }
 
 void ObjModel::addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
@@ -196,9 +246,9 @@ void ObjModel::addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned*
 
 	memcpy(vData, _vertices, sizeof(float)*_info->vertexCount*3);
 	for (unsigned i=0; i< _info->groupFaces[_gIdx]; ++i){
-		iData[i*3] = _group[(i*9)];
-		iData[(i*3)+1] = _group[(i*9)+3];
-		iData[(i*3)+2] = _group[(i*9)+6];
+		iData[i*3] = _group[(i*6)];
+		iData[(i*3)+1] = _group[(i*6)+2];
+		iData[(i*3)+2] = _group[(i*6)+4];
 	}
 //	memcpy(iData, _group, sizeof(unsigned)*_info->groupFaces[_gIdx]*3);
 
