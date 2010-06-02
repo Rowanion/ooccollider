@@ -137,6 +137,9 @@ struct RsV3N4T2T3
 
 struct RsV4T2
 {
+	RsV4T2();
+	RsV4T2(const float* _v, const char* _t);
+	RsV4T2(float _vx, float _vy, float _vz, float _tx, float _ty);
 	Quadruplef v;
 	Tuplef t;
 };

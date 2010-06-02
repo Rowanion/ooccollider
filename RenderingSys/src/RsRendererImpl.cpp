@@ -57,6 +57,7 @@ RsRendererImpl::~RsRendererImpl()
 	// TODO Auto-generated destructor stub
 	FTGL::ftglDestroyFont((FTGL::FTGLfont*)font);
 	delete font;
+	delete mPriFsQuad;
 }
 
 void RsRendererImpl::display()
@@ -245,22 +246,31 @@ void RsRendererImpl::display()
 	cgGLEnableProfile(vprof);
 	cgGLBindProgram(vpLight);
 	cgGLBindProgram(fpLight);
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-//	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
 	glEnable(GL_TEXTURE_3D);
 
 	model->draw();
 	glDisable(GL_TEXTURE_3D);
-//	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	cgGLUnbindProgram(fprof);
 	cgGLUnbindProgram(vprof);
 	cgGLDisableProfile(fprof);
 	cgGLDisableProfile(vprof);
 
+	// ---------------------------
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	mPriFsQuad->draw();
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);
+
+
+	// ---------------------------
   glutSwapBuffers ( );
   // Swap The Buffers To Not Be Left With A Clear Screen
 
@@ -483,6 +493,10 @@ void RsRendererImpl::init()
 	glEnable ( GL_COLOR_MATERIAL );
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
+	unsigned indices[4] = {0,1,2,3};
+	RsV4T2 data[4] = {RsV4T2(-1.0f, -1.0f, 0.0f, 0.0f, 0.0f), RsV4T2(1.0f, -1.0f, 0.0f, 1.0f ,0.0f), RsV4T2(1.0f, 1.0f, 0.0f, 1.0f, 1.0f), RsV4T2(-1.0f, 1.0f, 0.0f, 0.0f, 1.0f)};
+	mPriFsQuad = new VboV4T2(4, indices, 4, data, GL_QUADS);
+
 	boost::filesystem::path texFile = boost::filesystem::path("plasma.tga");
 	boost::filesystem::path texFile2 = boost::filesystem::path("plasma2.tga");
 	boost::filesystem::path texFile3 = boost::filesystem::path("noise.tga");
@@ -493,7 +507,7 @@ void RsRendererImpl::init()
 
 //	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
 //	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/Dragon.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/happy_buddha.obj");
+	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
 
@@ -575,7 +589,7 @@ void RsRendererImpl::init()
 	// -------------------------------------------
 	vpLight = cgCreateProgramFromFile(context, CG_SOURCE, "vp_phong.cg", vprof, "main",0);
 	cgGLLoadProgram(vpLight);
-	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "fp_phongNoTex.cg", fprof, "main",0);
+	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "fp_phong.cg", fprof, "main",0);
 	cgGLLoadProgram(fpLight);
 	cerr << cgGetLastListing(context) << "----" << endl;
 

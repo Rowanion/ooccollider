@@ -117,8 +117,11 @@ void main(V2FI IN,
   mvi = glstate.matrix.inverse.modelview[0];
   mvpi = glstate.matrix.inverse.mvp;
   
+  // lightPos
   float4 temp = mul(mvi, lightPosition);
   l.position = float3(temp.x, temp.y, temp.z);
+  
+  // eyepos
   temp = mul(mvi, eyePosition);
   float3 ePos = float3(temp.x, temp.y, temp.z);
 

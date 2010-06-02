@@ -11,11 +11,14 @@
 
 #include "Vbo.h"
 #include "RsStructs.h"
+#include <map>
+
+#include <GL/glew.h>
 
 class VboV4T2 : public Vbo{
 public:
-	VboV4T2();
-	VboV4T2(unsigned _faceCount, unsigned _vertexCount);
+	VboV4T2(unsigned _indexCount, const unsigned* _indices, const std::map<RsV4T2, unsigned>* _data);
+	VboV4T2(unsigned _indexCount, const unsigned* _indices, unsigned _dataCount, const RsV4T2* _data, GLenum _type);
 	virtual ~VboV4T2();
 	virtual void draw();
 	virtual unsigned getIndexCount() const;
@@ -23,7 +26,9 @@ public:
 	virtual uint64_t getComponentBytes() const;
 protected:
 	RsV4T2* mProData;
-	unsigned* mProFaces;
+	unsigned mProDataCount;
+	unsigned* mProIndices;
+	unsigned mProIndexCount;
 };
 
 #endif /* VBOV4T2_H_ */

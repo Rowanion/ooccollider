@@ -196,3 +196,22 @@ bool RsV3N4::operator<(const RsV3N4& _rhs) const
 	}
 	return this->v < _rhs.v;
 }
+
+RsV4T2::RsV4T2(){}
+RsV4T2::RsV4T2(const float* _v, const char* _t)
+{
+	memcpy(&this->v, _v, sizeof(float)*3);
+	this->v.w = 1.0f;
+	memcpy(&this->t, _t, sizeof(float)*2);
+}
+
+RsV4T2::RsV4T2(float _vx, float _vy, float _vz, float _tx, float _ty)
+{
+	this->v.x = _vx;
+	this->v.y = _vy;
+	this->v.z = _vz;
+	this->v.w = 1.0f;
+
+	this->t.x = _tx;
+	this->t.y = _ty;
+}
