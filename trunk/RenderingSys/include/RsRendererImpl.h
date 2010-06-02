@@ -19,6 +19,7 @@
 
 #include "RsMathTools.h"
 #include "ObjModel.h"
+#include "VboV4T2.h"
 
 #define GET_GLERROR(ret) \
 { \
@@ -106,6 +107,8 @@ private:
 	RsMathTools mPriMath;
 
 	ObjModel* model;
+
+	VboV4T2* mPriFsQuad;
 };
 
 #endif /* RSRENDERERIMPL_H_ */

@@ -8,21 +8,22 @@
 
 #include "VboV4T2.h"
 
-VboV4T2::VboV4T2() : mProData(0), mProFaces(0){
-	// TODO Auto-generated constructor stub
-
+VboV4T2::VboV4T2(unsigned _indexCount, const unsigned* _indices, const std::map<RsV4T2, unsigned>* _data) : mProData(0), mProIndices(0){
+	mProDataCount = _data->size();
+	mProData = new RsV4T2[mProDataCount];
+	mProIndices = new unsigned[_indexCount];
 }
 
-VboV4T2::VboV4T2(unsigned _faceCount, unsigned _vertexCount) : mProData(0), mProFaces(0){
-	mProData = new RsV4T2[_vertexCount];
-	mProFaces = new unsigned[_faceCount];
+VboV4T2::VboV4T2(unsigned _indexCount, const unsigned* _indices, unsigned _dataCount, const RsV4T2* _data, GLenum _type)
+{
+
 }
 
 VboV4T2::~VboV4T2() {
 	delete[] mProData;
 	mProData = 0;
-	delete[] mProFaces;
-	mProFaces = 0;
+	delete[] mProIndices;
+	mProIndices = 0;
 }
 
 unsigned VboV4T2::getIndexCount() const
