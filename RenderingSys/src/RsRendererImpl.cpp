@@ -554,10 +554,12 @@ void RsRendererImpl::init()
 	RsTGAimage img;
 	iTools->loadTGA(&texFile, &img);
 //	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
-
-//	boost::filesystem::path meshFile = boost::filesystem::path("D:\\blender-2.49b-windows\\.blender\\box.obj");
+#ifdef _WIN32
+	boost::filesystem::path meshFile = boost::filesystem::path("D:\\meshes\\mini_obj2.obj");
+#else
 //	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/Dragon.obj");
-	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
+//	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
+#endif
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
 	std::cerr << "3" << std::endl;
@@ -713,7 +715,11 @@ void RsRendererImpl::init()
 
 	// -------------------------------------------
 	// Create a pixmap font from a TrueType file.
+#ifdef _WIN32
+	font = new FTBitmapFont("arial.ttf");
+#else
 	font = new FTBitmapFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf");
+#endif
 
 	// If something went wrong, bail out.
 	if(font->Error())
