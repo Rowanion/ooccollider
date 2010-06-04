@@ -133,9 +133,6 @@ void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _gro
 		else if (_info->groupBits[_gIdx] & 1){ // only textures
 			std::cerr << "assuming textures only..." << std::endl;
 			std::map<RsV4T2, unsigned> V4T2Map = std::map<RsV4T2, unsigned>();
-			mPriVbos[_gIdx] = new VboV4T2();
-			for (unsigned j=0; j<_info->groupFaces[_gIdx]; j++){
-			}
 		}
 		else if (_info->groupBits[_gIdx] & 2){ // only normals
 			std::cerr << "assuming normals only..." << std::endl;

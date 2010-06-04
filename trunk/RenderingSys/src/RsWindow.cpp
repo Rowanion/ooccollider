@@ -39,12 +39,26 @@ RsWindow::RsWindow() : mPriRenderer(0), mPriGlutInited(false){
 		mPriGlutInited = true;
 	}
 	mPriWindowClosing = false;
+	mPriWindowInited = false;
 	mPriWindowTitle = "RenderingSys";
 	mPriWindow = 0;
+	mPriWindowWidth = 500;
+	mPriWindowHeight = 500;
 }
 
 RsWindow::~RsWindow() {
 	// TODO Auto-generated destructor stub
+}
+
+void RsWindow::setWindowDimension(int _w, int _h)
+{
+	mPriWindowWidth = _w;
+	mPriWindowHeight = _h;
+
+	if (mPriWindowInited){
+		 glutReshapeWindow(mPriWindowWidth, mPriWindowHeight);
+			RsWindow::reshape(mPriWindowWidth, mPriWindowHeight);
+	}
 }
 
 void RsWindow::display()   // Create The Display Function
@@ -111,7 +125,7 @@ void RsWindow::init()     // Create Some Everyday Functions
 {
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 	glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE ); // Display Mode
-	glutInitWindowSize( 500, 500 ); // If glutFullScreen wasn't called this is the window size
+	glutInitWindowSize( mPriWindowWidth, mPriWindowHeight ); // If glutFullScreen wasn't called this is the window size
 	glutCreateWindow(mPriWindowTitle.c_str()); // Window Title (argv[0] for current directory as title)
 	glutDisplayFunc( display );  // Matching Earlier Functions To Their Counterparts
 	glutReshapeFunc( reshape );
@@ -157,6 +171,8 @@ void RsWindow::init()     // Create Some Everyday Functions
 		glutMouseWheelFunc(processMouseWheel);
 	}
 	check = 0;
+
+	mPriWindowInited = true;
 }
 
 void RsWindow::attachRenderer(RsAbstractRenderer* _renderer)
