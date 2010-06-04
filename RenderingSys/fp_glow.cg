@@ -1,0 +1,78 @@
+
+float blendFactor = 1.0f;
+float glowFactor = 4.5f;
+float2 horizontalDir = {1.0/200.0, 0};
+float2 verticalDir = {0, 1.0/200.0};
+
+#define NUMWT 9
+float Gauss[NUMWT] = {0.93, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1};
+#define WT_NORMALIZE (1.0/(1.0+2.0*(0.93 + 0.8 + 0.7 + 0.6 + 0.5 + 0.4 + 0.3 + 0.2 + 0.1)))
+
+
+void vpPassThrough(in float4 P : POSITION, 
+					in float4 tc : TEXCOORD0,
+					out float4 pos : POSITION, 
+					out float4 tcout : TEXCOORD0)
+{
+  tcout = tc;
+  pos = mul(glstate.matrix.mvp, P);
+}
+
+float4 fpGaussianPassH(in float4 tc : TEXCOORD0,
+						uniform sampler2D srcSampler) : COLOR
+{
+  float4 c2;
+  float4 texCol = tex2D(srcSampler, tc.xy);
+  float4 c = texCol * (WT_NORMALIZE);
+  float2 step = horizontalDir;
+  float2 dir = step;
+  for(int i=0; i<NUMWT; i++)
+  {
+	c2 = tex2D(srcSampler, tc.xy + dir);
+	c += c2 * (Gauss[i]*WT_NORMALIZE);
+	c2 = tex2D(srcSampler, tc.xy - dir);
+	c += c2 * (Gauss[i]*WT_NORMALIZE);
+	dir += step;
+  }
+  return c * glowFactor;
+}
+
+float4 fpGaussianPassV(in float2 tc : TEXCOORD0,
+						uniform sampler2D srcSampler : TEXUNIT0) : COLOR
+{
+	// -----
+  float4 c2;
+  float4 texCol = tex2D(srcSampler, tc.xy);
+  float4 c = texCol * (WT_NORMALIZE);
+//  if (texCol.a < 1.0){
+  	float2 step = verticalDir;
+  	float2 dir = step;
+  	for(int i=0; i<NUMWT; i++)
+  	{
+		c2 = tex2D(srcSampler, tc.xy + dir);
+		c += c2 * (Gauss[i]*WT_NORMALIZE);
+		c2 = tex2D(srcSampler, tc.xy - dir);
+		c += c2 * (Gauss[i]*WT_NORMALIZE);
+		dir += step;
+  	}
+  	return c;
+//  }
+//  else {
+//	return float4(0,1,0,0);//texCol;
+//  }
+  
+}
+
+float4 fpFinalCompositing(float2 tc : TEXCOORD0,
+							uniform sampler2D tempSampler) : COLOR
+{
+  float4 c = tex2D(tempSampler, tc.xy);
+  c *= blendFactor;
+  return c;
+}
+
+float4 fptest(  in float2 tc : TEXCOORD0,
+				uniform sampler2D srcSampler) : COLOR
+{
+  return tex2D(srcSampler, tc.xy);
+}

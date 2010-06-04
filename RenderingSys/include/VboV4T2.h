@@ -29,6 +29,10 @@ protected:
 	unsigned mProDataCount;
 	unsigned* mProIndices;
 	unsigned mProIndexCount;
+private:
+	GLenum mPriFaceType;
+	GLuint mPriDataId;
+	GLuint mPriIndexId;
 };
 
 #endif /* VBOV4T2_H_ */

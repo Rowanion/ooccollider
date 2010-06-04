@@ -20,6 +20,7 @@
 #include "RsMathTools.h"
 #include "ObjModel.h"
 #include "VboV4T2.h"
+#include "RsFBO.h"
 
 #define GET_GLERROR(ret) \
 { \
@@ -109,6 +110,20 @@ private:
 	ObjModel* model;
 
 	VboV4T2* mPriFsQuad;
+	RsFBO* mPriFBO1;
+	RsFBO* mPriFBO2;
+	int mPriWidth;
+	int mPriHeight;
+
+	void drawFSQuad();
+
+	CGprogram fpGlow1;
+	CGprogram fpGlow2;
+	CGprogram fpGlow3;
+	CGprogram vpGlow;
+	CGparameter glowTex1;
+	CGparameter glowTex2;
+	CGparameter glowTex3;
 };
 
 #endif /* RSRENDERERIMPL_H_ */

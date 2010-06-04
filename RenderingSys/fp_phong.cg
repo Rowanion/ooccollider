@@ -53,7 +53,7 @@ float3 lighting(Material material,
 
 void main(V2FI IN,
 
-	  out float3 color     : COLOR0,
+	  out float4 color     : COLOR0,
               uniform float3 globalAmbient,
               uniform float4 lightPosition,
               uniform float4 eyePosition,
@@ -66,7 +66,7 @@ void main(V2FI IN,
 
 	float3 texColor = tex2D(tex1, IN.texCoord).rgb;
 	float dissolve = tex3D(tex2, IN.tex3DCoord).a;
-	float3 tempColor;
+	float4 tempColor;
 
 	// -------------------------------------------
 	// Noise Params
@@ -74,25 +74,25 @@ void main(V2FI IN,
 	float tolerance = 0.05;
 	float diff = abs(dissolve-lerpVal-tolerance);
 	if (lerpVal+tolerance > dissolve && lerpVal-tolerance < dissolve){
-		tempColor = float3(1.0f,0,0);
+		tempColor = float4(1.0f,0,0,0);
 	}
 	else if (lerpVal-tolerance > dissolve){
 		//discard;
 		//color = tex2D(tex2, texCoord.xy);
-		tempColor = texColor*float3(1.0f,0,0);
+		tempColor = float4(texColor*float3(1.0f,0,0),0);
 		float absDiff = diff*4.0;
 		if (absDiff>= 1.0f){
 			discard;
 			//color = tex2D(tex2, texCoord.xy);
 		}
 		else {
-			tempColor = lerp(float3(1.0f,0,0), float3(0.25f,0.0f,0.5f), absDiff);
+			tempColor = lerp(float4(1.0f,0,0,1), float4(0.25f,0.0f,0.5f,1), absDiff);
 			//color = lerp(float4(1.0f,0,0,1), tex2D(tex2, texCoord.xy), diff*4.0);
 		}
 	}
 	else {
 	//color = tex2D(rndTex, texCoord).aaaa;
-	tempColor = texColor;
+	tempColor = float4(texColor,1);
 	}
 
 	// -------------------------------------------
@@ -103,7 +103,7 @@ void main(V2FI IN,
 	Material shiny;
 	shiny.Ke = float3(0.0, 0.0, 0.0);
 	shiny.Ka = float3(0.1, 0.1, 0.1);
-	shiny.Kd = tempColor;
+	shiny.Kd = tempColor.xyz;
 		//float3(0.2, 0.4, 0.2);
 	shiny.Ks = float3(0.8, 0.8, 0.8);
 	shiny.shininess = 90.0;
@@ -125,7 +125,7 @@ void main(V2FI IN,
   temp = mul(mvi, eyePosition);
   float3 ePos = float3(temp.x, temp.y, temp.z);
 
-  color = lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, float3(mvpi[3].xyz));
+  color = float4(lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, float3(mvpi[3].xyz)),tempColor.a);
 
 }
 

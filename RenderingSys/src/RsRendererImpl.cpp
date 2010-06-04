@@ -20,6 +20,7 @@
 #include "RsStructs.h"
 #include "RsImageTools.h"
 #include "RsMeshTools.h"
+#include "RsWindow.h"
 
 using namespace std;
 
@@ -62,6 +63,7 @@ RsRendererImpl::~RsRendererImpl()
 
 void RsRendererImpl::display()
 {
+
 	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	applyKeyEvents();
@@ -84,6 +86,10 @@ void RsRendererImpl::display()
 	cgGLUnbindProgram(vprof);
 	cgGLDisableProfile(fprof);
 	cgGLDisableProfile(vprof);
+
+	mPriFBO1->bind();
+	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //	printf("%s\n", cgGetErrorString(cgGetError()));
 
 	glTranslatef(3.0f,0.0f,0.0f);						// Move Right 3 Units
@@ -254,20 +260,58 @@ void RsRendererImpl::display()
 	glEnable(GL_TEXTURE_3D);
 
 	model->draw();
+	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_3D);
+	glActiveTexture(GL_TEXTURE0);
 	glDisable(GL_TEXTURE_2D);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	cgGLUnbindProgram(fprof);
 	cgGLUnbindProgram(vprof);
 	cgGLDisableProfile(fprof);
 	cgGLDisableProfile(vprof);
+	mPriFBO1->unbind();
 
-	// ---------------------------
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	mPriFsQuad->draw();
+	mPriFBO2->bind();
+	cgGLSetTextureParameter(glowTex1, mPriFBO1->getColorTexId());
+//	cgGLEnableProfile(vprof);
+	cgGLEnableProfile(fprof);
+	cgGLBindProgram(fpGlow1);
+//	cgGLBindProgram(vpGlow);
 	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriFBO1->getColorTexId());
 	glEnable(GL_TEXTURE_2D);
+	this->drawFSQuad();
 	glDisable(GL_TEXTURE_2D);
+	cgGLUnbindProgram(fprof);
+	cgGLDisableProfile(fprof);
+//	cgGLUnbindProgram(vprof);
+//	cgGLDisableProfile(vprof);
+	mPriFBO2->unbind();
+
+//	mPriFBO1->bind();
+//	mPriFBO1->clear();
+	cgGLSetTextureParameter(glowTex2, mPriFBO2->getColorTexId());
+	cgGLEnableProfile(fprof);
+	cgGLBindProgram(fpGlow2);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriFBO2->getColorTexId());
+	glEnable(GL_TEXTURE_2D);
+	this->drawFSQuad();
+	glDisable(GL_TEXTURE_2D);
+	cgGLUnbindProgram(fprof);
+	cgGLDisableProfile(fprof);
+//	mPriFBO1->unbind();
+
+//	cgGLSetTextureParameter(glowTex3, mPriFBO1->getColorTexId());
+//	cgGLEnableProfile(fprof);
+//	cgGLBindProgram(fpGlow3);
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindTexture(GL_TEXTURE_2D, mPriFBO2->getColorTexId());
+//	glEnable(GL_TEXTURE_2D);
+//	this->drawFSQuad();
+//	glDisable(GL_TEXTURE_2D);
+//	cgGLUnbindProgram(fprof);
+//	cgGLDisableProfile(fprof);
 
 
 	// ---------------------------
@@ -292,6 +336,8 @@ void RsRendererImpl::display()
 
 void RsRendererImpl::reshape(int _w, int _h)
 {
+	this->mPriWidth = _w;
+	this->mPriHeight = _h;
 	glViewport( 0, 0, _w, _h );
 	glMatrixMode( GL_PROJECTION );  // Select The Projection Matrix
 	glLoadIdentity( );                // Reset The Projection Matrix
@@ -483,6 +529,7 @@ void RsRendererImpl::applyKeyEvents()
 
 void RsRendererImpl::init()
 {
+	std::cerr << "1" << std::endl;
 
 	glewInit();
 	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
@@ -492,9 +539,12 @@ void RsRendererImpl::init()
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glEnable ( GL_COLOR_MATERIAL );
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	std::cerr << "2" << std::endl;
 
 	unsigned indices[4] = {0,1,2,3};
 	RsV4T2 data[4] = {RsV4T2(-1.0f, -1.0f, 0.0f, 0.0f, 0.0f), RsV4T2(1.0f, -1.0f, 0.0f, 1.0f ,0.0f), RsV4T2(1.0f, 1.0f, 0.0f, 1.0f, 1.0f), RsV4T2(-1.0f, 1.0f, 0.0f, 0.0f, 1.0f)};
+//	RsV4T2 data[4] = {RsV4T2(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f), RsV4T2(1.0f, -1.0f, -1.0f, 1.0f, 0.0f), RsV4T2(1.0f, 1.0f, -1.0f, 1.0f, 1.0f), RsV4T2(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f)};
+
 	mPriFsQuad = new VboV4T2(4, indices, 4, data, GL_QUADS);
 
 	boost::filesystem::path texFile = boost::filesystem::path("plasma.tga");
@@ -510,6 +560,7 @@ void RsRendererImpl::init()
 	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
+	std::cerr << "3" << std::endl;
 
 	glGenTextures(1, &mPriTexture);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture);
@@ -518,6 +569,7 @@ void RsRendererImpl::init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	std::cerr << "4" << std::endl;
 
 	iTools->loadTGA(&texFile2, &img);
 	glGenTextures(1, &mPriTexture2);
@@ -536,6 +588,7 @@ void RsRendererImpl::init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	std::cerr << "5" << std::endl;
 
 	mPriMath = RsMathTools();
 	unsigned char* rTex = mPriMath.generateRandomTexture(128*128,1,false);
@@ -562,6 +615,7 @@ void RsRendererImpl::init()
 	fprof = cgGLGetLatestProfile(CG_GL_FRAGMENT);
 	vprof = cgGLGetLatestProfile(CG_GL_VERTEX);
 	CGerror cgError;
+	std::cerr << "6" << std::endl;
 
 	fshader = cgCreateProgram(context, CG_SOURCE, code.c_str(), fprof, "main", 0);
 	cgError = cgGetError();
@@ -584,14 +638,20 @@ void RsRendererImpl::init()
 	cgDestroyProgram(vshader);
 	cgGLLoadProgram(shader);
 //	printf("%s\n", cgGetErrorString(cgGetError()));
-	cgSetErrorHandler(cgErrorHandler, 0);
+//	cgSetErrorHandler(cgErrorHandler, 0);
+	std::cerr << "7" << std::endl;
 
 	// -------------------------------------------
 	vpLight = cgCreateProgramFromFile(context, CG_SOURCE, "vp_phong.cg", vprof, "main",0);
 	cgGLLoadProgram(vpLight);
 	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "fp_phong.cg", fprof, "main",0);
 	cgGLLoadProgram(fpLight);
-	cerr << cgGetLastListing(context) << "----" << endl;
+	cgError = cgGetError();
+	if (cgError == CG_COMPILER_ERROR){
+		cerr << "---- PROGRAM BEGIN ----" << endl << cgGetProgramString(vshader, CG_PROGRAM_SOURCE) << "---- PROGRAM END ----" << endl;
+		exit(0);
+	}
+	std::cerr << "8" << std::endl;
 
 	lerpFrag = cgCreateProgramFromFile(context, CG_SOURCE, "lerpFrag.cg", fprof, "main",0);
 	cgGLLoadProgram(lerpFrag);
@@ -600,6 +660,7 @@ void RsRendererImpl::init()
 	cgNoiseTex = cgGetNamedParameter(lerpFrag, "noiseTex");
 	cgRndTex = cgGetNamedParameter(lerpFrag, "rndTex");
 	lerpVal = cgGetNamedParameter(lerpFrag, "lerpVal");
+	std::cerr << "9" << std::endl;
 
 	cgGLSetTextureParameter(cgTex1, mPriTexture);
 	cgGLEnableTextureParameter(cgTex1);
@@ -609,6 +670,7 @@ void RsRendererImpl::init()
 	cgGLEnableTextureParameter(cgNoiseTex);
 //	cgGLSetTextureParameter(cgRndTex, mPriTexture4);
 //	cgGLEnableTextureParameter(cgRndTex);
+	std::cerr << "10" << std::endl;
 
 	lightTex = cgGetNamedParameter(fpLight, "tex1");
 	lightNoiseTex = cgGetNamedParameter(fpLight, "tex2");
@@ -617,8 +679,37 @@ void RsRendererImpl::init()
 	cgGLEnableTextureParameter(lightTex);
 	cgGLSetTextureParameter(lightNoiseTex, mPriTexture4);
 	cgGLEnableTextureParameter(lightNoiseTex);
+	std::cerr << "11" << std::endl;
 
-	cerr << "---- PROGRAM BEGIN ----" << endl << cgGetLastListing(context) << "---- PROGRAM END ----" << endl;
+	vpGlow = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", vprof, "vpPassThrough",0);
+	cgGLLoadProgram(vpGlow);
+	std::cerr << "12" << std::endl;
+
+	fpGlow1 = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", fprof, "fpGaussianPassH",0);
+	cgGLLoadProgram(fpGlow1);
+	glowTex1 = cgGetNamedParameter(fpGlow1, "srcSampler");
+	cgGLEnableTextureParameter(glowTex1);
+	std::cerr << "13" << std::endl;
+
+	fpGlow2 = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", fprof, "fpGaussianPassV",0);
+	cgGLLoadProgram(fpGlow2);
+	glowTex2 = cgGetNamedParameter(fpGlow2, "srcSampler");
+	cgGLEnableTextureParameter(glowTex2);
+	std::cerr << "14" << std::endl;
+
+	fpGlow3 = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", fprof, "fpFinalCompositing",0);
+	cgGLLoadProgram(fpGlow3);
+	glowTex3 = cgGetNamedParameter(fpGlow3, "tempSampler");
+	cgGLEnableTextureParameter(glowTex3);
+	std::cerr << "15" << std::endl;
+
+	cgError = cgGetError();
+	if (cgError == CG_COMPILER_ERROR){
+		cerr << "---- PROGRAM BEGIN ----" << endl << cgGetProgramString(fpGlow3, CG_PROGRAM_SOURCE) << "---- PROGRAM END ----" << endl;
+		cgGetLastListing(context);
+		exit(0);
+	}
+	std::cerr << "16" << std::endl;
 
 	// -------------------------------------------
 	// Create a pixmap font from a TrueType file.
@@ -633,6 +724,14 @@ void RsRendererImpl::init()
 //	font.Depth(10.0);
 //	font->UseDisplayList(true);
 
+	mPriFBO1 = new RsFBO(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
+	mPriFBO1->createAndAddDepthBuf();
+	mPriFBO1->createAndAddColorTex();
+
+	mPriFBO2 = new RsFBO(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
+	mPriFBO2->createAndAddDepthBuf();
+	mPriFBO2->createAndAddColorTex();
+
 }
 
 void RsRendererImpl::debug()
@@ -640,3 +739,16 @@ void RsRendererImpl::debug()
 	std::cerr << "in ImplClass" << std::endl;
 }
 
+void RsRendererImpl::drawFSQuad()
+{
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+		glLoadIdentity ();
+		glMatrixMode (GL_PROJECTION);
+			glPushMatrix ();
+				glLoadIdentity ();
+				mPriFsQuad->draw();
+			glPopMatrix ();
+			glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
+}

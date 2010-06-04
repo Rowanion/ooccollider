@@ -19,6 +19,9 @@ public:
 	void detachRenderer();
 	void start();
 	void setWindowTitle(const char* _title);
+	void setWindowDimension(int _w, int _h);
+	int getWindowHeight() const {return mPriWindowHeight;};
+	int getWindowWidth() const {return mPriWindowWidth;};
 	// static wrapper functions for glut
 	static void reshape ( int _w, int _h );
 	static void display();
@@ -50,8 +53,15 @@ private:
 	RsAbstractRenderer* mPriRenderer;
     int mPriWindowWidth;
     int mPriWindowHeight;
+
+    // true, if glutInit() was called - this does not mean that the window is already open
     bool mPriGlutInited;
+
+    // true, if the closing of this window was ordered
     bool mPriWindowClosing;
+
+    //true if this windp's init-method was called; a.k.a. a window is open
+    bool mPriWindowInited;
     int mPriWindow;
     std::string mPriWindowTitle;
 };
