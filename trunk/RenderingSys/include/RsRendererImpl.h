@@ -93,6 +93,11 @@ private:
 	CGparameter lightNoiseTex;
 	CGparameter lightLerp;
 
+	CGprogram fpLight2;
+	CGparameter lightTex2;
+	CGparameter lightNoiseTex2;
+	CGparameter lightLerp2;
+
 	float mPriLerp;
 	bool mPriUpDir;
 
@@ -124,6 +129,8 @@ private:
 	CGparameter glowTex1;
 	CGparameter glowTex2;
 	CGparameter glowTex3;
+
+
 };
 
 #endif /* RSRENDERERIMPL_H_ */
