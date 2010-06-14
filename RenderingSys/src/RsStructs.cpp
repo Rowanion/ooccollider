@@ -53,6 +53,13 @@ Triplef::Triplef()
 	z = 0.0f;
 }
 
+Triplef::Triplef(float _x, float _y, float _z)
+{
+	x = _x;
+	y = _y;
+	z = _z;
+}
+
 bool Triplef::operator<(const Triplef& _rhs) const
 {
 	if (this->x == _rhs.x){
@@ -214,4 +221,15 @@ RsV4T2::RsV4T2(float _vx, float _vy, float _vz, float _tx, float _ty)
 
 	this->t.x = _tx;
 	this->t.y = _ty;
+}
+
+Material::Material()
+{
+	this->shininess = 0.0f;
+	this->ambient = Triplef(0.2f, 0.2f, 0.2f);
+	this->diffuse = Triplef(0.8f, 0.8f, 0.8f);
+	this->specular = Triplef(1.0f, 1.0f, 1.0f);
+	this->texture = 0;
+
+
 }

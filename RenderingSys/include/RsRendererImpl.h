@@ -18,7 +18,7 @@
 #include <FTGL/ftgl.h>
 
 #include "RsMathTools.h"
-#include "ObjModel.h"
+#include "RsObjModel.h"
 #include "VboV4T2.h"
 #include "RsFBO.h"
 
@@ -112,7 +112,7 @@ private:
 
 	RsMathTools mPriMath;
 
-	ObjModel* model;
+	RsObjModel* model;
 
 	VboV4T2* mPriFsQuad;
 	RsFBO* mPriFBO1;

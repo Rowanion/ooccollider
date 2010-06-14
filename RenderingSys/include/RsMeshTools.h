@@ -14,19 +14,22 @@
 #include <boost/regex.hpp>
 
 #include "RsStructs.h"
-#include "ObjModel.h"
+#include "RsObjModel.h"
+
+#include <map>
+#include <string>
 
 class RsMeshTools
 {
 public:
 	static RsMeshTools* getSingleton();
-	ObjModel* loadObj(boost::filesystem::path* _file);
+	RsObjModel* loadObj(boost::filesystem::path* _file);
 	void parseObj(boost::filesystem::path* _file, ObjInfo* _info);
 private:
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
     unsigned analyzeFaceLine(tokenizer* _tokens);
-
+    void loadMtlLib(boost::filesystem::path* _file, std::map<std::string, Material>* _mtlMap);
     static RsMeshTools* instance;
 	RsMeshTools();
 	virtual ~RsMeshTools();

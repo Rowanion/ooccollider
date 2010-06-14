@@ -7,13 +7,14 @@
  * @todo 	Need individualized shader for each VBO-Type
  */
 
-#include "ObjModel.h"
+#include "RsObjModel.h"
 
 #include <cmath>
 #include <map>
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <limits>
 
 #include "VboV4.h"
 #include "VboV3N4.h"
@@ -21,12 +22,12 @@
 #include "VboV3N4T2.h"
 #include "RsStructs.h"
 
-ObjModel::ObjModel() : mPriVboCount(0), mPriVbos(0)
+RsObjModel::RsObjModel() : mPriVboCount(0), mPriVbos(0)
 {
 
 }
 
-ObjModel::ObjModel(const ObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
+RsObjModel::RsObjModel(const ObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 {
 	if (_info != 0){
 		mPriVboCount = _info->groupCount;
@@ -49,7 +50,7 @@ ObjModel::ObjModel(const ObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 	}
 }
 
-void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
+void RsObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
 {
 	// -----------------------------------------------------
 	std::cerr << "Addresses: (in ObjModel) " << std::endl;
@@ -139,9 +140,9 @@ void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _gro
 			std::map<RsV3N4, unsigned> V3N4Map = std::map<RsV3N4, unsigned>();
 			std::map<RsV3N4, unsigned>::iterator it;
 			// ---------------------------
-			unsigned minVIdx = 10000000;
+			unsigned minVIdx = std::numeric_limits<unsigned>::max();
 			unsigned maxVIdx = 0;
-			unsigned minNIdx = 10000000;
+			unsigned minNIdx = std::numeric_limits<unsigned>::max();
 			unsigned maxNIdx = 0;
 			// ---------------------------
 			for (unsigned i=0; i<_info->groupFaces[_gIdx]; i++){
@@ -233,7 +234,7 @@ void ObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _gro
 
 }
 
-void ObjModel::addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
+void RsObjModel::addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
 {
 	idxCount = _info->groupFaces[_gIdx]*3;
 	vCount = _info->vertexCount;
@@ -261,34 +262,29 @@ void ObjModel::addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned*
 //	exit(0);
 }
 
-ObjModel::~ObjModel() {
+RsObjModel::~RsObjModel() {
 	for (unsigned i=0; i< mPriVboCount; ++i){
 		delete mPriVbos[i];
 		delete[] mPriVbos;
 	}
 }
 
-void ObjModel::addVbo(const Vbo* _vbo)
+void RsObjModel::addVbo(const Vbo* _vbo)
 {
 	//TODO
 }
 
-void ObjModel::draw()
+void RsObjModel::draw()
 {
 	for (unsigned i=0; i<mPriVboCount; ++i){
 		mPriVbos[i]->draw();
 	}
 }
 
-void ObjModel::drawDebug()
+void RsObjModel::drawDebug()
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 3*sizeof(float), vData);
 	glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, iData);
 	glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-void ObjModel::calcWrapingTexCoords(bool _calcIndividual)
-{
-	//TODO
 }

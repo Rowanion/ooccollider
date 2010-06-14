@@ -9,6 +9,10 @@
 #define RSSTRUCTS_H_
 
 #include <vector>
+#include <map>
+#include <string>
+
+#include <GL/glew.h>
 
 #define TGA_ALPHA 0x1906
 #define TGA_RGB 0x1907
@@ -38,6 +42,7 @@ struct Tuplef
 struct Triplef
 {
 	Triplef();
+	Triplef(float _x, float _y, float _z);
 	bool operator<(const Triplef& _rhs) const;
 	bool operator==(const Triplef& _rhs) const;
 	float x;
@@ -144,6 +149,15 @@ struct RsV4T2
 	Tuplef t;
 };
 
+struct Material{
+	Material();
+	float shininess;
+	Triplef ambient;
+	Triplef diffuse;
+	Triplef specular;
+	GLuint texture;
+};
+
 struct ObjInfo
 {
 	ObjInfo();
@@ -155,6 +169,7 @@ struct ObjInfo
 	unsigned materialCount;
 	std::vector<unsigned> groupBits;
 	std::vector<unsigned> groupFaces;
+	std::map<std::string, Material> materials;
 };
 
 inline char* bufferOffset(int i){return (char *)0 + (i);}
