@@ -11,7 +11,6 @@
 
 
 #include "RsStructs.h"
-#include "ObjModel.h"
 #include "RsVectorMath.h"
 
 using namespace std;
@@ -100,8 +99,37 @@ void RsMeshTools::parseObj(fs::path* _file, ObjInfo* _info)
 	}
 	inFile.close();
 }
+void RsMeshTools::loadMtlLib(fs::path* _file, std::map<std::string, Material>* _mtlMap)
+{
+	//TODO
+	std::string line;
+	boost::char_separator<char> blank_sep(" \t");
+	tokenizer tokens = tokenizer(line, blank_sep);
+	tokenizer face_tokens = tokenizer(line, blank_sep);
+	const boost::regex usemtl_expr("usemtl");
+	const boost::regex mtlka_expr("Ka");
+	const boost::regex mtlkd_expr("Kd");
+	const boost::regex mtlks_expr("Ks");
+	const boost::regex mtlns_expr("Ns");
+	const boost::regex mtlmap_expr("map_");
+	const boost::regex mComponents_expr("(\\d+)/?(\\d*)/?(\\d*)");
 
-ObjModel* RsMeshTools::loadObj(fs::path* _file)
+	fs::ifstream inFile;
+	inFile.open(*_file);
+	while (std::getline(inFile, line)) {
+		tokens.assign(line, blank_sep);
+		if (tokens.begin()!= tokens.end()){
+			string type = (*tokens.begin());
+			switch (type[0]){
+			case 'm':	// Probable point of mtllib
+				break;
+			}
+		}
+	}
+
+}
+
+RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 {
 	/**
 	 * Idea: make multiple expressions for each case of the face-formats
@@ -144,7 +172,7 @@ ObjModel* RsMeshTools::loadObj(fs::path* _file)
 		std::cerr << "." << std::endl;
 	}
 	std::cerr << "Materials :" << modelInfo.materialCount << std::endl;
-	ObjModel* model = new ObjModel(&modelInfo);
+	RsObjModel* model = new RsObjModel(&modelInfo);
 //	exit(0);
 
 	// generate temporary space for model

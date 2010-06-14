@@ -8,6 +8,8 @@
 
 #include "RsFBO.h"
 
+#include <iostream>
+
 RsFBO::RsFBO(int _w, int _h) {
 	mPriWidth = _w;
 	mPriHeight = _h;
@@ -21,11 +23,9 @@ RsFBO::~RsFBO() {
 
 
 	glDeleteRenderbuffersEXT(1, &mPriDepthBuffer);
-	glDeleteRenderbuffersEXT(1, &mPriColorBuffer);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDeleteTextures(1, &mPriColorTexture);
-	glDeleteTextures(1, &mPriDepthTexture);
 
 	glDeleteFramebuffersEXT(1, &mPriFBO);
 }
@@ -53,8 +53,6 @@ void RsFBO::createAndAddColorTex()
 	glBindTexture(GL_TEXTURE_2D, this->mPriColorTexture);
 	// neccessary - default will modulate with current set glColor
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -104,4 +102,21 @@ void RsFBO::clearColor()
 
 }
 
+void RsFBO::setSize(int _w, int _h)
+{
+	mPriWidth = _w;
+	mPriHeight = _h;
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
+	if (mPriDepthBuffer != 0){	// "resizing" the depth attachment
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
+		this->createAndAddDepthBuf();
+	}
+	if (mPriColorTexture != 0){	// "resizing" the color-attachment
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 0, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(1, &mPriColorTexture);
+		this->createAndAddColorTex();
+	}
+	//TODO
+}

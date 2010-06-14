@@ -12,10 +12,10 @@
 #include "Vbo.h"
 #include "RsStructs.h"
 
-class ObjModel {
+class RsObjModel {
 public:
-	ObjModel();
-	ObjModel(const ObjInfo* _info);
+	RsObjModel();
+	RsObjModel(const ObjInfo* _info);
 
 	/**
 	 * @brief This methods constructs a VBO for the model by the given data.
@@ -32,7 +32,7 @@ public:
 	 */
 	void addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0);
 	void addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0);
-	virtual ~ObjModel();
+	virtual ~RsObjModel();
 	void addVbo(const Vbo* _vbo);
 
 	/**
@@ -41,17 +41,10 @@ public:
 	void draw();
 	void drawDebug();
 
-	/**
-	 * @brief This method computes the 3D-Texture-Corrdinates of the model-enclosing boundingbox.
-	 * It adds the arrays of calculated texture-coordinates directly to the model's VBOs.
-	 * @param _calcIndividual Should the boundingbox assumed around the complete model, i.e. a box
-	 * enclosing all groups/VBOs or should a box calculated around each individual VBO?
-	 */
-	void calcWrapingTexCoords(bool _calcIndividual);
-
 private:
 	unsigned mPriVboCount;
 	Vbo** mPriVbos;
+
 
 	unsigned idxCount;
 	unsigned vCount;

@@ -24,15 +24,13 @@ public:
 	void clearDepth();
 	void clearColor();
 	GLuint getColorTexId(){return mPriColorTexture;};
-	GLuint getDepthTexId(){return mPriDepthTexture;};
+	void setSize(int _w, int _h);
 private:
 	int mPriWidth;
 	int mPriHeight;
 	GLuint mPriFBO;
 	GLuint mPriDepthBuffer;
 	GLuint mPriColorTexture;
-	GLuint mPriDepthTexture;
-	GLuint mPriColorBuffer;
 	bool fboIsBound;
 
 };

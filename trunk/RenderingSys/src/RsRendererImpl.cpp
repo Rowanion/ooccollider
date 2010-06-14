@@ -69,164 +69,15 @@ void RsRendererImpl::display()
 	applyKeyEvents();
 	glLoadIdentity();									// Reset The Current Modelview Matrix
 	mPriCam.calcMatrix();
-	cgGLEnableProfile(fprof);
-	cgGLEnableProfile(vprof);
-	cgGLBindProgram(shader);
-	glTranslatef(-1.5f,0.0f,-6.0f);						// Move Left 1.5 Units And Into The Screen 6.0
-	glBegin(GL_TRIANGLES);								// Drawing Using Triangles
-//		glColor3f(1.0f,0.0f,0.0f);						// Set The Color To Red
-		glVertex3f( 0.0f, 1.0f, 0.0f);					// Top
-//		glColor3f(0.0f,1.0f,0.0f);						// Set The Color To Green
-		glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
-//		glColor3f(0.0f,0.0f,1.0f);						// Set The Color To Blue
-		glVertex3f( 1.0f,-1.0f, 0.0f);					// Bottom Right
-	glEnd();											// Finished Drawing The Triangle
-
-	cgGLUnbindProgram(fprof);
-	cgGLUnbindProgram(vprof);
-	cgGLDisableProfile(fprof);
-	cgGLDisableProfile(vprof);
 
 	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //	printf("%s\n", cgGetErrorString(cgGetError()));
 
-	glTranslatef(3.0f,0.0f,0.0f);						// Move Right 3 Units
-//	glColor3f(0.5f,0.5f,1.0f);							// Set The Color To Blue One Time Only
-//	cgGLSetParameter1f(lerpVal, mPriLerp);
-//	cgGLEnableProfile(fprof);
-//	cgGLBindProgram(lerpFrag);
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriTexture);
-//	glActiveTexture(GL_TEXTURE1);
-//	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-//	glActiveTexture(GL_TEXTURE2);
-//	glBindTexture(GL_TEXTURE_2D, mPriTexture3);
-//	glActiveTexture(GL_TEXTURE3);
-//	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
-//	GET_GLERROR(0);
-//	glEnable(GL_TEXTURE_2D);
-//	glEnable(GL_TEXTURE_3D);
-//	glBegin(GL_QUADS);									// Draw A Quad
-//		glTexCoord3f(0.0f,0.0f, 0.5f);
-//		glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
-//		glTexCoord3f(1.0f,0.0f, 0.5f);
-//		glVertex3f( 1.0f,-1.0f, 0.0f);					// Bottom Right
-//		glTexCoord3f(1.0f,1.0f, 0.5f);
-//		glVertex3f( 1.0f, 1.0f, 0.0f);					// Top Right
-//		glTexCoord3f(0.0f,1.0f, 0.5f);
-//		glVertex3f(-1.0f, 1.0f, 0.0f);					// Top Left
-//	glEnd();											// Done Drawing The Quad
+	glTranslatef(0.0f, 0.0f, -10.0f);						// Move Right 3 Units
+	glRotatef(10.0f, 1.0f, 0.0f, 0.0f);
+	glRotatef(315.0f, 0.0f, 1.0f, 0.0f);
 
-
-	float rangeX = 1.0f/mPriMath.abs(-1.0 - 1.0);
-	float modX = 0.0f + (-1.0);
-	float rangeY = 1.0f/mPriMath.abs(-1.0 - 1.0);
-	float modY = 0.0f + (-1.0);
-	float rangeZ = 1.0f/mPriMath.abs(-10.0 - -13.0);
-	float modZ = 0.0f + (-13.0);
-
-//	glEnable(GL_CULL_FACE);
-	// right
-//		glBegin(GL_QUADS);									// Draw A Quad
-//			glColor3f(0.0, 1.0, 1.0);
-//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//			glVertex3f(1.0f,1.0f, -10.0f);					// Bottom Left
-//			glColor3f(0.0, 1.0, 1.0);
-//			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//			glVertex3f(1.0f,-1.0f, -10.0f);					// Bottom Right
-//			glColor3f(0.0, 1.0, 1.0);
-//			glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//			glVertex3f(1.0f, -1.0f, -13.0f);					// Top Right
-//			glColor3f(0.0, 1.0, 1.0);
-//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//			glVertex3f(1.0f, 1.0f, -13.0f);					// Top Left
-//		glEnd();											// Done Drawing The Quad
-
-		// left
-//			glBegin(GL_QUADS);									// Draw A Quad
-//				glColor3f(1.0, 0.0, 1.0);
-//				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//				glVertex3f(-1.0f, -1.0f, -13.0f);					// Top Right
-//				glColor3f(1.0, 0.0, 1.0);
-//				glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//				glVertex3f(-1.0f,-1.0f, -10.0f);					// Bottom Right
-//				glColor3f(1.0, 0.0, 1.0);
-//				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//				glVertex3f(-1.0f,1.0f, -10.0f);					// Bottom Left
-//				glColor3f(1.0, 0.0, 1.0);
-//				glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//				glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
-//			glEnd();											// Done Drawing The Quad
-
-
-// back
-//	glBegin(GL_QUADS);									// Draw A Quad
-//		glColor3f(0.0, 1.0, 0.0);
-//		glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//		glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
-//		glColor3f(0.0, 1.0, 0.0);
-//		glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//		glVertex3f(1.0f, 1.0f, -13.0f);					// Top Right
-//		glColor3f(0.0, 1.0, 0.0);
-//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//		glVertex3f(1.0f,-1.0f, -13.0f);					// Bottom Right
-//		glColor3f(0.0, 1.0, 0.0);
-//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//		glVertex3f(-1.0f,-1.0f, -13.0f);					// Bottom Left
-//	glEnd();											// Done Drawing The Quad
-// front
-//	glBegin(GL_QUADS);									// Draw A Quad
-//		glColor3f(0.0, 1.0, 1.0);
-//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//		glVertex3f(-1.0f,-1.0f, -10.0f);					// Bottom Left
-//		glColor3f(0.0, 1.0, 1.0);
-//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//		glVertex3f(1.0f,-1.0f, -10.0f);					// Bottom Right
-//		glColor3f(0.0, 1.0, 1.0);
-//		glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//		glVertex3f(1.0f, 1.0f, -10.0f);					// Top Right
-//		glColor3f(0.0, 1.0, 1.0);
-//		glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//		glVertex3f(-1.0f, 1.0f, -10.0f);					// Top Left
-//	glEnd();											// Done Drawing The Quad
-
-	// top
-//		glBegin(GL_QUADS);									// Draw A Quad
-//			glColor3f(0.0, 0.0, 1.0);
-//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//			glVertex3f(1.0f, 1.0f, -13.0f);					// Top Right
-//			glColor3f(0.0, 0.0, 1.0);
-//			glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//			glVertex3f(-1.0f, 1.0f, -13.0f);					// Top Left
-//			glColor3f(0.0, 0.0, 1.0);
-//			glTexCoord3f((-1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//			glVertex3f(-1.0f, 1.0f, -10.0f);					// Top Left
-//			glColor3f(0.0, 0.0, 1.0);
-//			glTexCoord3f((1.0f-modX)*rangeX, (1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//			glVertex3f(1.0f, 1.0f, -10.0f);					// Top Right
-//		glEnd();											// Done Drawing The Quad
-
-		// bottom
-//	glBegin(GL_QUADS);									// Draw A Quad
-//		glColor3f(1.0, 0.0, 1.0);
-//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//		glVertex3f(1.0f, -1.0f, -10.0f);					// Top Right
-//		glColor3f(1.0, 0.0, 1.0);
-//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-10.0f-modZ)*rangeZ);
-//		glVertex3f(-1.0f, -1.0f, -10.0f);					// Top Left
-//		glColor3f(1.0, 0.0, 1.0);
-//		glTexCoord3f((-1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//		glVertex3f(-1.0f, -1.0f, -13.0f);					// Top Left
-//		glColor3f(1.0, 0.0, 1.0);
-//		glTexCoord3f((1.0f-modX)*rangeX, (-1.0f-modY)*rangeY, (-13.0f-modZ)*rangeZ);
-//		glVertex3f(1.0f, -1.0f, -13.0f);					// Top Right
-//	glEnd();											// Done Drawing The Quad
-//
-//	glDisable(GL_TEXTURE_3D);
-//	glDisable(GL_TEXTURE_2D);
-//	cgGLUnbindProgram(fprof);
-//	cgGLDisableProfile(fprof);
 
 	c+=0.001;
 	glGetDoublev(GL_MODELVIEW_MATRIX, mv);
@@ -377,6 +228,10 @@ void RsRendererImpl::reshape(int _w, int _h)
 	glMatrixMode   ( GL_MODELVIEW );  // Select The Model View Matrix
 	glLoadIdentity ( );    // Reset The Model View Matrix
 
+	// resizing the FBOs as well - which means to destroy them an recreate them with appropiate size.
+	//Advice: don't do a lot of resizing! It eats raw fps for breakfast!
+	this->mPriFBO1->setSize(_w, _h);
+	this->mPriFBO2->setSize(_w, _h);
 }
 
 
@@ -776,7 +631,6 @@ void RsRendererImpl::init()
 	mPriFBO2 = new RsFBO(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
 	mPriFBO2->createAndAddDepthBuf();
 	mPriFBO2->createAndAddColorTex();
-
 }
 
 void RsRendererImpl::debug()
