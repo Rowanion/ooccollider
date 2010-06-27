@@ -1,9 +1,11 @@
-/*
- * RsStructs.h
- *
- *  Created on: 14.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsStructs.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.09.2009
+ * @brief 	File holds definitions for different structs of the project.
  */
+
 
 #include "RsStructs.h"
 
@@ -20,13 +22,13 @@ RsTGAimage::~RsTGAimage()
 	data = 0;
 }
 
-Tuplef::Tuplef()
+RsTuplef::RsTuplef()
 {
 	x = 0.0f;
 	y = 0.0f;
 }
 
-bool Tuplef::operator==(const Tuplef& _rhs) const
+bool RsTuplef::operator==(const RsTuplef& _rhs) const
 {
 	if (this->x != _rhs.x){
 		return false;
@@ -38,7 +40,7 @@ bool Tuplef::operator==(const Tuplef& _rhs) const
 
 }
 
-bool Tuplef::operator<(const Tuplef& _rhs) const
+bool RsTuplef::operator<(const RsTuplef& _rhs) const
 {
 	if (this->x == _rhs.x){
 		return this->y < _rhs.y;
@@ -46,21 +48,21 @@ bool Tuplef::operator<(const Tuplef& _rhs) const
 	return this->x < _rhs.x;
 }
 
-Triplef::Triplef()
+RsTriplef::RsTriplef()
 {
 	x = 0.0f;
 	y = 0.0f;
 	z = 0.0f;
 }
 
-Triplef::Triplef(float _x, float _y, float _z)
+RsTriplef::RsTriplef(float _x, float _y, float _z)
 {
 	x = _x;
 	y = _y;
 	z = _z;
 }
 
-bool Triplef::operator<(const Triplef& _rhs) const
+bool RsTriplef::operator<(const RsTriplef& _rhs) const
 {
 	if (this->x == _rhs.x){
 		if (this->y == _rhs.y){
@@ -71,7 +73,7 @@ bool Triplef::operator<(const Triplef& _rhs) const
 	return this->x < _rhs.x;
 }
 
-bool Triplef::operator==(const Triplef& _rhs) const
+bool RsTriplef::operator==(const RsTriplef& _rhs) const
 {
 	if (this->x != _rhs.x){
 		return false;
@@ -85,21 +87,21 @@ bool Triplef::operator==(const Triplef& _rhs) const
 	return true;
 }
 
-Tripleuc::Tripleuc()
+RsTripleuc::RsTripleuc()
 {
 	x = 0;
 	y = 0;
 	z = 0;
 }
 
-Triplec::Triplec()
+RsTriplec::RsTriplec()
 {
 	x = 0;
 	y = 0;
 	z = 0;
 }
 
-Quadruplef::Quadruplef()
+RsQuadruplef::RsQuadruplef()
 {
 	x = 0.0f;
 	y = 0.0f;
@@ -107,7 +109,7 @@ Quadruplef::Quadruplef()
 	w = 0.0f;
 }
 
-Quadrupleuc::Quadrupleuc()
+RsQuadrupleuc::RsQuadrupleuc()
 {
 	x = 0;
 	y = 0;
@@ -115,7 +117,7 @@ Quadrupleuc::Quadrupleuc()
 	w = 0;
 }
 
-Quadruplec::Quadruplec()
+RsQuadruplec::RsQuadruplec()
 {
 	x = 0;
 	y = 0;
@@ -123,7 +125,7 @@ Quadruplec::Quadruplec()
 	w = 0;
 }
 
-bool Quadruplec::operator==(const Quadruplec& _rhs) const
+bool RsQuadruplec::operator==(const RsQuadruplec& _rhs) const
 {
 	if (this->x != _rhs.x){
 		return false;
@@ -140,7 +142,7 @@ bool Quadruplec::operator==(const Quadruplec& _rhs) const
 	return true;
 }
 
-bool Quadruplec::operator<(const Quadruplec& _rhs) const
+bool RsQuadruplec::operator<(const RsQuadruplec& _rhs) const
 {
 	if (this->x == _rhs.x){
 		if (this->y == _rhs.y){
@@ -154,7 +156,7 @@ bool Quadruplec::operator<(const Quadruplec& _rhs) const
 	return this->x < _rhs.x;
 }
 
-ObjInfo::ObjInfo()
+RsObjInfo::RsObjInfo()
 {
 	groupCount = 0;
 	vertexCount = 0;
@@ -223,12 +225,12 @@ RsV4T2::RsV4T2(float _vx, float _vy, float _vz, float _tx, float _ty)
 	this->t.y = _ty;
 }
 
-Material::Material()
+RsMaterial::RsMaterial()
 {
 	this->shininess = 0.0f;
-	this->ambient = Triplef(0.2f, 0.2f, 0.2f);
-	this->diffuse = Triplef(0.8f, 0.8f, 0.8f);
-	this->specular = Triplef(1.0f, 1.0f, 1.0f);
+	this->ambient = RsTriplef(0.2f, 0.2f, 0.2f);
+	this->diffuse = RsTriplef(0.8f, 0.8f, 0.8f);
+	this->specular = RsTriplef(1.0f, 1.0f, 1.0f);
 	this->texture = 0;
 
 

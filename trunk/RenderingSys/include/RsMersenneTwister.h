@@ -1,9 +1,9 @@
 /**
- * @file MersenneTwister.h
+ * @file RsMersenneTwister.h
  * @author  rjwagner@writeme.com and Cokus@math.washington.edu
  * @version 1.0
  * @date	Created on: 10.05.2009
- * @brief 	MTRand class declaration.
+ * @brief 	RsMersenneTwister class inline declaration and definition.
  */
 
 // MersenneTwister.h
@@ -62,8 +62,8 @@
 // It would be nice to CC: rjwagner@writeme.com and Cokus@math.washington.edu
 // when you write.
 
-#ifndef MERSENNETWISTER_H
-#define MERSENNETWISTER_H
+#ifndef RSMERSENNETWISTER_H
+#define RSMERSENNETWISTER_H
 
 // Not thread safe (unless auto-initialization is avoided and each thread has
 // its own MTRand object)
@@ -76,10 +76,10 @@
 
 
 /**
- * @class MTRand
+ * @class RsMersenneTwister
  * @brief Implementation of a MersenneTwister pseudo-random-number generator.
  */
-class MTRand {
+class RsMersenneTwister {
 // Data
 public:
 	typedef unsigned long uint32;  // unsigned integer type, at least 32 bits
@@ -97,9 +97,9 @@ protected:
 
 //Methods
 public:
-	MTRand( const uint32& oneSeed );  // initialize with a simple uint32
-	MTRand( uint32 *const bigSeed, uint32 const seedLength = N );  // or an array
-	MTRand();  // auto-initialize with /dev/urandom or time() and clock()
+	RsMersenneTwister( const uint32& oneSeed );  // initialize with a simple uint32
+	RsMersenneTwister( uint32 *const bigSeed, uint32 const seedLength = N );  // or an array
+	RsMersenneTwister();  // auto-initialize with /dev/urandom or time() and clock()
 
 	// Do NOT use for CRYPTOGRAPHY without securely hashing several returned
 	// values together, otherwise the generator state can be learned after
@@ -130,8 +130,8 @@ public:
 	// Saving and loading generator state
 	void save( uint32* saveArray ) const;  // to array of size SAVE
 	void load( uint32 *const loadArray );  // from such array
-	friend std::ostream& operator<<( std::ostream& os, const MTRand& mtrand );
-	friend std::istream& operator>>( std::istream& is, MTRand& mtrand );
+	friend std::ostream& operator<<( std::ostream& os, const RsMersenneTwister& mtrand );
+	friend std::istream& operator>>( std::istream& is, RsMersenneTwister& mtrand );
 
 protected:
 	void initialize( const uint32 oneSeed );
@@ -147,40 +147,40 @@ protected:
 };
 
 
-inline MTRand::MTRand( const uint32& oneSeed )
+inline RsMersenneTwister::RsMersenneTwister( const uint32& oneSeed )
 	{ seed(oneSeed); }
 
-inline MTRand::MTRand( uint32 *const bigSeed, const uint32 seedLength )
+inline RsMersenneTwister::RsMersenneTwister( uint32 *const bigSeed, const uint32 seedLength )
 	{ seed(bigSeed,seedLength); }
 
-inline MTRand::MTRand()
+inline RsMersenneTwister::RsMersenneTwister()
 	{ seed(); }
 
-inline double MTRand::rand()
+inline double RsMersenneTwister::rand()
 	{ return double(randInt()) * (1.0/4294967295.0); }
 
-inline double MTRand::rand( const double& n )
+inline double RsMersenneTwister::rand( const double& n )
 	{ return rand() * n; }
 
-inline double MTRand::randExc()
+inline double RsMersenneTwister::randExc()
 	{ return double(randInt()) * (1.0/4294967296.0); }
 
-inline double MTRand::randExc( const double& n )
+inline double RsMersenneTwister::randExc( const double& n )
 	{ return randExc() * n; }
 
-inline double MTRand::randDblExc()
+inline double RsMersenneTwister::randDblExc()
 	{ return ( double(randInt()) + 0.5 ) * (1.0/4294967296.0); }
 
-inline double MTRand::randDblExc( const double& n )
+inline double RsMersenneTwister::randDblExc( const double& n )
 	{ return randDblExc() * n; }
 
-inline double MTRand::rand53()
+inline double RsMersenneTwister::rand53()
 {
 	uint32 a = randInt() >> 5, b = randInt() >> 6;
 	return ( a * 67108864.0 + b ) * (1.0/9007199254740992.0);  // by Isaku Wada
 }
 
-inline double MTRand::randNorm( const double& mean, const double& variance )
+inline double RsMersenneTwister::randNorm( const double& mean, const double& variance )
 {
 	// Return a real number from a normal (Gaussian) distribution with given
 	// mean and variance by Box-Muller method
@@ -189,7 +189,7 @@ inline double MTRand::randNorm( const double& mean, const double& variance )
 	return mean + r * cos(phi);
 }
 
-inline MTRand::uint32 MTRand::randInt()
+inline RsMersenneTwister::uint32 RsMersenneTwister::randInt()
 {
 	// Pull a 32-bit integer from the generator state
 	// Every other access function simply transforms the numbers extracted here
@@ -205,7 +205,7 @@ inline MTRand::uint32 MTRand::randInt()
 	return ( s1 ^ (s1 >> 18) );
 }
 
-inline MTRand::uint32 MTRand::randInt( const uint32& n )
+inline RsMersenneTwister::uint32 RsMersenneTwister::randInt( const uint32& n )
 {
 	// Find which bits are used in n
 	// Optimized by Magnus Jonsson (magnus@smartelectronix.com)
@@ -225,7 +225,7 @@ inline MTRand::uint32 MTRand::randInt( const uint32& n )
 }
 
 
-inline void MTRand::seed( const uint32 oneSeed )
+inline void RsMersenneTwister::seed( const uint32 oneSeed )
 {
 	// Seed the generator with a simple uint32
 	initialize(oneSeed);
@@ -233,7 +233,7 @@ inline void MTRand::seed( const uint32 oneSeed )
 }
 
 
-inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
+inline void RsMersenneTwister::seed( uint32 *const bigSeed, const uint32 seedLength )
 {
 	// Seed the generator with an array of uint32's
 	// There are 2^19937-1 possible initial states.  This function allows
@@ -269,7 +269,7 @@ inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
 }
 
 
-inline void MTRand::seed()
+inline void RsMersenneTwister::seed()
 {
 	// Seed the generator with an array from /dev/urandom if available
 	// Otherwise use a hash of time() and clock() values
@@ -293,7 +293,7 @@ inline void MTRand::seed()
 }
 
 
-inline void MTRand::initialize( const uint32 seed )
+inline void RsMersenneTwister::initialize( const uint32 seed )
 {
 	// Initialize generator state with seed
 	// See Knuth TAOCP Vol 2, 3rd Ed, p.106 for multiplier.
@@ -311,7 +311,7 @@ inline void MTRand::initialize( const uint32 seed )
 }
 
 
-inline void MTRand::reload()
+inline void RsMersenneTwister::reload()
 {
 	// Generate N new values in state
 	// Made clearer and faster by Matthew Bellew (matthew.bellew@home.com)
@@ -327,7 +327,7 @@ inline void MTRand::reload()
 }
 
 
-inline MTRand::uint32 MTRand::hash( time_t t, clock_t c )
+inline RsMersenneTwister::uint32 RsMersenneTwister::hash( time_t t, clock_t c )
 {
 	// Get a uint32 from t and c
 	// Better than uint32(x) in case x is floating point in [0,1]
@@ -353,7 +353,7 @@ inline MTRand::uint32 MTRand::hash( time_t t, clock_t c )
 }
 
 
-inline void MTRand::save( uint32* saveArray ) const
+inline void RsMersenneTwister::save( uint32* saveArray ) const
 {
 	register uint32 *sa = saveArray;
 	register const uint32 *s = state;
@@ -363,7 +363,7 @@ inline void MTRand::save( uint32* saveArray ) const
 }
 
 
-inline void MTRand::load( uint32 *const loadArray )
+inline void RsMersenneTwister::load( uint32 *const loadArray )
 {
 	register uint32 *s = state;
 	register uint32 *la = loadArray;
@@ -374,18 +374,18 @@ inline void MTRand::load( uint32 *const loadArray )
 }
 
 
-inline std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )
+inline std::ostream& operator<<( std::ostream& os, const RsMersenneTwister& mtrand )
 {
-	register const MTRand::uint32 *s = mtrand.state;
+	register const RsMersenneTwister::uint32 *s = mtrand.state;
 	register int i = mtrand.N;
 	for( ; i--; os << *s++ << "\t" ) {}
 	return os << mtrand.left;
 }
 
 
-inline std::istream& operator>>( std::istream& is, MTRand& mtrand )
+inline std::istream& operator>>( std::istream& is, RsMersenneTwister& mtrand )
 {
-	register MTRand::uint32 *s = mtrand.state;
+	register RsMersenneTwister::uint32 *s = mtrand.state;
 	register int i = mtrand.N;
 	for( ; i--; is >> *s++ ) {}
 	is >> mtrand.left;
@@ -393,7 +393,7 @@ inline std::istream& operator>>( std::istream& is, MTRand& mtrand )
 	return is;
 }
 
-#endif  // MERSENNETWISTER_H
+#endif  // RSMERSENNETWISTER_H
 
 // Change log:
 //

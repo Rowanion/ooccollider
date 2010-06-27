@@ -1,8 +1,9 @@
-/*
- * RsWindow.h
- *
- *  Created on: 12.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsWindow.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 14.05.2010
+ * @brief 	RsWindow class declaration.
  */
 
 #ifndef RSWINDOW_H_
@@ -12,6 +13,10 @@
 
 #include "RsAbstractRenderer.h"
 
+/**
+ * @class RsWindow
+ * @brief A class, representing an OpenGL window. All function hooking and callback-calling is done here.
+ */
 class RsWindow {
 public:
 	static RsWindow* getSingleton();

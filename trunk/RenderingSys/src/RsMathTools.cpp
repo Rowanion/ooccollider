@@ -3,7 +3,7 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 11.05.2010
- * @brief 	RsMathTools class declaration.
+ * @brief 	RsMathTools class definition.
  */
 
 #include "RsMathTools.h"
@@ -12,9 +12,8 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "MersenneTwister.h"
-#include "perlin.h"
-#include "ImprovedPerlinNoise.h"
+#include "RsMersenneTwister.h"
+#include "RsImprovedPerlinNoise.h"
 
 float RsMathTools::pi = 3.1415927;
 
@@ -113,7 +112,7 @@ float RsMathTools::cubicInterpolate(float _a, float _b, float _c, float _d, floa
 
 unsigned char* RsMathTools::generateRandomTexture(unsigned _dim, unsigned _comp, bool _createColor)
 {
-	MTRand mt = MTRand();
+	RsMersenneTwister mt = RsMersenneTwister();
 
 	unsigned char* tmp = new unsigned char[_dim*_comp];
 	if (_createColor){
@@ -134,8 +133,7 @@ unsigned char* RsMathTools::generateRandomTexture(unsigned _dim, unsigned _comp,
 
 float* RsMathTools::generatePerlinTexture(unsigned _x, unsigned _y, bool _createColor)
 {
-	PerlinNoise pn = PerlinNoise();
-	ImprovedPerlinNoise ipn = ImprovedPerlinNoise();
+	RsImprovedPerlinNoise ipn = RsImprovedPerlinNoise();
 
 	float min = 10000.0f;
 	float max = -10000.0f;
@@ -171,8 +169,7 @@ float* RsMathTools::generatePerlinTexture(unsigned _x, unsigned _y, bool _create
 float* RsMathTools::generatePerlinTexture(unsigned _x, unsigned _y, unsigned _z, bool _createColor)
 {
 	//TODO try to create 1byte-texture opposed to float
-	PerlinNoise pn = PerlinNoise();
-	ImprovedPerlinNoise ipn = ImprovedPerlinNoise();
+	RsImprovedPerlinNoise ipn = RsImprovedPerlinNoise();
 
 	float min = 10000.0f;
 	float max = -10000.0f;
@@ -297,8 +294,18 @@ float RsMathTools::perlinNoise2D(float x, float y)
 
 float RsMathTools::abs(float _val)
 {
-	if (_val<0){
-		return -1.0*_val;
+	if (_val<0.0f){
+		return -1.0f*_val;
 	}
 	return _val;
+}
+
+double RsMathTools::abs(double _val)
+{
+	if (_val < 0.0){
+		return -1.0*_val;
+	}
+	else {
+		return _val;
+	}
 }

@@ -3,116 +3,125 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 11.05.2010
- * @brief 	RsVectorMath class declaration.
+ * @brief 	RsVectorMath class definition.
  */
 
 #include "RsVectorMath.h"
 
 #include <cmath>
 
-V2f::V2f() {
+RsV2f::RsV2f() {
 	// TODO Auto-generated constructor stub
 
 }
-V2f::V2f(float _x, float _y) {
+RsV2f::RsV2f(float _x, float _y) {
 	this->data.x = _x;
 	this->data.y = _y;
 }
 
-V2f::~V2f() {
+RsV2f::~RsV2f() {
 	// TODO Auto-generated destructor stub
 }
 
-V2f V2f::operator+(const V2f& _rhs)
+RsV2f RsV2f::operator+(const RsV2f& _rhs)
 {
-	V2f result = V2f();
+	RsV2f result = RsV2f();
 	result.data = this->data + _rhs.data;
 	return result;
 }
 
-V2f V2f::operator-(const V2f& _rhs)
+RsV2f RsV2f::operator-(const RsV2f& _rhs)
 {
-	V2f result = V2f();
+	RsV2f result = RsV2f();
 	result.data = this->data - _rhs.data;
 	return result;
 }
 
-V2f V2f::operator*(float _rhs)
+RsV2f RsV2f::operator*(float _rhs)
 {
-	return V2f(this->data.x*_rhs, this->data.y*_rhs);
+	return RsV2f(this->data.x*_rhs, this->data.y*_rhs);
 }
 
+RsV2f RsV2f::operator*(const RsV2f& _rhs)
+{
+	return RsV2f(this->data.x*_rhs.data.x, this->data.y*_rhs.data.y);
+}
 // ------------------------------------------------------
 
-V3f::V3f() {
+RsV3f::RsV3f() {
 	// TODO Auto-generated constructor stub
 
 }
 
-V3f::~V3f() {
+RsV3f::~RsV3f() {
 	// TODO Auto-generated destructor stub
 }
 
-V3f::V3f(float _x, float _y, float _z) {
+RsV3f::RsV3f(float _x, float _y, float _z) {
 	this->data.x = _x;
 	this->data.y = _y;
 	this->data.z = _z;
 }
 
-V3f V3f::operator+(const V3f& _rhs)
+RsV3f RsV3f::operator+(const RsV3f& _rhs)
 {
 	this->data = this->data + _rhs.data;
 	return *this;
 }
 
-V3f V3f::operator-(const V3f& _rhs)
+RsV3f RsV3f::operator-(const RsV3f& _rhs)
 {
 	this->data = this->data - _rhs.data;
 	return *this;
 }
 
-V3f V3f::operator*(float _rhs)
+RsV3f RsV3f::operator*(float _rhs)
 {
-	return V3f(this->data.x*_rhs, this->data.y*_rhs, this->data.z*_rhs);
+	return RsV3f(this->data.x*_rhs, this->data.y*_rhs, this->data.z*_rhs);
+}
+
+RsV3f RsV3f::operator*(const RsV3f& _rhs)
+{
+	return RsV3f(this->data.x*_rhs.data.x, this->data.y*_rhs.data.y, this->data.z*_rhs.data.z);
 }
 
 // -------------------------------------------------------------
 
-Tuplef operator+(const Tuplef& _lhs, const Tuplef& _rhs)
+RsTuplef operator+(const RsTuplef& _lhs, const RsTuplef& _rhs)
 {
-	Tuplef result = Tuplef();
+	RsTuplef result = RsTuplef();
 	result.x = _lhs.x + _rhs.x;
 	result.y = _lhs.y + _rhs.y;
 	return result;
 }
 
-Tuplef operator-(const Tuplef& _lhs, const Tuplef& _rhs)
+RsTuplef operator-(const RsTuplef& _lhs, const RsTuplef& _rhs)
 {
-	Tuplef result = Tuplef();
+	RsTuplef result = RsTuplef();
 	result.x = _lhs.x - _rhs.x;
 	result.y = _lhs.y - _rhs.y;
 	return result;
 }
 
-Triplef operator+(const Triplef& _lhs, const Triplef& _rhs)
+RsTriplef operator+(const RsTriplef& _lhs, const RsTriplef& _rhs)
 {
-	Triplef result = Triplef();
+	RsTriplef result = RsTriplef();
 	result.x = _lhs.x + _rhs.x;
 	result.y = _lhs.y + _rhs.y;
 	result.z = _lhs.z + _rhs.z;
 	return result;
 }
 
-Triplef operator-(const Triplef& _lhs, const Triplef& _rhs)
+RsTriplef operator-(const RsTriplef& _lhs, const RsTriplef& _rhs)
 {
-	Triplef result = Triplef();
+	RsTriplef result = RsTriplef();
 	result.x = _lhs.x - _rhs.x;
 	result.y = _lhs.y - _rhs.y;
 	result.z = _lhs.z - _rhs.z;
 	return result;
 }
 
-void normalize(Triplec* _data)
+void normalize(RsTriplec* _data)
 {
 	double d = 1.0 / sqrt((_data->x*_data->x) + (_data->y*_data->y) + (_data->z*_data->z));
 	_data->x = (char)(d*_data->x);

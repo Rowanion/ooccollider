@@ -1,12 +1,12 @@
 /**
- * @file	VboV3N4.cpp
+ * @file	RsVboV3N4.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 20.05.2010
- * @brief 	VboV3N4 class declaration.
+ * @brief 	RsVboV3N4 class definition.
  */
 
-#include "VboV3N4.h"
+#include "RsVboV3N4.h"
 
 #include <GL/glew.h>
 
@@ -16,7 +16,7 @@
 #include <cstdlib>
 #include <map>
 
-VboV3N4::VboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4, unsigned>* _data) :
+RsVboV3N4::RsVboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4, unsigned>* _data) :
 	mProDataCount(0), mProIndexCount(_indexCount), mPriMath(RsMathTools())
 {
 	std::map<RsV3N4, unsigned>::const_iterator it;
@@ -93,29 +93,29 @@ VboV3N4::VboV3N4(unsigned _indexCount, const unsigned* _indices, const std::map<
 	mProIndices = 0;
 }
 
-VboV3N4::~VboV3N4() {
+RsVboV3N4::~RsVboV3N4() {
 	delete[] mProData;
 	mProData = 0;
 	delete[] mProIndices;
 	mProIndices = 0;
 }
 
-unsigned VboV3N4::getIndexCount() const
+unsigned RsVboV3N4::getIndexCount() const
 {
 	return mProIndexCount;
 }
 
-unsigned VboV3N4::getVertexCount() const
+unsigned RsVboV3N4::getVertexCount() const
 {
 	return mProDataCount;
 }
 
-uint64_t VboV3N4::getComponentBytes() const
+uint64_t RsVboV3N4::getComponentBytes() const
 {
 	return sizeof(RsV3N4);
 }
 
-void VboV3N4::draw()
+void RsVboV3N4::draw()
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);

@@ -1,9 +1,11 @@
-/*
- * RsRendererImpl.cpp
- *
- *  Created on: 12.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsRendererImpl.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.09.2009
+ * @brief 	RsRendererImpl class definition.
  */
+
 
 #include "RsRendererImpl.h"
 
@@ -56,8 +58,6 @@ RsRendererImpl::RsRendererImpl()
 RsRendererImpl::~RsRendererImpl()
 {
 	// TODO Auto-generated destructor stub
-	FTGL::ftglDestroyFont((FTGL::FTGLfont*)font);
-	delete font;
 	delete mPriFsQuad;
 }
 
@@ -80,21 +80,6 @@ void RsRendererImpl::display()
 
 
 	c+=0.001;
-	glGetDoublev(GL_MODELVIEW_MATRIX, mv);
-	glGetDoublev(GL_PROJECTION_MATRIX, pr);
-	glGetIntegerv(GL_VIEWPORT, vp);
-	gluProject(-1.0, 1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
-	textPoint = FTPoint(wp[0], wp[1], wp[2]);
-	font->Render("-1, 1, 0", -1,textPoint);
-	gluProject(1.0, 1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
-	textPoint = FTPoint(wp[0], wp[1], wp[2]);
-	font->Render("1, 1, 0", -1,textPoint);
-	gluProject(1.0, -1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
-	textPoint = FTPoint(wp[0], wp[1], wp[2]);
-	font->Render("1, -1, 0", -1,textPoint);
-	gluProject(-1.0, -1.0, 0.0, mv, pr,vp, &wp[0], &wp[1], &wp[2]);
-	textPoint = FTPoint(wp[0], wp[1], wp[2]);
-	font->Render("-1, -1, 0", -1,textPoint);
 
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	cgGLSetParameter1f(lightLerp2, mPriLerp);
@@ -429,7 +414,7 @@ void RsRendererImpl::init()
 	RsV4T2 data[4] = {RsV4T2(-1.0f, -1.0f, 0.0f, 0.0f, 0.0f), RsV4T2(1.0f, -1.0f, 0.0f, 1.0f ,0.0f), RsV4T2(1.0f, 1.0f, 0.0f, 1.0f, 1.0f), RsV4T2(-1.0f, 1.0f, 0.0f, 0.0f, 1.0f)};
 //	RsV4T2 data[4] = {RsV4T2(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f), RsV4T2(1.0f, -1.0f, -1.0f, 1.0f, 0.0f), RsV4T2(1.0f, 1.0f, -1.0f, 1.0f, 1.0f), RsV4T2(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f)};
 
-	mPriFsQuad = new VboV4T2(4, indices, 4, data, GL_QUADS);
+	mPriFsQuad = new RsVboV4T2(4, indices, 4, data, GL_QUADS);
 
 	boost::filesystem::path texFile = boost::filesystem::path("plasma.tga");
 	boost::filesystem::path texFile2 = boost::filesystem::path("plasma2.tga");
@@ -443,7 +428,7 @@ void RsRendererImpl::init()
 #elif defined OFFICE
 	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
 #else
-	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/Dragon.obj");
+	boost::filesystem::path meshFile = boost::filesystem::path("/media/ClemensHDD/meshes/mini_obj2.obj");
 #endif
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
@@ -607,28 +592,11 @@ void RsRendererImpl::init()
 	}
 	std::cerr << "16" << std::endl;
 
-	// -------------------------------------------
-	// Create a pixmap font from a TrueType file.
-#ifdef _WIN32
-	font = new FTBitmapFont("arial.ttf");
-#else
-	font = new FTBitmapFont("/usr/share/fonts/truetype/msttcorefonts/arial.ttf");
-#endif
-
-	// If something went wrong, bail out.
-	if(font->Error())
-		exit(0);
-
-	// Set the font size and render a small text.
-	font->FaceSize(9);
-//	font.Depth(10.0);
-//	font->UseDisplayList(true);
-
-	mPriFBO1 = new RsFBO(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
+	mPriFBO1 = new RsFbo(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
 	mPriFBO1->createAndAddDepthBuf();
 	mPriFBO1->createAndAddColorTex();
 
-	mPriFBO2 = new RsFBO(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
+	mPriFBO2 = new RsFbo(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
 	mPriFBO2->createAndAddDepthBuf();
 	mPriFBO2->createAndAddColorTex();
 }

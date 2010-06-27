@@ -11,36 +11,50 @@
 
 #include "RsStructs.h"
 
-class V2f{
+/**
+ * @class RsV2f
+ * @brief A 2-component float vector with basic operations.
+ */
+class RsV2f{
 public:
-	V2f();
-	V2f(float _x, float _y);
-	virtual ~V2f();
-	V2f operator+(const V2f& _rhs);
-	V2f operator-(const V2f& _rhs);
-	V2f operator*(float _rhs);
+	RsV2f();
+	RsV2f(float _x, float _y);
+	virtual ~RsV2f();
+	RsV2f operator+(const RsV2f& _rhs);
+	RsV2f operator-(const RsV2f& _rhs);
+	RsV2f operator*(float _rhs);
+	RsV2f operator*(const RsV2f& _rhs);
 
-	Tuplef data;
+	RsTuplef data;
 };
 
-class V3f{
+/**
+ * @class RsV3f
+ * @brief A 3-component float vector with basic operations.
+ */
+class RsV3f{
 public:
-	V3f();
-	V3f(float _x, float _y, float _z);
-	virtual ~V3f();
-	V3f operator+(const V3f& _rhs);
-	V3f operator-(const V3f& _rhs);
-	V3f operator*(float _rhs);
+	RsV3f();
+	RsV3f(float _x, float _y, float _z);
+	virtual ~RsV3f();
+	RsV3f operator+(const RsV3f& _rhs);
+	RsV3f operator-(const RsV3f& _rhs);
+	RsV3f operator*(float _rhs);
+	RsV3f operator*(const RsV3f& _rhs);
 
-	Triplef data;
+	RsTriplef data;
 };
 
 
-Tuplef operator+(const Tuplef& _lhs, const Tuplef& _rhs);
-Tuplef operator-(const Tuplef& _lhs, const Tuplef& _rhs);
-Triplef operator+(const Triplef& _lhs, const Triplef& _rhs);
-Triplef operator-(const Triplef& _lhs, const Triplef& _rhs);
+RsTuplef operator+(const RsTuplef& _lhs, const RsTuplef& _rhs);
+RsTuplef operator-(const RsTuplef& _lhs, const RsTuplef& _rhs);
+RsTriplef operator+(const RsTriplef& _lhs, const RsTriplef& _rhs);
+RsTriplef operator-(const RsTriplef& _lhs, const RsTriplef& _rhs);
 
-void normalize(Triplec* _data);
+/**
+ * @brief As the function name-suggests, this function normalizes the given vector-data.
+ * @param _data the basal vector data.
+ */
+void normalize(RsTriplec* _data);
 
 #endif /* RSVECTORMATH_H_ */

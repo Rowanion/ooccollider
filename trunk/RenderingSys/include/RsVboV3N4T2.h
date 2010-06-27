@@ -1,15 +1,15 @@
 /**
- * @file	VboV3N4T2.h
+ * @file	RsVboV3N4T2.h
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 20.05.2010
- * @brief 	VboV3N4T2 class declaration.
+ * @brief 	RsVboV3N4T2 class declaration.
  */
 
-#ifndef VBOV3N4T2_H_
-#define VBOV3N4T2_H_
+#ifndef RSVBOV3N4T2_H_
+#define RSVBOV3N4T2_H_
 
-#include "Vbo.h"
+#include "RsAbstractVbo.h"
 #include "RsStructs.h"
 #include "RsMathTools.h"
 
@@ -17,7 +17,12 @@
 
 #include <map>
 
-class VboV3N4T2 : public Vbo{
+/**
+ * @class RsVboV3N4T2
+ * @brief A VBO-class for 3-component float vertices, 4-component normal vectors and 2-component float
+ * texture-coordinates.
+ */
+class RsVboV3N4T2 : public RsAbstractVbo{
 public:
 
 	/**
@@ -26,8 +31,8 @@ public:
 	 * @param _indices a const pointer to our index data.
 	 * @param _data a const pointer to a std::map containing each vertex with its index.
 	 */
-	VboV3N4T2(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4T2, unsigned>* _data);
-	virtual ~VboV3N4T2();
+	RsVboV3N4T2(unsigned _indexCount, const unsigned* _indices, const std::map<RsV3N4T2, unsigned>* _data);
+	virtual ~RsVboV3N4T2();
 
 	/**
 	 * @brief Simply calls the relevant OpenGL drawing commands.
@@ -64,4 +69,4 @@ private:
 
 };
 
-#endif /* VBOV3N4T2_H_ */
+#endif /* RSVBOV3N4T2_H_ */

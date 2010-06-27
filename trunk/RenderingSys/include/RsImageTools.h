@@ -1,8 +1,9 @@
-/*
- * RsImageTools.h
- *
- *  Created on: 14.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsImageTools.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 14.05.2010
+ * @brief 	RsImageTools class declaration.
  */
 
 #ifndef RSIMAGETOOLS_H_
@@ -12,6 +13,11 @@
 
 #include "RsStructs.h"
 
+/**
+ * @class RsImageTools
+ * @brief A collection of tools for reading image formats. At the time of writing,
+ * only TGA-Loading is supported.
+ */
 class RsImageTools
 {
 public:

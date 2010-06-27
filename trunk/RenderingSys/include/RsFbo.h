@@ -11,10 +11,14 @@
 
 #include <GL/glew.h>
 
-class RsFBO {
+/**
+ * @class RsFbo
+ * @brief Simple framebuffer object implementations with a depth-buffer and a color texture.
+ */
+class RsFbo {
 public:
-	RsFBO(int _w, int _h);
-	virtual ~RsFBO();
+	RsFbo(int _w, int _h);
+	virtual ~RsFbo();
 	void createAndAddDepthBuf();
 	void createAndAddColorTex();
 	GLuint getId(){return mPriFBO;};
