@@ -1,30 +1,30 @@
 /**
- * @file	OOCCamera.cpp
+ * @file	RsCamera.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 28.09.2009
- * @brief 	OOCCamera class definition.
+ * @brief 	RsCamera class definition.
  */
 
-#include "OOCCamera.h"
+#include "RsCamera.h"
 
 #include <cstring>
 
 #include <GL/glew.h>
 
-OOCCamera::OOCCamera() : xmove(0.0), ymove(0.0), zmove(0.0), myXRot(0.0f), myYRot(0.0f), myZRot(0.0f), first(true), localQuat(ooctools::Quaternion()), totalQuat(ooctools::Quaternion())
+RsCamera::RsCamera() : xmove(0.0), ymove(0.0), zmove(0.0), myXRot(0.0f), myYRot(0.0f), myZRot(0.0f), first(true), localQuat(RsQuaternion()), totalQuat(RsQuaternion())
 {
 	initMatrices();
 }
 
-OOCCamera::~OOCCamera() {
+RsCamera::~RsCamera() {
 	// TODO Auto-generated destructor stub
 }
 
 
 /* CAMERAPART BEGIN */
 
-void OOCCamera::initMatrices()
+void RsCamera::initMatrices()
 {
 	myTranslateMatrix[0]  = 1.0f;
 	myTranslateMatrix[1]  = 0.0f;
@@ -67,7 +67,7 @@ void OOCCamera::initMatrices()
 	myGLRotMatrix[15] = 1.0f;
 }
 
-void OOCCamera::calcMatrix()
+void RsCamera::calcMatrix()
 {
 	localQuat.fromEulerAngles(myYRot, myZRot, myXRot);
 	totalQuat.reset();
@@ -88,7 +88,7 @@ void OOCCamera::calcMatrix()
 	xmove = ymove = zmove = 0.0f;
 }
 
-void OOCCamera::multMatrix(float *m1, float *m2, float *res)
+void RsCamera::multMatrix(float *m1, float *m2, float *res)
 {
 	for(int i = 0; i < 4; ++i) {
 		for(int j = 0; j < 4; ++j){
@@ -97,7 +97,7 @@ void OOCCamera::multMatrix(float *m1, float *m2, float *res)
 	}
 }
 
-void OOCCamera::setRotationMatrix(const float* mat)
+void RsCamera::setRotationMatrix(const float* mat)
 {
 	memcpy(myGLRotMatrix, mat, sizeof(float)*16);
 }

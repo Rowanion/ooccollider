@@ -1,9 +1,11 @@
-/*
- * RsWindow.cpp
- *
- *  Created on: 12.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsWindow.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.09.2009
+ * @brief 	RsWindow class definition.
  */
+
 
 #include "RsWindow.h"
 

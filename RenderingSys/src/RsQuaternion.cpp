@@ -1,95 +1,94 @@
 /**
- * @file	Quaternion.cpp
+ * @file	RsQuaternion.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 12.05.2009
- * @brief 	Quaternion class definition.
+ * @brief 	RsQuaternion class definition.
  */
 
-#include "Quaternion.h"
+#include "RsQuaternion.h"
 #include <cmath>
 
-namespace ooctools{
 #define TOLERANCE 0.0001
 #define PIOVER180 0.0174532925199
 
-Quaternion::Quaternion(){
+RsQuaternion::RsQuaternion(){
 	this->w = 1.0f;
 	this->x = 0.0f;
 	this->y = 0.0f;
 	this->z = 0.0f;
 }
 
-Quaternion::Quaternion(float _w, float _x, float _y, float _z){
+RsQuaternion::RsQuaternion(float _w, float _x, float _y, float _z){
 	this->w = _w;
         this->x = _x;
         this->y = _y;
         this->z = _z;
 }
 
-Quaternion::~Quaternion(){
+RsQuaternion::~RsQuaternion(){
 
 }
 
-Quaternion Quaternion::operator*(const Quaternion &_quat) const {
-	return Quaternion(w * _quat.w - x * _quat.x - y * _quat.y - z * _quat.z,
+RsQuaternion RsQuaternion::operator*(const RsQuaternion &_quat) const {
+	return RsQuaternion(w * _quat.w - x * _quat.x - y * _quat.y - z * _quat.z,
 			  w * _quat.x + x * _quat.w + y * _quat.z - z * _quat.y,
 			  w * _quat.y + y * _quat.w + z * _quat.x - x * _quat.z,
 			  w * _quat.z + z * _quat.w + x * _quat.y - y * _quat.x);
 }
 
-Quaternion Quaternion::operator+(const Quaternion &_quat) const {
-	return Quaternion(w + _quat.w, x + _quat.x, x + _quat.y, z + _quat.z);
+RsQuaternion RsQuaternion::operator+(const RsQuaternion &_quat) const {
+	return RsQuaternion(w + _quat.w, x + _quat.x, x + _quat.y, z + _quat.z);
 }
 
-Vector3f Quaternion::operator*(const Vector3f &_vec) const{
-	Vector3f aVec = _vec;
-	float aScale = 1.0/sqrt(aVec.x*aVec.x + aVec.y*aVec.y + aVec.z*aVec.z);
-        aVec.x *= aScale;
-        aVec.y *= aScale;
-        aVec.z *= aScale;
+RsV3f RsQuaternion::operator*(const RsV3f &_vec) const{
+	RsV3f aVec = _vec;
+	float aScale = 1.0/sqrt(aVec.data.x*aVec.data.y + aVec.data.y*aVec.data.y + aVec.data.z*aVec.data.z);
+        aVec.data.x *= aScale;
+        aVec.data.y *= aScale;
+        aVec.data.z *= aScale;
 
-	Quaternion vecQuat, resQuat, conQuat;
-	vecQuat.x = aVec.x;
-	vecQuat.y = aVec.y;
-	vecQuat.z = aVec.z;
+	RsQuaternion vecQuat, resQuat, conQuat;
+	vecQuat.x = aVec.data.x;
+	vecQuat.y = aVec.data.y;
+	vecQuat.z = aVec.data.z;
 	vecQuat.w = 0.0f;
 	conQuat = this->getConjugate();
 	resQuat = vecQuat * conQuat;
 	resQuat = *this * resQuat;
-	Vector3f aResVec = {resQuat.x, resQuat.y, resQuat.z};
+	RsV3f aResVec = RsV3f(resQuat.x, resQuat.y, resQuat.z);
 
 	return aResVec;
 }
 
-void Quaternion::conjugate(){
+void RsQuaternion::conjugate(){
 	x = -x;
 	y = -y;
 	z = -z;
 }
 
-Quaternion Quaternion::getConjugate() const {
-	return Quaternion(w, -x, -y, -z);
+RsQuaternion RsQuaternion::getConjugate() const {
+	return RsQuaternion(w, -x, -y, -z);
 }
 
-void Quaternion::fromAxis(const Vector3f &_vec, float _angle){
+void RsQuaternion::fromAxis(const RsV3f &_vec, float _angle){
 	float aSinAngle;
 	_angle *= 0.5f;
-	Vector3f aVec = _vec;
+	RsV3f aVec = _vec;
 
-	float aScale = 1.0/sqrt(aVec.x*aVec.x + aVec.y*aVec.y + aVec.z*aVec.z);
-	aVec.x *= aScale;
-	aVec.y *= aScale;
-	aVec.z *= aScale;
+	float aScale = 1.0/sqrt(aVec.data.x*aVec.data.x + aVec.data.y*aVec.data.y + aVec.data.z*aVec.data.z);
+	aVec.data.x *= aScale;
+	aVec.data.y *= aScale;
+	aVec.data.z *= aScale;
 
 	aSinAngle = sin(_angle);
-	this->x = (aVec.x * aSinAngle);
-	this->y = (aVec.y * aSinAngle);
-	this->z = (aVec.z * aSinAngle);
+	this->x = (aVec.data.x * aSinAngle);
+	this->y = (aVec.data.y * aSinAngle);
+	this->z = (aVec.data.z * aSinAngle);
 	this->w = cos(_angle);
 }
 
-void Quaternion::fromEulerAngles(float _xrot, float _yrot, float _zrot){
+void RsQuaternion::fromEulerAngles(float _xrot, float _yrot, float _zrot){
 	float aXR = _xrot * PIOVER180 / 2.0;
 	float aYR = _yrot * PIOVER180 / 2.0;
 	float aZR = _zrot * PIOVER180 / 2.0;
@@ -109,7 +108,7 @@ void Quaternion::fromEulerAngles(float _xrot, float _yrot, float _zrot){
 	normalize();
 }
 
-void Quaternion::getRotationMatrix(float* _dest){
+void RsQuaternion::getRotationMatrix(float* _dest){
 	float x2 = x * x;
 	float y2 = y * y;
 	float z2 = z * z;
@@ -141,7 +140,7 @@ void Quaternion::getRotationMatrix(float* _dest){
 	_dest[15] = 1.0f;
 }
 
-void Quaternion::fromRotationMatrix(float *_rotMat){
+void RsQuaternion::fromRotationMatrix(float *_rotMat){
 	float a[4][4];
 	for(int i = 0; i < 4; i++){
 		for(int j = 0; j < 4; j++){
@@ -179,17 +178,17 @@ void Quaternion::fromRotationMatrix(float *_rotMat){
 
 }
 
-void Quaternion::getAxisAngles(Vector3f *_vec, float *_angle){
+void RsQuaternion::getAxisAngles(RsV3f *_vec, float *_angle){
 	float aScale = 1.0/sqrt(x*x + y*y + z*z);
 
-	_vec->x = x*aScale;
-	_vec->y = y*aScale;
-	_vec->z = z*aScale;
+	_vec->data.x = x*aScale;
+	_vec->data.y = y*aScale;
+	_vec->data.z = z*aScale;
 
 	*_angle = cos(w) * 2.0f;
 }
 
-void Quaternion::normalize(){
+void RsQuaternion::normalize(){
 	float mag2 = w * w + x * x + y * y + z * z;
 	if (fabs(mag2 - 1.0f) > TOLERANCE) {
 		float mag = sqrt(mag2);
@@ -200,9 +199,7 @@ void Quaternion::normalize(){
 	}
 }
 
-void Quaternion::reset() {
+void RsQuaternion::reset() {
 	w = 1;
 	x = y = z = 0;
 }
-
-} // ooctools

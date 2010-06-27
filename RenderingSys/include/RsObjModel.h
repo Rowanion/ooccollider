@@ -1,21 +1,26 @@
 /**
- * @file	ObjModel.h
+ * @file	RsObjModel.h
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 20.05.2010
- * @brief 	ObjModel class declaration.
+ * @brief 	RsObjModel class declaration.
  */
 
-#ifndef OBJMODEL_H_
-#define OBJMODEL_H_
+#ifndef RSOBJMODEL_H_
+#define RSOBJMODEL_H_
 
-#include "Vbo.h"
+#include "RsAbstractVbo.h"
 #include "RsStructs.h"
 
+/**
+ * @class RsObjModel
+ * @brief This represents a 3D Mesh loaded from an OBJ-file.
+ * For convenience (in sacrificing generic) each OBJ-group is stored in a VBO and gets a material assigned.
+ */
 class RsObjModel {
 public:
 	RsObjModel();
-	RsObjModel(const ObjInfo* _info);
+	RsObjModel(const RsObjInfo* _info);
 
 	/**
 	 * @brief This methods constructs a VBO for the model by the given data.
@@ -30,10 +35,10 @@ public:
 	 * @param _texCoords - The pure TexCoord-data-array which will be accessed via the indices in _group - if present.
 	 * @param _colors - The pure color-data-array which will be accessed via the indices in _group - not implemented yet.
 	 */
-	void addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0);
-	void addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0);
+	void addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0);
+	void addVboDebug(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0);
 	virtual ~RsObjModel();
-	void addVbo(const Vbo* _vbo);
+	void addVbo(const RsAbstractVbo* _vbo);
 
 	/**
 	 * @brief This method calls the draw method of each VBO in a row.
@@ -43,7 +48,7 @@ public:
 
 private:
 	unsigned mPriVboCount;
-	Vbo** mPriVbos;
+	RsAbstractVbo** mPriVbos;
 
 
 	unsigned idxCount;
@@ -52,4 +57,4 @@ private:
 	float* vData;
 };
 
-#endif /* OBJMODEL_H_ */
+#endif /* RSOBJMODEL_H_ */

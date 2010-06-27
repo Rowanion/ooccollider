@@ -1,9 +1,9 @@
 /**
- * @file	ObjModel.cpp
+ * @file	RsObjModel.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 20.05.2010
- * @brief 	ObjModel class declaration.
+ * @brief 	RsObjModel class definition.
  * @todo 	Need individualized shader for each VBO-Type
  */
 
@@ -16,10 +16,10 @@
 #include <cstdlib>
 #include <limits>
 
-#include "VboV4.h"
-#include "VboV3N4.h"
-#include "VboV4T2.h"
-#include "VboV3N4T2.h"
+#include "RsVboV4.h"
+#include "RsVboV3N4.h"
+#include "RsVboV4T2.h"
+#include "RsVboV3N4T2.h"
 #include "RsStructs.h"
 
 RsObjModel::RsObjModel() : mPriVboCount(0), mPriVbos(0)
@@ -27,11 +27,11 @@ RsObjModel::RsObjModel() : mPriVboCount(0), mPriVbos(0)
 
 }
 
-RsObjModel::RsObjModel(const ObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
+RsObjModel::RsObjModel(const RsObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 {
 	if (_info != 0){
 		mPriVboCount = _info->groupCount;
-		mPriVbos = new Vbo *[mPriVboCount];
+		mPriVbos = new RsAbstractVbo *[mPriVboCount];
 		for (unsigned i=0; i< mPriVboCount; ++i){
 			if (_info->groupBits[i] & 1 && _info->groupBits[i] & 2){
 //				mPriVbos[i] = new VboV3N4T2();
@@ -50,7 +50,7 @@ RsObjModel::RsObjModel(const ObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 	}
 }
 
-void RsObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
+void RsObjModel::addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
 {
 	// -----------------------------------------------------
 	std::cerr << "Addresses: (in ObjModel) " << std::endl;
@@ -127,7 +127,7 @@ void RsObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _g
 				}
 			}
 
-			mPriVbos[_gIdx] = new VboV3N4T2(_info->groupFaces[_gIdx]*3, indices, &V3N4T2Map);
+			mPriVbos[_gIdx] = new RsVboV3N4T2(_info->groupFaces[_gIdx]*3, indices, &V3N4T2Map);
 			mPriVbos[_gIdx]->debug();
 
 		}
@@ -217,13 +217,13 @@ void RsObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _g
 			std::cerr << "mapsize: " << V3N4Map.size() << std::endl;
 //			exit(0);
 
-			mPriVbos[_gIdx] = new VboV3N4(_info->groupFaces[_gIdx]*3, indices, &V3N4Map);
+			mPriVbos[_gIdx] = new RsVboV3N4(_info->groupFaces[_gIdx]*3, indices, &V3N4Map);
 			mPriVbos[_gIdx]->debug();
 		}
 		else {
 			std::cerr << "assuming vertices only..." << std::endl;
 			std::map<RsV4, unsigned> V4Map = std::map<RsV4, unsigned>();
-			mPriVbos[_gIdx] = new VboV4(); // just vertices
+			mPriVbos[_gIdx] = new RsVboV4(); // just vertices
 			for (unsigned j=0; j<_info->groupFaces[_gIdx]; j++){
 
 			}
@@ -234,7 +234,7 @@ void RsObjModel::addVbo(const ObjInfo* _info, unsigned _gIdx, const unsigned* _g
 
 }
 
-void RsObjModel::addVboDebug(const ObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
+void RsObjModel::addVboDebug(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
 {
 	idxCount = _info->groupFaces[_gIdx]*3;
 	vCount = _info->vertexCount;
@@ -269,7 +269,7 @@ RsObjModel::~RsObjModel() {
 	}
 }
 
-void RsObjModel::addVbo(const Vbo* _vbo)
+void RsObjModel::addVbo(const RsAbstractVbo* _vbo)
 {
 	//TODO
 }

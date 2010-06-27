@@ -1,26 +1,25 @@
-/*
- * RsRendererImpl.h
- *
- *  Created on: 12.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsRendererImpl.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 14.05.2010
+ * @brief 	RsRendererImpl class declaration.
  */
 
 #ifndef RSRENDERERIMPL_H_
 #define RSRENDERERIMPL_H_
 
 #include "RsAbstractRenderer.h"
-#include "OOCCamera.h"
+#include "RsCamera.h"
 
 #include "GL/glew.h"
 #include "Cg/cg.h"
 #include "Cg/cgGL.h"
 
-#include <FTGL/ftgl.h>
-
 #include "RsMathTools.h"
 #include "RsObjModel.h"
-#include "VboV4T2.h"
-#include "RsFBO.h"
+#include "RsVboV4T2.h"
+#include "RsFbo.h"
 
 #define GET_GLERROR(ret) \
 { \
@@ -32,6 +31,12 @@
          } \
 }
 
+/**
+ * @class RsRendererImpl
+ * @brief: This is an exemplary implementation of a renderer.
+ * This implementation simply loads a mesh-model from an OVJ-file, and uses som cg-shaders to slowly
+ * dissolve the model, using perlin noise and glowing.
+ */
 class RsRendererImpl: public RsAbstractRenderer
 {
 public:
@@ -48,7 +53,7 @@ public:
 	virtual void debug();
 	void applyKeyEvents();
 private:
-	OOCCamera mPriCam;
+	RsCamera mPriCam;
 	float mPriWalkingSpeed;
 	GLuint mPriTexture;
 	GLuint mPriTexture2;
@@ -101,10 +106,6 @@ private:
 	float mPriLerp;
 	bool mPriUpDir;
 
-	FTPoint textPoint;
-	FTBitmapFont* font;
-	double mv[16];
-	double pr[16];
 	int vp[4];
 	GLdouble wp[3];
 
@@ -114,9 +115,9 @@ private:
 
 	RsObjModel* model;
 
-	VboV4T2* mPriFsQuad;
-	RsFBO* mPriFBO1;
-	RsFBO* mPriFBO2;
+	RsVboV4T2* mPriFsQuad;
+	RsFbo* mPriFBO1;
+	RsFbo* mPriFBO2;
 	int mPriWidth;
 	int mPriHeight;
 

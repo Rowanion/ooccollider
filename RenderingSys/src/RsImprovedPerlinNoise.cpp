@@ -1,16 +1,17 @@
 /**
- * @file	ImprovedPerlinNoise.cpp
+ * @file	RsImprovedPerlinNoise.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 14.05.2010
- * @brief 	ImprovedPerlinNoise class declaration.
+ * @brief 	RsImprovedPerlinNoise class definition.
  */
 
-#include "ImprovedPerlinNoise.h"
+#include "RsImprovedPerlinNoise.h"
 #include <cmath>
 
-int ImprovedPerlinNoise::p[512];
-const unsigned char ImprovedPerlinNoise::permutation[] = {151,160,137,91,90,15,
+int RsImprovedPerlinNoise::p[512];
+
+const unsigned char RsImprovedPerlinNoise::permutation[] = {151,160,137,91,90,15,
 		131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
 		190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
 		88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
@@ -25,20 +26,20 @@ const unsigned char ImprovedPerlinNoise::permutation[] = {151,160,137,91,90,15,
 		138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180
 };
 
-bool ImprovedPerlinNoise::isInitialized = false;
-ImprovedPerlinNoise::ImprovedPerlinNoise() {
-	if (!ImprovedPerlinNoise::isInitialized){
+bool RsImprovedPerlinNoise::isInitialized = false;
+RsImprovedPerlinNoise::RsImprovedPerlinNoise() {
+	if (!RsImprovedPerlinNoise::isInitialized){
 		for (int i=0; i < 256 ; i++){
-			ImprovedPerlinNoise::p[256+i] = ImprovedPerlinNoise::p[i] = ImprovedPerlinNoise::permutation[i];
+			RsImprovedPerlinNoise::p[256+i] = RsImprovedPerlinNoise::p[i] = RsImprovedPerlinNoise::permutation[i];
 		}
-		ImprovedPerlinNoise::isInitialized = true;
+		RsImprovedPerlinNoise::isInitialized = true;
 	}
 }
 
-ImprovedPerlinNoise::~ImprovedPerlinNoise() {
+RsImprovedPerlinNoise::~RsImprovedPerlinNoise() {
 }
 
-double ImprovedPerlinNoise::noise(double x, double y, double z) {
+double RsImprovedPerlinNoise::noise(double x, double y, double z) {
       int X = (int)floor(x) & 255,                  // FIND UNIT CUBE THAT
           Y = (int)floor(y) & 255,                  // CONTAINS POINT.
           Z = (int)floor(z) & 255;
@@ -61,36 +62,26 @@ double ImprovedPerlinNoise::noise(double x, double y, double z) {
                                      grad(p[BB+1], x-1, y-1, z-1 ))));
    }
 
-double ImprovedPerlinNoise::fade(double t)
+double RsImprovedPerlinNoise::fade(double t)
 {
 	return t * t * t * (t * (t * 6 - 15) + 10);
 	// improved interpolant 6t^5 - 15t^4 + 10t^3
 	// both first and second derivatives of zero at both t = 0 and t = 1
 }
 
-double ImprovedPerlinNoise::pLerp(double t, double a, double b)
+double RsImprovedPerlinNoise::pLerp(double t, double a, double b)
 {
 	return a + t * (b - a);
 }
 
-double ImprovedPerlinNoise::grad(int hash, double x, double y, double z) {
+double RsImprovedPerlinNoise::grad(int hash, double x, double y, double z) {
       int h = hash & 15;                      // CONVERT LO 4 BITS OF HASH CODE
       double u = h<8 ? x : y,                 // INTO 12 GRADIENT DIRECTIONS.
              v = h<4 ? y : h==12||h==14 ? x : z;
       return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
 }
 
-double ImprovedPerlinNoise::abs(double val)
-{
-	if (val < 0.0){
-		return -1.0*val;
-	}
-	else {
-		return val;
-	}
-}
-
-double ImprovedPerlinNoise::noiseV1(double x, double y, double z) {
+double RsImprovedPerlinNoise::noiseV1(double x, double y, double z) {
 	unsigned octaves = 6;
 	double sum = 0.0;
 	float ii = 1;
@@ -102,7 +93,7 @@ double ImprovedPerlinNoise::noiseV1(double x, double y, double z) {
 	return sum;
 }
 
-double ImprovedPerlinNoise::noiseV2(double x, double y, double z) {
+double RsImprovedPerlinNoise::noiseV2(double x, double y, double z) {
 	unsigned octaves = 16;
 	double sum = 0.0;
 	float ii = 1;
@@ -114,6 +105,16 @@ double ImprovedPerlinNoise::noiseV2(double x, double y, double z) {
 	return sum;
 }
 
-double ImprovedPerlinNoise::noiseV3(double x, double y, double z) {
+double RsImprovedPerlinNoise::noiseV3(double x, double y, double z) {
 	return sin(this->pLerp(0.5,x,y)+noiseV2(x,y,z));
+}
+
+double RsImprovedPerlinNoise::abs(double _val)
+{
+	if (_val < 0.0){
+		return -1.0*_val;
+	}
+	else {
+		return _val;
+	}
 }

@@ -1,9 +1,11 @@
-/*
- * RenderingSys.cpp
- *
- *  Created on: 13.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RenderingSys.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.09.2009
+ * @brief 	Holds the main-function for an exemplary RenderingSys implementation.
  */
+
 
 #include <iostream>
 #include <exception>

@@ -1,8 +1,9 @@
-/*
- * RsAbstractRenderer.h
- *
- *  Created on: 12.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsAbstractRenderer.h
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 14.05.2010
+ * @brief 	RsAbstractRenderer class declaration.
  */
 
 #ifndef RSABSTRACTRENDERER_H_
@@ -14,6 +15,12 @@
 #include "Cg/cg.h"
 #include "Cg/cgGL.h"
 
+/**
+ * @class RsAbstractRenderer
+ * @brief Abstract class for all implementations of a renderer.
+ * This is necessary, because a renderer needs to be tied to a window, which does
+ * the actual calling of the callback functions.@class
+ */
 class RsAbstractRenderer
 {
 public:

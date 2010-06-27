@@ -1,9 +1,11 @@
-/*
- * RsMeshTools.cpp
- *
- *  Created on: 16.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsMeshTools.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.09.2009
+ * @brief 	RsMeshTools class definition.
  */
+
 
 #include "RsMeshTools.h"
 
@@ -44,7 +46,7 @@ RsMeshTools::~RsMeshTools()
 	// TODO Auto-generated destructor stub
 }
 
-void RsMeshTools::parseObj(fs::path* _file, ObjInfo* _info)
+void RsMeshTools::parseObj(fs::path* _file, RsObjInfo* _info)
 {
 	if (_info == 0)
 		return;
@@ -99,7 +101,7 @@ void RsMeshTools::parseObj(fs::path* _file, ObjInfo* _info)
 	}
 	inFile.close();
 }
-void RsMeshTools::loadMtlLib(fs::path* _file, std::map<std::string, Material>* _mtlMap)
+void RsMeshTools::loadMtlLib(fs::path* _file, std::map<std::string, RsMaterial>* _mtlMap)
 {
 	//TODO
 	std::string line;
@@ -153,7 +155,7 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 	 */
 
 	// first pass
-	ObjInfo modelInfo = ObjInfo();
+	RsObjInfo modelInfo = RsObjInfo();
 	this->parseObj(_file, &modelInfo);
 	std::cerr << "File :" << *_file << std::endl;
 	std::cerr << "Vertices :" << modelInfo.vertexCount << std::endl;

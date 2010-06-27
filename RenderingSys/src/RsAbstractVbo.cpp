@@ -1,23 +1,23 @@
 /**
- * @file	Vbo.cpp
+ * @file	RsAbstractVbo.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 20.05.2010
- * @brief 	Vbo class declaration.
+ * @brief 	RsAbstractVbo class definition.
  */
 
-#include "Vbo.h"
+#include "RsAbstractVbo.h"
 
-Vbo::Vbo() {
+RsAbstractVbo::RsAbstractVbo() {
 	// TODO Auto-generated constructor stub
 
 }
 
-Vbo::~Vbo() {
+RsAbstractVbo::~RsAbstractVbo() {
 	// TODO Auto-generated destructor stub
 }
 
-void Vbo::debug()
+void RsAbstractVbo::debug()
 {
 
 }

@@ -1,8 +1,9 @@
-/*
- * RsImageTools.cpp
- *
- *  Created on: 14.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsImageTools.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.09.2009
+ * @brief 	RsImageTools class definition.
  */
 
 #include "RsImageTools.h"

@@ -13,6 +13,10 @@
 #include "RsStructs.h"
 #include "RsVectorMath.h"
 
+/**
+ * @class RsMathTools
+ * @brief Collection of math functions.
+ */
 class RsMathTools {
 public:
 	RsMathTools();
@@ -27,6 +31,7 @@ public:
 	float* generatePerlinTexture(unsigned _x, unsigned _y, bool _createColor);
 	float* generatePerlinTexture(unsigned _x, unsigned _y, unsigned _z, bool _createColor);
 	float abs(float _val);
+	double abs(double _val);
 
 	float noise(int x);
 	float noise(int x, int y);

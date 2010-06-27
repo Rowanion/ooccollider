@@ -3,20 +3,20 @@
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 04.06.2010
- * @brief 	RsFBO class declaration.
+ * @brief 	RsFBO class definition.
  */
 
-#include "RsFBO.h"
+#include "RsFbo.h"
 
 #include <iostream>
 
-RsFBO::RsFBO(int _w, int _h) {
+RsFbo::RsFbo(int _w, int _h) {
 	mPriWidth = _w;
 	mPriHeight = _h;
 	glGenFramebuffersEXT(1, &mPriFBO);
 }
 
-RsFBO::~RsFBO() {
+RsFbo::~RsFbo() {
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, 0, 0);
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
@@ -30,7 +30,7 @@ RsFBO::~RsFBO() {
 	glDeleteFramebuffersEXT(1, &mPriFBO);
 }
 
-void RsFBO::createAndAddDepthBuf()
+void RsFbo::createAndAddDepthBuf()
 {
 	//TODO evtl. remove and delete a buffer that was created before
 	glGenRenderbuffersEXT(1, &this->mPriDepthBuffer);
@@ -46,7 +46,7 @@ void RsFBO::createAndAddDepthBuf()
 	this->unbind();
 }
 
-void RsFBO::createAndAddColorTex()
+void RsFbo::createAndAddColorTex()
 {
 	glGenTextures(1, &this->mPriColorTexture);
 	glActiveTexture(GL_TEXTURE0);
@@ -68,7 +68,7 @@ void RsFBO::createAndAddColorTex()
 	this->unbind();
 }
 
-void RsFBO::bind()
+void RsFbo::bind()
 {
 	if (!fboIsBound){
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -77,7 +77,7 @@ void RsFBO::bind()
 	}
 }
 
-void RsFBO::unbind()
+void RsFbo::unbind()
 {
 	if (fboIsBound){
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -85,24 +85,24 @@ void RsFBO::unbind()
 	}
 }
 
-void RsFBO::clear()
+void RsFbo::clear()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RsFBO::clearDepth()
+void RsFbo::clearDepth()
 {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 }
 
-void RsFBO::clearColor()
+void RsFbo::clearColor()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 }
 
-void RsFBO::setSize(int _w, int _h)
+void RsFbo::setSize(int _w, int _h)
 {
 	mPriWidth = _w;
 	mPriHeight = _h;

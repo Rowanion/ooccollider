@@ -1,9 +1,11 @@
-/*
- * RsAbstractRenderer.cpp
- *
- *  Created on: 12.03.2010
- *      Author: TheAvatar
+/**
+ * @file	RsAbstractRenderer.cpp
+ * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
+ * @version 1.0
+ * @date	Created on: 28.09.2009
+ * @brief 	RsAbstractRenderer class definition.
  */
+
 
 #include "RsAbstractRenderer.h"
 

@@ -1,24 +1,24 @@
 /**
- * @file	OOCCamera.h
+ * @file 	RsCamera.h
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 28.09.2009
- * @brief 	OOCCamera class declaration.
+ * @brief 	RsCamera class declaration.
  */
 
-#ifndef OOCCAMERA_H_
-#define OOCCAMERA_H_
+#ifndef RSCAMERA_H_
+#define RSCAMERA_H_
 
-#include "Quaternion.h"
+#include "RsQuaternion.h"
 
 /**
- * @class OOCCamera
+ * @class RsCamera
  * @brief Simple camera-class using quaternions.
  */
-class OOCCamera {
+class RsCamera {
 public:
-	OOCCamera();
-	virtual ~OOCCamera();
+	RsCamera();
+	virtual ~RsCamera();
 	void initMatrices();
 	void calcMatrix();
 
@@ -57,10 +57,10 @@ private:
 	float myGLRotMatrix[16];
 	float myQuatRotMat[16];
 	float myTempMat[16];
-	ooctools::Quaternion localQuat;
-	ooctools::Quaternion totalQuat;
+	RsQuaternion localQuat;
+	RsQuaternion totalQuat;
 
 	void multMatrix(float *m1, float *m2, float *res);
 };
 
-#endif /* OOCCAMERA_H_ */
+#endif /* RSCAMERA_H_ */
