@@ -64,7 +64,10 @@ void main(V2FI IN,
 {
 
 	float4 texColor = tex2D(tex1, IN.texCoord);
-	float3 normal = tex2D(tex2, IN.texCoord).rgb;
+	
+	//unscaling normal
+	float3 normal = 2.0 * (tex2D(tex2, IN.texCoord).rgb - 0.5) 
+	;
 	float4 tempColor = texColor; 
 	lightPosition = float4(5.0,5.0,3.0,1.0);
 

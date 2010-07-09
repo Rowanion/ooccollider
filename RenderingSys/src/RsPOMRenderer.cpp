@@ -74,9 +74,11 @@ void RsPOMRenderer::display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //	printf("%s\n", cgGetErrorString(cgGetError()));
 
+
 	glTranslatef(0.0f, 0.0f, -10.0f);						// Move Right 3 Units
-	glRotatef(10.0f, 1.0f, 0.0f, 0.0f);
-	glRotatef(315.0f, 0.0f, 1.0f, 0.0f);
+
+	//glRotatef(10.0f, 1.0f, 0.0f, 0.0f);
+	//glRotatef(315.0f, 0.0f, 1.0f, 0.0f);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture);
@@ -90,11 +92,11 @@ void RsPOMRenderer::display()
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f,0.0f);
 		glVertex3f(0.0f,0,0.5f);
-		glTexCoord2f(0.0f,1.0f);
+		glTexCoord2f(0.0f,3.0f);
 		glVertex3f(0.0f,1.0f,0.5f);
-		glTexCoord2f(1.0f,1.0f);
+		glTexCoord2f(3.0f,3.0f);
 		glVertex3f(1.0f,1.0f,0.5f);
-		glTexCoord2f(1.0f,0.0f);
+		glTexCoord2f(3.0f,0.0f);
 		glVertex3f(1.0f,0.0f,0.5f);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
@@ -339,8 +341,9 @@ void RsPOMRenderer::init()
 
 	glGenTextures(1, &mPriTexture);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
+	gluBuild2DMipmaps( GL_TEXTURE_2D, img.intlFormat, img.width, img.height, img.format, GL_UNSIGNED_BYTE, img.data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -348,8 +351,10 @@ void RsPOMRenderer::init()
 	iTools->loadTGA(&texFile2, &img);
 	glGenTextures(1, &mPriTexture2);
 	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
+	gluBuild2DMipmaps( GL_TEXTURE_2D, img.intlFormat, img.width, img.height, img.format, GL_UNSIGNED_BYTE, img.data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
