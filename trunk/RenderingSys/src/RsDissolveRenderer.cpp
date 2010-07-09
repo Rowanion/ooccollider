@@ -1,13 +1,13 @@
 /**
- * @file	RsRendererImpl.cpp
+ * @file	RsDissolveRenderer.cpp
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 28.09.2009
- * @brief 	RsRendererImpl class definition.
+ * @brief 	RsDissolveRenderer class definition.
  */
 
 
-#include "RsRendererImpl.h"
+#include "RsDissolveRenderer.h"
 
 #include "GL/glew.h"
 #include "GL/freeglut.h"
@@ -26,7 +26,7 @@
 
 using namespace std;
 
-RsRendererImpl::RsRendererImpl()
+RsDissolveRenderer::RsDissolveRenderer()
 {
 	mPriStepForward = false;
 	mPriStepBackward = false;
@@ -55,13 +55,13 @@ RsRendererImpl::RsRendererImpl()
 
 }
 
-RsRendererImpl::~RsRendererImpl()
+RsDissolveRenderer::~RsDissolveRenderer()
 {
 	// TODO Auto-generated destructor stub
 	delete mPriFsQuad;
 }
 
-void RsRendererImpl::display()
+void RsDissolveRenderer::display()
 {
 
 	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
@@ -199,7 +199,7 @@ void RsRendererImpl::display()
   }
 }
 
-void RsRendererImpl::reshape(int _w, int _h)
+void RsDissolveRenderer::reshape(int _w, int _h)
 {
 	this->mPriWidth = _w;
 	this->mPriHeight = _h;
@@ -220,7 +220,7 @@ void RsRendererImpl::reshape(int _w, int _h)
 }
 
 
-void RsRendererImpl::keyboard(unsigned char _key, int _x, int _y, int* _present)
+void RsDissolveRenderer::keyboard(unsigned char _key, int _x, int _y, int* _present)
 {
 	if (_present != 0){
 		*_present = 1;
@@ -261,7 +261,7 @@ void RsRendererImpl::keyboard(unsigned char _key, int _x, int _y, int* _present)
 
 }
 
-void RsRendererImpl::specialKeys(int _key, int _x, int _y, int* _present)
+void RsDissolveRenderer::specialKeys(int _key, int _x, int _y, int* _present)
 {
 	if (_present != 0){
 		*_present = 1;
@@ -295,7 +295,7 @@ void RsRendererImpl::specialKeys(int _key, int _x, int _y, int* _present)
 	}
 }
 
-void RsRendererImpl::processMouse(int _button, int _state, int _x, int _y, int* _present)
+void RsDissolveRenderer::processMouse(int _button, int _state, int _x, int _y, int* _present)
 {
 	if (_present != 0){
 		*_present = 1;
@@ -314,7 +314,7 @@ void RsRendererImpl::processMouse(int _button, int _state, int _x, int _y, int* 
 	}
 }
 
-void RsRendererImpl::processMouseActiveMotion(int _x, int _y, int* _present)
+void RsDissolveRenderer::processMouseActiveMotion(int _x, int _y, int* _present)
 {
 	if (_present != 0){
 		*_present = 1;
@@ -335,7 +335,7 @@ void RsRendererImpl::processMouseActiveMotion(int _x, int _y, int* _present)
     mPriOldMousePosY = _y;
 }
 
-void RsRendererImpl::animator(int* _present)
+void RsDissolveRenderer::animator(int* _present)
 {
 	if (_present != 0){
 		*_present = 1;
@@ -344,7 +344,7 @@ void RsRendererImpl::animator(int* _present)
 	glutPostRedisplay();
 }
 
-void RsRendererImpl::applyKeyEvents()
+void RsDissolveRenderer::applyKeyEvents()
 {
 	if (mPriStepForward){
 		mPriCam.incZMove(0.1*mPriWalkingSpeed);
@@ -396,7 +396,7 @@ void RsRendererImpl::applyKeyEvents()
 	}
 }
 
-void RsRendererImpl::init()
+void RsDissolveRenderer::init()
 {
 	std::cerr << "1" << std::endl;
 
@@ -601,12 +601,12 @@ void RsRendererImpl::init()
 	mPriFBO2->createAndAddColorTex();
 }
 
-void RsRendererImpl::debug()
+void RsDissolveRenderer::debug()
 {
 	std::cerr << "in ImplClass" << std::endl;
 }
 
-void RsRendererImpl::drawFSQuad()
+void RsDissolveRenderer::drawFSQuad()
 {
 	glMatrixMode (GL_MODELVIEW);
 	glPushMatrix ();
