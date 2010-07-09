@@ -1,13 +1,13 @@
 /**
- * @file	RsRendererImpl.h
+ * @file	RsPOMRenderer.h
  * @author  TheAvatar <weltmarktfuehrer@googlemail.com>
  * @version 1.0
  * @date	Created on: 14.05.2010
- * @brief 	RsRendererImpl class declaration.
+ * @brief 	RsPOMRenderer class declaration.
  */
 
-#ifndef RSRENDERERIMPL_H_
-#define RSRENDERERIMPL_H_
+#ifndef RSPOMRENDERER_H_
+#define RSPOMRENDERER_H_
 
 #include "RsAbstractRenderer.h"
 #include "RsCamera.h"
@@ -33,15 +33,15 @@
 
 /**
  * @class RsRendererImpl
- * @brief: This is an exemplary implementation of a renderer.
- * This implementation simply loads a mesh-model from an OVJ-file, and uses som cg-shaders to slowly
+ * @brief: This is a Parallel Occlusion Mapping Renderer.
+ * This implementation simply loads a mesh-model from an OVJ-file, and uses some cg-shaders to slowly
  * dissolve the model, using perlin noise and glowing.
  */
-class RsRendererImpl: public RsAbstractRenderer
+class RsPOMRenderer: public RsAbstractRenderer
 {
 public:
-	RsRendererImpl();
-	virtual ~RsRendererImpl();
+	RsPOMRenderer();
+	virtual ~RsPOMRenderer();
 	virtual void init();
 	virtual void display();
 	virtual void reshape(int _w, int _h);
@@ -85,7 +85,7 @@ private:
 	CGprogram shader;
 	CGparameter mvp;
 
-	CGprogram lerpFrag;
+	CGprogram pom1Frag;
 	CGparameter lerpVal;
 	CGparameter cgTex1;
 	CGparameter cgTex2;
@@ -134,4 +134,4 @@ private:
 
 };
 
-#endif /* RSRENDERERIMPL_H_ */
+#endif /* RSPOMRENDERER_H_ */
