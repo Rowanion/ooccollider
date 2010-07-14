@@ -332,8 +332,8 @@ void RsPOMRenderer::init()
 
 	mPriFsQuad = new RsVboV4T2(4, indices, 4, data, GL_QUADS);
 
-	boost::filesystem::path texFile = boost::filesystem::path("wall3_combined.tga");
-	boost::filesystem::path texFile2 = boost::filesystem::path("wall3_normal.tga");
+	boost::filesystem::path texFile = boost::filesystem::path("images/wall3_combined.tga");
+	boost::filesystem::path texFile2 = boost::filesystem::path("images/wall3_normal.tga");
 	RsImageTools* iTools = RsImageTools::getSingleton();
 	RsTGAimage img;
 	iTools->loadTGA(&texFile, &img);
@@ -376,7 +376,7 @@ void RsPOMRenderer::init()
 	}
 //	cerr << cgGetLastListing(context) << "----" << endl;
 //	cerr << "---- PROGRAM BEGIN ----" << endl << cgGetProgramString(fshader, CG_COMPILED_PROGRAM) << "---- PROGRAM END ----" << endl;
-	vshader = cgCreateProgramFromFile(context, CG_SOURCE, "simpleVert.cg", vprof, "main",0);
+	vshader = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/simpleVert.cg", vprof, "main",0);
 	cgError = cgGetError();
 	if (cgError == CG_COMPILER_ERROR){
 		cerr << "---- PROGRAM BEGIN ----" << endl << cgGetProgramString(vshader, CG_PROGRAM_SOURCE) << "---- PROGRAM END ----" << endl;
@@ -393,11 +393,11 @@ void RsPOMRenderer::init()
 	std::cerr << "7" << std::endl;
 
 	// -------------------------------------------
-	vpLight = cgCreateProgramFromFile(context, CG_SOURCE, "vp_phong.cg", vprof, "main",0);
+	vpLight = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/vp_phong.cg", vprof, "main",0);
 	cgGLLoadProgram(vpLight);
-	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "fp_OnlyDiss.cg", fprof, "main",0);
+	fpLight = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/fp_OnlyDiss.cg", fprof, "main",0);
 	cgGLLoadProgram(fpLight);
-	fpLight2 = cgCreateProgramFromFile(context, CG_SOURCE, "fp_phong.cg", fprof, "main",0);
+	fpLight2 = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/fp_phong.cg", fprof, "main",0);
 	cgGLLoadProgram(fpLight2);
 	cgError = cgGetError();
 	if (cgError == CG_COMPILER_ERROR){
@@ -406,7 +406,7 @@ void RsPOMRenderer::init()
 	}
 	std::cerr << "8" << std::endl;
 
-	pom1Frag = cgCreateProgramFromFile(context, CG_SOURCE, "fp_pom1.cg", fprof, "main",0);
+	pom1Frag = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/fp_pom1.cg", fprof, "main",0);
 	cgGLLoadProgram(pom1Frag);
 	cgTex1 = cgGetNamedParameter(pom1Frag, "tex1");
 	cgTex2 = cgGetNamedParameter(pom1Frag, "tex2");
@@ -431,23 +431,23 @@ void RsPOMRenderer::init()
 	cgGLSetTextureParameter(lightNoiseTex2, mPriTexture4);
 	cgGLEnableTextureParameter(lightNoiseTex2);
 
-	vpGlow = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", vprof, "vpPassThrough",0);
+	vpGlow = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/fp_glow.cg", vprof, "vpPassThrough",0);
 	cgGLLoadProgram(vpGlow);
 	std::cerr << "12" << std::endl;
 
-	fpGlow1 = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", fprof, "fpGaussianPassH",0);
+	fpGlow1 = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/fp_glow.cg", fprof, "fpGaussianPassH",0);
 	cgGLLoadProgram(fpGlow1);
 	glowTex1 = cgGetNamedParameter(fpGlow1, "srcSampler");
 	cgGLEnableTextureParameter(glowTex1);
 	std::cerr << "13" << std::endl;
 
-	fpGlow2 = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", fprof, "fpGaussianPassV",0);
+	fpGlow2 = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/fp_glow.cg", fprof, "fpGaussianPassV",0);
 	cgGLLoadProgram(fpGlow2);
 	glowTex2 = cgGetNamedParameter(fpGlow2, "srcSampler");
 	cgGLEnableTextureParameter(glowTex2);
 	std::cerr << "14" << std::endl;
 
-	fpGlow3 = cgCreateProgramFromFile(context, CG_SOURCE, "fp_glow.cg", fprof, "fpFinalCompositing",0);
+	fpGlow3 = cgCreateProgramFromFile(context, CG_SOURCE, "shaders/fp_glow.cg", fprof, "fpFinalCompositing",0);
 	cgGLLoadProgram(fpGlow3);
 	glowTex3 = cgGetNamedParameter(fpGlow3, "tempSampler");
 	cgGLEnableTextureParameter(glowTex3);

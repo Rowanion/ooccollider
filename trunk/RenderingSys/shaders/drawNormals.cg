@@ -1,0 +1,98 @@
+const float3 red = float3(1.0, 0.0, 0.0);
+const float3 green = float3(0.0, 1.0, 0.0);
+const float3 blue = float3(0.0, 0.0, 1.0);
+const float3 magenta = float3(1.0, 0.0, 1.0);
+const float3 yellow = float3(1.0, 1.0, 0.0);
+const float3 cyan = float3(0.0, 1.0, 1.0);
+const float3 white = float3(1.0, 1.0, 1.0);
+
+
+struct appIn{
+	float4 pos	: POSITION;
+	float4 color : COLOR0;
+	float3 normal: NORMAL;
+};
+
+struct V2G{
+	float4 pos	: POSITION;
+	float4 color	: COLOR0;
+	float3 normal: TEXCOORD0;
+};
+
+V2G VPpassThrough(in appIn IN)
+{
+	V2G OUT;
+	OUT.pos = IN.pos;
+	OUT.color = IN.color;
+	OUT.normal = IN.normal;
+	return OUT;
+}
+
+V2G VPfixed(in appIn IN)
+{
+	V2G OUT;
+	OUT.pos = mul(glstate.matrix.mvp, IN.pos);
+	OUT.color = IN.color;
+	if (IN.normal.x == 0.0 && IN.normal.y == 0.0 && IN.normal.z == 0.0)
+	{
+		OUT.normal = float3(1.0,0.0,0.0);
+	}
+	else
+	{
+		OUT.normal = IN.normal;//*-1.0;
+	}
+	return OUT;
+}
+
+
+// geometry program to draw normals in form of lines	
+TRIANGLE LINE_OUT
+void GPshowNormals(AttribArray<float4> position : POSITION,
+			AttribArray<float3> normal	 : TEXCOORD0)
+
+{
+	
+	float4 v1;
+	float4 v2;
+	float3 N;
+	float3 dst;
+	
+	for (int i=0; i<position.length; i++) {
+		N = normalize(normal[i]);
+		dst = lerp(position[i].xyz, (position[i].xyz + N), 0.05);
+		v1 = mul(glstate.matrix.mvp, position[i]);
+		v2 = mul(glstate.matrix.mvp, float4(dst, position[i].w));
+		emitVertex(v1 : POSITION, white : COLOR);
+		emitVertex(v2 : POSITION, (N*0.5)+0.5 : COLOR);	
+		restartStrip();
+	}	
+}
+
+// geometry program to draw normals in form of lines which are calculated before......maybe impossible because no adjacency -.-
+TRIANGLE LINE_OUT
+void GPcalcNormals(AttribArray<float4> position : POSITION,
+			AttribArray<float3> normal	 : TEXCOORD0)
+
+{
+	
+	float3 v1 = position[1].xyz - position[0].xyz;
+	float3 v2 = position[2].xyz - position[0].xyz;
+	float3 fNormal = cross(v1,v2);
+	
+	float4 p1;
+	float4 p2;
+	
+	for (int i=0; i<position.length; i++) {
+		p1 = mul(glstate.matrix.mvp, position[i]);
+		p2 = mul(glstate.matrix.mvp, float4(position[i].xyz + normalize(normal[i]), position[i].w));
+		emitVertex(p1 : POSITION, green : COLOR);
+		emitVertex(p2 : POSITION, red : COLOR);	
+		restartStrip();
+	}	
+}
+
+float4 FPnormal2Color(in V2G IN) : COLOR
+{
+	float3 N = (normalize(IN.normal)*0.5)+0.5;
+	return float4(N, 1.0);
+}

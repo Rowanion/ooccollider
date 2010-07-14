@@ -78,8 +78,9 @@ private:
 	bool mPriTurnDown;
 
 	CGcontext context;
-	CGprofile vprof;
 	CGprofile fprof;
+	CGprofile gprof;
+	CGprofile vprof;
 	CGprogram fshader;
 	CGprogram vshader;
 	CGprogram shader;
@@ -131,7 +132,8 @@ private:
 	CGparameter glowTex2;
 	CGparameter glowTex3;
 
-
+	CGprogram drawNormalLines;
+	CGprogram paintNormalTex;
 };
 
 #endif /* RSDISSOLVERENDERER_H_ */
