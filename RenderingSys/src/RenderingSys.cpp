@@ -30,7 +30,8 @@ int main ( int argc, char** argv )   // Create Main Function For Bringing It All
 	RsWindow* rsw = RsWindow::getSingleton();
 	rsw->setWindowTitle("zuffi");
 	rsw->setWindowDimension(500,500);
-	RsPOMRenderer* renderer = new RsPOMRenderer();
+//	RsPOMRenderer* renderer = new RsPOMRenderer();
+	RsDissolveRenderer* renderer = new RsDissolveRenderer();
 
 	rsw->attachRenderer((RsAbstractRenderer*) renderer);
 	RsWindow::animator(10);
