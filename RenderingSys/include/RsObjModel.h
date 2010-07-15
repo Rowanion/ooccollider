@@ -44,7 +44,10 @@ public:
 	 * @brief This method calls the draw method of each VBO in a row.
 	 */
 	void draw();
+	void draw(unsigned _idx);
 	void drawDebug();
+
+	unsigned getVboCount();
 
 private:
 	unsigned mPriVboCount;

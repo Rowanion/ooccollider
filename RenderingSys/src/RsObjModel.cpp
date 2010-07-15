@@ -281,10 +281,22 @@ void RsObjModel::draw()
 	}
 }
 
+void RsObjModel::draw(unsigned _idx)
+{
+	if (_idx< 0 || _idx > mPriVboCount) return;
+
+	mPriVbos[_idx]->draw();
+}
+
 void RsObjModel::drawDebug()
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 3*sizeof(float), vData);
 	glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, iData);
 	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+unsigned RsObjModel::getVboCount()
+{
+	return mPriVboCount;
 }

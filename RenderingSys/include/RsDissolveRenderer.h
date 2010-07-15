@@ -79,13 +79,6 @@ private:
 	bool mPriTurnUp;
 	bool mPriTurnDown;
 
-	CGcontext context;
-	CGprofile fprof;
-	CGprofile gprof;
-	CGprofile vprof;
-	CGprogram fshader;
-	CGprogram vshader;
-	CGprogram shader;
 	CGparameter mvp;
 
 	CGprogram lerpFrag;
@@ -136,6 +129,10 @@ private:
 	CGprogram glowPass1Shader;
 	CGprogram glowPass2Shader;
 	CGprogram glowPass3Shader;
+
+	unsigned vboIdx;
+	bool renderFull;
+	bool drawNormals;
 };
 
 #endif /* RSDISSOLVERENDERER_H_ */
