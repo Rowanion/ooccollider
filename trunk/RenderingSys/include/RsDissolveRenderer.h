@@ -53,6 +53,8 @@ public:
 	virtual void debug();
 	void applyKeyEvents();
 private:
+	void setupTextures();
+	void setupShaders();
 	RsCamera mPriCam;
 	float mPriWalkingSpeed;
 	GLuint mPriTexture;
@@ -93,13 +95,10 @@ private:
 	CGparameter cgNoiseTex;
 	CGparameter cgRndTex;
 
-	CGprogram fpLight;
-	CGprogram vpLight;
 	CGparameter lightTex;
 	CGparameter lightNoiseTex;
 	CGparameter lightLerp;
 
-	CGprogram fpLight2;
 	CGparameter lightTex2;
 	CGparameter lightNoiseTex2;
 	CGparameter lightLerp2;
@@ -124,16 +123,19 @@ private:
 
 	void drawFSQuad();
 
-	CGprogram fpGlow1;
-	CGprogram fpGlow2;
-	CGprogram fpGlow3;
-	CGprogram vpGlow;
 	CGparameter glowTex1;
 	CGparameter glowTex2;
 	CGparameter glowTex3;
 
-	CGprogram drawNormalLines;
-	CGprogram paintNormalTex;
+	CGprogram drawNormalLinesShader;
+	CGprogram paintNormalTexShader;
+
+	CGprogram coloredDissolveShader;
+	CGprogram lightAndDissolveShader;
+
+	CGprogram glowPass1Shader;
+	CGprogram glowPass2Shader;
+	CGprogram glowPass3Shader;
 };
 
 #endif /* RSDISSOLVERENDERER_H_ */
