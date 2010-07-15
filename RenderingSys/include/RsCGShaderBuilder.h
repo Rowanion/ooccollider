@@ -25,9 +25,9 @@ public:
     static unsigned BuildShader(const char* _vs, const char* _fs);
     static unsigned BuildShader(const char* _vs, const char* _gs, const char* _fs);
 
-    static CGprogram BuildShaderFromFile(const std::string &_file, CGShaderType _type);
-    static unsigned BuildShaderFromFile(const std::string &_vsfile, const std::string &_fsfile);
-    static unsigned BuildShaderFromFile(const std::string &_vsfile, const std::string &_gsfile, const std::string &_fsfile);
+    static CGprogram BuildShaderFromFile(const std::string &_file, const char* _main, RsCGShaderBuilder::CGShaderType _type);
+    static CGprogram BuildShaderFromFile(const std::string &_vsfile, const char* _vsMain, const std::string &_fsfile, const char* _fsMain);
+    static CGprogram BuildShaderFromFile(const std::string &_vsfile, const std::string &_gsfile, const std::string &_fsfile);
     static CGprogram BuildShaderFromFile(const std::string &_file, const char* _vsMain, const char* _gsMain, const char* _fsMain);
 
     static void EnableShader(CGprogram _shader);

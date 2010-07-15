@@ -167,12 +167,95 @@ unsigned RsCGShaderBuilder::BuildShader(const char* _vs, const char* _gs, const 
 //    return aShaderProgram;
 }
 
-CGprogram RsCGShaderBuilder::BuildShaderFromFile(const std::string &_file, CGShaderType _type)
+CGprogram RsCGShaderBuilder::BuildShaderFromFile(const std::string &_file, const char* _main, RsCGShaderBuilder::CGShaderType _type)
 {
+	if (!RsCGShaderBuilder::priInitialized){
+		RsCGShaderBuilder::priInit();
+	}
 
-	CGprogram aProgram = cgCreateProgramFromFile(priContext, CG_SOURCE, _file.c_str(), priProfiles[_type], "main",0);
+	CGprogram aProgram;
+	if (_main == 0){
+		aProgram = cgCreateProgramFromFile(RsCGShaderBuilder::priContext, CG_SOURCE, _file.c_str(), priProfiles[_type], "main",0);
+	}
+	else {
+		aProgram = cgCreateProgramFromFile(RsCGShaderBuilder::priContext, CG_SOURCE, _file.c_str(), priProfiles[_type], _main ,0);
+	}
 	cgGLLoadProgram(aProgram);
+	if(RsCGShaderBuilder::IsCGError()){
+		VerboseCompileOutput(aProgram, priProfiles[_type], _file);
+	}
     return aProgram;
+}
+
+CGprogram RsCGShaderBuilder::BuildShaderFromFile(const std::string &_vsfile, const char* _vsMain, const std::string &_fsfile, const char* _fsMain)
+{
+	if (!RsCGShaderBuilder::priInitialized){
+		RsCGShaderBuilder::priInit();
+	}
+    CGprogram combined;
+    CGprogram programs[2];
+    CGerror error = CG_NO_ERROR;
+
+	if (!boost::filesystem::is_regular_file(boost::filesystem::path(_vsfile)) || !boost::filesystem::is_regular_file(boost::filesystem::path(_fsfile))){
+		return 0;
+	}
+
+    int programCount = 0;
+	if (_vsMain != 0 && priHasVertexShaderSuport){
+		programs[programCount] = cgCreateProgramFromFile(
+			RsCGShaderBuilder::priContext,
+			CG_SOURCE,
+			_vsfile.c_str(),
+			priProfiles[RsCGShaderBuilder::VertexShader],
+			_vsMain,
+			0);
+		if (RsCGShaderBuilder::IsCGError()){
+#ifdef CG_DEBUG
+			VerboseCompileOutput(programs[programCount], priProfiles[RsCGShaderBuilder::VertexShader], _vsfile);
+#endif
+			return 0;
+		}
+		programCount++;
+	}
+	if (_fsMain != 0 && priHasFragmentShaderSuport){
+		programs[programCount] = cgCreateProgramFromFile(
+			RsCGShaderBuilder::priContext,
+			CG_SOURCE,
+			_fsfile.c_str(),
+			priProfiles[RsCGShaderBuilder::FragmentShader],
+			_fsMain,
+			0);
+		if (RsCGShaderBuilder::IsCGError()){
+#ifdef CG_DEBUG
+			VerboseCompileOutput(programs[programCount], priProfiles[RsCGShaderBuilder::FragmentShader], _fsfile);
+#endif
+			return 0;
+		}
+		programCount++;
+	}
+
+    // combine shader programs from different domains into a single program
+    // this is legal only, and only if there is more than one shader program
+    if (programCount>1){
+    	combined = cgCombinePrograms(programCount, programs);
+    	error = cgGetError();
+    	if (error != CG_NO_ERROR){
+    		std::cerr << "CG Combine Programs" << std::endl;
+    		std::cerr << cgGetErrorString(error) << std::endl;
+    		return 0;
+    	}
+        for (int i =0; i<programCount; ++i){
+        	cgDestroyProgram(programs[i]);
+        }
+    }
+    else if (programCount == 1){
+    	combined = programs[0];
+    }
+    else {
+    	return 0;
+    }
+	cgGLLoadProgram(combined);
+    return combined;
 }
 
 CGprogram RsCGShaderBuilder::BuildShaderFromFile(const std::string &_file, const char* _vsMain, const char* _gsMain, const char* _fsMain) {
@@ -261,19 +344,7 @@ CGprogram RsCGShaderBuilder::BuildShaderFromFile(const std::string &_file, const
     return combined;
 }
 
-unsigned RsCGShaderBuilder::BuildShaderFromFile(const std::string &_vsfile, const std::string &_fsfile) {
-	//TODO
-	return 0;
-//    const char* aVShaderSource = priReadShaderSource(_vsfile.c_str());
-//    const char* aFShaderSource = priReadShaderSource(_fsfile.c_str());
-//    unsigned aHandle = NGLBuildShader(aVShaderSource, aFShaderSource);
-//    delete [] aVShaderSource;
-//    delete [] aFShaderSource;
-//
-//    return aHandle;
-}
-
-unsigned RsCGShaderBuilder::BuildShaderFromFile(const std::string &_vsfile, const std::string &_gsfile, const std::string &_fsfile) {
+CGprogram RsCGShaderBuilder::BuildShaderFromFile(const std::string &_vsfile, const std::string &_gsfile, const std::string &_fsfile) {
 	//TODO
 	return 0;
 //    const char* aVShaderSource = priReadShaderSource(_vsfile.c_str());
