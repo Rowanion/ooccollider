@@ -17,6 +17,7 @@ struct V2G{
 	float4 pos	: POSITION;
 	float4 color	: COLOR0;
 	float3 normal: TEXCOORD0;
+	float4 objectPosition : TEXCOORD1;
 };
 
 V2G VPpassThrough(in appIn IN)
@@ -33,6 +34,7 @@ V2G VPfixed(in appIn IN)
 	V2G OUT;
 	OUT.pos = mul(glstate.matrix.mvp, IN.pos);
 	OUT.color = IN.color;
+	OUT.objectPosition = IN.pos;
 	if (IN.normal.x == 0.0 && IN.normal.y == 0.0 && IN.normal.z == 0.0)
 	{
 		OUT.normal = float3(1.0,0.0,0.0);
@@ -68,27 +70,23 @@ void GPshowNormals(AttribArray<float4> position : POSITION,
 	}	
 }
 
-// geometry program to draw normals in form of lines which are calculated before......maybe impossible because no adjacency -.-
-TRIANGLE LINE_OUT
+// geometry program to claclulte facenormals and emit the normal triangle
+TRIANGLE TRIANGLE_OUT
 void GPcalcNormals(AttribArray<float4> position : POSITION,
-			AttribArray<float3> normal	 : TEXCOORD0)
+			AttribArray<float4> color : COLOR,
+			AttribArray<float3> normal	 : TEXCOORD0,
+			AttribArray<float4> objectPosition : TEXCOORD1)
 
 {
 	
-	float3 v1 = position[1].xyz - position[0].xyz;
-	float3 v2 = position[2].xyz - position[0].xyz;
+	float3 v1 = objectPosition[1].xyz - objectPosition[0].xyz;
+	float3 v2 = objectPosition[2].xyz - objectPosition[0].xyz;
 	float3 fNormal = cross(v1,v2);
-	
-	float4 p1;
-	float4 p2;
-	
+		
 	for (int i=0; i<position.length; i++) {
-		p1 = mul(glstate.matrix.mvp, position[i]);
-		p2 = mul(glstate.matrix.mvp, float4(position[i].xyz + normalize(normal[i]), position[i].w));
-		emitVertex(p1 : POSITION, green : COLOR);
-		emitVertex(p2 : POSITION, red : COLOR);	
-		restartStrip();
+		emitVertex(position[i] : POSITION, color[i] : COLOR, fNormal : TEXCOORD0);
 	}	
+	//restartStrip();
 }
 
 float4 FPnormal2Color(in V2G IN) : COLOR
