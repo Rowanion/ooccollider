@@ -86,16 +86,16 @@ void RsDissolveRenderer::display()
 	// ----------------------
 //	glPolygonMode(GL_FRONT, GL_LINE);
 //	glPolygonMode(GL_BACK, GL_FILL);
-//	RsCGShaderBuilder::EnableShader(paintNormalTex);
+//	RsCGShaderBuilder::EnableShader(paintNormalTexShader);
 //	RsCGShaderBuilder::EnableShader(vshader);
-	model->draw();
-//	RsCGShaderBuilder::DisableShader(vshader);
-//	RsCGShaderBuilder::DisableShader(paintNormalTex);
-//
-//
-//	RsCGShaderBuilder::EnableShader(drawNormalLines);
 //	model->draw();
-//	RsCGShaderBuilder::DisableShader(drawNormalLines);
+//	RsCGShaderBuilder::DisableShader(vshader);
+//	RsCGShaderBuilder::DisableShader(paintNormalTexShader);
+//
+//
+	RsCGShaderBuilder::EnableShader(drawNormalLinesShader);
+	model->draw();
+	RsCGShaderBuilder::DisableShader(drawNormalLinesShader);
 	// ----------------------
 
 
@@ -588,7 +588,7 @@ void RsDissolveRenderer::setupShaders()
 	cgGLEnableTextureParameter(lightNoiseTex);
 
 	// ------------------
-	drawNormalLinesShader = RsCGShaderBuilder::BuildShaderFromFile(std::string("shaders/drawNormals.cg"), "VPpassThrough", "GPshowNormals", 0);
+	drawNormalLinesShader = RsCGShaderBuilder::BuildShaderFromFile(std::string("shaders/drawNormals.cg"), "VPfixed", "GPcalcNormals", "FPnormal2Color");
 	paintNormalTexShader = RsCGShaderBuilder::BuildShaderFromFile(std::string("shaders/drawNormals.cg"), "VPfixed", 0, "FPnormal2Color");
 
 }
