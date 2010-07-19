@@ -82,30 +82,30 @@ void RsDissolveRenderer::display()
 
 
 	// ----------------------
-	if (renderFull){
+//	if (renderFull){
 		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_NONE);
-		RsCGShaderBuilder::getSingleton()->EnableShader(paintNormalTexShader);
-		model->draw();
-		RsCGShaderBuilder::getSingleton()->DisableShader(paintNormalTexShader);
+		glPolygonMode(GL_BACK, GL_FILL);
+//		RsCGShaderBuilder::getSingleton()->EnableShader(paintNormalTexShader);
+//		model->draw();
+//		RsCGShaderBuilder::getSingleton()->DisableShader(paintNormalTexShader);
 		if (drawNormals){
 			RsCGShaderBuilder::getSingleton()->EnableShader(drawNormalLinesShader);
 			model->draw();
 			RsCGShaderBuilder::getSingleton()->DisableShader(drawNormalLinesShader);
 		}
-	}
-	else {
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_LINE);
-		RsCGShaderBuilder::getSingleton()->EnableShader(paintNormalTexShader);
-		model->draw(vboIdx);
-		RsCGShaderBuilder::getSingleton()->DisableShader(paintNormalTexShader);
-		if (drawNormals){
-			RsCGShaderBuilder::getSingleton()->EnableShader(drawNormalLinesShader);
-			model->draw(vboIdx);
-			RsCGShaderBuilder::getSingleton()->DisableShader(drawNormalLinesShader);
-		}
-	}
+//	}
+//	else {
+//		glPolygonMode(GL_FRONT, GL_FILL);
+//		glPolygonMode(GL_BACK, GL_LINE);
+//		RsCGShaderBuilder::getSingleton()->EnableShader(paintNormalTexShader);
+//		model->draw(vboIdx);
+//		RsCGShaderBuilder::getSingleton()->DisableShader(paintNormalTexShader);
+//		if (drawNormals){
+//			RsCGShaderBuilder::getSingleton()->EnableShader(drawNormalLinesShader);
+//			model->draw(vboIdx);
+//			RsCGShaderBuilder::getSingleton()->DisableShader(drawNormalLinesShader);
+//		}
+//	}
 
 //
 //
@@ -117,78 +117,78 @@ void RsDissolveRenderer::display()
 
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-//	cgGLSetParameter1f(lightLerp2, mPriLerp);
-//	RsCGShaderBuilder::getSingleton()->EnableShader(lightAndDissolveShader);
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-//	glEnable(GL_TEXTURE_2D);
-//	glActiveTexture(GL_TEXTURE1);
-//	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
-//	glEnable(GL_TEXTURE_3D);
+	cgGLSetParameter1f(lightLerp2, mPriLerp);
+	RsCGShaderBuilder::getSingleton()->EnableShader(lightAndDissolveShader);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
+	glEnable(GL_TEXTURE_3D);
+
+	model->draw();
+	glActiveTexture(GL_TEXTURE1);
+	glDisable(GL_TEXTURE_3D);
+	glActiveTexture(GL_TEXTURE0);
+	glDisable(GL_TEXTURE_2D);
+	glPolygonMode(GL_FRONT, GL_FILL);
+	RsCGShaderBuilder::getSingleton()->DisableShader(lightAndDissolveShader);
 //
-//	model->draw();
-//	glActiveTexture(GL_TEXTURE1);
-//	glDisable(GL_TEXTURE_3D);
-//	glActiveTexture(GL_TEXTURE0);
-//	glDisable(GL_TEXTURE_2D);
-//	glPolygonMode(GL_FRONT, GL_FILL);
-//	RsCGShaderBuilder::getSingleton()->DisableShader(lightAndDissolveShader);
+	// only dissolve
+	mPriFBO1->bind();
+	glClearColor(0.0,0.0,0.0,0.0);
+	mPriFBO1->clear();
+	cgGLSetParameter1f(lightLerp, mPriLerp);
+	RsCGShaderBuilder::getSingleton()->EnableShader(coloredDissolveShader);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
+	glEnable(GL_TEXTURE_3D);
+
+	model->draw();
+	glActiveTexture(GL_TEXTURE1);
+	glDisable(GL_TEXTURE_3D);
+	glActiveTexture(GL_TEXTURE0);
+	glDisable(GL_TEXTURE_2D);
+	glPolygonMode(GL_FRONT, GL_FILL);
+	RsCGShaderBuilder::getSingleton()->DisableShader(coloredDissolveShader);
+	mPriFBO1->unbind();
 //
-//	// only dissolve
-//	mPriFBO1->bind();
-//	glClearColor(0.0,0.0,0.0,0.0);
-//	mPriFBO1->clear();
-//	cgGLSetParameter1f(lightLerp, mPriLerp);
-//	RsCGShaderBuilder::getSingleton()->EnableShader(coloredDissolveShader);
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-//	glEnable(GL_TEXTURE_2D);
-//	glActiveTexture(GL_TEXTURE1);
-//	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
-//	glEnable(GL_TEXTURE_3D);
+	mPriFBO2->bind();
+	cgGLSetTextureParameter(glowTex1, mPriFBO1->getColorTexId());
+	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass1Shader);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriFBO1->getColorTexId());
+	glEnable(GL_TEXTURE_2D);
+	this->drawFSQuad();
+	glDisable(GL_TEXTURE_2D);
+	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass1Shader);
+	mPriFBO2->unbind();
 //
-//	model->draw();
-//	glActiveTexture(GL_TEXTURE1);
-//	glDisable(GL_TEXTURE_3D);
-//	glActiveTexture(GL_TEXTURE0);
-//	glDisable(GL_TEXTURE_2D);
-//	glPolygonMode(GL_FRONT, GL_FILL);
-//	RsCGShaderBuilder::getSingleton()->DisableShader(coloredDissolveShader);
-//	mPriFBO1->unbind();
-////
-//	mPriFBO2->bind();
-//	cgGLSetTextureParameter(glowTex1, mPriFBO1->getColorTexId());
-//	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass1Shader);
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriFBO1->getColorTexId());
-//	glEnable(GL_TEXTURE_2D);
-//	this->drawFSQuad();
-//	glDisable(GL_TEXTURE_2D);
-//	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass1Shader);
-//	mPriFBO2->unbind();
-////
-//	mPriFBO1->bind();
-////////	mPriFBO1->clear();
-//	cgGLSetTextureParameter(glowTex2, mPriFBO2->getColorTexId());
-//	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass2Shader);
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriFBO2->getColorTexId());
-//	glEnable(GL_TEXTURE_2D);
-//	this->drawFSQuad();
-//	glDisable(GL_TEXTURE_2D);
-//	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass2Shader);
-//	mPriFBO1->unbind();
-////
-//	glEnable(GL_BLEND);
-//	cgGLSetTextureParameter(glowTex3, mPriFBO1->getColorTexId());
-//	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass3Shader);
-//	glActiveTexture(GL_TEXTURE0);
-//	glBindTexture(GL_TEXTURE_2D, mPriFBO1->getColorTexId());
-//	glEnable(GL_TEXTURE_2D);
-//	this->drawFSQuad();
-//	glDisable(GL_TEXTURE_2D);
-//	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass3Shader);
-//	glDisable(GL_BLEND);
+	mPriFBO1->bind();
+//////	mPriFBO1->clear();
+	cgGLSetTextureParameter(glowTex2, mPriFBO2->getColorTexId());
+	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass2Shader);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriFBO2->getColorTexId());
+	glEnable(GL_TEXTURE_2D);
+	this->drawFSQuad();
+	glDisable(GL_TEXTURE_2D);
+	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass2Shader);
+	mPriFBO1->unbind();
+//
+	glEnable(GL_BLEND);
+	cgGLSetTextureParameter(glowTex3, mPriFBO1->getColorTexId());
+	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass3Shader);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mPriFBO1->getColorTexId());
+	glEnable(GL_TEXTURE_2D);
+	this->drawFSQuad();
+	glDisable(GL_TEXTURE_2D);
+	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass3Shader);
+	glDisable(GL_BLEND);
 
 
 	// ---------------------------

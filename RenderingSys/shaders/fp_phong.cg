@@ -56,7 +56,6 @@ void main(V2FI IN,
 	  out float4 color     : COLOR0,
               uniform float3 globalAmbient,
               uniform float4 lightPosition,
-              uniform float4 eyePosition,
         	  uniform float4x4 mvi,
         	  uniform float4x4 mvpi,
         	  uniform sampler2D tex1 :	TEXUNIT0,
@@ -111,21 +110,18 @@ void main(V2FI IN,
 	float3 N = normalize(IN.normal);
 
 	Light l;
-	l.color = float3(0.3,0.8,0.0);
+	l.color = float3(1.0,1.0,1.0);
 
-  // transforming eyePosition and LightPosition into object-space
-  mvi = glstate.matrix.inverse.modelview[0];
   mvpi = glstate.matrix.inverse.mvp;
   
-  // lightPos
-  float4 temp = mul(mvi, lightPosition);
-  l.position = float3(temp.x, temp.y, temp.z);
-  
   // eyepos
-  temp = mul(mvi, eyePosition);
-  float3 ePos = float3(temp.x, temp.y, temp.z);
+  float3 ePos = float3(mvpi[0].w, mvpi[1].w, mvpi[2].w);
 
-  color = float4(lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, float3(mvpi[3].xyz)),tempColor.a);
+  // lightPos [= eye pos]
+  l.position = float3(mvpi[0].w, mvpi[1].w, mvpi[2].w);
+  
+
+  color = float4(lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, ePos),tempColor.a);
 
 }
 
