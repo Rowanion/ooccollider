@@ -16,6 +16,10 @@
 #include "Cg/cg.h"
 #include "Cg/cgGL.h"
 
+#include <boost/system/config.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+
 #include "RsMathTools.h"
 #include "RsObjModel.h"
 #include "RsVboV4T2.h"
@@ -133,6 +137,8 @@ private:
 	unsigned vboIdx;
 	bool renderFull;
 	bool drawNormals;
+
+	boost::filesystem::path meshFile;
 };
 
 #endif /* RSDISSOLVERENDERER_H_ */
