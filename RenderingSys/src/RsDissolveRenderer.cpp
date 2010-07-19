@@ -12,10 +12,6 @@
 #include "GL/glew.h"
 #include "GL/freeglut.h"
 
-#include <boost/system/config.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-
 #include <cstdlib>
 #include <iostream>
 
@@ -285,6 +281,11 @@ void RsDissolveRenderer::keyboard(unsigned char _key, int _x, int _y, int* _pres
 	case (int)'n':
 		drawNormals = !drawNormals;
 	break;
+	case (int)'r':
+		delete model;
+		model = 0;
+		model = RsMeshTools::getSingleton()->loadObj(&meshFile);
+	break;
 	default:        // Now Wrap It Up
 		break;
 	}
@@ -448,11 +449,11 @@ void RsDissolveRenderer::init()
 	mPriFsQuad = new RsVboV4T2(4, indices, 4, data, GL_QUADS);
 
 #ifdef _WIN32
-	boost::filesystem::path meshFile = boost::filesystem::path("D:\\meshes\\mini_obj2.obj");
+	meshFile = boost::filesystem::path("D:\\meshes\\mini_obj2.obj");
 #elif defined OFFICE
-	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj3.obj");
+	meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj3.obj");
 #else
-	boost::filesystem::path meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj2.obj");
+	meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj3.obj");
 #endif
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
 	model = mTools->loadObj(&meshFile);
@@ -463,6 +464,7 @@ void RsDissolveRenderer::init()
 
 	this->setupShaders();
 
+	RsCGShaderBuilder::getSingleton()->PrintShadingLanguageString();
 	// create and setup FBOs
 
 	mPriFBO1 = new RsFbo(RsWindow::getSingleton()->getWindowWidth(), RsWindow::getSingleton()->getWindowHeight());
