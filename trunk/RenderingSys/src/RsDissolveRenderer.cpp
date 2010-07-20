@@ -456,6 +456,8 @@ void RsDissolveRenderer::init()
 	meshFile = boost::filesystem::path("/home/ava/Diplom/Model/meshes/mini_obj3.obj");
 #endif
 	RsMeshTools* mTools = RsMeshTools::getSingleton();
+
+
 	model = mTools->loadObj(&meshFile);
 
 	mPriMath = RsMathTools();
