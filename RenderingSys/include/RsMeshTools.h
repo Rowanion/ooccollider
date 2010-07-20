@@ -18,6 +18,7 @@
 #include "RsObjModel.h"
 
 #include <map>
+#include <set>
 #include <string>
 
 /**
@@ -30,11 +31,11 @@ public:
 	static RsMeshTools* getSingleton();
 	RsObjModel* loadObj(boost::filesystem::path* _file);
 	void parseObj(boost::filesystem::path* _file, RsObjInfo* _info);
+    void loadMtlLib(boost::filesystem::path* _file, RsObjInfo* _info);
 private:
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 
     unsigned analyzeFaceLine(tokenizer* _tokens);
-    void loadMtlLib(boost::filesystem::path* _file, std::map<std::string, RsMaterial>* _mtlMap);
     static RsMeshTools* instance;
 	RsMeshTools();
 	virtual ~RsMeshTools();

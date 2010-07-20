@@ -52,10 +52,14 @@ void RsMeshTools::parseObj(fs::path* _file, RsObjInfo* _info)
 		return;
 
 	std::string line;
+	const boost::regex usemtl_expr("usemtl");
+	const boost::regex mtllib_expr("mtllib");
+	std::pair<std::map<std::string, unsigned>::iterator, bool > result;
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> blank_sep(" ");
 	tokenizer tokens = tokenizer(line, blank_sep);
 	tokenizer face_tokens = tokenizer(line, blank_sep);
+	tokenizer::iterator tok_iter;
 
 	fs::ifstream inFile;
 	inFile.open(*_file);
@@ -64,10 +68,31 @@ void RsMeshTools::parseObj(fs::path* _file, RsObjInfo* _info)
 		if (tokens.begin()!= tokens.end()){
 			string type = (*tokens.begin());
 			switch (type[0]){
-			case 'u':	// Probable point of mtllib
-				_info->materialCount++;
+			case 'm':	// Probable point of mtllib
+				if (boost::regex_match(type, mtllib_expr, boost::match_extra)){
+					// -------------------------------------------------------
+					tokenizer::iterator tok_iter=tokens.begin();
+					tok_iter++;
+					boost::filesystem::path mtlP = boost::filesystem::path(_file->branch_path() / *tok_iter);
+					if (boost::filesystem::is_regular_file(mtlP)){
+						this->loadMtlLib(&mtlP, _info);
+					}
+					exit(0);
+
+					// --------------------------------------------------------
+				}
 				break;
-			case 'g':	// Probable point of mtllib
+			case 'u':	// Probable point of mtllib
+				if (boost::regex_match(type, usemtl_expr, boost::match_extra)){
+					tok_iter = tokens.begin();
+					tok_iter++;
+					result = _info->materialNames.insert(make_pair(std::string(*tok_iter), _info->materialCount));
+					if (result.second){	//new entry inserted
+						_info->materialCount++;
+					}
+				}
+				break;
+			case 'g':	// Probable point of group
 				_info->groupCount++;
 				_info->groupFaces.push_back(0);
 				_info->groupBits.push_back(0);
@@ -101,34 +126,101 @@ void RsMeshTools::parseObj(fs::path* _file, RsObjInfo* _info)
 	}
 	inFile.close();
 }
-void RsMeshTools::loadMtlLib(fs::path* _file, std::map<std::string, RsMaterial>* _mtlMap)
+void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 {
 	//TODO
 	std::string line;
 	boost::char_separator<char> blank_sep(" \t");
 	tokenizer tokens = tokenizer(line, blank_sep);
 	tokenizer face_tokens = tokenizer(line, blank_sep);
-	const boost::regex usemtl_expr("usemtl");
+	const boost::regex newmtl_expr("newmtl");
 	const boost::regex mtlka_expr("Ka");
 	const boost::regex mtlkd_expr("Kd");
 	const boost::regex mtlks_expr("Ks");
 	const boost::regex mtlns_expr("Ns");
-	const boost::regex mtlmap_expr("map_");
+	const boost::regex mtlmap_expr("^map_*");
 	const boost::regex mComponents_expr("(\\d+)/?(\\d*)/?(\\d*)");
+	tokenizer::iterator tok_iter;
+	RsMaterial* matPtr = 0;
+	std::pair<std::set<RsMaterial>::iterator, bool > setResult;
+	std::map<std::string, unsigned>::iterator mapIter;
 
 	fs::ifstream inFile;
 	inFile.open(*_file);
 	while (std::getline(inFile, line)) {
 		tokens.assign(line, blank_sep);
 		if (tokens.begin()!= tokens.end()){
-			string type = (*tokens.begin());
-			switch (type[0]){
-			case 'm':	// Probable point of mtllib
-				break;
+			tok_iter = tokens.begin();
+			string type = (*tok_iter);
+			if (boost::regex_match(type, newmtl_expr, boost::match_extra)){
+				tok_iter++;
+				mapIter = _info->materialNames.find(*tok_iter);
+				if (mapIter != _info->materialNames.end()){
+					matPtr = new RsMaterial();
+					matPtr->id = mapIter->second;
+					matPtr->name = *tok_iter;
+					setResult = _info->material.insert(*matPtr);
+					delete matPtr;
+					matPtr = 0;
+					matPtr = (RsMaterial*)(&(*setResult.first));
+					std::cerr << "found material '" << matPtr->name << "'" << std::endl;
+				}
+				else {
+					matPtr = 0;
+					std::cerr << "ignoring unreferenced material '" << *tok_iter << "'" << std::endl;
+				}
+			}
+			else if (boost::regex_match(type, mtlka_expr, boost::match_extra)){
+				if (matPtr != 0){
+					tok_iter++;
+					matPtr->ambient.x = atof(tok_iter->c_str());
+					tok_iter++;
+					matPtr->ambient.y = atof(tok_iter->c_str());
+					tok_iter++;
+					matPtr->ambient.z = atof(tok_iter->c_str());
+
+					std::cerr << "found KA: " << matPtr->ambient.x << ", " << matPtr->ambient.y << ", " << matPtr->ambient.z << std::endl;
+				}
+			}
+			else if (boost::regex_match(type, mtlkd_expr, boost::match_extra)){
+				if (matPtr != 0){
+					tok_iter++;
+					matPtr->diffuse.x = atof(tok_iter->c_str());
+					tok_iter++;
+					matPtr->diffuse.y = atof(tok_iter->c_str());
+					tok_iter++;
+					matPtr->diffuse.z = atof(tok_iter->c_str());
+
+					std::cerr << "found KD " << matPtr->diffuse.x << ", " << matPtr->diffuse.y << ", " << matPtr->diffuse.z << std::endl;
+				}
+			}
+			else if (boost::regex_match(type, mtlks_expr, boost::match_extra)){
+				if (matPtr != 0){
+					tok_iter++;
+					matPtr->specular.x = atof(tok_iter->c_str());
+					tok_iter++;
+					matPtr->specular.y = atof(tok_iter->c_str());
+					tok_iter++;
+					matPtr->specular.z = atof(tok_iter->c_str());
+					std::cerr << "found KS " << matPtr->specular.x << ", " << matPtr->specular.y << ", " << matPtr->specular.z << std::endl;
+				}
+			}
+			else if (boost::regex_match(type, mtlns_expr, boost::match_extra)){
+				if (matPtr != 0){
+					tok_iter++;
+					matPtr->shininess = atof(tok_iter->c_str());
+					std::cerr << "found NS " << matPtr->shininess << std::endl;
+				}
+			}
+			else if (boost::regex_match(type, mtlmap_expr, boost::match_extra)){
+				if (matPtr != 0){
+					std::cerr << "found " << *tok_iter << ": ";
+					tok_iter++;
+					std::cerr << *tok_iter << std::endl;
+				}
 			}
 		}
 	}
-
 }
 
 RsObjModel* RsMeshTools::loadObj(fs::path* _file)
@@ -153,6 +245,10 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 	 * we can have an indexbuffer for each group, sharing a vertexbuffer with all
 	 * its fellow groups.
 	 */
+
+	if (!boost::filesystem::is_regular_file(*_file)){
+		return 0;
+	}
 
 	// first pass
 	RsObjInfo modelInfo = RsObjInfo();
@@ -185,7 +281,12 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 	float* texCoords = 0;
 	unsigned tComponentCount = 0;
 	unsigned char* colors = 0;
-	unsigned cCount = 0;
+	unsigned currentMaterial = 0;
+	unsigned* groupMaterial = new unsigned[modelInfo.groupCount];
+	for (unsigned i =0; i< modelInfo.groupCount; ++i){
+		groupMaterial[i] = 0;
+	}
+
 	unsigned** group = new unsigned*[modelInfo.groupCount];
 	for (unsigned i = 0; i < modelInfo.groupCount; ++i){
 		if (modelInfo.groupBits[i]>2){
@@ -217,8 +318,8 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 	tokenizer tokens = tokenizer(line, blank_sep);
 	tokenizer face_tokens = tokenizer(line, blank_sep);
 	const boost::regex usemtl_expr("usemtl");
-	const boost::regex mtllib_expr("mtllib");
 	const boost::regex mComponents_expr("(\\d+)/?(\\d*)/?(\\d*)");
+	std::map<std::string, unsigned>::iterator mapIter;
 
 	fs::ifstream inFile;
 	inFile.open(*_file);
@@ -227,18 +328,23 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 		if (tokens.begin()!= tokens.end()){
 			string type = (*tokens.begin());
 			switch (type[0]){
-			case 'm':	// Probable point of mtllib
-				if (boost::regex_match(type, mtllib_expr, boost::match_extra)){
-
-				}
-				break;
 			case 'u':	// Probable point of usemtl
 				if (boost::regex_match(type, usemtl_expr, boost::match_extra)){
+					tokenizer::iterator tok_iter=tokens.begin();
+					tok_iter++;
+					mapIter = modelInfo.materialNames.find(*tok_iter);
+					if (mapIter != modelInfo.materialNames.end()){
+						currentMaterial = mapIter->second;
+					}
 
 				}
 				break;
 			case 'g':	// Probable point of group
+				if (gCount>=0){
+					groupMaterial[gCount] = currentMaterial;
+				}
 				gCount++;
+				groupMaterial[gCount] = currentMaterial;
 				groupIndexComponentCount = 0;
 				break;
 			case 'v':{
@@ -306,6 +412,7 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 		}
 	}
 	inFile.close();
+	groupMaterial[gCount] = currentMaterial;
 
 	// -----------------------------------
 	std::cerr << "Addresses: ( in tools) " << std::endl;
@@ -314,7 +421,7 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 	std::cerr << ((modelInfo.groupBits[0] & 1) && (modelInfo.groupBits[0] & 2)) << std::endl;
 	// -----------------------------------
 	for (unsigned i=0; i< modelInfo.groupCount; ++i){
-		model->addVbo(&modelInfo, i, group[i], vertices, normals, texCoords, colors);
+		model->addVbo(&modelInfo, i, group[i], vertices, normals, texCoords, colors, groupMaterial[i]);
 	}
 
 	delete[] vertices;

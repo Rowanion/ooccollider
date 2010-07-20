@@ -29,7 +29,9 @@ RsObjModel::RsObjModel() : mPriVboCount(0), mPriVbos(0)
 
 RsObjModel::RsObjModel(const RsObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 {
+	mPriShader = 0;
 	if (_info != 0){
+		mPriGroupMaterial = new unsigned[_info->groupCount];
 		mPriVboCount = _info->groupCount;
 		mPriVbos = new RsAbstractVbo *[mPriVboCount];
 		for (unsigned i=0; i< mPriVboCount; ++i){
@@ -47,10 +49,21 @@ RsObjModel::RsObjModel(const RsObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 			}
 
 		}
+		mPriMaterialCount = _info->materialCount;
+		mPriMaterials = new RsMaterial[_info->materialCount];
+		RsMaterial temp = RsMaterial();
+		std::set<RsMaterial>::iterator setIt;
+		for(unsigned i=0; i< mPriMaterialCount; ++i){
+			temp.id = i;
+			setIt = _info->material.find(temp);
+			if (setIt != _info->material.end()){
+				mPriMaterials[i] = *setIt;
+			}
+		}
 	}
 }
 
-void RsObjModel::addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors)
+void RsObjModel::addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors, unsigned _materialId)
 {
 	// -----------------------------------------------------
 	std::cerr << "Addresses: (in ObjModel) " << std::endl;
@@ -59,15 +72,9 @@ void RsObjModel::addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* 
 	std::cerr << (_info->groupBits[_gIdx] & 1)<< std::endl;
 	std::cerr << (_info->groupBits[_gIdx] & 2) << std::endl;
 	std::cerr << ((_info->groupBits[_gIdx] & 1) && (_info->groupBits[_gIdx] & 2)) << std::endl;
-	if ((_info->groupBits[_gIdx] & 1) && (_info->groupBits[_gIdx] & 2)){
-		std::cerr << "jau" << std::endl;
-	}
-	else {
-		std::cerr << "nej" << std::endl;
-	}
 
 	// -----------------------------------------------------
-
+	mPriGroupMaterial[_gIdx] = _materialId;
 	unsigned* indices = new unsigned[_info->groupFaces[_gIdx]*3];
 	unsigned mapSize = 0;
 	if (_info != 0){
@@ -277,6 +284,17 @@ void RsObjModel::addVbo(const RsAbstractVbo* _vbo)
 void RsObjModel::draw()
 {
 	for (unsigned i=0; i<mPriVboCount; ++i){
+		CGparameter param;
+		if (mPriShader != 0){
+			param = cgGetNamedParameter(mPriShader, "Ka");
+			cgGLSetParameter3fv(param, (float*)&mPriMaterials[i].ambient);
+			param = cgGetNamedParameter(mPriShader, "Kd");
+			cgGLSetParameter3fv(param, (float*)&mPriMaterials[i].diffuse);
+			param = cgGetNamedParameter(mPriShader, "Ks");
+			cgGLSetParameter3fv(param, (float*)&mPriMaterials[i].specular);
+			param = cgGetNamedParameter(mPriShader, "shininess");
+			cgGLSetParameter1f(param, mPriMaterials[i].shininess);
+		}
 		mPriVbos[i]->draw();
 	}
 }
@@ -299,4 +317,9 @@ void RsObjModel::drawDebug()
 unsigned RsObjModel::getVboCount()
 {
 	return mPriVboCount;
+}
+
+void RsObjModel::setShader(CGprogram _shader)
+{
+	mPriShader = _shader;
 }

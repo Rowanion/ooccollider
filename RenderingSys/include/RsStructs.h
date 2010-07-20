@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 
 #include <GL/glew.h>
@@ -216,7 +217,10 @@ struct RsMaterial{
 	RsTriplef ambient;
 	RsTriplef diffuse;
 	RsTriplef specular;
+	unsigned id;
 	GLuint texture;
+	std::string name;
+	bool operator<(const RsMaterial& _rhs) const;
 };
 
 /**
@@ -241,7 +245,10 @@ struct RsObjInfo
 	std::vector<unsigned> groupFaces;
 
 	// the key is the original material-name and the value is the material itself, to transform the name into an ID
-	std::map<std::string, RsMaterial> materials;
+	std::map<std::string, unsigned> materialNames;
+
+	std::set<RsMaterial> material;
+
 };
 
 inline char* bufferOffset(int i){return (char *)0 + (i);}

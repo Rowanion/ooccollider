@@ -227,11 +227,18 @@ RsV4T2::RsV4T2(float _vx, float _vy, float _vz, float _tx, float _ty)
 
 RsMaterial::RsMaterial()
 {
+	this->id = 0;
 	this->shininess = 0.0f;
 	this->ambient = RsTriplef(0.2f, 0.2f, 0.2f);
 	this->diffuse = RsTriplef(0.8f, 0.8f, 0.8f);
 	this->specular = RsTriplef(1.0f, 1.0f, 1.0f);
 	this->texture = 0;
+	this->name = std::string("mat");
 
 
+}
+
+bool RsMaterial::operator<(const RsMaterial& _rhs) const
+{
+	return (this->id < _rhs.id);
 }

@@ -10,7 +10,6 @@ struct V2FI
 };
 
 struct Material{
-	float3 Ke;
 	float3 Ka;
 	float3 Kd;
 	float3 Ks;
@@ -29,9 +28,6 @@ float3 lighting(Material material,
 				float3 N,
 				float3 eyePosition)
 {
-	// Compute emissive term
-	float3 emissive = material.Ke;
-	
 	// Compute ambient term
   	float3 ambient = material.Ka * globalAmbient;
 
@@ -47,13 +43,18 @@ float3 lighting(Material material,
   	if (diffuseLight <= 0) specularLight = 0;
   	float3 specular = material.Ks * light.color * specularLight;
 
-  	return emissive + ambient + diffuse + specular;
+  	return ambient + diffuse + specular;
 	
 }
 
 void main(V2FI IN,
 
 	  out float4 color     : COLOR0,
+	  		  uniform float3 Ka,
+	  		  uniform float3 Kd,
+	  		  uniform float3 Ks,
+	  		  uniform float shininess,
+	  
               uniform float3 globalAmbient,
               uniform float4 lightPosition,
         	  uniform float4x4 mvi,
@@ -100,12 +101,17 @@ void main(V2FI IN,
 
 
 	Material shiny;
-	shiny.Ke = float3(0.0, 0.0, 0.0);
 	shiny.Ka = float3(0.1, 0.1, 0.1);
 	shiny.Kd = tempColor.xyz;
 		//float3(0.2, 0.4, 0.2);
 	shiny.Ks = float3(0.8, 0.8, 0.8);
 	shiny.shininess = 90.0;
+	
+	Material inMat;
+	inMat.Ka = Ka;
+	inMat.Kd = Kd;
+	inMat.Ks = Ks;
+	inMat.shininess = shininess; 
 	float3 P = IN.position.xyz;
 	float3 N = normalize(IN.normal);
 
