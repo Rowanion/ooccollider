@@ -21,6 +21,7 @@
 #include "RsVboV4T2.h"
 #include "RsVboV3N4T2.h"
 #include "RsStructs.h"
+#include "RsCGShaderBuilder.h"
 
 RsObjModel::RsObjModel() : mPriVboCount(0), mPriVbos(0)
 {
@@ -29,7 +30,6 @@ RsObjModel::RsObjModel() : mPriVboCount(0), mPriVbos(0)
 
 RsObjModel::RsObjModel(const RsObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 {
-	mPriShader = 0;
 	if (_info != 0){
 		mPriGroupMaterial = new unsigned[_info->groupCount];
 		mPriVboCount = _info->groupCount;
@@ -49,31 +49,13 @@ RsObjModel::RsObjModel(const RsObjInfo* _info) : mPriVboCount(0), mPriVbos(0)
 			}
 
 		}
-		mPriMaterialCount = _info->materialCount;
-		mPriMaterials = new RsMaterial[_info->materialCount];
-		RsMaterial temp = RsMaterial();
-		std::set<RsMaterial>::iterator setIt;
-		for(unsigned i=0; i< mPriMaterialCount; ++i){
-			temp.id = i;
-			setIt = _info->material.find(temp);
-			if (setIt != _info->material.end()){
-				mPriMaterials[i] = *setIt;
-			}
-		}
+		mPriMaterialCount = 0;
+		mPriMaterials = 0;
 	}
 }
 
 void RsObjModel::addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals, const float* _texCoords, const unsigned char* _colors, unsigned _materialId)
 {
-	// -----------------------------------------------------
-	std::cerr << "Addresses: (in ObjModel) " << std::endl;
-	std::cerr << "objinfo: " << (uint64_t)_info << std::endl;
-	std::cerr << _info->groupFaces[_gIdx]*3 << std::endl;
-	std::cerr << (_info->groupBits[_gIdx] & 1)<< std::endl;
-	std::cerr << (_info->groupBits[_gIdx] & 2) << std::endl;
-	std::cerr << ((_info->groupBits[_gIdx] & 1) && (_info->groupBits[_gIdx] & 2)) << std::endl;
-
-	// -----------------------------------------------------
 	mPriGroupMaterial[_gIdx] = _materialId;
 	unsigned* indices = new unsigned[_info->groupFaces[_gIdx]*3];
 	unsigned mapSize = 0;
@@ -81,7 +63,6 @@ void RsObjModel::addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* 
 		unsigned x = (_info->groupBits[_gIdx])&1;
 		unsigned y = _info->groupBits[_gIdx]&2;
 		if (x && y){ // normals AND textures
-			std::cerr << "assuming textures and normals..." << std::endl;
 			std::map<RsV3N4T2, unsigned> V3N4T2Map = std::map<RsV3N4T2, unsigned>();
 			std::map<RsV3N4T2, unsigned>::iterator it;
 			for (unsigned i=0; i<_info->groupFaces[_gIdx]; i++){
@@ -274,36 +255,109 @@ RsObjModel::~RsObjModel() {
 		delete mPriVbos[i];
 		delete[] mPriVbos;
 	}
+
+	if (mPriMaterials != 0){
+		delete[] mPriMaterials;
+		mPriMaterials = 0;
+	}
+	delete[] mPriGroupMaterial;
+	mPriGroupMaterial = 0;
 }
 
-void RsObjModel::addVbo(const RsAbstractVbo* _vbo)
-{
-	//TODO
-}
-
-void RsObjModel::draw()
+void RsObjModel::draw(CGprogram _shader)
 {
 	for (unsigned i=0; i<mPriVboCount; ++i){
 		CGparameter param;
-		if (mPriShader != 0){
-			param = cgGetNamedParameter(mPriShader, "Ka");
-			cgGLSetParameter3fv(param, (float*)&mPriMaterials[i].ambient);
-			param = cgGetNamedParameter(mPriShader, "Kd");
-			cgGLSetParameter3fv(param, (float*)&mPriMaterials[i].diffuse);
-			param = cgGetNamedParameter(mPriShader, "Ks");
-			cgGLSetParameter3fv(param, (float*)&mPriMaterials[i].specular);
-			param = cgGetNamedParameter(mPriShader, "shininess");
-			cgGLSetParameter1f(param, mPriMaterials[i].shininess);
+		if (_shader != 0){
+			param = cgGetNamedParameter(_shader, "Ka");
+			cgGLSetParameter3fv(param, (float*)&mPriMaterials[mPriGroupMaterial[i]].ambient);
+			param = cgGetNamedParameter(_shader, "Kd");
+			cgGLSetParameter3fv(param, (float*)&mPriMaterials[mPriGroupMaterial[i]].diffuse);
+			param = cgGetNamedParameter(_shader, "Ks");
+			cgGLSetParameter3fv(param, (float*)&mPriMaterials[mPriGroupMaterial[i]].specular);
+			param = cgGetNamedParameter(_shader, "shininess");
+			cgGLSetParameter1f(param, mPriMaterials[mPriGroupMaterial[i]].shininess);
+			if (mPriMaterials[mPriGroupMaterial[i]].texture != 0){
+				param = cgGetNamedParameter(_shader, "useMap_Kd");
+				cgGLSetParameter1f(param, 1.0f);
+				param = cgGetNamedParameter(_shader, "map_Kd");
+				cgGLSetTextureParameter(param, mPriMaterials[mPriGroupMaterial[i]].texture);
+				cgGLEnableTextureParameter(param);
+			}
+			else {
+				param = cgGetNamedParameter(_shader, "useMap_Kd");
+				cgGLSetParameter1f(param, 0.0f);
+			}
 		}
+		if (mPriMaterials[mPriGroupMaterial[i]].texture>0){
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mPriMaterials[mPriGroupMaterial[i]].texture);
+			glEnable(GL_TEXTURE_2D);
+		}
+
 		mPriVbos[i]->draw();
+
+		if (mPriMaterials[mPriGroupMaterial[i]].texture>0){
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glDisable(GL_TEXTURE_2D);
+		}
+
+		if (_shader != 0){
+			if (mPriMaterials[mPriGroupMaterial[i]].texture != 0){
+				param = cgGetNamedParameter(_shader, "map_Kd");
+				cgGLDisableTextureParameter(param);
+			}
+		}
 	}
 }
 
-void RsObjModel::draw(unsigned _idx)
+void RsObjModel::draw(unsigned _idx, CGprogram _shader)
 {
 	if (_idx< 0 || _idx > mPriVboCount) return;
 
+	CGparameter param;
+	if (_shader != 0){
+		param = cgGetNamedParameter(_shader, "Ka");
+		cgGLSetParameter3fv(param, (float*)&mPriMaterials[mPriGroupMaterial[_idx]].ambient);
+		param = cgGetNamedParameter(_shader, "Kd");
+		cgGLSetParameter3fv(param, (float*)&mPriMaterials[mPriGroupMaterial[_idx]].diffuse);
+		param = cgGetNamedParameter(_shader, "Ks");
+		cgGLSetParameter3fv(param, (float*)&mPriMaterials[mPriGroupMaterial[_idx]].specular);
+		param = cgGetNamedParameter(_shader, "shininess");
+		cgGLSetParameter1f(param, mPriMaterials[mPriGroupMaterial[_idx]].shininess);
+		if (mPriMaterials[mPriGroupMaterial[_idx]].texture != 0){
+			param = cgGetNamedParameter(_shader, "useMap_Kd");
+			cgGLSetParameter1f(param, 1.0f);
+			param = cgGetNamedParameter(_shader, "map_Kd");
+			cgGLSetTextureParameter(param, mPriMaterials[mPriGroupMaterial[_idx]].texture);
+			cgGLEnableTextureParameter(param);
+		}
+		else {
+			param = cgGetNamedParameter(_shader, "useMap_Kd");
+			cgGLSetParameter1f(param, 0.0f);
+		}
+	}
+	if (mPriMaterials[mPriGroupMaterial[_idx]].texture>0){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mPriMaterials[mPriGroupMaterial[_idx]].texture);
+		glEnable(GL_TEXTURE_2D);
+	}
+
 	mPriVbos[_idx]->draw();
+
+	if (mPriMaterials[mPriGroupMaterial[_idx]].texture>0){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
+	}
+
+	if (_shader != 0){
+		if (mPriMaterials[mPriGroupMaterial[_idx]].texture != 0){
+			param = cgGetNamedParameter(_shader, "map_Kd");
+			cgGLDisableTextureParameter(param);
+		}
+	}
 }
 
 void RsObjModel::drawDebug()
@@ -319,7 +373,22 @@ unsigned RsObjModel::getVboCount()
 	return mPriVboCount;
 }
 
-void RsObjModel::setShader(CGprogram _shader)
+void RsObjModel::setMaterials(const RsObjInfo* _info)
 {
-	mPriShader = _shader;
+	if (mPriMaterials != 0){
+		delete[] this->mPriMaterials;
+		this->mPriMaterials = 0;
+	}
+
+	this->mPriMaterialCount = _info->materialCount;
+	this->mPriMaterials = new RsMaterial[this->mPriMaterialCount];
+	RsMaterial temp = RsMaterial();
+	std::set<RsMaterial>::iterator setIt;
+	for(unsigned i=0; i< mPriMaterialCount; ++i){
+		temp.id = i;
+		setIt = _info->material.find(temp);
+		if (setIt != _info->material.end()){
+			mPriMaterials[i] = *setIt;
+		}
+	}
 }

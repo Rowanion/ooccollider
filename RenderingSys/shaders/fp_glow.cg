@@ -19,7 +19,7 @@ void vpPassThrough(in float4 P : POSITION,
 }
 
 float4 fpGaussianPassH(in float4 tc : TEXCOORD0,
-						uniform sampler2D srcSampler) : COLOR
+						uniform sampler2D srcSampler : TEXUNIT1) : COLOR
 {
   float4 c2;
   float4 texCol = tex2D(srcSampler, tc.xy);
@@ -38,7 +38,7 @@ float4 fpGaussianPassH(in float4 tc : TEXCOORD0,
 }
 
 float4 fpGaussianPassV(in float2 tc : TEXCOORD0,
-						uniform sampler2D srcSampler : TEXUNIT0) : COLOR
+						uniform sampler2D srcSampler : TEXUNIT1) : COLOR
 {
 	// -----
   float4 c2;
@@ -64,7 +64,7 @@ float4 fpGaussianPassV(in float2 tc : TEXCOORD0,
 }
 
 float4 fpFinalCompositing(float2 tc : TEXCOORD0,
-							uniform sampler2D tempSampler) : COLOR
+							uniform sampler2D tempSampler : TEXUNIT1) : COLOR
 {
   float4 c = tex2D(tempSampler, tc.xy);
   c *= blendFactor;

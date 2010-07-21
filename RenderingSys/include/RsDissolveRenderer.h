@@ -36,8 +36,8 @@
 }
 
 /**
- * @class RsRendererImpl
- * @brief: This is an exemplary implementation of a renderer.
+ * @class RsDissolveRenderer
+ * @brief This is an exemplary implementation of a renderer which displays a shaded, lit and textured model, which slowly dissolves into the void...
  * This implementation simply loads a mesh-model from an OVJ-file, and uses some cg-shaders to slowly
  * dissolve the model, using perlin noise and glowing.
  */
@@ -46,19 +46,88 @@ class RsDissolveRenderer: public RsAbstractRenderer
 public:
 	RsDissolveRenderer();
 	virtual ~RsDissolveRenderer();
+
+	/**
+	 * @brief Preliminary init-Method - load/generate textures, setup shaders, etc
+	 */
 	virtual void init();
+
+	/**
+	 * @brief The render-loop - this is where the magick happens
+	 */
 	virtual void display();
+
+	/**
+	 * @brief Default glut-method; Called whenever the window is resized.
+	 * The aspect-ratio is kept here and a frustum is created.
+	 * @param _w window width
+	 * @param _h window height
+	 */
 	virtual void reshape(int _w, int _h);
+
+	/**
+	 * @brief default glut-function for regular key events.
+	 * @param _key Which key was pressed?
+	 * @param _x mouse-x-coordinate relative to window at the time the key was pressed.
+	 * @param _y mouse-y-coordinate relative to window at the time the key was pressed.
+	 * @param _present Field specifies if this method is actually present in this renderer implementation.
+	 */
 	virtual void keyboard(unsigned char _key, int _x, int _y, int* _present = 0);
+
+	/**
+	 * @brief default glut-function for special key events.
+	 * @param _key Which key was pressed?
+	 * @param _x mouse-x-coordinate relative to window at the time the key was pressed.
+	 * @param _y mouse-y-coordinate relative to window at the time the key was pressed.
+	 * @param _present Field specifies if this method is actually present in this renderer implementation.
+	 */
 	virtual void specialKeys(int _key, int _x, int _y, int* _present = 0);
+
+	/**
+	 * @brief default glut-function for mouse input events.
+	 * @param _button Which button was pressed?
+	 * @param _state Button up or down?
+	 * @param _x mouse-x-coordinate relative to window at the time the key was pressed.
+	 * @param _y mouse-y-coordinate relative to window at the time the key was pressed.
+	 * @param _present Field specifies if this method is actually present in this renderer implementation.
+	 */
 	virtual void processMouse(int _button, int _state, int _x, int _y, int* _present = 0);
+
+	/**
+	 * @brief default glut-function for mouse input events, a.k.a. dragging
+	 * @param _x mouse-x-coordinate relative to window at the time the key was pressed.
+	 * @param _y mouse-y-coordinate relative to window at the time the key was pressed.
+	 * @param _present Field specifies if this method is actually present in this renderer implementation.
+	 */
 	virtual void processMouseActiveMotion(int _x, int _y, int* _present = 0);
+
+	/**
+	 * @brief This baby keeps the animation going. It calls the glutPostRedisplay() over and over and over and over......
+	 * @param _present Field specifies if this method is actually present in this renderer implementation.
+	 */
 	virtual void animator(int* _present = 0);
-	virtual void debug();
+
+	/**
+	 * @brief Function applies the collected movement changes to the camera-matrix.
+	 */
 	void applyKeyEvents();
 private:
+
+	/**
+	 * @brief Loading and creation of texture objects.
+	 */
 	void setupTextures();
+
+	/**
+	 * @brief Loading and setup of used shaders.
+	 */
 	void setupShaders();
+
+	/**
+	 * @brief As the function name suggests, this actually draws a fullscreen quad.
+	 */
+	void drawFSQuad();
+
 	RsCamera mPriCam;
 	float mPriWalkingSpeed;
 	GLuint mPriTexture;
@@ -118,7 +187,6 @@ private:
 	int mPriWidth;
 	int mPriHeight;
 
-	void drawFSQuad();
 
 	CGparameter glowTex1;
 	CGparameter glowTex2;
