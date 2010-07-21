@@ -25,6 +25,7 @@ class RsObjModel {
 public:
 	RsObjModel();
 	RsObjModel(const RsObjInfo* _info);
+	virtual ~RsObjModel();
 
 	/**
 	 * @brief This methods constructs a VBO for the model by the given data.
@@ -38,20 +39,35 @@ public:
 	 * @param _normals - The pure normal-data-array which will be accessed via the indices in _group - if present.
 	 * @param _texCoords - The pure TexCoord-data-array which will be accessed via the indices in _group - if present.
 	 * @param _colors - The pure color-data-array which will be accessed via the indices in _group - not implemented yet.
+	 * @param _materialId - The material ID which belongs to this VBO.
 	 */
 	void addVbo(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0, unsigned _materialId = 0);
 	void addVboDebug(const RsObjInfo* _info, unsigned _gIdx, const unsigned* _group, const float* _vertices, const char* _normals = 0, const float* _texCoords = 0, const unsigned char* _colors = 0);
-	virtual ~RsObjModel();
-	void addVbo(const RsAbstractVbo* _vbo);
-	void setShader(CGprogram _shader);
+
+	/**
+	 * @brief sets the list of materials for this object.
+	 * @param _info
+	 */
+	void setMaterials(const RsObjInfo* _info);
 
 	/**
 	 * @brief This method calls the draw method of each VBO in a row.
+	 * @param _shader if a shader is given, then the appropriate parameters are set up as well.
 	 */
-	void draw();
-	void draw(unsigned _idx);
+	void draw(CGprogram _shader = 0);
+
+	/**
+	 * @brief This method calls the draw method of the given VBO.
+	 * @param _idx Index of vbo.
+	 * @param _shader if a shader is given, then the appropriate parameters are set up as well.
+	 */
+	void draw(unsigned _idx, CGprogram _shader = 0);
 	void drawDebug();
 
+	/**
+	 * @brief returns the number of VBOs contained within this object.
+	 * @return
+	 */
 	unsigned getVboCount();
 
 private:
@@ -60,8 +76,6 @@ private:
 	RsMaterial* mPriMaterials;
 	unsigned mPriMaterialCount;
 	unsigned* mPriGroupMaterial;
-	CGprogram mPriShader;
-
 
 	unsigned idxCount;
 	unsigned vCount;

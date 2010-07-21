@@ -46,7 +46,7 @@ float3 lighting(Material material,
   	return ambient + diffuse + specular;
 	
 }
-
+// main method of fragment shader
 void main(V2FI IN,
 
 	  out float4 color     : COLOR0,
@@ -54,18 +54,26 @@ void main(V2FI IN,
 	  		  uniform float3 Kd,
 	  		  uniform float3 Ks,
 	  		  uniform float shininess,
+	  		  uniform float useMap_Kd,	// 1.0 if a texture map is used as the Kd value; 0.0 else
 	  
               uniform float3 globalAmbient,
               uniform float4 lightPosition,
         	  uniform float4x4 mvi,
         	  uniform float4x4 mvpi,
-        	  uniform sampler2D tex1 :	TEXUNIT0,
-        	  uniform sampler3D tex2 :	TEXUNIT1,
+        	  uniform sampler2D map_Kd :	TEXUNIT0,	// The color texture
+        	  uniform sampler3D map_noise :	TEXUNIT1,	// The noise texture
         	  uniform float lerpVal)
 {
 
-	float3 texColor = tex2D(tex1, IN.texCoord).rgb;
-	float dissolve = tex3D(tex2, IN.tex3DCoord).a;
+	float3 texColor;
+	if (useMap_Kd>0){
+		texColor = tex2D(map_Kd, IN.texCoord).rgb;
+	}
+	else {
+		texColor = Kd;
+	}
+	
+	float dissolve = tex3D(map_noise, IN.tex3DCoord).a;
 	float4 tempColor;
 
 	// -------------------------------------------
@@ -99,19 +107,12 @@ void main(V2FI IN,
 	// Light Params
 	// -------------------------------------------
 
-
-	Material shiny;
-	shiny.Ka = float3(0.1, 0.1, 0.1);
-	shiny.Kd = tempColor.xyz;
-		//float3(0.2, 0.4, 0.2);
-	shiny.Ks = float3(0.8, 0.8, 0.8);
-	shiny.shininess = 90.0;
-	
 	Material inMat;
 	inMat.Ka = Ka;
-	inMat.Kd = Kd;
+	inMat.Kd = tempColor.xyz;
 	inMat.Ks = Ks;
 	inMat.shininess = shininess; 
+	
 	float3 P = IN.position.xyz;
 	float3 N = normalize(IN.normal);
 
@@ -120,14 +121,14 @@ void main(V2FI IN,
 
   mvpi = glstate.matrix.inverse.mvp;
   
-  // eyepos
+  // eyepos - hack to extract the eyeposition from the inverse modelview projection matrix
   float3 ePos = float3(mvpi[0].w, mvpi[1].w, mvpi[2].w);
 
   // lightPos [= eye pos]
   l.position = float3(mvpi[0].w, mvpi[1].w, mvpi[2].w);
   
 
-  color = float4(lighting(shiny, l, float3(1.0, 0.0, 0.0), P, N, ePos),tempColor.a);
+  color = float4(lighting(inMat, l, float3(1.0, 0.0, 0.0), P, N, ePos),tempColor.a);
 
 }
 

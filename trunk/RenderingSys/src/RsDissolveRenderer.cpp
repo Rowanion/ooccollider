@@ -83,8 +83,8 @@ void RsDissolveRenderer::display()
 
 	// ----------------------
 //	if (renderFull){
-		glPolygonMode(GL_FRONT, GL_FILL);
-		glPolygonMode(GL_BACK, GL_FILL);
+//		glPolygonMode(GL_FRONT, GL_FILL);
+//		glPolygonMode(GL_BACK, GL_FILL);
 //		RsCGShaderBuilder::getSingleton()->EnableShader(paintNormalTexShader);
 //		model->draw();
 //		RsCGShaderBuilder::getSingleton()->DisableShader(paintNormalTexShader);
@@ -119,70 +119,64 @@ void RsDissolveRenderer::display()
 
 	cgGLSetParameter1f(lightLerp2, mPriLerp);
 	RsCGShaderBuilder::getSingleton()->EnableShader(lightAndDissolveShader);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
 	glEnable(GL_TEXTURE_3D);
 
-	model->draw();
+	model->draw(lightAndDissolveShader);
+
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_3D);
-	glActiveTexture(GL_TEXTURE0);
-	glDisable(GL_TEXTURE_2D);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	RsCGShaderBuilder::getSingleton()->DisableShader(lightAndDissolveShader);
-//
+
 	// only dissolve
 	mPriFBO1->bind();
 	glClearColor(0.0,0.0,0.0,0.0);
 	mPriFBO1->clear();
 	cgGLSetParameter1f(lightLerp, mPriLerp);
 	RsCGShaderBuilder::getSingleton()->EnableShader(coloredDissolveShader);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mPriTexture2);
-	glEnable(GL_TEXTURE_2D);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_3D, mPriTexture4);
 	glEnable(GL_TEXTURE_3D);
 
-	model->draw();
+	model->draw(coloredDissolveShader);
+
 	glActiveTexture(GL_TEXTURE1);
 	glDisable(GL_TEXTURE_3D);
-	glActiveTexture(GL_TEXTURE0);
-	glDisable(GL_TEXTURE_2D);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	RsCGShaderBuilder::getSingleton()->DisableShader(coloredDissolveShader);
 	mPriFBO1->unbind();
-//
+
+	// render the first glow-pass
 	mPriFBO2->bind();
 	cgGLSetTextureParameter(glowTex1, mPriFBO1->getColorTexId());
 	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass1Shader);
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, mPriFBO1->getColorTexId());
 	glEnable(GL_TEXTURE_2D);
 	this->drawFSQuad();
 	glDisable(GL_TEXTURE_2D);
 	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass1Shader);
 	mPriFBO2->unbind();
-//
+
+	// render the second glow-pass
 	mPriFBO1->bind();
-//////	mPriFBO1->clear();
 	cgGLSetTextureParameter(glowTex2, mPriFBO2->getColorTexId());
 	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass2Shader);
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, mPriFBO2->getColorTexId());
 	glEnable(GL_TEXTURE_2D);
 	this->drawFSQuad();
 	glDisable(GL_TEXTURE_2D);
 	RsCGShaderBuilder::getSingleton()->DisableShader(glowPass2Shader);
 	mPriFBO1->unbind();
-//
+
+	// render the merge the glow passes with the first lighted image
 	glEnable(GL_BLEND);
 	cgGLSetTextureParameter(glowTex3, mPriFBO1->getColorTexId());
 	RsCGShaderBuilder::getSingleton()->EnableShader(glowPass3Shader);
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, mPriFBO1->getColorTexId());
 	glEnable(GL_TEXTURE_2D);
 	this->drawFSQuad();
@@ -481,21 +475,10 @@ void RsDissolveRenderer::init()
 
 void RsDissolveRenderer::setupTextures()
 {
-	boost::filesystem::path texFile = boost::filesystem::path("images/plasma.tga");
 	boost::filesystem::path texFile2 = boost::filesystem::path("images/plasma2.tga");
 	boost::filesystem::path texFile3 = boost::filesystem::path("images/noise.tga");
 	RsImageTools* iTools = RsImageTools::getSingleton();
 	RsTGAimage img;
-	iTools->loadTGA(&texFile, &img);
-//	iTools->loadTGA("D:\\blender-2.49b-windows\\.blender\\crate2.tga", &img);
-
-	glGenTextures(1, &mPriTexture);
-	glBindTexture(GL_TEXTURE_2D, mPriTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	iTools->loadTGA(&texFile2, &img);
 	glGenTextures(1, &mPriTexture2);
@@ -515,6 +498,7 @@ void RsDissolveRenderer::setupTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	// creation of the noise texture
 	unsigned char* rTex = mPriMath.generateRandomTexture(128*128,1,false);
 	float* rfTex = mPriMath.generatePerlinTexture(128, 128, 128, false);
 //	for (unsigned i=0; i<128*128; ++i){
@@ -532,12 +516,10 @@ void RsDissolveRenderer::setupTextures()
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 	delete[] rTex;
 	delete[] rfTex;
-
 }
 
 void RsDissolveRenderer::setupShaders()
 {
-
 	lerpFrag  = RsCGShaderBuilder::getSingleton()->BuildShaderFromFile(std::string("shaders/lerpFrag.cg"), "main", RsCGShaderBuilder::FragmentShader);
 	cgTex1 = cgGetNamedParameter(lerpFrag, "tex1");
 	cgTex2 = cgGetNamedParameter(lerpFrag, "tex2");
@@ -551,8 +533,6 @@ void RsDissolveRenderer::setupShaders()
 	cgGLEnableTextureParameter(cgTex2);
 	cgGLSetTextureParameter(cgNoiseTex, mPriTexture3);
 	cgGLEnableTextureParameter(cgNoiseTex);
-//	cgGLSetTextureParameter(cgRndTex, mPriTexture4);
-//	cgGLEnableTextureParameter(cgRndTex);
 	// --------------------------------------------
 	glowPass1Shader = RsCGShaderBuilder::getSingleton()->BuildShaderFromFile(std::string("shaders/fp_glow.cg"), "fpGaussianPassH", RsCGShaderBuilder::FragmentShader);
 	glowTex1 = cgGetNamedParameter(glowPass1Shader, "srcSampler");
@@ -568,22 +548,16 @@ void RsDissolveRenderer::setupShaders()
 	// --------------------------------------------
 	lightAndDissolveShader = RsCGShaderBuilder::getSingleton()->BuildShaderFromFile(std::string("shaders/vp_phong.cg"), "main",
 			std::string("shaders/fp_phong.cg"), "main");
-	lightTex2 = cgGetNamedParameter(lightAndDissolveShader, "tex1");
-	lightNoiseTex2 = cgGetNamedParameter(lightAndDissolveShader, "tex2");
+	lightNoiseTex2 = cgGetNamedParameter(lightAndDissolveShader, "map_noise");
 	lightLerp2 = cgGetNamedParameter(lightAndDissolveShader, "lerpVal");
-	cgGLSetTextureParameter(lightTex2, mPriTexture2);
-	cgGLEnableTextureParameter(lightTex2);
 	cgGLSetTextureParameter(lightNoiseTex2, mPriTexture4);
 	cgGLEnableTextureParameter(lightNoiseTex2);
 
 	// ---------------------------------------------
 	coloredDissolveShader = RsCGShaderBuilder::getSingleton()->BuildShaderFromFile(std::string("shaders/vp_phong.cg"), "main",
 			std::string("shaders/fp_OnlyDiss.cg"), "main");
-	lightTex = cgGetNamedParameter(coloredDissolveShader, "tex1");
-	lightNoiseTex = cgGetNamedParameter(coloredDissolveShader, "tex2");
+	lightNoiseTex = cgGetNamedParameter(coloredDissolveShader, "map_noise");
 	lightLerp = cgGetNamedParameter(coloredDissolveShader, "lerpVal");
-	cgGLSetTextureParameter(lightTex, mPriTexture2);
-	cgGLEnableTextureParameter(lightTex);
 	cgGLSetTextureParameter(lightNoiseTex, mPriTexture4);
 	cgGLEnableTextureParameter(lightNoiseTex);
 
@@ -591,11 +565,6 @@ void RsDissolveRenderer::setupShaders()
 	drawNormalLinesShader = RsCGShaderBuilder::getSingleton()->BuildShaderFromFile(std::string("shaders/drawNormals.cg"), "VPpassThrough", "GPshowNormals", 0);
 	paintNormalTexShader = RsCGShaderBuilder::getSingleton()->BuildShaderFromFile(std::string("shaders/drawNormals.cg"), "VPfixed", 0, "FPnormal2Color");
 
-}
-
-void RsDissolveRenderer::debug()
-{
-	std::cerr << "in ImplClass" << std::endl;
 }
 
 void RsDissolveRenderer::drawFSQuad()

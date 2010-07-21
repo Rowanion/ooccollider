@@ -249,6 +249,8 @@ struct RsObjInfo
 
 	std::set<RsMaterial> material;
 
+	std::map<std::string, GLuint> textureNames;
+
 };
 
 inline char* bufferOffset(int i){return (char *)0 + (i);}

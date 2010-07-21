@@ -8,9 +8,11 @@
 
 
 #include "RsMeshTools.h"
+#include "RsImageTools.h"
 
 #include <iostream>
 
+#include "GL/glew.h"
 
 #include "RsStructs.h"
 #include "RsVectorMath.h"
@@ -53,7 +55,6 @@ void RsMeshTools::parseObj(fs::path* _file, RsObjInfo* _info)
 
 	std::string line;
 	const boost::regex usemtl_expr("usemtl");
-	const boost::regex mtllib_expr("mtllib");
 	std::pair<std::map<std::string, unsigned>::iterator, bool > result;
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> blank_sep(" ");
@@ -68,20 +69,6 @@ void RsMeshTools::parseObj(fs::path* _file, RsObjInfo* _info)
 		if (tokens.begin()!= tokens.end()){
 			string type = (*tokens.begin());
 			switch (type[0]){
-			case 'm':	// Probable point of mtllib
-				if (boost::regex_match(type, mtllib_expr, boost::match_extra)){
-					// -------------------------------------------------------
-					tokenizer::iterator tok_iter=tokens.begin();
-					tok_iter++;
-					boost::filesystem::path mtlP = boost::filesystem::path(_file->branch_path() / *tok_iter);
-					if (boost::filesystem::is_regular_file(mtlP)){
-						this->loadMtlLib(&mtlP, _info);
-					}
-					exit(0);
-
-					// --------------------------------------------------------
-				}
-				break;
 			case 'u':	// Probable point of mtllib
 				if (boost::regex_match(type, usemtl_expr, boost::match_extra)){
 					tok_iter = tokens.begin();
@@ -128,7 +115,6 @@ void RsMeshTools::parseObj(fs::path* _file, RsObjInfo* _info)
 }
 void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 {
-	//TODO
 	std::string line;
 	boost::char_separator<char> blank_sep(" \t");
 	tokenizer tokens = tokenizer(line, blank_sep);
@@ -138,7 +124,7 @@ void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 	const boost::regex mtlkd_expr("Kd");
 	const boost::regex mtlks_expr("Ks");
 	const boost::regex mtlns_expr("Ns");
-	const boost::regex mtlmap_expr("^map_*");
+	const boost::regex mtlmapkd_expr("map_Kd");
 	const boost::regex mComponents_expr("(\\d+)/?(\\d*)/?(\\d*)");
 	tokenizer::iterator tok_iter;
 	RsMaterial* matPtr = 0;
@@ -152,7 +138,7 @@ void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 		if (tokens.begin()!= tokens.end()){
 			tok_iter = tokens.begin();
 			string type = (*tok_iter);
-			if (boost::regex_match(type, newmtl_expr, boost::match_extra)){
+			if (boost::regex_match(type, newmtl_expr, boost::match_extra)){ // found new material
 				tok_iter++;
 				mapIter = _info->materialNames.find(*tok_iter);
 				if (mapIter != _info->materialNames.end()){
@@ -163,14 +149,12 @@ void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 					delete matPtr;
 					matPtr = 0;
 					matPtr = (RsMaterial*)(&(*setResult.first));
-					std::cerr << "found material '" << matPtr->name << "'" << std::endl;
 				}
-				else {
+				else { // ignore unreferenced material
 					matPtr = 0;
-					std::cerr << "ignoring unreferenced material '" << *tok_iter << "'" << std::endl;
 				}
 			}
-			else if (boost::regex_match(type, mtlka_expr, boost::match_extra)){
+			else if (boost::regex_match(type, mtlka_expr, boost::match_extra)){ // found ambient value
 				if (matPtr != 0){
 					tok_iter++;
 					matPtr->ambient.x = atof(tok_iter->c_str());
@@ -178,11 +162,9 @@ void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 					matPtr->ambient.y = atof(tok_iter->c_str());
 					tok_iter++;
 					matPtr->ambient.z = atof(tok_iter->c_str());
-
-					std::cerr << "found KA: " << matPtr->ambient.x << ", " << matPtr->ambient.y << ", " << matPtr->ambient.z << std::endl;
 				}
 			}
-			else if (boost::regex_match(type, mtlkd_expr, boost::match_extra)){
+			else if (boost::regex_match(type, mtlkd_expr, boost::match_extra)){ // found diffuse value
 				if (matPtr != 0){
 					tok_iter++;
 					matPtr->diffuse.x = atof(tok_iter->c_str());
@@ -190,11 +172,9 @@ void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 					matPtr->diffuse.y = atof(tok_iter->c_str());
 					tok_iter++;
 					matPtr->diffuse.z = atof(tok_iter->c_str());
-
-					std::cerr << "found KD " << matPtr->diffuse.x << ", " << matPtr->diffuse.y << ", " << matPtr->diffuse.z << std::endl;
 				}
 			}
-			else if (boost::regex_match(type, mtlks_expr, boost::match_extra)){
+			else if (boost::regex_match(type, mtlks_expr, boost::match_extra)){ // found specular value
 				if (matPtr != 0){
 					tok_iter++;
 					matPtr->specular.x = atof(tok_iter->c_str());
@@ -202,24 +182,32 @@ void RsMeshTools::loadMtlLib(fs::path* _file, RsObjInfo* _info)
 					matPtr->specular.y = atof(tok_iter->c_str());
 					tok_iter++;
 					matPtr->specular.z = atof(tok_iter->c_str());
-					std::cerr << "found KS " << matPtr->specular.x << ", " << matPtr->specular.y << ", " << matPtr->specular.z << std::endl;
 				}
 			}
-			else if (boost::regex_match(type, mtlns_expr, boost::match_extra)){
+			else if (boost::regex_match(type, mtlns_expr, boost::match_extra)){ // found shininess value
 				if (matPtr != 0){
 					tok_iter++;
 					matPtr->shininess = atof(tok_iter->c_str());
-					std::cerr << "found NS " << matPtr->shininess << std::endl;
 				}
 			}
-			else if (boost::regex_match(type, mtlmap_expr, boost::match_extra)){
+			else if (boost::regex_match(type, mtlmapkd_expr, boost::match_extra)){ // found diffuse map
 				if (matPtr != 0){
-					std::cerr << "found " << *tok_iter << ": ";
 					tok_iter++;
-					std::cerr << *tok_iter << std::endl;
+					mapIter = _info->textureNames.find(*tok_iter);
+					if (mapIter == _info->textureNames.end()){
+						GLuint texId;
+						glGenTextures(1, &texId);
+						_info->textureNames.insert(make_pair(*tok_iter, texId));
+						matPtr->texture = texId;
+						_info->texCount++;
+					}
 				}
 			}
 		}
+	}
+	if (_info->texCount>0){
+		boost::filesystem::path fullPath = _file->branch_path() / "images";
+		this->loadTextures(&fullPath, _info);
 	}
 }
 
@@ -312,12 +300,13 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 	}
 
 
-	// second pass
+	// second pass - actual loading
 	std::string line;
 	boost::char_separator<char> blank_sep(" \t");
 	tokenizer tokens = tokenizer(line, blank_sep);
 	tokenizer face_tokens = tokenizer(line, blank_sep);
 	const boost::regex usemtl_expr("usemtl");
+	const boost::regex mtllib_expr("mtllib");
 	const boost::regex mComponents_expr("(\\d+)/?(\\d*)/?(\\d*)");
 	std::map<std::string, unsigned>::iterator mapIter;
 
@@ -328,6 +317,19 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 		if (tokens.begin()!= tokens.end()){
 			string type = (*tokens.begin());
 			switch (type[0]){
+			case 'm':	// Probable point of mtllib
+				if (boost::regex_match(type, mtllib_expr, boost::match_extra)){
+					// -------------------------------------------------------
+					tokenizer::iterator tok_iter=tokens.begin();
+					tok_iter++;
+					boost::filesystem::path mtlP = boost::filesystem::path(_file->branch_path() / *tok_iter);
+					if (boost::filesystem::is_regular_file(mtlP)){
+						this->loadMtlLib(&mtlP, &modelInfo);
+					}
+
+					// --------------------------------------------------------
+				}
+				break;
 			case 'u':	// Probable point of usemtl
 				if (boost::regex_match(type, usemtl_expr, boost::match_extra)){
 					tokenizer::iterator tok_iter=tokens.begin();
@@ -340,11 +342,7 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 				}
 				break;
 			case 'g':	// Probable point of group
-				if (gCount>=0){
-					groupMaterial[gCount] = currentMaterial;
-				}
 				gCount++;
-				groupMaterial[gCount] = currentMaterial;
 				groupIndexComponentCount = 0;
 				break;
 			case 'v':{
@@ -389,6 +387,7 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 					gCount = 0;
 					groupIndexComponentCount = 0;
 				}
+				groupMaterial[gCount] = currentMaterial;
 				for(tokenizer::iterator tok_iter=tokens.begin(); tok_iter!=tokens.end();++tok_iter){
 //					std::cout << "<" << *tok_iter << "> ";
 					boost::smatch what;
@@ -412,14 +411,8 @@ RsObjModel* RsMeshTools::loadObj(fs::path* _file)
 		}
 	}
 	inFile.close();
-	groupMaterial[gCount] = currentMaterial;
+	model->setMaterials(&modelInfo);
 
-	// -----------------------------------
-	std::cerr << "Addresses: ( in tools) " << std::endl;
-	std::cerr << "objinfo: " << (uint64_t)(&modelInfo)<< std::endl;
-	std::cerr << modelInfo.groupFaces[0]*3 << std::endl;
-	std::cerr << ((modelInfo.groupBits[0] & 1) && (modelInfo.groupBits[0] & 2)) << std::endl;
-	// -----------------------------------
 	for (unsigned i=0; i< modelInfo.groupCount; ++i){
 		model->addVbo(&modelInfo, i, group[i], vertices, normals, texCoords, colors, groupMaterial[i]);
 	}
@@ -458,4 +451,22 @@ unsigned RsMeshTools::analyzeFaceLine(tokenizer* _tokens)
 		}
 	}
 	return bitField;
+}
+
+void RsMeshTools::loadTextures(boost::filesystem::path* _path, RsObjInfo* _info)
+{
+	RsTGAimage img;
+	RsImageTools* it = RsImageTools::getSingleton();
+	std::map<std::string, GLuint>::iterator mapIt = _info->textureNames.begin();
+	boost::filesystem::path fullPath;
+	for (; mapIt != _info->textureNames.end(); ++mapIt){
+		fullPath = (*_path) /  mapIt->first;
+			it->loadTGA(&fullPath, &img);
+
+			glBindTexture(GL_TEXTURE_2D, mapIt->second);
+			glTexImage2D(GL_TEXTURE_2D, 0, img.intlFormat, img.width, img.height, 0, img.format, GL_UNSIGNED_BYTE, img.data);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	}
 }
