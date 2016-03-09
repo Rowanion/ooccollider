@@ -18,7 +18,7 @@ This framework will serve as a foundation for my diploma-thesis. This project WA
 * a decent nvidia GPU (at least with ShaderModel 3) 
 * OpenGL >= 2.0 
 * freeglut-lib (v2.4.0) 
-* alternatively: GLFW (http://glfw.sourceforge.net) 
+* alternatively: GLFW [[http://glfw.sourceforge.net](http://glfw.sourceforge.net)]
 * glew-lib (v1.5.1) 
 * nvidia's cg-toolkit (v2.1) 
 * LUA to script the load-balancing strategies (v5.1.4)
@@ -28,5 +28,5 @@ This framework will serve as a foundation for my diploma-thesis. This project WA
 * latex - to get nice formula-images in the documentation 
 * eclipse-cdt ganymede for development - project dependencies are included (v5.0.2) 
 * some free huuuuuge OBJ-Models from the web to render (like the PowerPlant or even bigger) 
-* spacenav-lib - to use a 3Dconnexion 3D-Mouse (http://spacenav.sourceforge.net)
+* spacenav-lib - to use a 3Dconnexion 3D-Mouse [[http://spacenav.sourceforge.net](http://spacenav.sourceforge.net)]
 
